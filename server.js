@@ -18248,38 +18248,61 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     </div>`}
 
     <div id="modalConsumoCreditos" class="modal-overlay" style="display:none">
-      <div class="signup-box" style="max-width:480px">
+      <div class="signup-box" style="max-width:520px">
         <button type="button" class="modal-close" onclick="fecharModalConsumoCreditos()">×</button>
         <h2 class="secao" style="margin-top:0">Como funciona o consumo de créditos</h2>
-        <p class="gray" style="font-size:13px;margin:0 0 14px">Toda atividade da plataforma consome créditos automaticamente.</p>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-            <div style="font-size:20px">🏠</div>
-            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Imóveis</div><div style="font-size:11.5px;color:var(--sec)">Cadastro, edição, geração de XML e envio para portais</div></div>
+        <p class="gray" style="font-size:13px;margin:0 0 14px">Toda atividade da plataforma consome créditos automaticamente — veja quanto custa cada ação.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;text-align:left">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🏠 Imóveis</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Cadastro de imóvel</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Edição de imóvel</span><strong style="color:var(--babu)">grátis</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Importação de XML</span><strong>2 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Geração de XML pra portal</span><strong>10 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Sync automático de XML (24h)</span><strong>5 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Imóvel divulgado na vitrine de outra lead</span><strong>10 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-            <div style="font-size:20px">👤</div>
-            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Leads</div><div style="font-size:11.5px;color:var(--sec)">Leads ativos, qualificação automática e matches encontrados</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">👤 Leads</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Importação de lead (planilha)</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Nova lead manual</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Match encontrado</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>IA qualificou a lead</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Lead ativa (por dia)</span><strong>5 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-            <div style="font-size:20px">🤖</div>
-            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Inteligência Artificial</div><div style="font-size:11.5px;color:var(--sec)">Respostas automáticas, follow-ups e sugestões pelo WhatsApp</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🤖 Inteligência Artificial</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>IA respondeu pelo WhatsApp</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Follow-up automático</span><strong>25 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Visita agendada pela IA</span><strong>40 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-            <div style="font-size:20px">📅</div>
-            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Visitas</div><div style="font-size:11.5px;color:var(--sec)">Agendamento, confirmações automáticas e notificações</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📲 WhatsApp</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Vitrine enviada</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Confirmação automática</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Notificação ao proprietário</span><strong>15 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-            <div style="font-size:20px">📲</div>
-            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">WhatsApp</div><div style="font-size:11.5px;color:var(--sec)">Mensagens enviadas, vitrines e confirmações via WhatsApp</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">✉️ E-mail</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>E-mail automático enviado pra lead (captação, vitrine, follow-up)</span><strong>30 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-            <div style="font-size:20px">✉️</div>
-            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">E-mail</div><div style="font-size:11.5px;color:var(--sec)">Todo e-mail automático enviado pra uma lead sua (convite de captação, vitrine, follow-ups) custa 30 coins</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-            <div style="font-size:20px">📢</div>
-            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Divulgação</div><div style="font-size:11.5px;color:var(--sec)">Imóvel divulgado na vitrine de outra lead e publicações no Instagram</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📢 Divulgação e Meta Ads</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Publicação no Instagram</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Campanha Meta Ads criada</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Lead recebido via Meta Ads</span><strong>30 coins</strong></div>
+            </div>
           </div>
         </div>
       </div>
@@ -21295,38 +21318,61 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     </div>
 
     <div id="modalConsumoCreditosSub" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:4000;align-items:center;justify-content:center;padding:20px">
-      <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;position:relative">
+      <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;position:relative">
         <button onclick="fecharModalConsumoCreditosSub()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
         <h3 style="font-size:16px;font-weight:700;margin:0 0 4px;color:#111">Como funciona o consumo de créditos</h3>
-        <p style="color:#888;font-size:13px;margin:0 0 18px">Toda atividade da plataforma consome créditos automaticamente do corretor que comprou o combo.</p>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
-            <div style="font-size:22px">🏠</div>
-            <div><div style="font-size:14px;font-weight:600;color:#111">Imóveis</div><div style="font-size:12px;color:#888">Cadastro, edição, geração de XML e envio para portais</div></div>
+        <p style="color:#888;font-size:13px;margin:0 0 18px">Toda atividade da plataforma consome créditos automaticamente do corretor que comprou o combo — veja quanto custa cada ação.</p>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🏠 Imóveis</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Cadastro de imóvel</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Edição de imóvel</span><strong style="color:#16a34a">grátis</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Importação de XML</span><strong>2 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Geração de XML pra portal</span><strong>10 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Sync automático de XML (24h)</span><strong>5 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Imóvel divulgado na vitrine de outra lead</span><strong>10 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
-            <div style="font-size:22px">👤</div>
-            <div><div style="font-size:14px;font-weight:600;color:#111">Leads</div><div style="font-size:12px;color:#888">Leads ativos, qualificação automática e matches encontrados</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">👤 Leads</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Importação de lead (planilha)</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Nova lead manual</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Match encontrado</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>IA qualificou a lead</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Lead ativa (por dia)</span><strong>5 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
-            <div style="font-size:22px">🤖</div>
-            <div><div style="font-size:14px;font-weight:600;color:#111">Inteligência Artificial</div><div style="font-size:12px;color:#888">Respostas automáticas, follow-ups e sugestões pelo WhatsApp</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🤖 Inteligência Artificial</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>IA respondeu pelo WhatsApp</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Follow-up automático</span><strong>25 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Visita agendada pela IA</span><strong>40 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
-            <div style="font-size:22px">📅</div>
-            <div><div style="font-size:14px;font-weight:600;color:#111">Visitas</div><div style="font-size:12px;color:#888">Agendamento, confirmações automáticas e notificações</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📲 WhatsApp</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Vitrine enviada</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Confirmação automática</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Notificação ao proprietário</span><strong>15 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
-            <div style="font-size:22px">📲</div>
-            <div><div style="font-size:14px;font-weight:600;color:#111">WhatsApp</div><div style="font-size:12px;color:#888">Mensagens enviadas, vitrines e confirmações via WhatsApp</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">✉️ E-mail</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>E-mail automático enviado pra lead (captação, vitrine, follow-up)</span><strong>30 coins</strong></div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
-            <div style="font-size:22px">✉️</div>
-            <div><div style="font-size:14px;font-weight:600;color:#111">E-mail</div><div style="font-size:12px;color:#888">Todo e-mail automático enviado pra uma lead sua (convite de captação, vitrine, follow-ups) custa 30 coins</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
-            <div style="font-size:22px">📢</div>
-            <div><div style="font-size:14px;font-weight:600;color:#111">Divulgação</div><div style="font-size:12px;color:#888">Imóvel divulgado na vitrine de outra lead e publicações no Instagram</div></div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📢 Divulgação e Meta Ads</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Publicação no Instagram</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Campanha Meta Ads criada</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Lead recebido via Meta Ads</span><strong>30 coins</strong></div>
+            </div>
           </div>
         </div>
       </div>

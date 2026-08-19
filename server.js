@@ -18828,7 +18828,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     const ordemExibida = PLANOS_ORDEM.concat([PLANO_ILIMITADO]);
     const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp', 'Suba seus imóveis (XML ou manual) e comece a gerar leads pra eles também'];
     const featuresHtml = '<ul class="combo-features">' + FEATURES_COMBO.map(function(f){ return '<li>'+escHtml(f)+'</li>'; }).join('') + '</ul>';
-    const promoHtml = '<div class="promo-desconto">🎁 Você ganha o DOBRO de créditos na sua primeira conta!<span>Mesmo preço do combo — só na sua primeira compra, os créditos de bônus vêm em dobro.</span></div>';
     // Cards não mostram mais quantidade de leads em lugar nenhum (nem o
     // número grande, nem o label "X leads/mês", nem "R$ X por lead" — esse
     // também dava pra descobrir a quantidade fazendo a conta valor÷taxa, nem
@@ -18839,9 +18838,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       const p = PLANOS[k];
       const rec = k === recomendado;
       const unidade = p.ilimitado ? ' /mês' : ' /combo';
-      const creditosDobro = p.creditos * 2;
       const restante = p.ilimitado ? 0 : Math.max(0, total - p.qtd);
-      const entramHtml = '<div class="entram-conta">🎁 + <strong>'+creditosDobro.toLocaleString('pt-BR')+' créditos</strong> de bônus (dobro na 1ª conta)</div>'
+      const entramHtml = '<div class="entram-conta">🎁 + <strong>'+p.creditos.toLocaleString('pt-BR')+' créditos</strong> de bônus</div>'
         + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais leads além desse combo. Selecione um combo maior pra levar todas agora, ou deixe a plataforma te entregar o restante diariamente enquanto você tiver créditos.</div>' : '');
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
@@ -18851,7 +18849,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
         + '<button type="button" data-escolher="'+k+'">Quero esse →</button>'
         + '</div>';
     }).join('');
-    document.getElementById('promo-desconto-combo').innerHTML = promoHtml;
+    document.getElementById('promo-desconto-combo').innerHTML = '';
     box.style.display = 'block';
   }
 
@@ -18868,7 +18866,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       ? 'Sua busca encontrou mais leads do que esse combo entrega — as demais ficam disponíveis pra comprar depois. '
         + 'Se preferir, <a href="#" onclick="fecharModalCompra();document.getElementById(\\'diasBusca\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'});return false;">diminua os dias da busca</a> pra encontrar menos leads e enquadrar nesse combo.'
       : 'Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.';
-    document.getElementById('combo-escolhido-resumo').innerHTML = 'R$ '+p.valor+' <span class="gray">('+(p.creditos*2).toLocaleString('pt-BR')+' créditos — dobro na 1ª conta)</span><br><span class="gray">'+avisoQtd+'</span>';
+    document.getElementById('combo-escolhido-resumo').innerHTML = 'R$ '+p.valor+' <span class="gray">('+p.creditos.toLocaleString('pt-BR')+' créditos)</span><br><span class="gray">'+avisoQtd+'</span>';
     document.getElementById('combo-escolhido-resumo').style.display = 'block';
     document.getElementById('signup-subtitulo').style.display = 'none';
     document.getElementById('signup-rodape-pagamento').style.display = 'block';
@@ -19536,15 +19534,6 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
 
-    // Toda conta que chega até aqui (recém-criada agora, ou criada minutos
-    // antes via /demanda/cadastrar na mesma sessão) é a 1ª conta do
-    // comprador. Antes dava 50% OFF no preço — trocado por dobrar os
-    // créditos de bônus no mesmo preço (mesma qtd de leads garantidos do
-    // combo, só o saldo de créditos que vem em dobro): mantém o ticket
-    // médio do combo (preço cheio) e ainda assim reforça o "1ª compra
-    // vale mais a pena" — igual ao bônus de 1ª recarga do /app/coins.
-    const creditosDobro = pacote.creditos * 2;
-
     const result = await preference.create({
       body: {
         items: [{
@@ -19564,7 +19553,7 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         payment_methods: { excluded_payment_types: [{ id: 'ticket' }] },
         metadata: {
           userId: codigoNovo, tipo: 'combo_demanda', plano, qtd: pacote.qtd || 0, label: pacote.label,
-          valor: pacote.valor, creditos: creditosDobro,
+          valor: pacote.valor, creditos: pacote.creditos,
           estado: criterios.estado, pares: JSON.stringify(criterios.pares),
           transacoes: JSON.stringify(criterios.transacoes || []), horas: diasFinal * 24,
           valorMin: parseInt(criterios.valorMin, 10) || 0, valorMax: parseInt(criterios.valorMax, 10) || 0

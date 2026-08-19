@@ -62,6 +62,28 @@ async function _desconectarWhatsappSeZerado(codigoUsuario) {
   } catch(e) { console.error('[creditos] erro ao desconectar whatsapp por saldo zerado:', e.message); }
 }
 
+// Rede de segurança (ago/2026): pega toda conta com saldo zerado que ainda
+// está com WhatsApp conectado — casos que a checagem "no momento do débito"
+// (dentro de consumir/consumirLote/debitarLeadsAtivos, todas só disparam
+// quando o saldo CRUZA pra zero naquele exato débito) não cobre: reconectar
+// manualmente depois de já estar zerado, ou zerar por um caminho que não
+// passa por nenhuma dessas funções. Roda 1x/dia (ver iniciarJobCreditos em
+// jobCreditos.js). Reaproveita _desconectarWhatsappSeZerado(), que já
+// confere status==='open' antes de fazer qualquer coisa — seguro chamar
+// mesmo pra quem já estiver desconectado.
+async function desconectarWhatsappContasSemCredito() {
+  try {
+    const { query: _qSweep } = require('./db');
+    const { rows } = await _qSweep(
+      `SELECT codigo_usuario FROM usuarios WHERE COALESCE(match_coins,0) <= 0 AND whatsapp_status='open' AND whatsapp_instance IS NOT NULL AND whatsapp_instance != ''`
+    );
+    for (const r of rows) {
+      await _desconectarWhatsappSeZerado(r.codigo_usuario);
+    }
+    if (rows.length) console.log('[creditos] varredura diária: desconectou WhatsApp de', rows.length, 'conta(s) sem crédito');
+  } catch(e) { console.error('[creditos] erro na varredura de whatsapp sem credito:', e.message); }
+}
+
 async function consumir(userId, acao) {
   try {
     const custo = CUSTO[acao] || 10;
@@ -281,6 +303,13 @@ async function debitarCreditos(userId, quantidade, motivo = 'debito_admin') {
       );
     } catch(e2) { console.error('[creditos] erro PG debitarCreditos:', e2.message); }
 
+    // Faltava aqui (ago/2026) — consumir()/consumirLote() já desconectavam o
+    // WhatsApp ao zerar o saldo, mas esse débito manual de admin (usado em
+    // /admin/demanda/transferir) não tinha o mesmo gatilho.
+    if (users[idx].matchCoins === 0 && saldoAtual > 0) {
+      _desconectarWhatsappSeZerado(_resolvedId).catch(()=>{});
+    }
+
     return true;
   } catch(e) {
     console.error('[creditos] Erro debitarCreditos:', e.message);
@@ -304,4 +333,4 @@ async function saldo(userId) {
   } catch(e) { return 0; }
 }
 
-module.exports = { consumir, consumirLote, adicionarCreditos, debitarCreditos, temSaldo, saldo, CUSTO, _desconectarWhatsappSeZerado };
+module.exports = { consumir, consumirLote, adicionarCreditos, debitarCreditos, temSaldo, saldo, CUSTO, _desconectarWhatsappSeZerado, desconectarWhatsappContasSemCredito };

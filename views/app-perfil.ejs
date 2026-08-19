@@ -759,7 +759,7 @@ async function conectarWA() {
     } else {
       btn.textContent = 'Tentar novamente';
       btn.disabled = false;
-      if (aviso) { aviso.textContent = 'Não foi possível gerar o QR code. Clique em "Gerar novo QR" para tentar novamente.'; aviso.style.display = 'block'; }
+      if (aviso) { aviso.textContent = d.erro || 'Não foi possível gerar o QR code. Clique em "Gerar novo QR" para tentar novamente.'; aviso.style.display = 'block'; }
     }
   } catch(e) {
     btn.textContent = 'Gerar novo QR';

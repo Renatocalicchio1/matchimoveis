@@ -7,7 +7,7 @@
 const { lerUsuarios, salvarTodosUsuarios, atualizarUsuario } = require('./salvarUsuario');
 const { lerLeads } = require('./salvarLead');
 const { criarNotificacao } = require('./salvarNotificacao');
-const { CUSTO } = require('./creditos');
+const { CUSTO, desconectarWhatsappContasSemCredito } = require('./creditos');
 const { enviarEmail } = require('./email');
 
 const CUSTO_LEAD_DIA = CUSTO.lead_ativo_dia;
@@ -248,6 +248,7 @@ async function rodarJob() {
   await debitarLeadsAtivos();
   await verificarAlertas();
   await enviarEmailsRecarga();
+  await desconectarWhatsappContasSemCredito();
   console.log('[jobCreditos] ✅ Job concluído');
 }
 
@@ -297,6 +298,17 @@ function iniciarJobCreditos() {
     setInterval(enviarEmailsRecarga, 24 * 60 * 60 * 1000);
   }, _proximoHorarioBR(2, 40, _agora) - _agora);
   setTimeout(enviarEmailsRecarga, 30000);
+
+  // Varredura de segurança — desconecta WhatsApp de conta sem crédito que
+  // ficou conectada (reconectou manualmente depois de zerar, ou zerou por um
+  // caminho que não passa por consumir()/consumirLote()/debitarLeadsAtivos()).
+  // 3h da madrugada + 1x no boot, depois dos outros 3 pra não competir pela
+  // mesma rajada de conexões (PG + Evolution API).
+  setTimeout(() => {
+    desconectarWhatsappContasSemCredito();
+    setInterval(desconectarWhatsappContasSemCredito, 24 * 60 * 60 * 1000);
+  }, _proximoHorarioBR(3, 0, _agora) - _agora);
+  setTimeout(desconectarWhatsappContasSemCredito, 45000);
 }
 
 module.exports = { iniciarJobCreditos, rodarJob, debitarLeadsAtivos, verificarAlertas, enviarEmailsRecarga };

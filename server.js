@@ -15411,6 +15411,11 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
   const { lerUsuarios: _luQR2, salvarTodosUsuarios: _salvarQR2 } = require('./services/salvarUsuario');
   const _usersQR2 = await _luQR2();
   const _userQR2 = _usersQR2.find(u => u.id === userId);
+  // Conta sem crédito não pode reconectar o WhatsApp (senão o job/gatilho que
+  // desconecta ao zerar o saldo fica sem efeito — o corretor reconecta na hora).
+  if ((_userQR2?.matchCoins || 0) <= 0) {
+    return res.json({ ok: false, erro: 'Sem créditos — recarregue para conectar o WhatsApp novamente.' });
+  }
   const EVOLUTION_URL2 = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
   const EVOLUTION_KEY2 = process.env.EVOLUTION_KEY || 'match2025evolution';
   let instanceName2 = 'match-' + userId.replace(/[^a-z0-9]/gi,'').toLowerCase().substring(0,20);

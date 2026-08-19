@@ -585,6 +585,7 @@ const _ADMIN_NAV = [
   { sec: 'Comunicação', items: [
     { key: 'campanha', href: '/admin/campanha', icon: '📧', label: 'Campanha Email' },
     { key: 'captacao-campanha', href: '/admin/captacao-campanha', icon: '🏠', label: 'Campanha Captação' },
+    { key: 'indicacoes-admin', href: '/admin/indicacoes', icon: '🔗', label: 'Indicações' },
     { key: 'emails', href: '/admin/emails', icon: '📬', label: 'Modelos de Email' },
     { key: 'disparos', href: '/admin/disparos', icon: '📲', label: 'Disparos WhatsApp' },
     { key: 'optout', href: '/admin/disparos/optout', icon: '🚫', label: 'Opt-out' },
@@ -20132,6 +20133,91 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
   }
 });
 // ── FIM BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────
+
+// ── INDICAÇÕES — empurrão manual pra base ativa (ago/2026) ─────────────────
+// O sistema de indicação (10% de bônus, link, gamificação de marcos) já
+// existia inteiro; o único ponto fraco era não ter jeito rápido de disparar
+// o e-mail "indique e ganhe" fora do ciclo automático de 15 dias
+// (_agendarEmailIndicacao). Essa tela dá visão geral + botão pra disparar na
+// hora, sem esperar o próximo ciclo — pedido do Renato pra empurrar
+// indicação como alavanca rápida de crescimento sem custo de mídia.
+app.get('/admin/indicacoes', authAdmin, async (req, res) => {
+  try {
+    const { query: _qInd } = require('./services/db');
+    const { rows: statsRows } = await _qInd(`
+      SELECT COUNT(DISTINCT indicador_codigo) AS indicadores,
+        COUNT(DISTINCT indicado_codigo) AS indicados,
+        COALESCE(SUM(bonus_coins),0) AS total_bonus
+      FROM indicacoes_bonus WHERE indicador_tipo='corretor'
+    `);
+    const { rows: elegiveisRows } = await _qInd(`
+      SELECT COUNT(*) AS total FROM usuarios
+      WHERE ativo = true AND email IS NOT NULL AND email != ''
+        AND COALESCE((dados->>'emailOptOut')::boolean, false) = false
+    `);
+    const stats = statsRows[0] || {};
+    const elegiveis = parseInt(elegiveisRows[0]?.total || 0);
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Indicações · Admin</title>
+    <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}
+    .stat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1}
+    .stat div:first-child{font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:700}
+    .stat div:last-child{font-size:24px;font-weight:800;color:#111}
+    </style></head>
+    <body>
+    <div class="admin-app">${_adminSidebarHtml('indicacoes-admin', true, req)}
+      <main class="admin-content" style="max-width:760px">
+        <h1 style="font-size:22px;margin-bottom:4px">🔗 Indicações</h1>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Cada corretor tem um link próprio (<code>/?ref=&lt;codigo&gt;</code>) — quando alguém se cadastra por ele e recarrega créditos, o indicador ganha 10% em bônus. Tela em <code>/app/indicacoes</code>, menu "Indicar Parceiro".</p>
+        <div style="display:flex;gap:14px;margin-bottom:24px">
+          <div class="stat"><div>Corretores que já indicaram</div><div>${stats.indicadores || 0}</div></div>
+          <div class="stat"><div>Corretores indicados (com bônus)</div><div>${stats.indicados || 0}</div></div>
+          <div class="stat"><div>Total pago em bônus</div><div>${(stats.total_bonus || 0).toLocaleString('pt-BR')} coins</div></div>
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px">
+          <h3 style="margin:0 0 6px;font-size:14px">📧 Empurrão manual — e-mail "indique e ganhe"</h3>
+          <p style="color:#6b7280;font-size:13px;margin:0 0 4px">Roda sozinho a cada 15 dias (madrugada) pra toda a base ativa com e-mail. O botão abaixo dispara na hora, sem esperar o próximo ciclo.</p>
+          <p style="color:#111;font-size:13px;font-weight:600;margin:0 0 14px">${elegiveis} corretor(es) ativo(s) elegível(is) agora.</p>
+          <button onclick="dispararEmailIndicacao(this)" style="background:#FF385C;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">📧 Disparar agora pra toda a base</button>
+          <div id="disparo-status" style="margin-top:10px;font-size:13px"></div>
+        </div>
+      </main>
+    </div>
+      <script>
+        async function dispararEmailIndicacao(btn){
+          if(!confirm('Confirma o disparo do e-mail "indique e ganhe" pra ${elegiveis} corretor(es) agora?')) return;
+          btn.disabled = true; btn.textContent = 'Disparando...';
+          const statusEl = document.getElementById('disparo-status');
+          statusEl.textContent = 'Enviando (1 e-mail por segundo, pode levar alguns minutos)...';
+          try {
+            const r = await fetch('/admin/indicacoes/disparar-email', { method: 'POST' });
+            const j = await r.json();
+            statusEl.textContent = j.ok ? ('✅ Disparo concluído — ' + j.total + ' e-mail(s) enviado(s).') : ('Erro: ' + j.erro);
+          } catch(e) { statusEl.textContent = 'Erro de conexão: ' + e.message; }
+          btn.disabled = false; btn.textContent = '📧 Disparar agora pra toda a base';
+        }
+      </script>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+// Dispara de verdade — roda em background (não segura a resposta HTTP
+// esperando terminar; com milhares de contas, 1 envio/segundo pode levar
+// muitos minutos). O admin só recebe a confirmação de que começou.
+app.post('/admin/indicacoes/disparar-email', authAdmin, async (req, res) => {
+  try {
+    const { query: _qIndCount } = require('./services/db');
+    const { rows } = await _qIndCount(`
+      SELECT COUNT(*) AS total FROM usuarios
+      WHERE ativo = true AND email IS NOT NULL AND email != ''
+        AND COALESCE((dados->>'emailOptOut')::boolean, false) = false
+    `);
+    const total = parseInt(rows[0]?.total || 0);
+    const { enviarEmailIndicacao } = require('./services/emailIndicacao');
+    enviarEmailIndicacao().catch(e => console.error('[admin/indicacoes/disparar-email] erro:', e.message));
+    res.json({ ok: true, total });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+// ── FIM INDICAÇÕES ──────────────────────────────────────────────────────────
 
 // ── CAMPANHA GLOBAL DE CAPTAÇÃO (disparo em massa, admin) ──────────────────
 app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {

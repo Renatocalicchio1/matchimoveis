@@ -18749,23 +18749,23 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp', 'Suba seus imóveis (XML ou manual) e comece a gerar leads pra eles também'];
     const featuresHtml = '<ul class="combo-features">' + FEATURES_COMBO.map(function(f){ return '<li>'+escHtml(f)+'</li>'; }).join('') + '</ul>';
     const promoHtml = '<div class="promo-desconto">🎁 Você ganha o DOBRO de créditos na sua primeira conta!<span>Mesmo preço do combo — só na sua primeira compra, os créditos de bônus vêm em dobro.</span></div>';
+    // Cards não mostram mais quantidade de leads em lugar nenhum (nem o
+    // número grande, nem o label "X leads/mês", nem "R$ X por lead" — esse
+    // também dava pra descobrir a quantidade fazendo a conta valor÷taxa, nem
+    // "entram agora: X leads", nem o número de leads restantes) — pedido do
+    // Renato (ago/2026). O resto (preço, bônus de créditos, features, aviso
+    // de combo maior disponível) continua igual, só sem o número.
     document.getElementById('combos-lista').innerHTML = ordemExibida.map(function(k){
       const p = PLANOS[k];
       const rec = k === recomendado;
-      const qtdTxt = p.ilimitado ? '∞' : p.qtd;
       const unidade = p.ilimitado ? ' /mês' : ' /combo';
       const creditosDobro = p.creditos * 2;
-      const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(p.valor/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
-      const entramNaConta = p.ilimitado ? total : Math.min(total, p.qtd);
       const restante = p.ilimitado ? 0 : Math.max(0, total - p.qtd);
-      const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong></div>'
-        + '<div class="entram-conta">🎁 + <strong>'+creditosDobro.toLocaleString('pt-BR')+' créditos</strong> de bônus (dobro na 1ª conta)</div>'
-        + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais '+restante+' lead'+(restante===1?'':'s')+' além desse combo. Selecione um combo maior pra levar todas agora, ou deixe a plataforma te entregar o restante diariamente enquanto você tiver créditos.</div>' : '');
+      const entramHtml = '<div class="entram-conta">🎁 + <strong>'+creditosDobro.toLocaleString('pt-BR')+' créditos</strong> de bônus (dobro na 1ª conta)</div>'
+        + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais leads além desse combo. Selecione um combo maior pra levar todas agora, ou deixe a plataforma te entregar o restante diariamente enquanto você tiver créditos.</div>' : '');
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
-        + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
         + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
-        + porLead
         + entramHtml
         + featuresHtml
         + '<button type="button" data-escolher="'+k+'">Quero esse →</button>'
@@ -18782,11 +18782,13 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     _comboEscolhido = plano;
     const p = PLANOS[plano];
     const totalEncontrado = (_ultimaBusca && _ultimaBusca.total) || 0;
+    // Sem número de leads no aviso (mesmo pedido do card) — só avisa que tem
+    // mais disponível do que esse combo cobre, sem dizer quanto.
     const avisoQtd = (!p.ilimitado && totalEncontrado > p.qtd)
-      ? 'Sua busca encontrou '+totalEncontrado+' leads, mas esse combo entrega '+p.qtd+' — as demais ficam disponíveis pra comprar depois. '
+      ? 'Sua busca encontrou mais leads do que esse combo entrega — as demais ficam disponíveis pra comprar depois. '
         + 'Se preferir, <a href="#" onclick="fecharModalCompra();document.getElementById(\\'diasBusca\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'});return false;">diminua os dias da busca</a> pra encontrar menos leads e enquadrar nesse combo.'
       : 'Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.';
-    document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — R$ '+p.valor+' <span class="gray">('+(p.creditos*2).toLocaleString('pt-BR')+' créditos — dobro na 1ª conta)</span><br><span class="gray">'+avisoQtd+'</span>';
+    document.getElementById('combo-escolhido-resumo').innerHTML = 'R$ '+p.valor+' <span class="gray">('+(p.creditos*2).toLocaleString('pt-BR')+' créditos — dobro na 1ª conta)</span><br><span class="gray">'+avisoQtd+'</span>';
     document.getElementById('combo-escolhido-resumo').style.display = 'block';
     document.getElementById('signup-subtitulo').style.display = 'none';
     document.getElementById('signup-rodape-pagamento').style.display = 'block';

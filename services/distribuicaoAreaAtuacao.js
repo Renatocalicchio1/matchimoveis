@@ -10,8 +10,9 @@
  *
  * Regras (definidas com o Renato, ago/2026):
  * - Só interessados com até 7 dias (hoje - 7 dias).
- * - Conta com bairro cadastrado: prioridade — recebe toda lead nova que bater
- *   o bairro dela, sem teto diário (só o teto de sempre: máx 3 contas/lead).
+ * - Conta com bairro cadastrado: prioridade — recebe lead nova que bater o
+ *   bairro dela, até um teto de 3 por dia (além do teto de sempre: máx 3
+ *   contas/lead).
  * - Conta só com estado+cidade (sem bairro): recebe em lotes de 2 — dá 2 pra
  *   cada conta elegível da cidade; se sobrar interessado sem dono depois
  *   disso, dá mais 2 pra cada de novo, repetindo até esgotar o estoque do
@@ -98,6 +99,27 @@ async function _mapaJaAtribuidos() {
   return mapa;
 }
 
+// Teto diário do nível bairro — 3 leads por conta por dia (horário de
+// Brasília), decidido com o Renato (ago/2026: rule mudou de "sem teto" pra
+// "3/dia" pra não uma conta só engolir a base inteira de bairro no 1º dia).
+// Conta com bairro cadastrado nunca entra no nível cidade (filtro
+// c.bairros.size===0 abaixo), então contar toda lead 'AREA-%' que ela já
+// recebeu hoje é exatamente a contagem do nível bairro, sem precisar marcar
+// de qual tier veio.
+const TETO_DIARIO_BAIRRO = 3;
+async function _recebidosHojeBairro() {
+  const hojeSP = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  const { rows } = await query(
+    `SELECT user_id, COUNT(*)::int AS total FROM leads
+     WHERE id LIKE 'AREA-%' AND (criado_em AT TIME ZONE 'America/Sao_Paulo')::date = $1
+     GROUP BY user_id`,
+    [hojeSP]
+  );
+  const mapa = {};
+  for (const r of rows) mapa[r.user_id] = r.total;
+  return mapa;
+}
+
 // Mesmo mapeamento pra Nome/Telefone/Email/Tipo/Cidade/etc (chaves
 // capitalizadas) usado em services/buscaDemanda.js — montarPerfilEMapaDemanda
 // espera esse formato, não o snake_case cru da tabela.
@@ -122,6 +144,7 @@ async function distribuirLeadsPorArea() {
   const jaAtribuidos = await _mapaJaAtribuidos();
   const saldoRestante = {};
   for (const c of corretores) saldoRestante[c.userId] = c.saldo;
+  const recebidoHojeBairro = await _recebidosHojeBairro();
 
   const { CUSTO } = require('./creditos');
   const custoLead = CUSTO[CUSTO_LEAD_CHAVE] || 30;
@@ -143,8 +166,9 @@ async function distribuirLeadsPorArea() {
     const candidatosCidade = corretores.filter(c => c.estado === estadoN && c.cidade === cidadeN && c.bairros.size === 0);
     if (!candidatosBairro.length && !candidatosCidade.length) continue;
 
-    // Tier bairro — 1 passada por todos os interessados da região, sem teto
-    // de quantidade (só o teto de 3 contas/lead e o saldo do corretor).
+    // Tier bairro — 1 passada por todos os interessados da região, com teto
+    // de TETO_DIARIO_BAIRRO (3) leads/dia por conta, além do teto de 3
+    // contas/lead e do saldo do corretor.
     for (const it of lista) {
       const bairroN = _norm(it.bairro);
       if (!bairroN) continue;
@@ -153,8 +177,10 @@ async function distribuirLeadsPorArea() {
         if (jaTem.size >= 3) break;
         if (jaTem.has(c.userId) || !c.bairros.has(bairroN)) continue;
         if (saldoRestante[c.userId] < custoLead) continue;
+        if ((recebidoHojeBairro[c.userId] || 0) >= TETO_DIARIO_BAIRRO) continue;
         jaTem.add(c.userId);
         saldoRestante[c.userId] -= custoLead;
+        recebidoHojeBairro[c.userId] = (recebidoHojeBairro[c.userId] || 0) + 1;
         fila.push({ it, userId: c.userId });
       }
     }

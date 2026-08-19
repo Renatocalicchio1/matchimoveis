@@ -20962,6 +20962,11 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
 
     const historico = await listarBonusPorIndicador(usuarioAdmin, 'admin');
     const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
+    // Conversão coins→R$ pro sub-admin ver de cara quanto vai receber —
+    // mesma taxa base da recarga avulsa do corretor (R$1 = 20 coins, ver
+    // /pagamento/processar e o webhook MP), não a taxa promocional dos
+    // combos (que tem bônus embutido e varia por plano).
+    const disponivelReais = (disponivel / 20).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const meusLeads = _temPermCampanha ? await listarContatosPorRefAdmin(usuarioAdmin) : [];
 
     // Corretores/imobiliárias que JÁ SE CADASTRARAM na plataforma atribuídos
@@ -21231,6 +21236,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">
             <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:700">Disponível pra resgatar</div>
             <div style="font-size:26px;font-weight:800;color:#111">${disponivel} coins</div>
+            <div style="font-size:13px;color:#16a34a;font-weight:700;margin-top:2px">≈ R$ ${disponivelReais}</div>
           </div>
           <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">
             <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:700">Saldo em coins (pra revender)</div>
@@ -21421,11 +21427,14 @@ app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
       if (!porAdmin[p.indicador_codigo]) porAdmin[p.indicador_codigo] = [];
       porAdmin[p.indicador_codigo].push(p);
     });
+    // Mesma taxa base coins→R$ do painel do sub-admin (R$1 = 20 coins) —
+    // é o valor de verdade que o superadmin precisa pagar por fora.
+    const _reais = coins => (coins / 20).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const blocos = Object.entries(porAdmin).map(([admin, itens]) => {
       const total = itens.reduce((s, i) => s + i.bonus_coins, 0);
-      const linhas = itens.map(i => `<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px"><input type="checkbox" class="chk-pagar" value="${i.id}" data-admin="${_escP(admin)}"></td><td style="padding:6px;font-size:12px">${new Date(i.solicitado_em).toLocaleDateString('pt-BR')}</td><td style="padding:6px;font-size:12px;font-weight:700">${i.bonus_coins} coins</td></tr>`).join('');
+      const linhas = itens.map(i => `<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px"><input type="checkbox" class="chk-pagar" value="${i.id}" data-admin="${_escP(admin)}"></td><td style="padding:6px;font-size:12px">${new Date(i.solicitado_em).toLocaleDateString('pt-BR')}</td><td style="padding:6px;font-size:12px;font-weight:700">${i.bonus_coins} coins</td><td style="padding:6px;font-size:12px;color:#16a34a;font-weight:700">R$ ${_reais(i.bonus_coins)}</td></tr>`).join('');
       return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:14px">
-        <h3 style="margin:0 0 8px;font-size:14px">${_escP(admin)} — total pendente: ${total} coins</h3>
+        <h3 style="margin:0 0 8px;font-size:14px">${_escP(admin)} — total pendente: ${total} coins <span style="color:#16a34a">(R$ ${_reais(total)})</span></h3>
         <table style="width:100%">${linhas}</table>
         <button onclick="pagarSelecionados('${_escP(admin)}')" style="margin-top:8px;background:#16a34a;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Marcar selecionadas como pagas</button>
       </div>`;

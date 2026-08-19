@@ -3286,22 +3286,23 @@ setTimeout(async () => {
   }, 2 * 60 * 60 * 1000);
 }, 60 * 1000);
 
-// Job convite pro portal global — a cada 5 min, manda o convite (assunto/copy/
-// botão rotativos) só pra leads novas com email que ainda não receberam
-// (services/emailPortalGlobal.js). Envios dentro do lote são espaçados em
-// ~1.1s cada, mesmo intervalo já usado nos outros jobs de email.
-setTimeout(async () => {
-  try {
-    const { enviarConvitesPortal } = require('./services/emailPortalGlobal');
-    await enviarConvitesPortal();
-  } catch(e) { console.error('[JOB CONVITE PORTAL]', e.message); }
-  setInterval(async () => {
+// Job convite pro portal global — mesma cadência da campanha geral de
+// corretor (_agendarProximoEnvioCampanhaGeral): 1 e-mail por vez, intervalo
+// aleatório de 10s a 2min, nunca lote fechado (evita padrão robótico).
+// Alcança toda lead do sistema com email, reenviando a cada 7 dias enquanto
+// ela não cancelar (services/emailPortalGlobal.js) — liberado pra base
+// histórica inteira em ago/2026, não só leads novas (pedido do Renato).
+function _agendarProximoConvitePortal() {
+  const delayMs = (10 + Math.random() * 110) * 1000; // 10s a 120s
+  setTimeout(async () => {
     try {
-      const { enviarConvitesPortal } = require('./services/emailPortalGlobal');
-      await enviarConvitesPortal();
-    } catch(e) { console.error('[JOB CONVITE PORTAL]', e.message); }
-  }, 5 * 60 * 1000);
-}, 90 * 1000);
+      const { enviarUmConvitePortal } = require('./services/emailPortalGlobal');
+      await enviarUmConvitePortal();
+    } catch (e) { console.error('[JOB CONVITE PORTAL]', e.message); }
+    _agendarProximoConvitePortal();
+  }, delayMs);
+}
+_agendarProximoConvitePortal();
 
 app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
   try {
@@ -4503,6 +4504,26 @@ app.get('/email/cancelar', async (req, res) => {
   } catch (e) {
     console.error('[email/cancelar]', e.message);
     res.status(500).send(_paginaSimples('Erro', '<div class="ico">⚠️</div><h1>Erro</h1><p>Não conseguimos processar agora. Tenta de novo em alguns minutos.</p>'));
+  }
+});
+
+// Cancelamento do convite pro portal global — é a LEAD (cliente final de um
+// corretor) que recebe esse e-mail, não um usuário da plataforma, então não
+// dá pra reaproveitar /email/cancelar (que só sabe mexer em `usuarios`).
+// Marca em leads.dados->>'portalEmailOptOut', checado em
+// services/emailPortalGlobal.js antes de cada envio.
+app.get('/email/cancelar-portal', async (req, res) => {
+  try {
+    const leadId = (req.query.id || '').trim();
+    if (!leadId) return res.status(404).send(_paginaSimples('Link inválido', '<div class="ico">🔗</div><h1>Link inválido</h1><p>Esse link de cancelamento não é válido ou já expirou.</p>'));
+
+    const { atualizarLead } = require('./services/salvarLead');
+    await atualizarLead(leadId, { portalEmailOptOut: true });
+
+    res.send(_paginaSimples('E-mail cancelado', '<div class="ico">✅</div><h1>Pronto!</h1><p>Você não vai mais receber o convite pra conhecer o portal de imóveis da MatchImóveis.</p>'));
+  } catch (e) {
+    console.error('[email/cancelar-portal]', e.message);
+    res.status(404).send(_paginaSimples('Link inválido', '<div class="ico">🔗</div><h1>Link inválido</h1><p>Esse link de cancelamento não é válido ou já expirou.</p>'));
   }
 });
 

@@ -1,12 +1,19 @@
-// Convite automático pro portal global (/portal) pra toda lead nova que
-// entrar com email cadastrado — cliente comprador ou vendedor, mesmo convite
-// pros dois. Só alcança leads que entraram a partir de quando a coluna
-// portal_email_enviado foi criada (ver _migrarColunaPortalEmail em
-// services/salvarLead.js) — histórico antigo fica de fora de propósito.
+// Convite periódico pro portal global (/portal) — pra toda lead do sistema
+// com email cadastrado (cliente comprador ou vendedor, mesmo convite pros
+// dois), reenviado a cada 7 dias enquanto ela não descadastrar. Rodava só
+// pra leads novas (histórico marcado como "já enviado" na criação da coluna,
+// ver _migrarColunaPortalEmail em services/salvarLead.js) — liberado pra base
+// toda (ago/2026, pedido do Renato) trocando o corte de "boolean já mandei
+// uma vez" pra "faz mais de 7 dias desde o último envio" (usa a coluna
+// portal_email_enviado_em, que fica NULL nas leads antigas — reentram no
+// pool a partir daqui). Consentimento: lead deu contato pro corretor
+// buscando/vendendo imóvel, plataforma respeita isso com link de
+// descadastro visível em todo email (/email/cancelar-portal).
 const { enviarEmail } = require('./email');
 const { query } = require('./db');
 
 const BASE_URL = 'https://www.matchimoveis.ia.br';
+const CICLO_DIAS = 7;
 
 // 10 variações de assunto/copy/botão — giram por lead (hash do id, determinístico)
 // pra depois dar pra comparar no /admin/emails qual assunto abre mais e qual
@@ -31,12 +38,14 @@ function _variantePara(leadId) {
   return { indice: h % VARIANTES.length, v: VARIANTES[h % VARIANTES.length] };
 }
 
-function _montarHtml(nome, v) {
+function _montarHtml(nome, v, leadId) {
+  const linkCancelar = `${BASE_URL}/email/cancelar-portal?id=${encodeURIComponent(leadId)}`;
   return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
     <h2 style="color:#FF385C">${v.headline}</h2>
     <p>Olá${nome ? ', ' + nome : ''}!</p>
     <p style="font-size:15px;line-height:1.7;color:#333">${v.corpo}</p>
     <a href="${BASE_URL}/portal" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">${v.botao} →</a>
+    <p style="margin-top:32px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber este e-mail? <a href="${linkCancelar}" style="color:#9ca3af">Cancelar recebimento</a></p>
   </div>`;
 }
 
@@ -44,48 +53,39 @@ async function _marcarEnviada(leadId) {
   await query('UPDATE leads SET portal_email_enviado = true, portal_email_enviado_em = NOW() WHERE id = $1', [leadId]).catch(() => {});
 }
 
-// Chamado a cada 5 min (ver server.js) — processa um lote pequeno por vez,
-// espaçando os envios individuais (mesmo intervalo usado em outros jobs de
-// email, ~1.1s) pra não estourar o rate limit do SES nem parecer disparo em
-// massa de uma vez só.
-async function enviarConvitesPortal(limite = 50) {
+// Envia pra UMA lead elegível por chamada — mesmo padrão de
+// _agendarProximoEnvioCampanhaGeral (server.js): reagendado externamente com
+// intervalo aleatório de 10s a 2min entre envios, nunca em lote de uma vez.
+async function enviarUmConvitePortal() {
   try {
     const { rows } = await query(
       `SELECT id, nome, email, user_id, codigo_usuario FROM leads
-       WHERE email IS NOT NULL AND email != '' AND COALESCE(portal_email_enviado, false) = false
-       ORDER BY criado_em ASC LIMIT $1`,
-      [limite]
+       WHERE email IS NOT NULL AND email != ''
+         AND (portal_email_enviado_em IS NULL OR portal_email_enviado_em < NOW() - INTERVAL '${CICLO_DIAS} days')
+         AND COALESCE((dados->>'portalEmailOptOut')::boolean, false) = false
+       ORDER BY portal_email_enviado_em ASC NULLS FIRST LIMIT 1`
     );
-    if (!rows.length) return { enviados: 0 };
-
-    let enviados = 0;
-    for (const lead of rows) {
-      try {
-        const { indice, v } = _variantePara(lead.id);
-        await enviarEmail({
-          para: lead.email,
-          assunto: v.assunto,
-          html: _montarHtml(lead.nome, v),
-          texto: `${v.headline}. ${v.corpo} Acesse: ${BASE_URL}/portal`,
-          tipo: 'convite_portal_global',
-          variante: String(indice),
-          botaoTexto: v.botao + ' →',
-          leadId: lead.id,
-          userId: lead.user_id || lead.codigo_usuario || null
-        });
-        await _marcarEnviada(lead.id);
-        enviados++;
-        console.log('[PORTAL EMAIL] enviado:', lead.email, '| variante:', indice);
-      } catch (e) {
-        console.error('[PORTAL EMAIL] erro ao enviar pra', lead.email, ':', e.message);
-      }
-      await new Promise(r => setTimeout(r, 1100));
-    }
-    return { enviados };
+    if (!rows.length) return { enviado: false };
+    const lead = rows[0];
+    const { indice, v } = _variantePara(lead.id);
+    await enviarEmail({
+      para: lead.email,
+      assunto: v.assunto,
+      html: _montarHtml(lead.nome, v, lead.id),
+      texto: `${v.headline}. ${v.corpo} Acesse: ${BASE_URL}/portal`,
+      tipo: 'convite_portal_global',
+      variante: String(indice),
+      botaoTexto: v.botao + ' →',
+      leadId: lead.id,
+      userId: lead.user_id || lead.codigo_usuario || null
+    });
+    await _marcarEnviada(lead.id);
+    console.log('[PORTAL EMAIL] enviado:', lead.email, '| variante:', indice);
+    return { enviado: true };
   } catch (e) {
     console.error('[PORTAL EMAIL] erro geral:', e.message);
-    return { enviados: 0, erro: e.message };
+    return { enviado: false, erro: e.message };
   }
 }
 
-module.exports = { enviarConvitesPortal };
+module.exports = { enviarUmConvitePortal };

@@ -163,10 +163,13 @@ async function _migrarColunaMapa() {
 }
 _migrarColunaMapa();
 
-// Convite pro portal global (services/emailPortalGlobal.js) — só vale pra leads
-// que entrarem a partir de agora (decisão do Renato): se a coluna ainda não
-// existe, ao criá-la marca TODO o histórico como "já enviado" pra não disparar
-// a campanha pra base toda de uma vez.
+// Convite pro portal global (services/emailPortalGlobal.js) — quando a coluna
+// foi criada, marcava TODO o histórico como "já enviado" pra só valer pra
+// leads novas (decisão original do Renato). Revisto em ago/2026: liberado pra
+// base toda — o serviço agora decide reenvio por tempo (portal_email_enviado_em
+// há mais de 7 dias, ou nunca enviado), não mais por esse boolean sozinho, então
+// as leads antigas (com esse campo em NULL) voltam a ficar elegíveis sozinhas,
+// sem precisar reverter nada aqui.
 async function _migrarColunaPortalEmail() {
   try {
     const { query: _q } = require('./db');

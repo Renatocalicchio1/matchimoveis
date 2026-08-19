@@ -438,6 +438,17 @@
       <a href="/termos-de-uso">Termos de Uso</a>
     </div>
   </div>
+  <div class="footer-top" style="margin-top:14px">
+    <span class="footer-logo" style="font-size:12px;color:var(--muted);font-weight:600">Recursos</span>
+    <div class="footer-links">
+      <a href="/crm-para-corretores">CRM para corretores</a>
+      <a href="/ia-para-corretores">IA para corretores</a>
+      <a href="/geracao-de-leads-imobiliarios">Geração de leads</a>
+      <a href="/automacao-para-imobiliarias">Automação para imobiliárias</a>
+      <a href="/plataforma-para-corretores">A plataforma</a>
+      <a href="/divulgacao-de-imoveis-com-ia">Divulgação de imóveis com IA</a>
+    </div>
+  </div>
   <div>
     <div class="footer-empresa">Match Imóveis é uma plataforma do Grupo Rankim.</div>
     <div class="footer-note">© 2026 Match Imóveis — Grupo Rankim. Todos os direitos reservados.</div>
@@ -608,6 +619,11 @@ function _toggleBairro(chk){
   } else if(_p.get('msg') === 'senha_email_enviado') {
     openModal('entrar');
   } else if(_p.get('ref')) {
+    openModal('cadastro');
+  } else if(_p.get('cadastro') === '1') {
+    // Usado pelas páginas de conteúdo (/crm-para-corretores etc) e por
+    // qualquer link que precise abrir direto no cadastro sem se misturar
+    // com a atribuição de sub-admin do ?ref= — esse param não seta indicador.
     openModal('cadastro');
   }
 })();

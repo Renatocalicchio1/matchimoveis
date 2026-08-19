@@ -125,7 +125,7 @@
               <% if(_telPl){ %>
                 <% const _linkVitrinePl = _vitrineLinkPl.startsWith('http') ? _vitrineLinkPl : ('https://www.matchimoveis.ia.br'+_vitrineLinkPl); %>
                 <% const _msgVitrinePl = encodeURIComponent('Olá ' + (l.nome||'') + '! Segue sua seleção personalizada de imóveis: ' + _linkVitrinePl); %>
-                <br><a href="https://wa.me/<%= _telPl %>?text=<%= _msgVitrinePl %>" target="_blank" class="pl-ver" style="color:#25D366">🏠 Enviar vitrine manual</a>
+                <br><a href="https://wa.me/<%= _telPl %>?text=<%= _msgVitrinePl %>" target="_blank" onclick="fetch('/app/lead/<%= l.leadId||l.id %>/vitrine-manual-enviada',{method:'POST'}).catch(function(){})" class="pl-ver" style="color:#25D366">🏠 Enviar vitrine manual</a>
               <% } %>
             <% } else { %><span style="color:var(--text-ter)">—</span><% } %>
           </td>

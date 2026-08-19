@@ -9546,6 +9546,19 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine What
   }
 });
 
+// Vitrine enviada manualmente (corretor clica no link wa.me em vez de usar o
+// envio automático — normalmente porque o WhatsApp dele não está conectado
+// na Evolution API) — antes esse clique não debitava nada, porque não passa
+// por nenhuma rota (é só um <a href="https://wa.me/..."> abrindo direto).
+// Debita o mesmo custo do envio automático (vitrine_whatsapp) pra não ter
+// jeito "de graça" de mandar vitrine só por não estar conectado (ago/2026).
+// Fire-and-forget de propósito (mesmo padrão do resto do sistema pra esse
+// tipo de débito) — não bloqueia a abertura do WhatsApp.
+app.post('/app/lead/:id/vitrine-manual-enviada', auth, async (req, res) => {
+  consumir(req.session.user.id, 'vitrine_whatsapp').catch(() => {});
+  res.json({ ok: true });
+});
+
 // ============================================================
 // WEBHOOK WHATSAPP — Evolution API
 // ============================================================

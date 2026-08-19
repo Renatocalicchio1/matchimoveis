@@ -326,7 +326,7 @@ leads.forEach(item => {
       <% if(item.vitrineEnviada && item.vitrineLink) { %>
       <% const _linkVitrine = item.vitrineLink || ('/cliente/oferta/'+(item.leadId||item.id)+'?userId='+encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'')); %>
       <% const _msgVitrine = encodeURIComponent('Olá ' + (item.nome||'') + '! Segue sua seleção personalizada de imóveis: ' + _linkVitrine); %>
-      <a href="https://wa.me/<%= telefone %>?text=<%= _msgVitrine %>" target="_blank" class="lb wa">🏠 Enviar vitrine manual</a>
+      <a href="https://wa.me/<%= telefone %>?text=<%= _msgVitrine %>" target="_blank" onclick="fetch('/app/lead/<%= item.leadId||item.id %>/vitrine-manual-enviada',{method:'POST'}).catch(function(){})" class="lb wa">🏠 Enviar vitrine manual</a>
       <% } else { %>
       <a href="https://wa.me/<%= telefone %>" target="_blank" class="lb wa">WhatsApp</a>
       <% } %>

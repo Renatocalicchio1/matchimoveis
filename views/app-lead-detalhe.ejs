@@ -429,7 +429,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
 
       <% if(_fone) { %>
       <% if(_mat.length>0) { %>
-      <a href="https://wa.me/<%=_fone%>?text=<%=_wtxt%>" target="_blank" class="acao-btn" style="background:#25D366;color:#fff">🏠 Enviar vitrine manual</a>
+      <a href="https://wa.me/<%=_fone%>?text=<%=_wtxt%>" target="_blank" onclick="fetch('/app/lead/<%=lead.id%>/vitrine-manual-enviada',{method:'POST'}).catch(function(){})" class="acao-btn" style="background:#25D366;color:#fff">🏠 Enviar vitrine manual</a>
       <% } else if(lead.waQualificacaoEnviadoEm) { %>
       <a href="https://wa.me/<%=_fone%>" target="_blank" class="acao-btn" style="background:#f9fafb;color:#6b7280;border:0.5px solid rgba(0,0,0,.1)" title="Sistema enviou qualificação — clique para abrir">✓ WA enviado <%= new Date(lead.waQualificacaoEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %></a>
       <% } else { %>

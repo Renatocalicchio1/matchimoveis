@@ -4086,6 +4086,302 @@ const _CONTEUDO_SEO = {
       { slug: 'geracao-de-leads-imobiliarios', texto: 'Geração de leads imobiliários' },
       { slug: 'plataforma-para-corretores', texto: 'A plataforma completa' },
     ]
+  },
+
+  // ── Rodada 2 (ago/2026): definições, personas, integrações, preço, FAQ hub
+  // e guias — cobrindo os formatos que faltavam pra AEO (pergunta direta que
+  // alguém faz pro ChatGPT) sem entrar em página de concorrente nomeado nem
+  // página por cidade (público errado pro produto — decisão do Renato).
+  'o-que-e-match-automatico-de-imoveis': {
+    slug: 'o-que-e-match-automatico-de-imoveis',
+    titulo: 'O que é Match Automático de Imóveis? | MatchImóveis',
+    metaDescricao: 'Match automático de imóveis é o cruzamento entre o perfil de busca de uma lead e a carteira de imóveis, feito sozinho por um sistema, sem o corretor filtrar manual. Entenda como funciona.',
+    tag: 'Definição',
+    h1: 'O que é match automático de imóveis?',
+    heroSub: 'Match automático de imóveis é quando um sistema cruza o que uma lead procura (bairro, valor, tipo, quartos) com a carteira de imóveis disponível e já aponta os mais compatíveis — sem o corretor abrir planilha e filtrar na mão.',
+    recursosTitulo: 'Como o match funciona na MatchImóveis',
+    recursos: [
+      { icone: '🏠', titulo: 'Caso 1 — a partir de um imóvel', desc: 'Quando a lead clica ou pergunta sobre um anúncio específico, o sistema usa esse imóvel como base e sugere outros parecidos da carteira, com tolerância de valor de até 20% pra mais ou menos.' },
+      { icone: '🔍', titulo: 'Caso 2 — a partir de um perfil de busca', desc: 'Quando a lead descreve o que procura (por WhatsApp, planilha ou formulário), o sistema monta um perfil e busca na carteira o que bate nos critérios mínimos: transação, tipo, cidade, bairro, valor e número de quartos.' },
+      { icone: '🎯', titulo: 'Pontuação, não só filtro', desc: 'Depois do corte pelos critérios mínimos, cada imóvel que sobrou recebe uma pontuação de 0 a 100 (peso maior pra valor, bairro e quartos) — o resultado já vem ordenado do mais compatível pro menos.' },
+      { icone: '🤝', titulo: 'Prioriza carteira própria, depois a rede', desc: 'O match sempre mostra primeiro os imóveis do próprio corretor; só depois entra a carteira de parceiros da rede, se tiver.' },
+    ],
+    faq: [
+      { q: 'Match automático de imóveis é a mesma coisa que busca por filtro?', a: 'Não exatamente — filtro é o cliente escolhendo critérios manualmente numa busca; match automático é o sistema comparando o perfil da lead com a carteira inteira sozinho e já entregando os resultados ordenados por compatibilidade, sem precisar de busca ativa.' },
+      { q: 'O match considera só o preço do imóvel?', a: 'Não — considera tipo de transação, tipo de imóvel, cidade, bairro, valor (com tolerância), número de quartos e outros critérios com pesos diferentes na pontuação final.' },
+      { q: 'Preciso configurar alguma regra pro match funcionar?', a: 'Não — o motor já roda automaticamente toda vez que uma lead nova chega ou um imóvel novo é cadastrado, sem precisar configurar regra manual.' },
+    ],
+    relacionados: [
+      { slug: 'crm-para-corretores', texto: 'CRM para corretores' },
+      { slug: 'ia-para-corretores', texto: 'IA para corretores' },
+      { slug: 'plataforma-para-corretores', texto: 'A plataforma completa' },
+    ]
+  },
+  'o-que-e-vitrine-automatica-pelo-whatsapp': {
+    slug: 'o-que-e-vitrine-automatica-pelo-whatsapp',
+    titulo: 'O que é Vitrine Automática pelo WhatsApp? | MatchImóveis',
+    metaDescricao: 'Vitrine automática é o envio, pelo WhatsApp, dos imóveis que deram match com o perfil de uma lead — disparado sozinho pelo sistema, sem o corretor selecionar e mandar foto por foto.',
+    tag: 'Definição',
+    h1: 'O que é vitrine automática pelo WhatsApp?',
+    heroSub: 'Depois que o match encontra os imóveis compatíveis com uma lead, a vitrine automática é o envio desses imóveis (com foto e descrição) direto pelo WhatsApp — sem o corretor precisar selecionar e mandar um por um manualmente.',
+    recursosTitulo: 'Como a vitrine chega até a lead',
+    recursos: [
+      { icone: '🎯', titulo: 'Sai direto do match', desc: 'Assim que o motor encontra imóveis compatíveis com o perfil da lead, a vitrine já é montada com os melhores resultados, sem etapa manual no meio.' },
+      { icone: '📲', titulo: 'Enviada pelo número do corretor', desc: 'A mensagem sai do WhatsApp já conectado à plataforma, então a lead recebe como se fosse o próprio corretor conversando.' },
+      { icone: '👍', titulo: 'Lead reage e o sistema aprende', desc: 'Quando a lead responde "gostei" ou clica num imóvel específico, isso vira sinal pro sistema refinar o próximo match, ficando mais preciso.' },
+      { icone: '🔄', titulo: 'Reenvio automático se não responde', desc: 'Se a lead não interage, entra na régua de follow-up automático — a plataforma tenta de novo sozinha, seguindo a temperatura da lead.' },
+    ],
+    faq: [
+      { q: 'A vitrine é enviada manualmente ou automática?', a: 'Automática — assim que o match encontra imóveis compatíveis, o envio pelo WhatsApp já é disparado sozinho, sem o corretor precisar selecionar fotos e escrever mensagem.' },
+      { q: 'Dá pra mandar vitrine manualmente também, se eu quiser escolher os imóveis?', a: 'Sim, o corretor também pode disparar manualmente quando quiser, além do envio automático gerado pelo match.' },
+      { q: 'A vitrine funciona mesmo se o corretor estiver com o WhatsApp desconectado?', a: 'Não — o envio automático depende do WhatsApp conectado à plataforma; sem conexão ativa, esse canal específico fica pausado até reconectar.' },
+    ],
+    relacionados: [
+      { slug: 'o-que-e-match-automatico-de-imoveis', texto: 'O que é match automático de imóveis' },
+      { slug: 'ia-para-corretores', texto: 'IA para corretores' },
+      { slug: 'divulgacao-de-imoveis-com-ia', texto: 'Divulgação de imóveis com IA' },
+    ]
+  },
+  'o-que-e-follow-up-automatico-imobiliario': {
+    slug: 'o-que-e-follow-up-automatico-imobiliario',
+    titulo: 'O que é Follow-up Automático Imobiliário? | MatchImóveis',
+    metaDescricao: 'Follow-up automático imobiliário é o reengajamento de uma lead disparado sozinho pelo sistema, conforme a temperatura e a fase dela no funil — sem o corretor lembrar de retomar contato.',
+    tag: 'Definição',
+    h1: 'O que é follow-up automático imobiliário?',
+    heroSub: 'Follow-up automático é o sistema retomando contato com uma lead sozinho, no momento certo, baseado na temperatura (fria, morna, quente) e na fase do funil em que ela está — sem depender do corretor lembrar de mandar mensagem de novo.',
+    recursosTitulo: 'Como o follow-up decide quando agir',
+    recursos: [
+      { icone: '🌡️', titulo: 'Regra por temperatura', desc: 'Lead quente recebe follow-up mais frequente que lead fria — o sistema calcula a temperatura pelo comportamento (respostas, matches, tempo sem interagir).' },
+      { icone: '🗂️', titulo: 'Regra por fase do funil', desc: 'O que faz sentido mandar pra uma lead recém-chegada é diferente do que faz sentido mandar pra quem já visitou um imóvel — a régua muda por fase.' },
+      { icone: '🔢', titulo: 'Considera quantas mensagens já foram trocadas', desc: 'O sistema evita insistir demais numa lead que já foi contatada várias vezes sem resposta, ajustando a frequência.' },
+      { icone: '🤖', titulo: 'Some no fluxo da IA no WhatsApp', desc: 'O follow-up automático se integra ao mesmo assistente que responde a lead — não é um disparo solto, é parte da mesma conversa.' },
+    ],
+    faq: [
+      { q: 'Follow-up automático é a mesma coisa que disparo em massa?', a: 'Não — disparo em massa manda a mesma mensagem pra muita gente de uma vez; follow-up automático reage individualmente ao histórico e à temperatura de cada lead específica.' },
+      { q: 'Dá pra desativar o follow-up automático de uma lead específica?', a: 'Sim, o corretor pode bloquear ou pausar o follow-up de uma lead manualmente quando fizer sentido (ex: pediu pra não ser mais contatado).' },
+      { q: 'O follow-up automático substitui o corretor fazendo a negociação?', a: 'Não — ele cuida de reengajar e manter a conversa viva; a negociação final continua sendo o corretor.' },
+    ],
+    relacionados: [
+      { slug: 'crm-para-corretores', texto: 'CRM para corretores' },
+      { slug: 'ia-para-corretores', texto: 'IA para corretores' },
+      { slug: 'como-organizar-leads-de-imobiliaria', texto: 'Como organizar leads de imobiliária' },
+    ]
+  },
+  'matchimoveis-para-corretor-autonomo': {
+    slug: 'matchimoveis-para-corretor-autonomo',
+    titulo: 'MatchImóveis para Corretor Autônomo — Trabalhe Sozinho com Ajuda de IA',
+    metaDescricao: 'Corretor autônomo usa a MatchImóveis pra responder lead, organizar carteira e divulgar imóvel sem precisar de equipe — a IA cobre o que daria pra contratar um assistente.',
+    tag: 'Corretor autônomo',
+    h1: 'MatchImóveis para corretor autônomo',
+    heroSub: 'Sem equipe, sem assistente, sem tempo de responder toda lead na hora — a MatchImóveis faz o trabalho repetitivo (responder, qualificar, organizar, divulgar) pra você focar só em negociar e fechar.',
+    doresTitulo: 'O que trava quem trabalha sozinho',
+    doresSub: 'Corretor autônomo faz o papel de vendedor, atendente e divulgador ao mesmo tempo — e algo sempre fica pra trás.',
+    dores: [
+      { titulo: 'Não dá pra estar online 24h', desc: 'Lead que manda mensagem de noite ou de manhã cedo, sem resposta rápida, acaba procurando outro corretor.' },
+      { titulo: 'Divulgar imóvel sozinho toma tempo', desc: 'Postar em portal, Instagram e mandar pra lead certa manualmente é trabalho que sobra pro fim do dia — ou nem acontece.' },
+      { titulo: 'Carteira pequena, mas sem organização trava igual', desc: 'Mesmo com poucos imóveis, sem funil e follow-up automático, lead se perde do mesmo jeito.' },
+    ],
+    recursosTitulo: 'O que a plataforma cobre por você',
+    recursos: [
+      { icone: '🤖', titulo: 'IA responde enquanto você não está', desc: 'A primeira triagem no WhatsApp acontece sozinha, mesmo com você offline ou atendendo outro cliente.' },
+      { icone: '🎯', titulo: 'Match sem precisar filtrar manual', desc: 'Mesmo com poucos imóveis, o sistema já cruza sozinho o que bate com cada lead nova.' },
+      { icone: '📤', titulo: 'Divulgação automática', desc: 'XML pros portais e publicação no Instagram saem sem trabalho manual extra.' },
+      { icone: '💳', titulo: 'Paga só pelo que usa', desc: 'Sem mensalidade fixa — cadastro grátis com 1.000 créditos e cobrança por ação, o que faz sentido pra quem está começando ou tem carteira menor.' },
+    ],
+    faq: [
+      { q: 'A MatchImóveis serve pra corretor sem equipe?', a: 'Sim — o modelo por créditos (sem mensalidade obrigatória) e a IA cobrindo a triagem/divulgação foram pensados justamente pra quem trabalha sozinho e não tem orçamento pra assinatura fixa alta.' },
+      { q: 'Preciso ter muitos imóveis cadastrados pra valer a pena?', a: 'Não — o match e o CRM funcionam do mesmo jeito com carteira pequena; o ganho de tempo (não perder lead, não divulgar manual) já vale pra poucos imóveis.' },
+      { q: 'Dá pra usar só pelo celular?', a: 'Sim, a plataforma é toda web responsiva e o WhatsApp (canal principal de contato com lead) já é mobile por natureza.' },
+    ],
+    relacionados: [
+      { slug: 'ia-para-corretores', texto: 'IA para corretores' },
+      { slug: 'crm-imobiliario-sem-mensalidade', texto: 'CRM imobiliário sem mensalidade' },
+      { slug: 'divulgacao-de-imoveis-com-ia', texto: 'Divulgação de imóveis com IA' },
+    ]
+  },
+  'matchimoveis-para-imobiliaria': {
+    slug: 'matchimoveis-para-imobiliaria',
+    titulo: 'MatchImóveis para Imobiliária — Escale a Equipe sem Perder Controle',
+    metaDescricao: 'Imobiliária com vários corretores usa a MatchImóveis pra importar carteira em massa, distribuir leads automaticamente e manter todo mundo na mesma base organizada.',
+    tag: 'Imobiliária',
+    h1: 'MatchImóveis para imobiliária',
+    heroSub: 'Vários corretores, milhares de imóveis, leads chegando de vários canais ao mesmo tempo — a MatchImóveis organiza tudo numa base só, com cada corretor vendo a própria carteira e a IA cuidando da triagem em escala.',
+    doresTitulo: 'O que trava uma imobiliária de crescer sem virar bagunça',
+    doresSub: 'O processo que funciona pra 1 corretor com poucos imóveis quebra quando é a operação inteira.',
+    dores: [
+      { titulo: 'Corretor cadastrando imóvel na mão', desc: 'Com centenas ou milhares de imóveis, cadastro manual por corretor não escala e gera divergência entre eles.' },
+      { titulo: 'Lead sem dono definido', desc: 'Sem distribuição automática, lead de portal ou site pode ficar sem ninguém respondendo, ou vários corretores respondendo a mesma pessoa.' },
+      { titulo: 'Gestor sem visão do funil da equipe', desc: 'Sem um sistema central, saber quantas visitas, leads quentes e follow-ups pendentes cada corretor tem exige perguntar um por um.' },
+    ],
+    recursosTitulo: 'O que muda pra uma equipe inteira',
+    recursos: [
+      { icone: '📥', titulo: 'Importação de XML em massa', desc: 'A carteira inteira entra de uma vez via feed XML, com sincronização automática a cada 24h.' },
+      { icone: '🗺️', titulo: 'Distribuição por área de atuação', desc: 'Cada corretor cadastra a região onde atua e recebe automaticamente os leads compatíveis com aquela área.' },
+      { icone: '🤝', titulo: 'Rede de parceiros', desc: 'O match considera também os imóveis de outros corretores da mesma rede, priorizando sempre a carteira própria primeiro.' },
+      { icone: '🔔', titulo: 'Notificação em cadeia', desc: 'Proprietário, corretor e parceiro são avisados automaticamente na etapa certa (lead nova, visita agendada, confirmação), sem alguém intermediando manual.' },
+    ],
+    faq: [
+      { q: 'Cada corretor da imobiliária tem uma conta separada?', a: 'Sim — cada corretor tem sua própria conta e carteira, mas todos podem se beneficiar do alcance da rede de parceiros dentro da mesma imobiliária.' },
+      { q: 'Dá pra importar a carteira inteira de uma vez?', a: 'Sim, via feed XML — a plataforma suporta até 2 feeds por conta e resincroniza automaticamente a cada 24h, preservando o que foi editado manualmente.' },
+      { q: 'O gestor consegue acompanhar todos os corretores?', a: 'Sim, o painel administrativo dá visão consolidada de leads, visitas e atividade por corretor da equipe.' },
+    ],
+    relacionados: [
+      { slug: 'automacao-para-imobiliarias', texto: 'Automação para imobiliárias' },
+      { slug: 'geracao-de-leads-imobiliarios', texto: 'Geração de leads imobiliários' },
+      { slug: 'plataforma-para-corretores', texto: 'A plataforma completa' },
+    ]
+  },
+  'integracao-xml-vivareal-zap': {
+    slug: 'integracao-xml-vivareal-zap',
+    titulo: 'Integração XML VivaReal e ZAP — Publique Automaticamente | MatchImóveis',
+    metaDescricao: 'Gere o XML da sua carteira no formato VivaReal/Canal Pro e ZAP automaticamente, direto da MatchImóveis, sem formatar manualmente cada anúncio.',
+    tag: 'Integração de portal',
+    h1: 'Integração XML com VivaReal e ZAP',
+    heroSub: 'A MatchImóveis gera o feed XML da sua carteira já no formato exigido por VivaReal/Canal Pro e ZAP — você cadastra o imóvel uma vez na plataforma e ele sai formatado corretamente pros portais.',
+    recursosTitulo: 'Como funciona a integração',
+    recursos: [
+      { icone: '📤', titulo: 'Geração automática de XML', desc: 'A partir da carteira já cadastrada, o sistema monta o XML no padrão que VivaReal e ZAP (Canal Pro) esperam, sem formatação manual.' },
+      { icone: '🔁', titulo: 'Sync a cada 24h', desc: 'Preço, status e disponibilidade se atualizam automaticamente todo dia, sem precisar gerar o XML de novo na mão.' },
+      { icone: '🛡️', titulo: 'Protege o que é manual', desc: 'Imóveis cadastrados manualmente ou vindos de outro feed não são afetados quando você atualiza um XML específico.' },
+      { icone: '📥', titulo: 'Também importa, não só exporta', desc: 'Se você já tem um feed XML de outro sistema, dá pra importar pra dentro da MatchImóveis e usar o motor de match sobre essa carteira.' },
+    ],
+    faq: [
+      { q: 'Preciso formatar o XML manualmente pro VivaReal ou ZAP?', a: 'Não — a plataforma gera o arquivo automaticamente a partir dos imóveis já cadastrados, no formato que cada portal espera.' },
+      { q: 'Dá pra ter mais de um feed XML na mesma conta?', a: 'Sim, até 2 feeds por conta, e a proteção de dados manuais evita que um sobrescreva o outro indevidamente.' },
+      { q: 'O que acontece se um imóvel sair do XML original?', a: 'Ele é marcado como inativo na sincronização seguinte — mas só quem realmente veio daquele feed específico, imóveis manuais e de outros feeds ficam protegidos.' },
+    ],
+    relacionados: [
+      { slug: 'integracao-olx-imovelweb', texto: 'Integração com OLX e ImovelWeb' },
+      { slug: 'automacao-para-imobiliarias', texto: 'Automação para imobiliárias' },
+      { slug: 'divulgacao-de-imoveis-com-ia', texto: 'Divulgação de imóveis com IA' },
+    ]
+  },
+  'integracao-olx-imovelweb': {
+    slug: 'integracao-olx-imovelweb',
+    titulo: 'Integração com OLX e ImovelWeb — Receba Leads Automaticamente | MatchImóveis',
+    metaDescricao: 'Leads que interagem com seu anúncio na OLX ou ImovelWeb chegam direto na sua conta MatchImóveis, já vinculadas ao imóvel de interesse, via webhook.',
+    tag: 'Integração de portal',
+    h1: 'Integração com OLX e ImovelWeb',
+    heroSub: 'Quando alguém demonstra interesse no seu anúncio na OLX ou no ImovelWeb, essa lead cai automaticamente na sua conta MatchImóveis — já identificada com o imóvel específico, sem você precisar copiar contato manualmente.',
+    recursosTitulo: 'Como o lead chega até você',
+    recursos: [
+      { icone: '🔗', titulo: 'Webhook direto do portal', desc: 'A integração recebe a lead na hora que ela é gerada no portal, sem espera nem exportação manual.' },
+      { icone: '🏠', titulo: 'Já vinculada ao imóvel certo', desc: 'O sistema tenta identificar automaticamente qual anúncio gerou a lead, ligando ela ao imóvel correto na sua carteira.' },
+      { icone: '🌐', titulo: 'ImovelWeb Global por dono do imóvel', desc: 'No caso do ImovelWeb, o webhook global atribui a lead automaticamente pro corretor dono daquele imóvel específico, mesmo em bases compartilhadas.' },
+      { icone: '🎯', titulo: 'Match roda na hora', desc: 'Assim que a lead entra, o motor de match já sugere outros imóveis compatíveis da sua carteira, não só o anúncio original.' },
+    ],
+    faq: [
+      { q: 'Preciso fazer alguma configuração na OLX pra integrar?', a: 'A integração usa webhook — depois de configurada, toda lead nova do portal já chega automaticamente na plataforma, sem ação manual recorrente.' },
+      { q: 'A lead vem com os dados de contato completos?', a: 'Sim, a plataforma recebe os dados que o portal envia (nome, telefone, mensagem) e já monta o perfil inicial da lead a partir disso.' },
+      { q: 'Também funciona pra outros portais além de OLX e ImovelWeb?', a: 'Sim — a mesma lógica de webhook também cobre VivaReal, ZAP, 123i e Chaves na Mão.' },
+    ],
+    relacionados: [
+      { slug: 'integracao-xml-vivareal-zap', texto: 'Integração XML VivaReal e ZAP' },
+      { slug: 'geracao-de-leads-imobiliarios', texto: 'Geração de leads imobiliários' },
+      { slug: 'o-que-e-match-automatico-de-imoveis', texto: 'O que é match automático de imóveis' },
+    ]
+  },
+  'crm-imobiliario-sem-mensalidade': {
+    slug: 'crm-imobiliario-sem-mensalidade',
+    titulo: 'CRM Imobiliário sem Mensalidade — Pague só pelo que Usar | MatchImóveis',
+    metaDescricao: 'Cansado de pagar mensalidade fixa de CRM mesmo em mês fraco? Na MatchImóveis você paga por crédito conforme usa, com cadastro grátis e 1.000 créditos de bônus.',
+    tag: 'Modelo de cobrança',
+    h1: 'CRM imobiliário sem mensalidade',
+    heroSub: 'A maioria dos CRMs imobiliários cobra assinatura fixa todo mês, mesmo em mês fraco. A MatchImóveis funciona por créditos: você paga conforme usa (cadastra imóvel, recebe lead, IA responde) — sem contrato de mensalidade obrigatória.',
+    recursosTitulo: 'Como funciona o modelo de créditos',
+    recursos: [
+      { icone: '🎁', titulo: 'Cadastro grátis com bônus', desc: 'Criar a conta já libera 1.000 créditos de bônus, sem cartão de crédito e sem custo inicial.' },
+      { icone: '🪙', titulo: 'Custo transparente por ação', desc: 'Cada ação (cadastrar imóvel, nova lead, IA respondendo, vitrine enviada) tem um valor fixo em créditos, mostrado antes de qualquer cobrança.' },
+      { icone: '📦', titulo: 'Combos com bônus pra quem usa mais', desc: 'Quem consome mais créditos por mês pode contratar um combo com desconto/bônus sobre a recarga normal — sem virar mensalidade obrigatória.' },
+      { icone: '⏸️', titulo: 'Mês fraco, gasto menor', desc: 'Sem lead nova, sem imóvel novo, sem uso — não tem cobrança fixa rodando no fundo como numa assinatura tradicional.' },
+    ],
+    faq: [
+      { q: 'A MatchImóveis cobra mensalidade fixa?', a: 'Não é obrigatório — o modelo padrão é por consumo de créditos. Existem combos de recarga com bônus, mas nenhum contrato de mensalidade forçada.' },
+      { q: 'Quanto custa cada ação na plataforma?', a: 'Varia por ação: cadastro de imóvel, nova lead, IA respondendo WhatsApp, vitrine enviada e outras têm um custo fixo em créditos, sempre visível antes de qualquer cobrança.' },
+      { q: 'O que acontece se os créditos acabarem?', a: 'A conta fica pausada até uma nova recarga — mas nada é cobrado automaticamente no cartão sem você escolher recarregar.' },
+      { q: 'Vale mais a pena que um CRM de mensalidade fixa?', a: 'Depende do volume — pra quem usa pouco ou de forma irregular, pagar só pelo uso tende a sair mais barato que uma assinatura fixa cobrada todo mês independente do movimento.' },
+    ],
+    relacionados: [
+      { slug: 'plataforma-para-corretores', texto: 'A plataforma completa' },
+      { slug: 'matchimoveis-para-corretor-autonomo', texto: 'MatchImóveis para corretor autônomo' },
+      { slug: 'perguntas-frequentes', texto: 'Perguntas frequentes' },
+    ]
+  },
+  'como-organizar-leads-de-imobiliaria': {
+    slug: 'como-organizar-leads-de-imobiliaria',
+    titulo: 'Como Organizar Leads de Imobiliária — Guia Prático | MatchImóveis',
+    metaDescricao: 'Passo a passo pra organizar os leads da sua carteira: importar de planilha, deixar o funil automático e configurar follow-up sem perder lead.',
+    tag: 'Guia prático',
+    h1: 'Como organizar leads de imobiliária',
+    heroSub: 'Se seus leads estão espalhados entre planilha, WhatsApp e papel, esse é o caminho pra centralizar tudo e parar de perder lead por falta de organização.',
+    recursosTitulo: 'Passo a passo',
+    recursos: [
+      { icone: '1️⃣', titulo: 'Importe o que já existe', desc: 'Suba a planilha com os leads que você já tem — o importador organiza tudo no funil automaticamente, sem precisar cadastrar um por um.' },
+      { icone: '2️⃣', titulo: 'Deixe o funil classificar sozinho', desc: 'Cada lead nova entra automaticamente numa fase (novo, interesse, qualificado) conforme interage — não precisa você decidir manual.' },
+      { icone: '3️⃣', titulo: 'Confira a temperatura, não só a fase', desc: 'Fria, morna ou quente é calculado pelo comportamento — use isso pra decidir onde focar sua atenção primeiro.' },
+      { icone: '4️⃣', titulo: 'Deixe o follow-up automático rodar', desc: 'Configurado uma vez, ele reengaja lead esquecida sozinho, seguindo regra por temperatura e fase.' },
+      { icone: '5️⃣', titulo: 'Use a Central Operacional pra consultar rápido', desc: 'Pergunta em linguagem natural — "quais leads quentes sem visita essa semana?" — sem precisar filtrar manualmente cada vez.' },
+    ],
+    faq: [
+      { q: 'Preciso reorganizar tudo manualmente depois de importar a planilha?', a: 'Não — depois da importação, o funil e a temperatura já são calculados automaticamente a partir do comportamento de cada lead.' },
+      { q: 'Dá pra organizar leads de vários canais diferentes no mesmo lugar?', a: 'Sim — lead de portal, planilha, captação de proprietário e WhatsApp entram todas no mesmo funil, independente da origem.' },
+      { q: 'Quanto tempo leva pra organizar uma carteira grande?', a: 'A importação de planilha é praticamente instantânea; o funil e a temperatura se ajustam conforme as leads interagem, então a organização fica mais precisa com o tempo de uso.' },
+    ],
+    relacionados: [
+      { slug: 'crm-para-corretores', texto: 'CRM para corretores' },
+      { slug: 'o-que-e-follow-up-automatico-imobiliario', texto: 'O que é follow-up automático' },
+      { slug: 'geracao-de-leads-imobiliarios', texto: 'Geração de leads imobiliários' },
+    ]
+  },
+  'como-automatizar-postagem-de-imovel-no-instagram': {
+    slug: 'como-automatizar-postagem-de-imovel-no-instagram',
+    titulo: 'Como Automatizar Postagem de Imóvel no Instagram | MatchImóveis',
+    metaDescricao: 'Passo a passo pra publicar imóvel no Instagram (feed ou stories, com carrossel de fotos) direto da MatchImóveis, sem abrir o app.',
+    tag: 'Guia prático',
+    h1: 'Como automatizar postagem de imóvel no Instagram',
+    heroSub: 'Publicar imóvel no Instagram sem abrir o app: conecte a conta uma vez e publique direto da carteira que já está cadastrada na MatchImóveis.',
+    recursosTitulo: 'Passo a passo',
+    recursos: [
+      { icone: '1️⃣', titulo: 'Conecte sua conta do Instagram', desc: 'Autorização direta (Instagram Business Login), sem precisar vincular Página do Facebook.' },
+      { icone: '2️⃣', titulo: 'Escolha o imóvel da carteira', desc: 'Não precisa subir foto de novo — usa direto as fotos já cadastradas no imóvel.' },
+      { icone: '3️⃣', titulo: 'Monte o carrossel', desc: 'Selecione e reordene até 10 fotos pra publicação em carrossel, direto na tela de preview.' },
+      { icone: '4️⃣', titulo: 'Publique no feed ou stories', desc: 'Escolha o formato e publique (ou agende) sem sair da plataforma.' },
+    ],
+    faq: [
+      { q: 'Preciso ter Página do Facebook pra conectar o Instagram?', a: 'Não — a integração usa Instagram Business Login direto, sem depender de vincular uma Página do Facebook.' },
+      { q: 'Dá pra postar carrossel de várias fotos?', a: 'Sim, até 10 fotos por publicação, escolhidas e reordenadas direto da carteira já cadastrada.' },
+      { q: 'Isso funciona pra qualquer conta ou tem restrição?', a: 'A publicação automática está liberada pra todas as contas da plataforma.' },
+    ],
+    relacionados: [
+      { slug: 'divulgacao-de-imoveis-com-ia', texto: 'Divulgação de imóveis com IA' },
+      { slug: 'o-que-e-vitrine-automatica-pelo-whatsapp', texto: 'O que é vitrine automática pelo WhatsApp' },
+      { slug: 'matchimoveis-para-corretor-autonomo', texto: 'MatchImóveis para corretor autônomo' },
+    ]
+  },
+  'perguntas-frequentes': {
+    slug: 'perguntas-frequentes',
+    titulo: 'Perguntas Frequentes sobre a MatchImóveis',
+    metaDescricao: 'Todas as dúvidas mais comuns sobre a MatchImóveis: preço, IA, leads, match automático, divulgação e como funciona o cadastro. Respostas diretas.',
+    tag: 'FAQ',
+    h1: 'Perguntas frequentes sobre a MatchImóveis',
+    heroSub: 'As dúvidas mais comuns de corretores e imobiliárias sobre a plataforma, reunidas num só lugar.',
+    faq: [
+      { q: 'O que é a MatchImóveis?', a: 'Uma plataforma que une CRM de leads, match automático entre lead e imóvel, assistente de IA no WhatsApp e divulgação automática (portais, Instagram, Meta Ads) num só lugar, pra corretores e imobiliárias.' },
+      { q: 'Quanto custa usar a MatchImóveis?', a: 'O cadastro é grátis com 1.000 créditos de bônus. Depois disso, cada ação consome créditos, cobrados conforme o uso — sem mensalidade fixa obrigatória.' },
+      { q: 'Como a IA responde no WhatsApp?', a: 'Você conecta seu WhatsApp na plataforma e a IA assume a primeira triagem de qualquer mensagem nova, usando dados reais da sua carteira e leads pra responder com contexto.' },
+      { q: 'De onde vêm os leads?', a: 'De portais integrados (ZAP, OLX, VivaReal, ImovelWeb, 123i, Chaves na Mão), captação de proprietário, indicação, Meta Ads e importação manual/planilha.' },
+      { q: 'Como funciona o match automático?', a: 'O sistema cruza o perfil de busca da lead com a carteira de imóveis, aplica critérios mínimos (transação, tipo, cidade, bairro, valor, quartos) e pontua os resultados por compatibilidade.' },
+      { q: 'A plataforma serve pra imobiliária com vários corretores?', a: 'Sim — cada corretor tem sua própria conta e carteira, com opção de rede de parceiros pra ampliar o alcance do match dentro da mesma imobiliária.' },
+      { q: 'Dá pra importar minha carteira de imóveis de uma vez?', a: 'Sim, via feed XML — a plataforma suporta até 2 feeds por conta, com sincronização automática a cada 24h.' },
+      { q: 'A plataforma publica automaticamente nos portais e no Instagram?', a: 'Sim — gera o XML no formato de cada portal e publica no Instagram (feed ou stories, com carrossel) direto da plataforma.' },
+      { q: 'Preciso de cartão de crédito pra me cadastrar?', a: 'Não — o cadastro é grátis e não pede cartão; os 1.000 créditos de bônus já entram automaticamente.' },
+      { q: 'A IA substitui o corretor na negociação?', a: 'Não — ela cuida da triagem, qualificação e follow-up automático; a negociação e o fechamento continuam sendo do corretor.' },
+    ],
+    relacionados: [
+      { slug: 'plataforma-para-corretores', texto: 'A plataforma completa' },
+      { slug: 'crm-imobiliario-sem-mensalidade', texto: 'CRM imobiliário sem mensalidade' },
+      { slug: 'ia-para-corretores', texto: 'IA para corretores' },
+    ]
   }
 };
 

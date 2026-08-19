@@ -18206,6 +18206,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       <p class="gray" style="font-size:13px">Combos de leads mineradas por mês — já indicamos qual cabe na quantidade que a IA encontrou.</p>
       <p class="gray" style="font-size:13px">Se preferir, pode escolher um combo menor — nesse caso você recebe a quantidade de leads do combo escolhido, não o total encontrado na busca. Outra opção é diminuir os dias da busca lá em cima pra encontrar menos leads e enquadrar no combo que você quer.</p>
       <p class="gray" style="font-size:13px"><strong>Sem fidelidade — pague e use.</strong> Não é assinatura nem mensalidade obrigatória: você compra o combo que quiser, quando quiser, sem compromisso de recorrência.</p>
+      <p style="margin:0 0 4px"><a href="#" onclick="abrirModalConsumoCreditos();return false;" style="font-size:12px;color:var(--babu);font-weight:600;text-decoration:none">💡 Como funciona o consumo de créditos?</a></p>
       <div id="promo-desconto-combo"></div>
       <div class="combos" id="combos-lista"></div>
     </div>
@@ -18245,6 +18246,44 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
         <p class="gray" id="signup-rodape-cadastro" style="font-size:11px;margin-top:10px;display:none">🔒 Sem cobrança nenhuma agora — é só criar a conta. Você escolhe o combo e paga quando quiser.</p>
       </div>
     </div>`}
+
+    <div id="modalConsumoCreditos" class="modal-overlay" style="display:none">
+      <div class="signup-box" style="max-width:480px">
+        <button type="button" class="modal-close" onclick="fecharModalConsumoCreditos()">×</button>
+        <h2 class="secao" style="margin-top:0">Como funciona o consumo de créditos</h2>
+        <p class="gray" style="font-size:13px;margin:0 0 14px">Toda atividade da plataforma consome créditos automaticamente.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+            <div style="font-size:20px">🏠</div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Imóveis</div><div style="font-size:11.5px;color:var(--sec)">Cadastro, edição, geração de XML e envio para portais</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+            <div style="font-size:20px">👤</div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Leads</div><div style="font-size:11.5px;color:var(--sec)">Leads ativos, qualificação automática e matches encontrados</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+            <div style="font-size:20px">🤖</div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Inteligência Artificial</div><div style="font-size:11.5px;color:var(--sec)">Respostas automáticas, follow-ups e sugestões pelo WhatsApp</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+            <div style="font-size:20px">📅</div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Visitas</div><div style="font-size:11.5px;color:var(--sec)">Agendamento, confirmações automáticas e notificações</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+            <div style="font-size:20px">📲</div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">WhatsApp</div><div style="font-size:11.5px;color:var(--sec)">Mensagens enviadas, vitrines e confirmações via WhatsApp</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+            <div style="font-size:20px">✉️</div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">E-mail</div><div style="font-size:11.5px;color:var(--sec)">Todo e-mail automático enviado pra uma lead sua (convite de captação, vitrine, follow-ups) custa 30 coins</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+            <div style="font-size:20px">📢</div>
+            <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Divulgação</div><div style="font-size:11.5px;color:var(--sec)">Imóvel divulgado na vitrine de outra lead e publicações no Instagram</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="trust-bar">
@@ -18875,6 +18914,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       if(e.target.id === 'signup-modal-overlay') fecharModalCompra();
     });
   }
+  function abrirModalConsumoCreditos(){ document.getElementById('modalConsumoCreditos').style.display = 'flex'; }
+  function fecharModalConsumoCreditos(){ document.getElementById('modalConsumoCreditos').style.display = 'none'; }
+  document.getElementById('modalConsumoCreditos').addEventListener('click', function(e){
+    if(e.target.id === 'modalConsumoCreditos') fecharModalConsumoCreditos();
+  });
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape') fecharModalCompra();
   });

@@ -37,6 +37,8 @@
   </div>
 </div>
 
+<%- include('partials/modal-consumo-creditos') %>
+
 <!-- MODAL CPF (pedido só na hora de pagar, exigência do Pix) -->
 <div id="cpfModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3100;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:420px;position:relative">
@@ -74,7 +76,8 @@
 <!-- COMBOS COM BÔNUS -->
 <div class="card" style="margin-bottom:16px">
   <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">📦 Combos com bônus</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Créditos com bônus sobre a recarga normal.</p>
+  <p style="color:#888;font-size:13px;margin-bottom:4px">Créditos com bônus sobre a recarga normal.</p>
+  <p style="margin-bottom:20px"><a href="#" onclick="abrirModalConsumoCreditos();return false;" style="font-size:12px;color:#00A699;font-weight:600;text-decoration:none">💡 Como funciona o consumo de créditos?</a></p>
   <div class="coins-grid-combos">
     <div style="border:2px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center">
       <p style="margin:0 0 4px;font-size:20px;font-weight:800;color:#111">R$ 200</p>

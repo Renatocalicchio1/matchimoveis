@@ -33,6 +33,19 @@ function _norm(s) {
   return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 }
 
+// interessados_portal.estado guarda o nome completo ("São Paulo", vem da
+// planilha importada) enquanto areaAtuacaoEstado do perfil do corretor
+// guarda a sigla ("SP", escolhida num <select> de UF) — sem converter pro
+// mesmo formato, a região NUNCA batia (confirmado rodando
+// check-distribuicao-area.js: todo corretor testado dava "bate? não" mesmo
+// com cidade idêntica, porque "sp" ≠ "sao paulo" na chave estado+cidade).
+// Mesmo mapa sigla→nome já usado em /app/parceria-quintoandar e /app/leads.
+const _SIGLA_PARA_NOME_ESTADO = {'ac':'acre','al':'alagoas','ap':'amapa','am':'amazonas','ba':'bahia','ce':'ceara','df':'distrito federal','es':'espirito santo','go':'goias','ma':'maranhao','mt':'mato grosso','ms':'mato grosso do sul','mg':'minas gerais','pa':'para','pb':'paraiba','pr':'parana','pe':'pernambuco','pi':'piaui','rj':'rio de janeiro','rn':'rio grande do norte','rs':'rio grande do sul','ro':'rondonia','rr':'roraima','sc':'santa catarina','sp':'sao paulo','se':'sergipe','to':'tocantins'};
+function _normEstado(s) {
+  const n = _norm(s);
+  return _SIGLA_PARA_NOME_ESTADO[n] || n; // sigla (2 letras) vira nome completo; nome completo passa direto
+}
+
 const CUSTO_LEAD_CHAVE = 'nova_lead';
 const LOTE_CIDADE = 2;
 
@@ -63,7 +76,7 @@ async function _buscarCorretoresComAreaAtuacao() {
   return rows.map(r => ({
     userId: r.codigo_usuario,
     saldo: parseFloat(r.match_coins) || 0,
-    estado: _norm(r.area_estado),
+    estado: _normEstado(r.area_estado),
     cidade: _norm(r.area_cidade),
     bairros: new Set((Array.isArray(r.area_bairros) ? r.area_bairros : []).map(_norm).filter(Boolean))
   }));
@@ -117,7 +130,7 @@ async function distribuirLeadsPorArea() {
   // em lote de 2 do nível cidade só faz sentido dentro da mesma região.
   const porRegiao = new Map();
   for (const it of interessados) {
-    const chave = _norm(it.estado) + '|' + _norm(it.cidade);
+    const chave = _normEstado(it.estado) + '|' + _norm(it.cidade);
     if (!porRegiao.has(chave)) porRegiao.set(chave, []);
     porRegiao.get(chave).push(it);
   }

@@ -9,6 +9,14 @@ const { query, dbOk } = require('./services/db');
 function _norm(s) {
   return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 }
+// interessados_portal.estado guarda nome completo ("São Paulo"), perfil do
+// corretor guarda sigla ("SP") — precisa converter pro mesmo formato antes
+// de comparar (mesmo fix aplicado em services/distribuicaoAreaAtuacao.js).
+const _SIGLA_PARA_NOME_ESTADO = {'ac':'acre','al':'alagoas','ap':'amapa','am':'amazonas','ba':'bahia','ce':'ceara','df':'distrito federal','es':'espirito santo','go':'goias','ma':'maranhao','mt':'mato grosso','ms':'mato grosso do sul','mg':'minas gerais','pa':'para','pb':'paraiba','pr':'parana','pe':'pernambuco','pi':'piaui','rj':'rio de janeiro','rn':'rio grande do norte','rs':'rio grande do sul','ro':'rondonia','rr':'roraima','sc':'santa catarina','sp':'sao paulo','se':'sergipe','to':'tocantins'};
+function _normEstado(s) {
+  const n = _norm(s);
+  return _SIGLA_PARA_NOME_ESTADO[n] || n;
+}
 
 (async () => {
   const ok = await dbOk();
@@ -57,9 +65,9 @@ function _norm(s) {
   // Cruzamento normalizado — pra cada corretor, mostra se a região dele bate
   // com alguma linha de interessados elegíveis.
   console.log('\n=== CRUZAMENTO (normalizado, minúsculo/sem acento) ===');
-  const regioesInteressados = new Set(interessados.map(i => _norm(i.estado) + '|' + _norm(i.cidade)));
+  const regioesInteressados = new Set(interessados.map(i => _normEstado(i.estado) + '|' + _norm(i.cidade)));
   for (const c of corretores) {
-    const chave = _norm(c.area_estado) + '|' + _norm(c.area_cidade);
+    const chave = _normEstado(c.area_estado) + '|' + _norm(c.area_cidade);
     const bate = regioesInteressados.has(chave);
     console.log(
       c.codigo_usuario, '->', c.area_estado, '/', c.area_cidade,

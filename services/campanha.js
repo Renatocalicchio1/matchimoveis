@@ -16,6 +16,13 @@ const MODELOS = {
   // então apresenta a Match Imóveis como solução — com 1 único CTA por
   // email. Assuntos sem emoji de alarme/caps (gatilho de spam), sem
   // promessa não verificável (ex: prazo garantido de venda).
+  // Fecho de cada corpo (ago/2026): "1.000 créditos grátis" trocado por uma
+  // frase concreta do que dá pra fazer com esse crédito na hora (qualificar
+  // lead, mandar vitrine) — "créditos" é jargão que quem nunca usou o
+  // sistema não entende ainda; e 3 das 8 variações tinham literalmente o
+  // mesmo fecho ("Comece agora com 1.000 créditos grátis, sem
+  // compromisso."), o que ia contra o próprio princípio de nunca repetir
+  // texto (padrão robótico = sinal de spam).
   pagina: [
     {
       assunto: 'Você está perdendo leads pra quem responde primeiro',
@@ -31,7 +38,7 @@ A Match Imóveis resolve isso sozinha, 24 horas por dia:
 • Monta a vitrine e envia pro cliente automaticamente
 • Agenda a visita sem você precisar lembrar
 
-Sem mensalidade fixa e sem comissão sobre venda. Teste agora com 1.000 créditos grátis.
+Sem mensalidade fixa e sem comissão sobre venda — só criar a conta já libera crédito suficiente pra qualificar e mandar vitrine pra dezenas de leads, sem gastar nada agora.
 
 — Equipe Match Imóveis`
     },
@@ -47,7 +54,7 @@ A Match Imóveis faz por você:
 • Monta a vitrine e agenda a visita sozinha
 • Funciona 24 horas por dia, mesmo fora do seu horário
 
-Comece agora com 1.000 créditos grátis, sem compromisso.
+Criar a conta é grátis e libera crédito na hora — dá pra testar o cruzamento automático com seus primeiros leads sem pagar nada.
 
 — Equipe Match Imóveis`
     },
@@ -63,7 +70,7 @@ A Match Imóveis faz esse cruzamento sozinha, o dia inteiro:
 • Encontra os imóveis compatíveis na sua carteira e na rede
 • Envia a vitrine sem você precisar lembrar
 
-Teste agora com 1.000 créditos grátis, sem cartão de crédito.
+Sem cartão de crédito: você cria a conta, já recebe crédito grátis, e testa o sistema com leads de verdade antes de decidir se vale continuar.
 
 — Equipe Match Imóveis`
     },
@@ -79,7 +86,7 @@ A Match Imóveis trabalha por você 24 horas por dia:
 • Encontra o imóvel certo automaticamente
 • Envia a vitrine sem depender da sua disponibilidade
 
-Comece grátis agora, com 1.000 créditos pra testar.
+Comece agora — a conta já nasce com crédito suficiente pra rodar o cruzamento automático nos primeiros leads, de graça.
 
 — Equipe Match Imóveis`
     },
@@ -95,7 +102,7 @@ A Match Imóveis cuida disso por você:
 • Manda a vitrine sem você precisar lembrar de ninguém
 • Avisa quando um lead esquenta, pra você não perder o timing
 
-Sem mensalidade fixa. Teste agora com 1.000 créditos grátis.
+Sem mensalidade fixa. A conta abre com crédito grátis pra você testar de verdade, não só olhar a tela.
 
 — Equipe Match Imóveis`
     },
@@ -111,7 +118,7 @@ A Match Imóveis responde por você, na hora:
 • Monta e envia a vitrine automaticamente
 • Não depende de você estar online pra funcionar
 
-Comece agora com 1.000 créditos grátis, sem compromisso.
+Cadastro rápido e sem custo — o crédito inicial já dá pra qualificar leads e mandar vitrine, sem tirar nada do bolso.
 
 — Equipe Match Imóveis`
     },
@@ -127,7 +134,7 @@ A Match Imóveis é esse assistente que nunca falha:
 • Envia a vitrine certa, pro lead certo, na hora certa
 • Trabalha sozinha, 24 horas por dia
 
-Teste grátis agora, com 1.000 créditos pra começar.
+Teste com leads de verdade: a conta já vem com crédito grátis, suficiente pra ver o sistema funcionando antes de decidir continuar.
 
 — Equipe Match Imóveis`
     },
@@ -143,7 +150,7 @@ Na Match Imóveis:
 • Mais opções pro cliente, mais chance de fechar pra você
 • Tudo automático, sem precisar ligar pra ninguém
 
-Comece agora com 1.000 créditos grátis, sem compromisso.
+Sem compromisso: crie a conta, use o crédito grátis que já vem com ela, e veja funcionando antes de pensar em pagar qualquer coisa.
 
 — Equipe Match Imóveis`
     }

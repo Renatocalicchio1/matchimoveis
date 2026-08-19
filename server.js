@@ -3222,10 +3222,16 @@ _agendarProximoEnvioCampanha();
 // contatos) — mesmo princípio: só dispara quando ativa em /admin/campanha,
 // intervalo aleatório a cada envio (nunca fixo, sempre varia, pra não ter
 // padrão robótico "a cada X segundos exatos" — sinal clássico de spam).
-// Era 30s-5min (~1.420 envios/24h observado) — reduzido pela metade (jul/2026,
-// pedido de dobrar o volume diário) pra dobrar a taxa mantendo a variação.
+// Era 30s-5min, depois 30s-135s (~1.420 e depois ~1.047 envios/24h) —
+// reduzido de novo pra 10s-2min (ago/2026, pedido de aumentar o volume
+// diário) — nunca passa de 2 min, média cai de ~82s pra ~65s, ~1.330
+// envios/24h. Degrau moderado de propósito (não foi direto pro teto de 50
+// mil/dia da conta SES): essa cota é dividida com a campanha de captação e
+// e-mail transacional, e a assinatura SNS de bounce/reclamação ainda está
+// com confirmação pendente — subir volume rápido demais antes disso é
+// arriscado pra reputação da conta inteira (ver pendência no CLAUDE.md).
 function _agendarProximoEnvioCampanhaGeral() {
-  const delayMs = (30 + Math.random() * 105) * 1000; // 30s a 135s (~2min15)
+  const delayMs = (10 + Math.random() * 110) * 1000; // 10s a 120s (nunca passa de 2min)
   setTimeout(async () => {
     try {
       const { enviarProximo } = require('./services/campanha');

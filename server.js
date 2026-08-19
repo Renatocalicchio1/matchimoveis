@@ -21142,7 +21142,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <td style="padding:8px;font-size:12px">${new Date(h.criado_em).toLocaleDateString('pt-BR')}</td>
         <td style="padding:8px;font-size:12px">${_escC(h.indicado_codigo)}</td>
         <td style="padding:8px;font-size:12px">${h.valor_compra_coins}</td>
-        <td style="padding:8px;font-size:12px;font-weight:700;color:#16a34a">+${h.bonus_coins}</td>
+        <td style="padding:8px;font-size:12px;font-weight:700;color:#16a34a">+${h.bonus_coins} <span style="font-weight:400;color:#6b7280">(R$ ${(h.bonus_coins/20).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})})</span></td>
         <td style="padding:8px;font-size:12px">${_escC(h.status)}${h.modo_resgate ? ' (' + _escC(h.modo_resgate) + ')' : ''}</td>
       </tr>`).join('');
 

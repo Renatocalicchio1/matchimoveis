@@ -18675,18 +18675,19 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias, total: d.total, valorMin, valorMax };
       // Monta os combos (já com o compatível marcado como recomendado) em
-      // segundo plano. 15s depois de ver a planilha, avancarParaPlanos()
+      // segundo plano. 6s depois de ver a planilha (era 15s, reduzido pra
+      // abrir o formulário mais rápido — ago/2026), avancarParaPlanos()
       // decide o próximo passo: sem conta ainda, abre o cadastro primeiro
       // (captura o corretor mesmo que ele não compre depois); com conta já
       // criada, vai direto pro combo recomendado. O botão "Quanto me custa
-      // essas leads?" dispara o mesmo fluxo antes dos 15s, se clicado.
+      // essas leads?" dispara o mesmo fluxo antes desse tempo, se clicado.
       renderCombos(d.total);
       document.getElementById('combos-box').style.display = 'none';
       if(d.total > 0 && !IS_ADMIN){
         _custoLeadsTimer = setTimeout(function(){
           document.getElementById('btnCustoLeads').style.display = 'inline-block';
           avancarParaPlanos();
-        }, 15000);
+        }, 6000);
       }
       iniciarAutoScrollTabela();
     } catch(e){ fecharModalPensando(); document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
@@ -18759,7 +18760,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
   // Ponto único que decide o próximo passo depois da planilha: sem conta
   // ainda, pede o cadastro primeiro (só depois disso mostra os planos);
   // com conta já criada, vai direto pros planos. Chamado tanto pelo timer
-  // de 15s quanto pelo botão "Quanto me custa essas leads?".
+  // de 6s quanto pelo botão "Quanto me custa essas leads?".
   function avancarParaPlanos(){
     if(IS_ADMIN) return;
     if(!_contaCriada){ abrirModalCadastroInicial(); return; }

@@ -4103,6 +4103,14 @@ app.post('/app/importar', auth, upload.any(), async (req, res) => {
   // (app-cadastro.ejs, app-assistente.ejs) manda userId — sempre veio da sessão.
   const _importUserId = req.session.user.id;
   const _importXmlUrl = xmlUrl;
+
+  // Máximo de 2 XML por conta — só barra URL NOVA (uma já cadastrada pode
+  // reimportar/atualizar à vontade, não é o feed novo que soma no limite).
+  const _feedsAtuais = await lerFeedsService(_importUserId);
+  if (!_feedsAtuais.some(f => f.url === _importXmlUrl) && _feedsAtuais.length >= 2) {
+    return res.json({ ok: false, erro: 'Você já atingiu o limite de 2 XML importados. Exclua um feed existente em "XML Cadastrado" antes de importar outro.' });
+  }
+
   global.importStatus = {
     status: 'rodando',
     total: 0,
@@ -6408,6 +6416,14 @@ app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req,
   const xmlUrl = req.body.xmlUrl;
   const userId = req.session.user.id;
   if (!xmlUrl) return res.json({ ok: false, erro: 'URL não informada' });
+  // Mesmo limite de 2 XML de /app/importar — essa rota normalmente só
+  // reimporta feed já cadastrado (botão "Atualizar" manda a URL que já está
+  // salva), mas é uma rota direta que aceita qualquer xmlUrl no body, então
+  // precisa da mesma trava pra não virar um jeito de burlar o limite.
+  const _feedsAtualizarXml = await lerFeedsService(userId);
+  if (!_feedsAtualizarXml.some(f => f.url === xmlUrl) && _feedsAtualizarXml.length >= 2) {
+    return res.json({ ok: false, erro: 'Você já atingiu o limite de 2 XML importados. Exclua um feed existente em "XML Cadastrado" antes de importar outro.' });
+  }
   try {
     const { execSync } = require('child_process');
     const path = require('path');

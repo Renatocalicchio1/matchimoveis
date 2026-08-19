@@ -583,7 +583,13 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
      LEFT JOIN imoveis im ON im.id = e.imovel_captado_id
      LEFT JOIN usuarios u ON u.codigo_usuario = im.user_id
      ${where}
-     ORDER BY (COALESCE(
+     -- Quem já recebeu o WhatsApp manual (wa_manual_enviado_em) desce pro
+     -- final da lista — mesmo critério (e mesma posição, na frente da
+     -- prioridade de elegibilidade abaixo) já aplicado em /admin/campanha/
+     -- contatos (ago/2026), pra sumir de cima assim que o sub-admin clica
+     -- "Enviar" e sobrar só quem ainda falta mandar.
+     ORDER BY (e.wa_manual_enviado_em IS NULL) DESC,
+       (COALESCE(
          (SELECT l.telefone FROM leads l WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
           AND LOWER(l.email)=LOWER(e.email) ORDER BY l.criado_em DESC LIMIT 1),
          e.telefone

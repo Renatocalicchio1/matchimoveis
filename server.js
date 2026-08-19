@@ -19975,8 +19975,12 @@ https://www.matchimoveis.ia.br
     _ultimosContatos = d.contatos;
     let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1180px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Comprou</th><th style="padding:8px;text-align:left">F.up 1</th><th style="padding:8px;text-align:left">F.up 2</th><th style="padding:8px;text-align:left">F.up 3</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th></tr>';
     for(const c of d.contatos){
-      const cor = c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b';
-      const statusTxt = c.status==='erro' ? escHtml(c.status)+' ('+escHtml(c.erro||'')+')' : escHtml(c.status);
+      // Status de envio (pendente/enviado/erro) some de vista assim que o
+      // contato já virou cadastro na plataforma — a coluna "Status" passa a
+      // mostrar "Cadastrado" (o que importa agora), não fica preso pra sempre
+      // em "enviado" enquanto isso já aparece só na coluna separada "Cadastrou".
+      const cor = c.cadastrou ? '#16a34a' : (c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b');
+      const statusTxt = c.cadastrou ? 'Cadastrado' : (c.status==='erro' ? escHtml(c.status)+' ('+escHtml(c.erro||'')+')' : escHtml(c.status));
       const verEmail = c.status==='enviado' ? '<a href="javascript:void(0)" onclick="abrirPreview('+c.id+')" style="color:#FF385C;font-weight:600;text-decoration:none">Ver e-mail →</a>' : '—';
       const trBg = c.atendido_por_cor ? ' style="background:'+escHtml(c.atendido_por_cor)+'1a;border-bottom:1px solid #e5e7eb"' : ' style="border-bottom:1px solid #e5e7eb"';
       const celularCel = c.celular

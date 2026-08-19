@@ -30,26 +30,31 @@ const TITULOS = [
   'Divulgamos seu imóvel automaticamente em vários portais'
 ];
 
+// Reescrito (ago/2026, taxa de clique estava em 1,6% dos que abriram —
+// bem abaixo da campanha de corretor): trocado "cadastrar" (que soa como
+// burocracia) por benefício pessoal concreto — não precisar atender
+// corretor um por um, não precisar sair anunciando em vários lugares.
 const CORPOS = [
-  'Temos uma rede de mais de 9.000 corretores prontos pra ajudar a vender ou alugar seu imóvel. Cadastre em menos de 2 minutos e comece a receber interessados.',
-  'Divulgamos automaticamente nos principais portais do Brasil (OLX, ZAP, VivaReal e mais), sem nenhum custo pra você cadastrar.',
-  'Cadastre as informações básicas do seu imóvel — leva menos de 2 minutos — e nosso time entra em contato pra cuidar de tudo.',
-  'Temos compradores e interessados buscando imóvel na sua região agora. Cadastre o seu e apareça pra eles.',
-  'Sem comissão pra cadastrar. Preencha as informações do seu imóvel e deixe o resto com a gente.',
-  'Uma rede de milhares de corretores pode estar buscando exatamente um imóvel como o seu agora. Cadastre e não perca a oportunidade.',
-  'Cadastro rápido, sem burocracia. Em poucos minutos seu imóvel já está pronto pra ser encontrado por quem procura.',
-  'Quanto mais rápido seu imóvel aparecer pros interessados certos, mais rápido surgem as propostas. Cadastre agora — é grátis.'
+  'Cadastre seu imóvel em menos de 2 minutos e deixa com a gente atender quem se interessar — sem você precisar responder ligação nem mensagem de corretor um por um.',
+  'Divulgamos automaticamente nos principais portais do Brasil (OLX, ZAP, VivaReal e mais) — você preenche uma vez, sem custo nenhum.',
+  'Preencha as informações básicas do seu imóvel e nosso time cuida do resto: divulgação, contato com interessados, agendamento de visita.',
+  'Tem gente procurando um imóvel como o seu agora mesmo — sem você precisar sair anunciando em vários lugares por conta própria.',
+  'Sem comissão pra cadastrar. Você preenche uma vez e a gente cuida de fazer seu imóvel aparecer pra quem procura.',
+  'Uma rede de milhares de corretores pode estar buscando exatamente um imóvel como o seu agora — sem você precisar correr atrás de ninguém.',
+  'Cadastro rápido, sem burocracia — e você decide se aceita alguma proposta que aparecer, sem compromisso nenhum.',
+  'Quanto mais rápido seu imóvel aparecer pros interessados certos, mais rápido surgem as propostas — e cadastrar é grátis.'
 ];
 
-// Gancho inicial — lembra a pessoa que ela já buscou um imóvel (comprar ou
-// alugar) na plataforma, e sugere que ela também pode ter um pra vender.
+// Gancho inicial — reescrito (ago/2026) pra depender menos de a pessoa
+// "lembrar" da marca Match Imóveis (ela pode ter interagido só com o
+// corretor, sem nunca ver esse nome) e trazer o benefício mais cedo.
 // Sorteado à parte do corpo, pra multiplicar as combinações possíveis.
 const GANCHOS = [
-  'Vimos que você já buscou um imóvel para comprar ou alugar por aqui. E se você também tiver um imóvel seu pra vender ou alugar?',
-  'Notamos que você esteve procurando um imóvel pra comprar ou alugar. Se por acaso você também tem um imóvel seu pra vender ou alugar, a gente pode ajudar a divulgar.',
-  'Você já usou a Match Imóveis pra buscar um imóvel — pra comprar ou alugar. Aproveitando, você também tem algum imóvel seu pra vender ou alugar?',
-  'Sabemos que você esteve em busca de um imóvel recentemente (comprar ou alugar). Se você também tem um imóvel seu pra vender ou alugar, cadastre com a gente.',
-  'Você buscou um imóvel pra comprar ou alugar aqui na plataforma. Talvez você também tenha um imóvel pra vender ou alugar — é rápido cadastrar.'
+  'Você entrou em contato com um corretor pela nossa plataforma. E se, ao invés de procurar um imóvel, você tivesse um pra vender ou alugar agora?',
+  'Enquanto você procurava um imóvel por aqui, tem gente do outro lado buscando exatamente o oposto: alguém com um imóvel pra vender ou alugar.',
+  'Você já usou a Match Imóveis pra buscar um imóvel. Se por acaso você também tem um pra vender ou alugar, a gente cuida da divulgação pra você.',
+  'Sabemos que você andou procurando um imóvel recentemente. Se você também tem um imóvel seu parado, esperando comprador ou inquilino, isso pode te interessar.',
+  'Vender ou alugar um imóvel sozinho dá trabalho: atender ligação, marcar visita, negociar. A gente faz isso por você, de graça.'
 ];
 
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
@@ -93,6 +98,11 @@ const BENEFICIOS_CAPTACAO = [
   'Sem comissão pra cadastrar'
 ];
 
+// Botão trocado de "Cadastrar meu imóvel →" pra "Anunciar meu imóvel grátis →"
+// (ago/2026) — "cadastrar" pede compromisso de preencher tudo já no primeiro
+// clique; "anunciar...grátis" foca no resultado e no custo zero, sem
+// prometer nada que a página de destino não entrega (ela já é o formulário
+// de cadastro mesmo, só muda o enquadramento do convite).
 function _montarHtml(nome, corpo, linkRastreado, pixelUrl) {
   const beneficios = BENEFICIOS_CAPTACAO.map(b =>
     '<li style="margin:8px 0;padding-left:22px;position:relative">'
@@ -102,7 +112,7 @@ function _montarHtml(nome, corpo, linkRastreado, pixelUrl) {
     + '<h2 style="color:#FF385C;margin:0 0 16px 0">Olá, ' + (nome || '') + '!</h2>'
     + '<p style="margin:0 0 20px 0;font-size:15px;line-height:1.7;color:#222">' + corpo + '</p>'
     + '<ul style="list-style:none;padding:18px 22px;margin:0 0 24px 0;background:#f9fafb;border-radius:10px;font-size:14.5px;color:#374151">' + beneficios + '</ul>'
-    + '<a href="' + linkRastreado + '" style="display:inline-block;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">Cadastrar meu imóvel →</a>'
+    + '<a href="' + linkRastreado + '" style="display:inline-block;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">Anunciar meu imóvel grátis →</a>'
     + '<p style="margin-top:18px;font-size:12.5px;color:#9ca3af">Sem compromisso — você decide se aceita alguma proposta.</p>'
     + '</div>'
     + (pixelUrl ? '<img src="' + pixelUrl + '" width="1" height="1" alt="" style="display:none">' : '');

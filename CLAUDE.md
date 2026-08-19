@@ -87,6 +87,14 @@ R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
 ## Usuários/contas de referência
 Jane: JAN-MGF9 (~1.700 imóveis) | Mauricio: MAU-EHAM (~432) | Alexandre: ALE-DU2K (~845, enriquecido via CADIMO/CADCLI) | Barros: BAR-GALN | Valdete: VAL-9PCH | Rodrigo: ROD-AFQ4
 
+## Páginas de conteúdo SEO/AEO (ago/2026)
+Estratégia de tráfego orgânico (Google + IA tipo ChatGPT) pra reduzir dependência de campanha paga — decidida com o Renato depois de mapear que `/demanda` (principal destino de campanha) não tinha nenhum SEO e não existia nenhuma página de conteúdo institucional.
+- Template único `views/conteudo-seo.ejs` recebe um objeto de conteúdo (`_CONTEUDO_SEO` em server.js, perto da rota `/`) por página — meta description, OG/Twitter, canonical e 2 JSON-LD (`SoftwareApplication` + `FAQPage`, com a FAQ visível na página em `<details>`, não escondida). Rotas registradas via `Object.keys(_CONTEUDO_SEO).forEach(...)`, então toda página nova nesse objeto já ganha rota e entra automaticamente no `/sitemap.xml` sem precisar mexer em mais nada.
+- CTA de todas usa `/?cadastro=1` (landing.ejs) — abre o modal de cadastro direto na aba certa, decoupled do `?ref=` (que continua exclusivo pra atribuição de sub-admin).
+- 17 páginas no ar: as 6 "pilar" (`crm-para-corretores`, `ia-para-corretores`, `geracao-de-leads-imobiliarios`, `automacao-para-imobiliarias`, `plataforma-para-corretores`, `divulgacao-de-imoveis-com-ia`) + 11 de apoio — definição (`o-que-e-match-automatico-de-imoveis`, `o-que-e-vitrine-automatica-pelo-whatsapp`, `o-que-e-follow-up-automatico-imobiliario`), persona (`matchimoveis-para-corretor-autonomo`, `matchimoveis-para-imobiliaria`), integração (`integracao-xml-vivareal-zap`, `integracao-olx-imovelweb`), preço (`crm-imobiliario-sem-mensalidade`), FAQ hub (`perguntas-frequentes`) e guia (`como-organizar-leads-de-imobiliaria`, `como-automatizar-postagem-de-imovel-no-instagram`). Todas linkadas entre si (`relacionados`) e as principais também no footer da landing.
+- Decisão explícita do Renato: **nunca** criar página comparando com concorrente nomeado nem página por cidade ("corretor em São Paulo") — público errado pro produto (isso atrai quem busca corretor, não quem busca ferramenta pra corretor).
+- Pendente (ver Pendências ativas): Google Analytics — falta Measurement ID de uma propriedade GA4 pro domínio principal.
+
 ## Pendências ativas (jul/2026)
 - [ ] sync_xml_24h: não implementado
 - [ ] lead_ativo_dia: implementado mas não testado às 8h

@@ -199,7 +199,11 @@ function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<sp
 function _dataFmt(iso){ return iso ? new Date(iso).toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' }) : ''; }
 
 // ── WhatsApp manual + follow-up (mesmo sistema de /admin/campanha) ─────────
-const LINK_CAPTACAO = 'https://matchimoveis.ia.br/captar/REN-G9K6';
+// Sub-admin manda o link de captação com o código DELE (mesmo padrão de
+// _refCodeCampanha em /admin/campanha) — antes era fixo REN-G9K6 pra todo
+// mundo, então toda captação feita por qualquer sub-admin caía na conta do
+// superadmin em vez da própria (ago/2026).
+const LINK_CAPTACAO = 'https://matchimoveis.ia.br/captar/<%= refCodeCaptacao || "REN-G9K6" %>';
 // Link de opt-out de 1 clique (rota pública /wa-optout/captacao/:id em
 // server.js) — token vem pronto em e.optoutToken (calculado no servidor em
 // /admin/captacao-campanha/lista, o cliente não pode gerar sozinho).

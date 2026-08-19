@@ -19503,13 +19503,17 @@ app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
   const isSuper = req.session.adminSuper !== false;
   const { listarAdminContas: _listarContasFiltroCap } = require('./services/salvarAdminConta');
   const contasFiltro = isSuper ? (await _listarContasFiltroCap().catch(() => [])) : [];
+  // Mesmo padrão de _refCodeCampanha em /admin/campanha — sub-admin manda o
+  // link de captação com o código dele, não com o link fixo do superadmin
+  // (era hardcoded REN-G9K6 pra todo mundo até ago/2026, ver pedido do Renato).
+  const _refCodeCaptacao = (!isSuper && req.session.adminUsuario) ? String(req.session.adminUsuario) : '';
   try {
     const { contarStatus } = require('./services/campanhaCaptacao');
     const status = await contarStatus();
-    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper, contasFiltro });
+    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper, contasFiltro, refCodeCaptacao: _refCodeCaptacao });
   } catch (e) {
     console.error('[admin/captacao-campanha]', e.message);
-    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar, isSuper, contasFiltro });
+    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar, isSuper, contasFiltro, refCodeCaptacao: _refCodeCaptacao });
   }
 });
 app.get('/admin/captacao-campanha/status', authAdmin, async (req, res) => {
@@ -20166,7 +20170,12 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
       COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos ${where}
-      ORDER BY (
+      -- Quem já recebeu o WhatsApp manual (wa_manual_enviado_em) desce pro
+      -- final da lista — critério de ordenação MAIS externo, na frente até
+      -- da prioridade de elegibilidade abaixo, pra sumir de cima assim que o
+      -- sub-admin clica "Enviar" e sobrar só quem ainda falta mandar (ago/2026).
+      ORDER BY (wa_manual_enviado_em IS NULL) DESC,
+      (
         COALESCE(
           (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
           campanha_contatos.celular

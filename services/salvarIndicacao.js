@@ -105,13 +105,30 @@ async function listarSolicitacoesResgate() {
   return rows;
 }
 
+// Relatório de pagos recentes (últimos 30 dias) pro superadmin conferir o
+// que já saiu do caixa — mesma tabela, só filtra status='pago' em vez de
+// 'solicitado'. Usado junto com listarSolicitacoesResgate() em
+// /admin/comissoes-pendentes pra mostrar pendente + pago lado a lado.
+async function listarResgatesPagosRecentes() {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT * FROM indicacoes_bonus WHERE indicador_tipo='admin' AND status='pago' AND pago_em >= NOW() - INTERVAL '30 days' ORDER BY pago_em DESC`
+  );
+  return rows;
+}
+
 async function marcarResgatePago(ids) {
   await _inicializar();
-  if (!ids || !ids.length) return;
-  await query(`UPDATE indicacoes_bonus SET status='pago', pago_em=NOW() WHERE id = ANY($1)`, [ids]);
+  if (!ids || !ids.length) return [];
+  const { rows } = await query(
+    `UPDATE indicacoes_bonus SET status='pago', pago_em=NOW() WHERE id = ANY($1) RETURNING id, indicador_codigo, bonus_coins`,
+    [ids]
+  );
+  return rows;
 }
 
 module.exports = {
   registrarBonus, listarBonusPorIndicador, totalBonusPorIndicador, contarIndicadosComBonus,
-  totalDisponivelPorIndicador, solicitarResgate, listarSolicitacoesResgate, marcarResgatePago
+  totalDisponivelPorIndicador, solicitarResgate, listarSolicitacoesResgate, marcarResgatePago,
+  listarResgatesPagosRecentes
 };

@@ -21136,6 +21136,19 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     }).join('');
 
     const linhasDisponivel = historico.filter(h => h.status === 'disponivel');
+    // Pagos nos últimos 30 dias — mesmo recorte do relatório que o
+    // superadmin vê em /admin/comissoes-pendentes, só que aqui já filtrado
+    // pra esse sub-admin. Fica num bloco separado e destacado (não só a
+    // linha "pago" perdida no meio da tabela completa) pra ficar óbvio o
+    // que já caiu.
+    const _30diasAtras = new Date(Date.now() - 30*24*60*60*1000);
+    const pagosRecentes = historico.filter(h => h.status === 'pago' && h.pago_em && new Date(h.pago_em) >= _30diasAtras);
+    const totalPagoRecente = pagosRecentes.reduce((s, h) => s + h.bonus_coins, 0);
+    const pagosRecentesHtml = pagosRecentes.map(h => `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0fdf4;font-size:12.5px">
+        <span>${new Date(h.pago_em).toLocaleDateString('pt-BR')} · corretor ${_escC(h.indicado_codigo)}${h.modo_resgate ? ' · ' + _escC(h.modo_resgate) : ''}</span>
+        <span style="font-weight:700;color:#15803d">+${h.bonus_coins} coins (R$ ${(h.bonus_coins/20).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})})</span>
+      </div>`).join('');
     const linhasHtml = historico.map(h => `
       <tr style="border-bottom:1px solid #f3f4f6">
         <td style="padding:8px">${h.status === 'disponivel' ? `<input type="checkbox" class="chk-resgate" value="${h.id}" data-coins="${h.bonus_coins}">` : ''}</td>
@@ -21258,6 +21271,11 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <button onclick="revender()" style="background:#00A699;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer">Revender</button>
           <p style="font-size:11.5px;color:#9ca3af;margin-top:8px">Você ganha +10% de volta em coins toda vez que revende.</p>
         </div>
+
+        ${pagosRecentes.length ? `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:20px">
+          <h3 style="margin:0 0 10px;font-size:14px;color:#15803d">✅ Pagamentos recebidos (últimos 30 dias) — total ${totalPagoRecente} coins (R$ ${(totalPagoRecente/20).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})})</h3>
+          ${pagosRecentesHtml}
+        </div>` : ''}
 
         <table style="width:100%;background:#fff;border:1px solid #e5e7eb;border-radius:12px;border-collapse:collapse;overflow:hidden">
           <thead><tr style="background:#f9fafb;text-align:left"><th style="padding:8px"></th><th style="padding:8px;font-size:11px">Data</th><th style="padding:8px;font-size:11px">Corretor</th><th style="padding:8px;font-size:11px">Compra</th><th style="padding:8px;font-size:11px">Comissão</th><th style="padding:8px;font-size:11px">Status</th></tr></thead>
@@ -21460,8 +21478,9 @@ app.post('/admin/minhas-comissoes/revender', authAdmin, express.json(), async (r
 app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
   try {
     const _escP = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    const { listarSolicitacoesResgate } = require('./services/salvarIndicacao');
+    const { listarSolicitacoesResgate, listarResgatesPagosRecentes } = require('./services/salvarIndicacao');
     const pendentes = await listarSolicitacoesResgate();
+    const pagos = await listarResgatesPagosRecentes();
     const porAdmin = {};
     pendentes.forEach(p => {
       if (!porAdmin[p.indicador_codigo]) porAdmin[p.indicador_codigo] = [];
@@ -21480,6 +21499,23 @@ app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
       </div>`;
     }).join('') || '<p style="color:#9ca3af">Nenhum resgate em dinheiro pendente.</p>';
 
+    // Relatório do que já foi pago (últimos 30 dias) — fica visível na mesma
+    // tela, então depois de marcar como pago o item não "some" sem rastro,
+    // vira uma linha aqui mostrando quando e pra quem foi pago.
+    const porAdminPago = {};
+    pagos.forEach(p => {
+      if (!porAdminPago[p.indicador_codigo]) porAdminPago[p.indicador_codigo] = [];
+      porAdminPago[p.indicador_codigo].push(p);
+    });
+    const blocosPagos = Object.entries(porAdminPago).map(([admin, itens]) => {
+      const total = itens.reduce((s, i) => s + i.bonus_coins, 0);
+      const linhas = itens.map(i => `<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px;font-size:12px">${new Date(i.pago_em).toLocaleDateString('pt-BR')}</td><td style="padding:6px;font-size:12px;font-weight:700">${i.bonus_coins} coins</td><td style="padding:6px;font-size:12px;color:#16a34a;font-weight:700">R$ ${_reais(i.bonus_coins)}</td></tr>`).join('');
+      return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:14px">
+        <h3 style="margin:0 0 8px;font-size:14px">${_escP(admin)} — total pago: ${total} coins <span style="color:#16a34a">(R$ ${_reais(total)})</span></h3>
+        <table style="width:100%">${linhas}</table>
+      </div>`;
+    }).join('') || '<p style="color:#9ca3af">Nenhum pagamento nos últimos 30 dias.</p>';
+
     res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Comissões pendentes</title>
     <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}</style></head>
     <body>
@@ -21488,6 +21524,10 @@ app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
         <h1 style="font-size:22px;margin-bottom:4px">Comissões pendentes (dinheiro)</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Pague por fora e marque aqui como pago.</p>
         ${blocos}
+
+        <h1 style="font-size:18px;margin:28px 0 4px">✅ Pagas recentemente (últimos 30 dias)</h1>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Relatório do que já foi pago por fora e confirmado aqui.</p>
+        ${blocosPagos}
       </main>
     </div>
       <script>
@@ -21497,6 +21537,7 @@ app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
           const r = await fetch('/admin/comissoes-pendentes/pagar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ids})});
           const j = await r.json();
           if(!j.ok) return alert('Erro: ' + j.erro);
+          alert('Marcado como pago: ' + j.totalCoins + ' coins (R$ ' + j.totalReais.replace('.',',') + ')');
           location.reload();
         }
       </script>
@@ -21509,8 +21550,12 @@ app.post('/admin/comissoes-pendentes/pagar', authAdmin, express.json(), async (r
     const { ids } = req.body;
     if (!Array.isArray(ids) || !ids.length) return res.json({ ok: false, erro: 'Selecione ao menos um item' });
     const { marcarResgatePago } = require('./services/salvarIndicacao');
-    await marcarResgatePago(ids);
-    res.json({ ok: true });
+    const pagas = await marcarResgatePago(ids);
+    const total = pagas.reduce((s, p) => s + p.bonus_coins, 0);
+    // Devolve o total pra confirmar na hora quem/quanto foi pago — o
+    // sub-admin em si vê o mesmo lançamento no card "Pagamentos recebidos"
+    // de /admin/minhas-comissoes na próxima vez que abrir a tela dele.
+    res.json({ ok: true, totalCoins: total, totalReais: (total/20).toFixed(2) });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 

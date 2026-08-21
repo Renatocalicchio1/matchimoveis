@@ -8,6 +8,10 @@
 .kpi-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:12px 0 0 12px}
 .kpi-label{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 .kpi-val{font-size:24px;font-weight:600;color:#111827;letter-spacing:-1px}
+@media(max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+
+.nl-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+@media(max-width:480px){.nl-grid4{grid-template-columns:repeat(2,1fr)}}
 
 /* ── Filtros ── */
 .fi-bar{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:14px;padding:14px;margin-bottom:14px}
@@ -460,7 +464,7 @@ leads.forEach(item => {
       <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Valor máx. (R$) <span style="color:#ef4444">*</span></label><input id="nl-valor" type="number" placeholder="Ex: 500000" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
     </div>
     <div id="nl-campos-residencial">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">
+      <div class="nl-grid4">
         <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Quartos <span style="color:#ef4444">*</span></label><input id="nl-quartos" type="number" min="0" placeholder="0" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
         <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Suítes</label><input id="nl-suites" type="number" min="0" placeholder="0" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
         <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Vagas</label><input id="nl-vagas" type="number" min="0" placeholder="0" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>

@@ -81,7 +81,8 @@ table.ind-table tr:last-child td{border-bottom:none}
   <% if(!indicados.length){ %>
   <div class="ind-vazio">Você ainda não indicou ninguém. Compartilhe seu link acima!</div>
   <% } else { %>
-  <table class="ind-table">
+  <div style="overflow-x:auto">
+  <table class="ind-table" style="min-width:480px">
     <thead><tr><th>Nome</th><th>Telefone</th><th>Cadastrado em</th><th>Status</th></tr></thead>
     <tbody>
       <% indicados.forEach(function(i){ %>
@@ -94,6 +95,7 @@ table.ind-table tr:last-child td{border-bottom:none}
       <% }); %>
     </tbody>
   </table>
+  </div>
   <% } %>
 </div>
 
@@ -103,7 +105,8 @@ table.ind-table tr:last-child td{border-bottom:none}
   <% if(!bonusHistorico.length){ %>
   <div class="ind-vazio">Nenhum bônus recebido ainda.</div>
   <% } else { %>
-  <table class="ind-table">
+  <div style="overflow-x:auto">
+  <table class="ind-table" style="min-width:480px">
     <thead><tr><th>Data</th><th>Indicado</th><th>Compra</th><th>Seu bônus</th></tr></thead>
     <tbody>
       <% bonusHistorico.forEach(function(b){ %>
@@ -116,6 +119,7 @@ table.ind-table tr:last-child td{border-bottom:none}
       <% }); %>
     </tbody>
   </table>
+  </div>
   <% } %>
 </div>
 

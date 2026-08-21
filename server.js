@@ -10732,7 +10732,16 @@ app.get('/api/localidades/cidades', async (req, res) => {
     // nome certo — ago/2026).
     if (estado) { params.push(estado); sql += ` AND unaccent(lower(estado)) = unaccent(lower($${params.length}))`; }
     if (q) { params.push('%' + q + '%'); sql += ` AND unaccent(lower(cidade)) LIKE unaccent(lower($${params.length}))`; }
-    sql += ' ORDER BY cidade LIMIT 30';
+    // Sem `q` (carga inicial ao trocar de estado — o widget de área de
+    // atuação busca 1x por estado e filtra localmente enquanto digita, não
+    // manda `q` a cada tecla) precisa vir TUDO, não só os 30 primeiros em
+    // ordem alfabética: estado grande (SP tem ~645 municípios) sempre corta
+    // antes de chegar em cidades que começam com letra mais tardia — "São
+    // Paulo" vira "sao paulo" sem acento no banco (ver popular-brasil-tudo.js)
+    // e nunca aparecia nos 30 primeiros, fazendo o autocomplete "não achar"
+    // a própria capital (bug relatado ago/2026). Com `q` (filtro digitado
+    // direto no servidor, usado em outros pontos) mantém limite baixo.
+    sql += ' ORDER BY cidade LIMIT ' + (q ? 30 : 1000);
     const { rows } = await _qLocC(sql, params);
     res.json({ ok: true, cidades: rows.map(r => r.cidade) });
   } catch (e) { res.json({ ok: false, cidades: [] }); }

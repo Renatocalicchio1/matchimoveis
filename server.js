@@ -14074,7 +14074,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
         box.innerHTML = conversas.map(c => {
           const prevista = escHtml((c.tipo==='botao'?'🔘 ':c.tipo==='audio'?'🎤 ':'') + (c.direcao==='saida'?'Você: ':'') + (c.texto||'').slice(0,60));
           const telLimpo = String(c.contato_telefone||'').replace(/\\D/g,'');
-          const waLink = 'https://wa.me/'+telLimpo+'?text='+encodeURIComponent('Olá! Somos do suporte da MatchImóveis e vamos te ajudar!');
+          const waLink = 'https://wa.me/'+telLimpo+'?text='+encodeURIComponent('Olá! Somos da MatchImóveis. Para começar gratuitamente e testar o sistema, faça seu cadastro e ganhe 1.000 créditos para utilizar a plataforma. No app tem o assistente robô que te ajuda a tirar todas as suas dúvidas. matchimoveis.ia.br');
           return '<div class="linha" style="cursor:pointer' + (c.naoLidas>0?';background:#fff7f0':'') + '" onclick="location.href=\\'/admin/whatsapp-cloud/'+encodeURIComponent(c.contato_telefone)+'\\'"' + '>' +
             '<div><p style="margin:0;font-weight:700;font-size:14px;color:#111">'+escHtml(c.contato_nome||c.contato_telefone)+(c.naoLidas>0?' <span style="background:#FF385C;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;margin-left:6px">'+c.naoLidas+'</span>':'')+'</p>' +
             '<p style="margin:2px 0 0;font-size:12px;color:#6b7280">'+escHtml(c.contato_telefone)+' · '+prevista+'</p></div>' +

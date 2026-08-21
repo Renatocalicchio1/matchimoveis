@@ -18,9 +18,12 @@ function _chaveLocalidade(s) {
   return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 const _ESTADOS_POR_CHAVE = {};
+const _SIGLA_POR_CHAVE = {};
 _ESTADOS_BR.forEach(([sigla, nome]) => {
   _ESTADOS_POR_CHAVE[_chaveLocalidade(sigla)] = nome;
   _ESTADOS_POR_CHAVE[_chaveLocalidade(nome)] = nome;
+  _SIGLA_POR_CHAVE[_chaveLocalidade(sigla)] = sigla.toLowerCase();
+  _SIGLA_POR_CHAVE[_chaveLocalidade(nome)] = sigla.toLowerCase();
 });
 function normalizarEstadoBR(valor) {
   const bruto = typeof valor === 'object' ? (valor?.abbreviation || valor?.['#text'] || '') : (valor || '');
@@ -97,6 +100,22 @@ function normalizarBairroBR(cidadeCanonica, bairroBruto) {
   if (!fallback || !_dicIBGE) return fallback;
   const mapa = _dicIBGE.bairrosPorCidade[_chaveLocalidade(cidadeCanonica)];
   return (mapa && mapa[_chaveLocalidade(fallback)]) || fallback;
+}
+
+// Alimenta `localidades` (fonte='interno') com bairro/cidade/estado reais
+// que já vieram preenchidos num cadastro de imóvel — cresce a base sozinha
+// conforme o sistema é usado, sem depender só da raspagem 1x do
+// OpenStreetMap (que deixa buraco em cidade média/pequena — ex: "Praia
+// Grande" não tinha bairro nenhum, ago/2026). Fire-and-forget: nunca atrasa
+// nem quebra o salvamento do imóvel se a query falhar.
+async function _alimentarLocalidades(estadoBruto, cidadeBruta, bairroBruto) {
+  const uf = _SIGLA_POR_CHAVE[_chaveLocalidade(estadoBruto)];
+  const cidade = _chaveLocalidade(cidadeBruta);
+  const bairro = _chaveLocalidade(bairroBruto);
+  if (!uf || !cidade || !bairro || bairro.length < 3) return;
+  try {
+    await query(`INSERT INTO localidades(bairro,cidade,estado,fonte) VALUES($1,$2,$3,'interno') ON CONFLICT DO NOTHING`, [bairro, cidade, uf]);
+  } catch (e) {}
 }
 
 // Fallback pra quando a fonte não manda bairro separado (ex: planilha de
@@ -508,6 +527,7 @@ async function salvarImovel(imovel) {
           xml_url=EXCLUDED.xml_url, last_update=EXCLUDED.last_update,
           dados=EXCLUDED.dados, atualizado_em=NOW()
       `, [r.id,r.id_externo,r.id_original,r.id_interno,r.codigo_imovel,r.titulo,r.tipo,r.categoria,r.transacao,r.condicao,r.status,r.bairro,r.cidade,r.estado,r.endereco,r.numero,r.complemento,r.cep,r.latitude,r.longitude,r.andar,r.torre,r.unidade,r.condominio_nome,r.valor_imovel,r.condominio,r.iptu,r.area_m2,r.area_total,r.area_construida,r.quartos,r.suites,r.banheiros,r.vagas,r.salas,r.descricao,r.descricao_editada,r.fotos,r.proprietario,r.portais,r.diferenciais,r.corretor,r.fonte,r.source,r.fase,r.ano_construcao,r.posicao_solar,r.total_andares,r.unidades_por_andar,r.aceita_financiamento,r.aceita_permuta,r.user_id,r.usuario_id,r.codigo_usuario,r.usuario_nome,r.usuario_perfil,r.usuario_telefone,r.corretor_id,r.corretor_nome,r.corretor_email,r.corretor_telefone,r.url,r.url_publica,r.tour_virtual,r.inativado_em,r.inativado_por,r.xml_url,r.last_update,r.dados]);
+      _alimentarLocalidades(r.estado, r.cidade, r.bairro).catch(() => {});
       return imovel;
     } catch(e) {
       console.error('[salvarImovel PG]', e.message);

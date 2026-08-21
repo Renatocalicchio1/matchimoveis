@@ -44,6 +44,16 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
 <body>
 <div class="card">
 
+  <!-- Barra fixa "veja como está ficando" — só aparece quando já existe um
+       imóvel em andamento (chegou aqui pelo link com ?imovelId= ou já
+       começou o cadastro nessa sessão), pra dono acompanhar o anúncio indo
+       e voltando quantas vezes quiser, mesmo sem foto ainda (?preview=1 em
+       /imovel/:id ignora a checagem normal de "sem foto"/valor mínimo). -->
+  <div id="preview-bar" style="display:none;margin-bottom:16px;padding:10px 14px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;font-size:13px;color:#0f766e;align-items:center;justify-content:space-between;gap:10px">
+    <span>👀 Veja como seu anúncio está ficando</span>
+    <a id="preview-link" href="#" target="_blank" style="background:#00A699;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">Ver anúncio →</a>
+  </div>
+
   <!-- TELA 1 — identificação + intenção -->
   <div id="step1">
     <div class="top-row"><div class="logo">MatchImóveis</div></div>
@@ -193,6 +203,22 @@ function mostrar(id){
   ['step1','step2','step3','step4','step5','step6'].forEach(s => document.getElementById(s).style.display = (s===id ? 'block' : 'none'));
 }
 
+function _atualizarPreviewBar(){
+  if(!_imovelId) return;
+  document.getElementById('preview-link').href = 'https://matchimoveis.ia.br/imovel/' + _imovelId + '?preview=1';
+  document.getElementById('preview-bar').style.display = 'flex';
+}
+
+// Pula direto pra 1ª etapa com dado faltando, em vez de sempre reiniciar em
+// step2 — assim o proprietário que já preencheu endereço mas não chegou na
+// foto, por exemplo, cai direto na etapa de foto ao reabrir o link.
+function _primeiroStepIncompleto(im){
+  if(!im.tipo || !im.endereco || !im.numero || !im.bairro || !im.cidade || !im.estado) return 'step2';
+  if(!im.valor_imovel) return 'step4';
+  if(!im.fotos || !im.fotos.length) return 'step5';
+  return 'step2'; // tudo preenchido — deixa revisar do início mesmo assim
+}
+
 // Veio do email "seu anúncio está pronto, revise" — já sabemos quem é e o que
 // já foi respondido, então pula a tela 1 e pré-preenche o resto: o
 // proprietário só completa o que ainda está faltando, não digita tudo de novo.
@@ -230,7 +256,8 @@ if (_imovelExistente) {
 
   document.getElementById('s4-valor').value = _imovelExistente.valor_imovel || '';
 
-  mostrar(_irDireto === 'fotos' ? 'step5' : 'step2');
+  _atualizarPreviewBar();
+  mostrar(_irDireto === 'fotos' ? 'step5' : _primeiroStepIncompleto(_imovelExistente));
 }
 
 async function selecionar(op){
@@ -339,6 +366,7 @@ async function continuarStep2(){
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ userId, tipo, cep, endereco, numero, complemento, bairro, cidade, estado })
   }).catch(()=>{});
+  _atualizarPreviewBar();
   mostrar('step3');
 }
 

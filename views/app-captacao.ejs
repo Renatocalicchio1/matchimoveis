@@ -125,14 +125,12 @@ async function excluirLeadCap(leadId, nomeEnc){
           const imovelCaptado = dados.imovelCaptadoId || (_primeiroVinculado && (_primeiroVinculado.id_interno||_primeiroVinculado.id));
         %>
         <% const _telCel = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
-        <% const _transacaoLead = dados.transacaoCaptar||(_primeiroVinculado&&_primeiroVinculado.transacao)||''; %>
-        <% const _transacaoVerbo = _transacaoLead==='aluguel' ? 'alugar' : 'vender'; %>
-        <% const _linkContato = _primeiroVinculado ? ('https://matchimoveis.ia.br/imovel/'+(_primeiroVinculado.id_interno||_primeiroVinculado.id)) : ''; %>
-        <% const _msgContato = encodeURIComponent('Oi ' + (l.nome||'') + '! Vi que você tem um imóvel para ' + _transacaoVerbo + ' 🏠' + (_linkContato ? ('\n\nAqui está o link da página: ' + _linkContato) : '') + '\n\nJá estou entrando em contato pra continuar preenchendo os dados com você!'); %>
+        <% const _linkContato = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+(_primeiroVinculado ? ('?imovelId='+(_primeiroVinculado.id_interno||_primeiroVinculado.id)) : ''); %>
+        <% const _msgContato = encodeURIComponent('Oi ' + (l.nome||'') + '! Veja como está ficando o cadastro do seu imóvel: ' + _linkContato); %>
         <tr style="border-top:3px solid #FF385C">
           <td><strong><%= l.nome||'Sem nome' %></strong></td>
           <td><%= l.email||'-' %></td>
-          <td><% if(_telCel){ %><a href="https://wa.me/55<%= _telCel %>?text=<%= _msgContato %>" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none;white-space:nowrap">📱 Solicite mais dados dos imóveis</a><% } else { %>-<% } %></td>
+          <td><% if(_telCel){ %><a href="https://wa.me/55<%= _telCel %>?text=<%= _msgContato %>" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none;white-space:nowrap">💬 Falar no WhatsApp</a><% } else { %>-<% } %></td>
           <td><%= dados.tipoImovelCaptar||perfil.tipo||(_primeiroVinculado&&_primeiroVinculado.tipo)||'-' %></td>
           <td><%= dados.transacaoCaptar||'-' %></td>
           <td>
@@ -152,7 +150,7 @@ async function excluirLeadCap(leadId, nomeEnc){
               <a href="https://matchimoveis.onrender.com/app/cadastro" class="btn-cadastrar">+ Cadastrar imóvel</a>
             <% } else if(!_primeiroVinculado) { %>
               <a href="https://matchimoveis.onrender.com/app/imovel/<%= imovelCaptado %>/editar" style="background:#00A699;color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar os dados</a>
-              <a href="https://www.matchimoveis.ia.br/imovel/<%= imovelCaptado %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:12px;font-weight:600">🔗 Link público</a>
+              <a href="https://www.matchimoveis.ia.br/imovel/<%= imovelCaptado %>?userId=<%= user.codigoUsuario||user.id %>&preview=1" target="_blank" style="color:#16a34a;font-size:12px;font-weight:600">🔗 Link público</a>
             <% } else { %>
               <span style="color:#9ca3af;font-size:11px">Ações abaixo ↓</span>
             <% } %>
@@ -165,20 +163,17 @@ async function excluirLeadCap(leadId, nomeEnc){
             <p style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">🏠 Imóveis vinculados:</p>
             <% l.imoveisRelacionados.forEach(function(im){ %>
             <% const _tel2 = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
-            <% const _link2 = 'https://matchimoveis.ia.br/imovel/'+(im.id_interno||im.id); %>
-            <% const _msg2 = encodeURIComponent('Olá '+(l.nome||'')+'! Seu imóvel foi cadastrado. Acesse: '+_link2); %>
             <% const _semFoto = !im.fotos || !im.fotos.length; %>
-            <% const _linkFotos = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+'?imovelId='+im.id+'&fotos=1'; %>
-            <% const _msgFoto = encodeURIComponent('Oi '+(l.nome||'')+'! Pra terminar o anúncio do seu imóvel, falta só a foto — os outros dados já estão preenchidos. Pode enviar direto por aqui: '+_linkFotos+' 📸'); %>
+            <% const _linkCadastro = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+'?imovelId='+(im.id_interno||im.id); %>
+            <% const _msgCadastro = encodeURIComponent('Oi '+(l.nome||'')+'! Veja como está ficando o cadastro do seu imóvel: '+_linkCadastro); %>
             <% const _dataEntrada = im.criado_em ? new Date(im.criado_em).toLocaleDateString('pt-BR') : null; %>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">
               <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %><% if(_dataEntrada) { %> · <span style="color:#9ca3af">entrou em <%= _dataEntrada %></span><% } %></span>
               <% if(_semFoto) { %><span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap">⚠️ Sem foto</span><% } %>
               <span class="pct-badge <%= pctClasse(im.percentual) %>"><%= im.percentual %>%</span>
-              <% if(_semFoto && _tel2) { %><a href="https://wa.me/55<%= _tel2 %>?text=<%= _msgFoto %>" target="_blank" style="background:#f59e0b;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📸 Solicitar fotos</a><% } %>
-              <a href="https://wa.me/55<%= _tel2 %>?text=<%= _msg2 %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>
+              <% if(_tel2) { %><a href="https://wa.me/55<%= _tel2 %>?text=<%= _msgCadastro %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Falar no WhatsApp</a><% } %>
               <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="background:#00A699;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar</a>
-              <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
+              <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>&preview=1" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
               <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir</button>
             </div>
             <% }); %>

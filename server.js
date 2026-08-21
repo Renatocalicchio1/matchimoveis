@@ -12120,15 +12120,23 @@ app.get('/imovel/:id', async (req, res) => {
   // userId da query serve só para atribuir lead — não muda o corretor exibido
   const _uidLead = _uidQuery || _uid2;
 
+  // ?preview=1 vem do próprio fluxo de captação (botão "Link público" pro
+  // corretor e o link dentro da tela de cadastro pro proprietário, ver
+  // views/captar-imovel.ejs) — é o dono espiando o próprio anúncio ainda
+  // incompleto, não visita pública real, então ignora as 2 checagens abaixo
+  // (sem foto / abaixo do valor mínimo) que existem pra não vazar rascunho
+  // vazio pro público em geral.
+  const _previewCaptacao = req.query.preview === '1';
+
   // Imóvel existe mas ainda não tem foto — não é link quebrado, é cadastro
   // incompleto (comum na captação pública: proprietário preencheu os dados
   // mas não subiu foto ainda). Mensagem própria em vez de cair no 404
   // genérico de "não existe mais ou foi removido".
-  if (imovel && (!imovel.fotos || !imovel.fotos.length)) {
+  if (imovel && (!imovel.fotos || !imovel.fotos.length) && !_previewCaptacao) {
     return _paginaImovelEmFinalizacao(res);
   }
 
-  if (imovel && imovelVisivelPublico(imovel)) {
+  if (imovel && (imovelVisivelPublico(imovel) || _previewCaptacao)) {
     const pub = Object.assign({}, imovel);
     delete pub.proprietario;
     delete pub.proprietario_celular;
@@ -22922,6 +22930,22 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
         const { consumir: _consumirCad } = require('./services/creditos');
         _consumirCad(atualizado.userId || atualizado.user_id, 'cadastrar_imovel').catch(()=>{});
       } catch(e) {}
+      // Publica sozinho (status='ativo') assim que o cadastro chegou completo
+      // pelo fluxo público de captação — antes esse auto-publicar só rolava
+      // no caminho da Campanha de Captação com sub-admin (bloco de bônus
+      // abaixo); ago/2026, virou geral pra qualquer imóvel captado direto
+      // por qualquer corretor, sem precisar de bônus/campanha envolvidos.
+      // Critério de completo = mesmo que já libera o imóvel pro marketplace
+      // (imovelVisivelPublico: tem foto + valor acima do mínimo) mais os
+      // campos de endereço pedidos nas telas do form.
+      try {
+        const _completoCap = atualizado.tipo && atualizado.endereco && atualizado.numero &&
+          atualizado.bairro && atualizado.cidade && atualizado.estado &&
+          imovelVisivelPublico(atualizado);
+        if (_completoCap && atualizado.status !== 'ativo') {
+          await _qCIS(`UPDATE imoveis SET status='ativo' WHERE id=$1`, [imovelId]);
+        }
+      } catch (eAutoPub) { console.error('[captar/imovel] auto-publicar:', eAutoPub.message); }
       // Imóvel veio da Campanha de Captação (ligado em /captar/iniciar via
       // ?ce=) e tem um sub-admin atendendo esse proprietário? Credita 200
       // coins pro sub-admin (mesmo ledger indicacoes_bonus da comissão de

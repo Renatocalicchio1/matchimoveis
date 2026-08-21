@@ -1,12 +1,30 @@
 <%- include("partials/app-shell",{active:"captacao",user:user}) %>
 <style>
-.cap-table{width:100%;border-collapse:collapse;font-size:13px}
-.cap-table th{background:#f9fafb;padding:10px 12px;text-align:left;border-bottom:2px solid #e5e7eb;font-weight:600;color:#374151}
-.cap-table td{padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#111}
-.cap-table tr:hover{background:#fafafa}
-.badge-captado{background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-pendente{background:#fffbeb;color:#92400e;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
-.btn-cadastrar{background:#FF385C;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
+/* Cards — mesmo padrão visual de app-leads.ejs (mesmas classes/valores), pra
+   não confundir o corretor: cada lead vira um bloco visual próprio, igual
+   ao kanban de leads, em vez da tabela corrida de antes. */
+.lead-card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:box-shadow .15s;position:relative}
+.lead-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.lead-card.lc-captado{border-left:2px solid #16a34a}
+.lead-card.lc-pendente{border-left:2px solid #f59e0b}
+.lc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
+.acao-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:600;border:none}
+.lead-nome{font-size:14.5px;font-weight:600;color:#111827;text-decoration:none;display:block;margin-bottom:1px}
+.lead-nome:hover{color:#FC642D}
+.lead-tel{font-size:12px;color:#6b7280;margin-bottom:10px}
+.lc-chips{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:10px}
+.lc-chip{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
+.lc-chip.origem{background:#f3f4f6;color:#6b7280}
+.lc-chip.temimovel{background:#f0fdf4;color:#166534}
+.lc-divider{height:1px;background:#f0f0ee;margin:10px 0}
+.lead-btns{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #f0f0ee;margin-top:2px}
+.lb{font-size:12px;padding:0;border-radius:0;text-decoration:none;font-weight:600;border:none;color:#6b7280;background:none;cursor:pointer;transition:color .1s;display:inline-flex;align-items:center;gap:5px}
+.lb:hover{color:#111827}
+.lb.wa{color:#0E7268}
+.lb.prim{color:#FF385C}
+.lb.danger{color:#FF385C;margin-left:auto}
+.lc-imoveis-titulo{font-size:11px;font-weight:600;color:#374151;margin-bottom:6px}
+.lc-imovel-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f9fafb;border-radius:8px;margin-bottom:6px;font-size:12px;flex-wrap:wrap}
 .pct-badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;display:inline-block}
 .pct-low{background:#fef2f2;color:#dc2626}
 .pct-mid{background:#fffbeb;color:#92400e}
@@ -102,90 +120,75 @@ async function excluirLeadCap(leadId, nomeEnc){
       <p style="font-size:12px">Quando um lead informar que tem imóvel para vender ou alugar, aparecerá aqui.</p>
     </div>
   <% } else { %>
-  <div style="overflow-x:auto;background:#fff;border-radius:12px;border:1px solid #e5e7eb">
-    <table class="cap-table">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Celular</th>
-          <th>Tipo imóvel</th>
-          <th>Transação</th>
-          <th>Perfil</th>
-          <th>Status</th>
-          <th>Ação</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% function pctClasse(p){ return p>=67 ? 'pct-high' : p>=34 ? 'pct-mid' : 'pct-low'; } %>
-        <% leads.forEach(function(l){
-          const dados = l.dados || {};
-          const perfil = l.perfil_ia || {};
-          const _primeiroVinculado = (l.imoveisRelacionados && l.imoveisRelacionados[0]) || null;
-          const imovelCaptado = dados.imovelCaptadoId || (_primeiroVinculado && (_primeiroVinculado.id_interno||_primeiroVinculado.id));
-        %>
-        <% const _telCel = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
-        <% const _linkContato = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+(_primeiroVinculado ? ('?imovelId='+(_primeiroVinculado.id_interno||_primeiroVinculado.id)) : ''); %>
-        <% const _msgContato = encodeURIComponent('Oi ' + (l.nome||'') + '! Veja como está ficando o cadastro do seu imóvel: ' + _linkContato); %>
-        <tr style="border-top:3px solid #FF385C">
-          <td><strong><%= l.nome||'Sem nome' %></strong></td>
-          <td><%= l.email||'-' %></td>
-          <td><% if(_telCel){ %><a href="https://wa.me/55<%= _telCel %>?text=<%= _msgContato %>" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none;white-space:nowrap">💬 Falar no WhatsApp</a><% } else { %>-<% } %></td>
-          <td><%= dados.tipoImovelCaptar||perfil.tipo||(_primeiroVinculado&&_primeiroVinculado.tipo)||'-' %></td>
-          <td><%= dados.transacaoCaptar||'-' %></td>
-          <td>
-            <% if(_primeiroVinculado) { %>
-              <span class="pct-badge <%= pctClasse(_primeiroVinculado.percentual) %>"><%= _primeiroVinculado.percentual %>% preenchido</span>
-            <% } else { %>-<% } %>
-          </td>
-          <td>
-            <% if(imovelCaptado) { %>
-              <span class="badge-captado">✅ Captado</span>
-            <% } else { %>
-              <span class="badge-pendente">⏳ Pendente</span>
-            <% } %>
-          </td>
-          <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <% if(!imovelCaptado) { %>
-              <a href="https://matchimoveis.onrender.com/app/cadastro" class="btn-cadastrar">+ Cadastrar imóvel</a>
-            <% } else if(!_primeiroVinculado) { %>
-              <a href="https://matchimoveis.onrender.com/app/imovel/<%= imovelCaptado %>/editar" style="background:#00A699;color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar os dados</a>
-              <a href="https://www.matchimoveis.ia.br/imovel/<%= imovelCaptado %>?userId=<%= user.codigoUsuario||user.id %>&preview=1" target="_blank" style="color:#16a34a;font-size:12px;font-weight:600">🔗 Link público</a>
-            <% } else { %>
-              <span style="color:#9ca3af;font-size:11px">Ações abaixo ↓</span>
-            <% } %>
-            <button onclick="excluirLeadCap('<%= l.id %>', '<%= encodeURIComponent(l.nome||'essa lead') %>')" style="background:#fef2f2;color:#dc2626;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir lead</button>
-          </td>
-        </tr>
-        <% if(l.imoveisRelacionados && l.imoveisRelacionados.length > 0) { %>
-        <tr style="background:#f9fafb">
-          <td colspan="8" style="padding:8px 12px">
-            <p style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">🏠 Imóveis vinculados:</p>
-            <% l.imoveisRelacionados.forEach(function(im){ %>
-            <% const _tel2 = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
-            <% const _semFoto = !im.fotos || !im.fotos.length; %>
-            <% const _linkCadastro = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+'?imovelId='+(im.id_interno||im.id); %>
-            <% const _msgCadastro = encodeURIComponent('Oi '+(l.nome||'')+'! Veja como está ficando o cadastro do seu imóvel: '+_linkCadastro); %>
-            <% const _dataEntrada = im.criado_em ? new Date(im.criado_em).toLocaleDateString('pt-BR') : null; %>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">
-              <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %><% if(_dataEntrada) { %> · <span style="color:#9ca3af">entrou em <%= _dataEntrada %></span><% } %></span>
-              <% if(_semFoto) { %><span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap">⚠️ Sem foto</span><% } %>
-              <span class="pct-badge <%= pctClasse(im.percentual) %>"><%= im.percentual %>%</span>
-              <% if(_tel2) { %><a href="https://wa.me/55<%= _tel2 %>?text=<%= _msgCadastro %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Falar no WhatsApp</a><% } %>
-              <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="background:#00A699;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar</a>
-              <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>&preview=1" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
-              <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir</button>
-            </div>
-            <% }); %>
-          </td>
-        </tr>
+  <div>
+    <% function pctClasse(p){ return p>=67 ? 'pct-high' : p>=34 ? 'pct-mid' : 'pct-low'; } %>
+    <% leads.forEach(function(l){
+      const dados = l.dados || {};
+      const perfil = l.perfil_ia || {};
+      const _primeiroVinculado = (l.imoveisRelacionados && l.imoveisRelacionados[0]) || null;
+      const imovelCaptado = dados.imovelCaptadoId || (_primeiroVinculado && (_primeiroVinculado.id_interno||_primeiroVinculado.id));
+      const _tipoImovel = dados.tipoImovelCaptar||perfil.tipo||(_primeiroVinculado&&_primeiroVinculado.tipo)||'';
+    %>
+    <% const _telCel = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
+    <% const _linkContato = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+(_primeiroVinculado ? ('?imovelId='+(_primeiroVinculado.id_interno||_primeiroVinculado.id)) : ''); %>
+    <% const _msgContato = encodeURIComponent('Oi ' + (l.nome||'') + '! Veja como está ficando o cadastro do seu imóvel: ' + _linkContato); %>
+    <div class="lead-card <%= imovelCaptado ? 'lc-captado' : 'lc-pendente' %>">
+      <div class="lc-head">
+        <% if(imovelCaptado) { %>
+          <span class="acao-badge" style="background:#f0fdf4;color:#16a34a">✅ Captado</span>
+        <% } else { %>
+          <span class="acao-badge" style="background:#fffbeb;color:#92400e">⏳ Pendente</span>
         <% } %>
-        <tr id="imoveis-row-<%= l.id %>" style="display:none">
-          <td colspan="7"><div id="imoveis-<%= l.id %>" style="display:none"></div></td>
-        </tr>
-        <% }); %>
-      </tbody>
-    </table>
+      </div>
+
+      <a href="/app/lead/<%= l.id %>" class="lead-nome"><%= l.nome||'Sem nome' %></a>
+      <div class="lead-tel"><%= l.email||'sem e-mail' %><% if(_telCel){ %> · <%= _telCel %><% } %></div>
+
+      <% if(_tipoImovel || dados.transacaoCaptar || _primeiroVinculado) { %>
+      <div class="lc-chips">
+        <% if(_tipoImovel){ %><span class="lc-chip origem">🏠 <%= _tipoImovel %></span><% } %>
+        <% if(dados.transacaoCaptar){ %><span class="lc-chip temimovel"><%= dados.transacaoCaptar %></span><% } %>
+        <% if(_primeiroVinculado){ %><span class="pct-badge <%= pctClasse(_primeiroVinculado.percentual) %>"><%= _primeiroVinculado.percentual %>% preenchido</span><% } %>
+      </div>
+      <% } %>
+
+      <div class="lc-divider"></div>
+
+      <div class="lead-btns">
+        <% if(_telCel){ %><a href="https://wa.me/55<%= _telCel %>?text=<%= _msgContato %>" target="_blank" class="lb wa">💬 Falar no WhatsApp</a><% } %>
+        <% if(!imovelCaptado) { %>
+          <a href="https://matchimoveis.onrender.com/app/cadastro" class="lb prim">+ Cadastrar imóvel</a>
+        <% } else if(!_primeiroVinculado) { %>
+          <a href="https://matchimoveis.onrender.com/app/imovel/<%= imovelCaptado %>/editar" class="lb prim">✏️ Editar para completar</a>
+          <a href="https://www.matchimoveis.ia.br/imovel/<%= imovelCaptado %>?userId=<%= user.codigoUsuario||user.id %>&preview=1" target="_blank" class="lb">🔗 Link público</a>
+        <% } %>
+        <button onclick="excluirLeadCap('<%= l.id %>', '<%= encodeURIComponent(l.nome||'essa lead') %>')" class="lb danger">🗑️ Excluir lead</button>
+      </div>
+
+      <% if(l.imoveisRelacionados && l.imoveisRelacionados.length > 0) { %>
+      <div class="lc-divider"></div>
+      <p class="lc-imoveis-titulo">🏠 Imóveis vinculados</p>
+      <% l.imoveisRelacionados.forEach(function(im){ %>
+      <% const _tel2 = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
+      <% const _semFoto = !im.fotos || !im.fotos.length; %>
+      <% const _linkCadastro = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+'?imovelId='+(im.id_interno||im.id); %>
+      <% const _msgCadastro = encodeURIComponent('Oi '+(l.nome||'')+'! Veja como está ficando o cadastro do seu imóvel: '+_linkCadastro); %>
+      <% const _dataEntrada = im.criado_em ? new Date(im.criado_em).toLocaleDateString('pt-BR') : null; %>
+      <div class="lc-imovel-row">
+        <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %><% if(_dataEntrada) { %> · <span style="color:#9ca3af">entrou em <%= _dataEntrada %></span><% } %></span>
+        <% if(_semFoto) { %><span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap">⚠️ Sem foto</span><% } %>
+        <span class="pct-badge <%= pctClasse(im.percentual) %>"><%= im.percentual %>%</span>
+        <% if(_tel2) { %><a href="https://wa.me/55<%= _tel2 %>?text=<%= _msgCadastro %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Falar no WhatsApp</a><% } %>
+        <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="background:#00A699;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar</a>
+        <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>&preview=1" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
+        <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir</button>
+      </div>
+      <% }); %>
+      <% } %>
+
+      <div id="imoveis-<%= l.id %>" style="display:none"></div>
+    </div>
+    <% }); %>
   </div>
   <% } %>
 </div>

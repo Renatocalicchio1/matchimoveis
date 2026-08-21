@@ -27,6 +27,21 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
   var apiBairros = opts.apiBairros || '/api/localidades/bairros';
 
   function $(suf) { return document.getElementById(prefixo + suf); }
+
+  // `autocomplete="off"` sozinho não segura o Chrome em campo que ele
+  // classifica como endereço (heurística por texto do label/id, não só o
+  // atributo) — em páginas com outro campo de endereço de verdade por perto
+  // (ex: "Localização" do escritório em app-perfil.ejs) ele ignora o off e
+  // sobrepõe o dropdown de "endereços salvos" no campo de cidade/bairro,
+  // tampando as sugestões reais do próprio app (relatado ago/2026, print
+  // mostrando "Gerenciar endereços..." do Chrome por cima). `new-password`
+  // é o valor que o Chrome nunca tenta preencher/sugerir em cima, mesmo
+  // quando ignora "off" — funciona mesmo não sendo campo de senha.
+  ['CidadeInput', 'BairroInput'].forEach(function (suf) {
+    var el = $(suf);
+    if (el) el.setAttribute('autocomplete', 'new-password');
+  });
+
   function escHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -98,6 +113,14 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
     var termo = normTexto($('CidadeInput').value.trim());
     var box = $('CidadeSugestoes');
     var disponiveis = cidadesNomes.filter(function (c) { return cidadesSelecionadas.indexOf(c) === -1; });
+    // cidadesNomes vazio = falha ao carregar (erro de rede) — avisa em vez
+    // de esconder sem explicação; já com disponiveis vazio (todas já
+    // escolhidas como chip) não tem nada de novo pra sugerir mesmo, some.
+    if (!cidadesNomes.length) {
+      box.innerHTML = '<div class="sugestao-item gray">Não foi possível carregar as cidades — tenta de novo</div>';
+      box.style.display = 'block';
+      return;
+    }
     if (!disponiveis.length) { box.style.display = 'none'; return; }
     var visiveis = (termo ? disponiveis.filter(function (c) { return normTexto(c).indexOf(termo) > -1; }) : disponiveis).slice(0, 30);
     if (!visiveis.length) { box.innerHTML = '<div class="sugestao-item gray">Nenhuma cidade encontrada</div>'; box.style.display = 'block'; return; }
@@ -130,7 +153,14 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
   function renderSugestoesBairro() {
     var box = $('BairroSugestoes');
     if (!box) return;
-    if (!paresDisponiveis.length) { box.style.display = 'none'; return; }
+    // Escondia a caixa sem avisar nada quando a cidade não tem NENHUM
+    // bairro na base — parecia que o campo tinha travado (relatado ago/2026,
+    // cidade "Praia Grande"). Agora sempre mostra uma mensagem clara.
+    if (!paresDisponiveis.length) {
+      box.innerHTML = '<div class="sugestao-item gray">Essa cidade ainda não tem bairros cadastrados na nossa base — pode continuar sem escolher bairro</div>';
+      box.style.display = 'block';
+      return;
+    }
     var termo = normTexto($('BairroInput').value.trim());
     var marcadasChaves = paresMarcados.map(parChave);
     var disponiveis = paresDisponiveis.filter(function (p) { return marcadasChaves.indexOf(parChave(p)) === -1; });

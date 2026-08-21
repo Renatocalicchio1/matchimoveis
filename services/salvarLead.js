@@ -185,6 +185,39 @@ async function _migrarColunaPortalEmail() {
 }
 _migrarColunaPortalEmail();
 
+// Trava global de "já mandei o convite de captação pra esse email" —
+// independe de qual lead/conta de corretor disparou. Sem isso, a MESMA
+// pessoa recebia o convite de novo toda vez que um novo registro de lead
+// era criado pra ela com um id diferente (ex: distribuicaoAreaAtuacao.js
+// cria um lead 'AREA-<id>-<userId>' por CONTA que recebe aquele
+// interessado — a regra de negócio já manda o mesmo interessado pra até 3
+// contas, e cada uma virava um convite de captação por email separado pra
+// mesma pessoa, virando spam. ago/2026, relatado pelo Renato).
+// ON CONFLICT DO NOTHING + checar rowCount é atômico: mesmo 2 chamadas
+// concorrentes pro mesmo email nunca deixam as duas mandarem email.
+async function _criarTabelaCaptacaoEmails() {
+  try {
+    const { query: _q } = require('./db');
+    await _q(`CREATE TABLE IF NOT EXISTS captacao_emails_enviados (
+      email TEXT PRIMARY KEY,
+      lead_id TEXT,
+      user_id TEXT,
+      enviado_em TIMESTAMP DEFAULT NOW()
+    )`);
+  } catch(e) {}
+}
+_criarTabelaCaptacaoEmails();
+async function _podeEnviarCaptacaoEmail(emailNorm, leadId, userId) {
+  try {
+    const { query: _q } = require('./db');
+    const r = await _q(
+      `INSERT INTO captacao_emails_enviados (email, lead_id, user_id) VALUES ($1,$2,$3) ON CONFLICT (email) DO NOTHING RETURNING email`,
+      [emailNorm, leadId, userId]
+    );
+    return r.rowCount > 0;
+  } catch (e) { return false; }
+}
+
 // Índice idx_leads_codigo_usuario: NÃO criar automaticamente no boot — numa
 // tabela grande, CREATE INDEX CONCURRENTLY pode levar minutos segurando uma
 // conexão; se o processo reiniciar no meio (Render mata por health check
@@ -254,7 +287,11 @@ async function salvarLead(lead) {
       try {
         const _leadUserId2 = lead.user_id || lead.userId || lead.codigoUsuario || null;
         const _jaECaptacao = lead.tipoLead === 'cliente_vendedor' || lead.tipo_lead === 'cliente_vendedor' || lead.origem === 'captacao_link';
-        if (_eraNova && lead.email && !_jaECaptacao) {
+        const _emailCapNorm = (lead.email || '').trim().toLowerCase();
+        // Trava por email (não por lead id) — o mesmo email não recebe o
+        // convite 2x mesmo vindo de um lead novo/de outra conta (ver
+        // captacao_emails_enviados acima).
+        if (_eraNova && _emailCapNorm && !_jaECaptacao && await _podeEnviarCaptacaoEmail(_emailCapNorm, r.id, _leadUserId2)) {
           const { enviarEmail: _envCap } = require('./email');
           const _linkCap = 'https://matchimoveis.ia.br/captar/' + _leadUserId2;
           _envCap({

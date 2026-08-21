@@ -8,6 +8,13 @@
  * Cidade/Bairros — campos que já existiam no cadastro mas nunca tinham sido
  * lidos por nenhum job até agora, ver views/app-perfil.ejs).
  *
+ * ago/2026: área de atuação virou multi-cidade (areaAtuacaoCidades, array —
+ * antes era areaAtuacaoCidade, 1 string só) e os bairros viraram pares
+ * {cidade,bairro} (antes eram um array de bairro solto, implicitamente da
+ * única cidade cadastrada). _buscarCorretoresComAreaAtuacao() lê os dois
+ * formatos — contas que ainda não resalvaram o perfil depois da mudança
+ * continuam funcionando no formato antigo.
+ *
  * Regras (definidas com o Renato, ago/2026):
  * - Só interessados com até 7 dias (hoje - 7 dias).
  * - Conta com bairro cadastrado: prioridade — recebe lead nova que bater o
@@ -63,24 +70,67 @@ async function _buscarInteressadosElegiveis() {
 
 // Só contas ativas com área de atuação cadastrada (estado+cidade no mínimo —
 // campos ainda ficam soltos dentro de `dados` JSONB, sem coluna própria).
+// Retorna uma linha por PAR corretor+cidade (achatado) — uma conta com 2
+// cidades cadastradas aparece 2x aqui, uma pra cada região, o que deixa o
+// resto do job (agrupado por região) igual ao de antes sem precisar mudar a
+// lógica de tier/teto/saldo (que já é tudo indexado por userId em cima
+// dessa lista, então repetir o userId em 2 linhas de cidades diferentes
+// soma corretamente saldo/teto compartilhados entre as cidades da conta).
 async function _buscarCorretoresComAreaAtuacao() {
   const { rows } = await query(`
     SELECT codigo_usuario, match_coins,
       dados->>'areaAtuacaoEstado' AS area_estado,
-      dados->>'areaAtuacaoCidade' AS area_cidade,
+      dados->'areaAtuacaoCidades' AS area_cidades,
+      dados->>'areaAtuacaoCidade' AS area_cidade_legado,
       dados->'areaAtuacaoBairros' AS area_bairros
     FROM usuarios
     WHERE ativo = true
       AND COALESCE(dados->>'areaAtuacaoEstado', '') != ''
-      AND COALESCE(dados->>'areaAtuacaoCidade', '') != ''
+      AND (
+        (jsonb_typeof(dados->'areaAtuacaoCidades') = 'array' AND jsonb_array_length(dados->'areaAtuacaoCidades') > 0)
+        OR COALESCE(dados->>'areaAtuacaoCidade', '') != ''
+      )
   `);
-  return rows.map(r => ({
-    userId: r.codigo_usuario,
-    saldo: parseFloat(r.match_coins) || 0,
-    estado: _normEstado(r.area_estado),
-    cidade: _norm(r.area_cidade),
-    bairros: new Set((Array.isArray(r.area_bairros) ? r.area_bairros : []).map(_norm).filter(Boolean))
-  }));
+  const atuacoes = [];
+  for (const r of rows) {
+    const estado = _normEstado(r.area_estado);
+    const saldo = parseFloat(r.match_coins) || 0;
+    // Cidades: formato novo (array) tem prioridade; sem isso, cai pro
+    // formato antigo (1 cidade em string) — conta que não resalvou o
+    // perfil depois da mudança continua entrando na distribuição.
+    let cidadesBrutas = Array.isArray(r.area_cidades) ? r.area_cidades.filter(Boolean) : [];
+    if (!cidadesBrutas.length && r.area_cidade_legado) cidadesBrutas = [r.area_cidade_legado];
+    const cidades = [...new Set(cidadesBrutas.map(_norm).filter(Boolean))];
+    if (!cidades.length) continue;
+
+    // Bairros: formato novo é array de {cidade,bairro} (agrupa por cidade
+    // normalizada); formato antigo é array de string solta, que só faz
+    // sentido pra única cidade que a conta tinha cadastrada.
+    const bairrosBrutos = Array.isArray(r.area_bairros) ? r.area_bairros : [];
+    const bairrosPorCidade = {};
+    if (bairrosBrutos.length && bairrosBrutos[0] && typeof bairrosBrutos[0] === 'object') {
+      for (const p of bairrosBrutos) {
+        const cid = _norm(p && p.cidade);
+        const bai = _norm(p && p.bairro);
+        if (!cid || !bai) continue;
+        if (!bairrosPorCidade[cid]) bairrosPorCidade[cid] = new Set();
+        bairrosPorCidade[cid].add(bai);
+      }
+    } else if (bairrosBrutos.length && cidades.length === 1) {
+      bairrosPorCidade[cidades[0]] = new Set(bairrosBrutos.map(_norm).filter(Boolean));
+    }
+
+    for (const cid of cidades) {
+      atuacoes.push({
+        userId: r.codigo_usuario,
+        saldo,
+        estado,
+        cidade: cid,
+        bairros: bairrosPorCidade[cid] || new Set()
+      });
+    }
+  }
+  return atuacoes;
 }
 
 // 1 query só pra saber, de todo mundo que já recebeu lead dessa distribuição

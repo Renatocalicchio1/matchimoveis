@@ -169,6 +169,15 @@
       .atividade-grid{grid-template-columns:1fr}
     }
   @keyframes piscar{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.04)}}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#fff1f2;color:#111827;border:1px solid #fecdd3;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
+  .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1}
+  .chip button:hover{color:#FF385C}
+  .sugestoes-dropdown{position:absolute;top:100%;left:0;right:0;z-index:10;background:#fff;border:1px solid #d1d5db;border-top:none;max-height:220px;overflow-y:auto;border-radius:0 0 6px 6px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+  .sugestao-item{padding:8px 10px;cursor:pointer;font-size:13px}
+  .sugestao-item:hover{background:#f3f4f6}
+  .sugestao-item.gray{color:#9ca3af;cursor:default}
+  .sugestao-item.gray:hover{background:none}
 </style>
 </head>
 <body>
@@ -518,15 +527,22 @@
           <select id="areaEstadoInput"><option value="">Selecione...</option></select>
         </div>
         <div class="m-field">
-          <label>Cidade de atuação</label>
-          <input type="text" id="areaCidadeInput" list="areaCidadeLista" placeholder="Digite pra buscar a cidade" autocomplete="off" disabled>
-          <datalist id="areaCidadeLista"></datalist>
+          <label>Cidades de atuação (escolha quantas quiser)</label>
+          <div style="position:relative">
+            <input type="text" id="areaCidadeInput" placeholder="Selecione o estado primeiro..." autocomplete="off" disabled style="width:100%">
+            <div id="areaCidadeSugestoes" class="sugestoes-dropdown" style="display:none"></div>
+          </div>
+          <div id="areaCidadesChips" class="chips"></div>
         </div>
-        <div class="m-field" id="areaBairrosWrap" style="display:none">
-          <label>Bairros onde atua</label>
-          <div id="areaBairrosLista" style="max-height:160px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px;font-size:13px"></div>
+        <div class="m-field">
+          <label>Bairros onde atua (escolha quantos quiser)</label>
+          <div style="position:relative">
+            <input type="text" id="areaBairroInput" placeholder="Selecione uma cidade primeiro..." autocomplete="off" disabled style="width:100%">
+            <div id="areaBairroSugestoes" class="sugestoes-dropdown" style="display:none"></div>
+          </div>
+          <div id="areaBairrosChips" class="chips"></div>
           <input type="hidden" name="areaAtuacaoEstado" id="areaAtuacaoEstadoHidden" value="">
-          <input type="hidden" name="areaAtuacaoCidade" id="areaAtuacaoCidadeHidden" value="">
+          <input type="hidden" name="areaAtuacaoCidades" id="areaAtuacaoCidadesHidden" value="[]">
           <input type="hidden" name="areaAtuacaoBairros" id="areaAtuacaoBairrosHidden" value="[]">
         </div>
         <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="Mínimo 4 caracteres" required minlength="4"></div>
@@ -537,6 +553,7 @@
   </div>
 </div>
 
+<script src="/area-atuacao-widget.js"></script>
 <script>
 function openModal(aba){
   document.getElementById('modal-login').style.display='flex';
@@ -554,67 +571,19 @@ function setTab(t){
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-// Cidade + bairros de atuação (cadastro) — estado -> cidade (autocomplete
-// contra /api/localidades/cidades) -> bairros dessa cidade (checkbox, contra
-// /api/localidades/bairros). Guardado estruturado (não texto livre) porque a
-// ideia é depois usar isso pra rotear lead automaticamente batendo o bairro.
+// Cidades + bairros de atuação (cadastro) — estado -> múltiplas cidades
+// (digita, aparece sugestão, clica, vira chip) -> bairros das cidades
+// escolhidas (mesmo padrão, chip). Guardado estruturado (não texto livre)
+// porque a ideia é depois usar isso pra rotear lead automaticamente batendo
+// a cidade/bairro. ago/2026: trocado de "1 cidade + checkbox rolável de
+// bairro" pro widget de chips único (public/area-atuacao-widget.js),
+// reaproveitado também no modal de /demanda e em app-perfil.ejs.
 const UFS_BR = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 (function(){
   const selEstado = document.getElementById('areaEstadoInput');
   if(!selEstado) return;
   UFS_BR.forEach(uf => { const o = document.createElement('option'); o.value = uf; o.textContent = uf; selEstado.appendChild(o); });
-})();
-let _bairrosEscolhidos = [];
-let _debounceCidade;
-async function _buscarCidades(){
-  const estado = document.getElementById('areaEstadoInput').value;
-  const q = document.getElementById('areaCidadeInput').value.trim();
-  if(!estado || q.length < 2) return;
-  try {
-    const r = await fetch('/api/localidades/cidades?estado='+encodeURIComponent(estado)+'&q='+encodeURIComponent(q));
-    const d = await r.json();
-    const dl = document.getElementById('areaCidadeLista');
-    dl.innerHTML = (d.cidades||[]).map(c => '<option value="'+c.replace(/"/g,'')+'">').join('');
-  } catch(e){}
-}
-async function _selecionarCidade(){
-  const estado = document.getElementById('areaEstadoInput').value;
-  const cidade = document.getElementById('areaCidadeInput').value.trim();
-  _bairrosEscolhidos = [];
-  document.getElementById('areaAtuacaoEstadoHidden').value = estado;
-  document.getElementById('areaAtuacaoCidadeHidden').value = cidade;
-  document.getElementById('areaAtuacaoBairrosHidden').value = '[]';
-  const wrap = document.getElementById('areaBairrosWrap');
-  const lista = document.getElementById('areaBairrosLista');
-  if(!estado || !cidade){ wrap.style.display='none'; return; }
-  lista.innerHTML = '<span style="color:#9ca3af;font-size:12px">Carregando bairros...</span>';
-  wrap.style.display = 'block';
-  try {
-    const r = await fetch('/api/localidades/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
-    const d = await r.json();
-    if(!d.bairros || !d.bairros.length){ lista.innerHTML = '<span style="color:#9ca3af;font-size:12px">Nenhum bairro encontrado pra essa cidade.</span>'; return; }
-    lista.innerHTML = d.bairros.map(b => {
-      const id = 'bairro-'+b.replace(/[^a-zA-Z0-9]/g,'');
-      return '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'" onchange="_toggleBairro(this)"> '+b+'</label>';
-    }).join('');
-  } catch(e){ lista.innerHTML = '<span style="color:#dc2626;font-size:12px">Erro ao buscar bairros.</span>'; }
-}
-function _toggleBairro(chk){
-  if(chk.checked){ if(!_bairrosEscolhidos.includes(chk.value)) _bairrosEscolhidos.push(chk.value); }
-  else { _bairrosEscolhidos = _bairrosEscolhidos.filter(b => b !== chk.value); }
-  document.getElementById('areaAtuacaoBairrosHidden').value = JSON.stringify(_bairrosEscolhidos);
-}
-(function(){
-  const selEstado = document.getElementById('areaEstadoInput');
-  const inputCidade = document.getElementById('areaCidadeInput');
-  if(!selEstado || !inputCidade) return;
-  selEstado.addEventListener('change', () => {
-    inputCidade.disabled = !selEstado.value;
-    inputCidade.value = '';
-    document.getElementById('areaBairrosWrap').style.display = 'none';
-  });
-  inputCidade.addEventListener('input', () => { clearTimeout(_debounceCidade); _debounceCidade = setTimeout(_buscarCidades, 300); });
-  inputCidade.addEventListener('change', _selecionarCidade);
+  criarSeletorAreaAtuacao('area');
 })();
 
 // Reabrir modal na aba correta se tiver erro

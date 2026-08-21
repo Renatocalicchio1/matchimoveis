@@ -41,38 +41,48 @@ function _normEstado(s) {
   `);
   console.log('Total de interessados elegíveis (7 dias):', totalInteressados[0].total);
 
+  // ago/2026: área de atuação virou multi-cidade (areaAtuacaoCidades, array)
+  // — lê os dois formatos (novo array + antigo areaAtuacaoCidade string) pra
+  // não mostrar diagnóstico errado em conta que não resalvou o perfil ainda.
   const { rows: corretores } = await query(`
     SELECT codigo_usuario, ativo, match_coins,
       dados->>'areaAtuacaoEstado' AS area_estado,
-      dados->>'areaAtuacaoCidade' AS area_cidade,
+      dados->'areaAtuacaoCidades' AS area_cidades,
+      dados->>'areaAtuacaoCidade' AS area_cidade_legado,
       dados->'areaAtuacaoBairros' AS area_bairros
     FROM usuarios
     WHERE COALESCE(dados->>'areaAtuacaoEstado', '') != ''
        OR COALESCE(dados->>'areaAtuacaoCidade', '') != ''
+       OR (jsonb_typeof(dados->'areaAtuacaoCidades') = 'array' AND jsonb_array_length(dados->'areaAtuacaoCidades') > 0)
     ORDER BY codigo_usuario
   `);
+  const corretoresComCidades = corretores.map(c => {
+    let cidades = Array.isArray(c.area_cidades) ? c.area_cidades.filter(Boolean) : [];
+    if (!cidades.length && c.area_cidade_legado) cidades = [c.area_cidade_legado];
+    return { ...c, cidades };
+  });
   console.log('\n=== CORRETORES COM ÁREA DE ATUAÇÃO CADASTRADA (qualquer campo preenchido) ===');
-  console.log('Total:', corretores.length);
-  console.table(corretores.map(c => ({
+  console.log('Total:', corretoresComCidades.length);
+  console.table(corretoresComCidades.map(c => ({
     codigo_usuario: c.codigo_usuario,
     ativo: c.ativo,
     match_coins: c.match_coins,
     area_estado: c.area_estado,
-    area_cidade: c.area_cidade,
-    area_bairros: Array.isArray(c.area_bairros) ? c.area_bairros.join(', ') : c.area_bairros
+    area_cidades: c.cidades.join(', '),
+    area_bairros: Array.isArray(c.area_bairros) ? c.area_bairros.map(b => typeof b === 'object' ? (b.bairro + ' (' + b.cidade + ')') : b).join(', ') : c.area_bairros
   })));
 
-  // Cruzamento normalizado — pra cada corretor, mostra se a região dele bate
-  // com alguma linha de interessados elegíveis.
+  // Cruzamento normalizado — pra cada corretor, mostra se ALGUMA das
+  // cidades dele bate com alguma linha de interessados elegíveis.
   console.log('\n=== CRUZAMENTO (normalizado, minúsculo/sem acento) ===');
   const regioesInteressados = new Set(interessados.map(i => _normEstado(i.estado) + '|' + _norm(i.cidade)));
-  for (const c of corretores) {
-    const chave = _normEstado(c.area_estado) + '|' + _norm(c.area_cidade);
-    const bate = regioesInteressados.has(chave);
+  for (const c of corretoresComCidades) {
+    const estadoN = _normEstado(c.area_estado);
+    const bateCom = c.cidades.filter(cid => regioesInteressados.has(estadoN + '|' + _norm(cid)));
     console.log(
-      c.codigo_usuario, '->', c.area_estado, '/', c.area_cidade,
+      c.codigo_usuario, '->', c.area_estado, '/', c.cidades.join(', ') || '(nenhuma cidade)',
       '| ativo:', c.ativo, '| saldo:', c.match_coins,
-      '| bate com algum interessado elegível?', bate ? 'SIM' : 'não'
+      '| bate com algum interessado elegível?', bateCom.length ? 'SIM (' + bateCom.join(', ') + ')' : 'não'
     );
   }
   process.exit(0);

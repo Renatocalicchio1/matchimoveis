@@ -118,6 +118,15 @@
   font-weight:500;
   margin:12px 0;
 }
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#fff1f2;color:#111827;border:1px solid #fecdd3;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
+.chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1}
+.chip button:hover{color:#FF385C}
+.sugestoes-dropdown{position:absolute;top:100%;left:0;right:0;z-index:10;background:#fff;border:1px solid #d1d5db;border-top:none;max-height:220px;overflow-y:auto;border-radius:0 0 6px 6px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+.sugestao-item{padding:8px 10px;cursor:pointer;font-size:13px}
+.sugestao-item:hover{background:#f3f4f6}
+.sugestao-item.gray{color:#9ca3af;cursor:default}
+.sugestao-item.gray:hover{background:none}
 </style>
 
 <% if (locals.completarPerfil) {
@@ -201,21 +210,29 @@
         <select id="pfAreaEstadoInput"><option value="">Selecione...</option></select>
       </div>
       <div class="pf-field">
-        <label>Cidade de atuação</label>
-        <input type="text" id="pfAreaCidadeInput" list="pfAreaCidadeLista" placeholder="Digite pra buscar a cidade" autocomplete="off">
-        <datalist id="pfAreaCidadeLista"></datalist>
+        <label>Cidades de atuação (escolha quantas quiser)</label>
+        <div style="position:relative">
+          <input type="text" id="pfAreaCidadeInput" placeholder="Selecione o estado primeiro..." autocomplete="off" disabled style="width:100%">
+          <div id="pfAreaCidadeSugestoes" class="sugestoes-dropdown" style="display:none"></div>
+        </div>
+        <div id="pfAreaCidadesChips" class="chips"></div>
       </div>
-      <div class="pf-field" id="pfAreaBairrosWrap" style="display:none">
-        <label>Bairros onde atua</label>
-        <div id="pfAreaBairrosLista" style="max-height:160px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px;font-size:13px"></div>
+      <div class="pf-field">
+        <label>Bairros onde atua (escolha quantos quiser)</label>
+        <div style="position:relative">
+          <input type="text" id="pfAreaBairroInput" placeholder="Selecione uma cidade primeiro..." autocomplete="off" disabled style="width:100%">
+          <div id="pfAreaBairroSugestoes" class="sugestoes-dropdown" style="display:none"></div>
+        </div>
+        <div id="pfAreaBairrosChips" class="chips"></div>
         <input type="hidden" name="areaAtuacaoEstado" id="pfAreaAtuacaoEstadoHidden">
-        <input type="hidden" name="areaAtuacaoCidade" id="pfAreaAtuacaoCidadeHidden">
+        <input type="hidden" name="areaAtuacaoCidades" id="pfAreaAtuacaoCidadesHidden">
         <input type="hidden" name="areaAtuacaoBairros" id="pfAreaAtuacaoBairrosHidden">
       </div>
     </div>
     <button class="pf-btn" type="submit">Salvar perfil</button>
   </form>
 </div>
+<script src="/area-atuacao-widget.js"></script>
 <script>
 (function(){
   const form = document.getElementById('formDadosUsuario');
@@ -224,69 +241,26 @@
   const _nomeImportado = <%- JSON.stringify(user.nomeImportado||'') %>;
   const _temLocalizacao = <%- JSON.stringify(!!(user.lat && user.lng)) %>;
 
-  // Cidade + bairros de atuação — estruturado (estado -> cidade -> bairros
-  // reais, via /api/localidades/*), pra depois dar pra rotear lead batendo
-  // o bairro. Mesmo mecanismo do cadastro (landing.ejs). Dispara 'input' nos
-  // hidden pra cair no mesmo autosave abaixo.
+  // Cidades + bairros de atuação — estruturado (estado -> múltiplas cidades
+  // -> múltiplos bairros reais, via /api/localidades/*, widget de chips em
+  // public/area-atuacao-widget.js), pra depois dar pra rotear lead batendo
+  // o bairro. Mesmo mecanismo do cadastro (landing.ejs / /demanda). Dispara
+  // 'input' nos hidden pra cair no mesmo autosave abaixo.
   const UFS_BR = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
   const pfSelEstado = document.getElementById('pfAreaEstadoInput');
-  const pfInputCidade = document.getElementById('pfAreaCidadeInput');
-  const pfWrapBairros = document.getElementById('pfAreaBairrosWrap');
-  const pfListaBairros = document.getElementById('pfAreaBairrosLista');
-  const pfHiddenEstado = document.getElementById('pfAreaAtuacaoEstadoHidden');
-  const pfHiddenCidade = document.getElementById('pfAreaAtuacaoCidadeHidden');
-  const pfHiddenBairros = document.getElementById('pfAreaAtuacaoBairrosHidden');
-  const _estadoAtual = <%- JSON.stringify(user.areaAtuacaoEstado||'') %>;
-  const _cidadeAtual = <%- JSON.stringify(user.areaAtuacaoCidade||'') %>;
-  let _pfBairros = <%- JSON.stringify(user.areaAtuacaoBairros||[]) %>;
   UFS_BR.forEach(uf => { const o = document.createElement('option'); o.value = uf; o.textContent = uf; pfSelEstado.appendChild(o); });
-  pfSelEstado.value = _estadoAtual;
-  pfInputCidade.value = _cidadeAtual;
-  pfHiddenEstado.value = _estadoAtual;
-  pfHiddenCidade.value = _cidadeAtual;
-  pfHiddenBairros.value = JSON.stringify(_pfBairros);
-  let _pfDebounceCidade;
-  async function _pfBuscarCidades(){
-    const estado = pfSelEstado.value;
-    const q = pfInputCidade.value.trim();
-    if(!estado || q.length < 2) return;
-    try {
-      const r = await fetch('/api/localidades/cidades?estado='+encodeURIComponent(estado)+'&q='+encodeURIComponent(q));
-      const d = await r.json();
-      document.getElementById('pfAreaCidadeLista').innerHTML = (d.cidades||[]).map(c => '<option value="'+c.replace(/"/g,'')+'">').join('');
-    } catch(e){}
-  }
-  async function _pfSelecionarCidade(manteveBairros){
-    const estado = pfSelEstado.value;
-    const cidade = pfInputCidade.value.trim();
-    if(!manteveBairros) _pfBairros = [];
-    pfHiddenEstado.value = estado;
-    pfHiddenCidade.value = cidade;
-    pfHiddenBairros.value = JSON.stringify(_pfBairros);
-    if(!estado || !cidade){ pfWrapBairros.style.display='none'; return; }
-    pfListaBairros.innerHTML = '<span style="color:#9ca3af;font-size:12px">Carregando bairros...</span>';
-    pfWrapBairros.style.display = 'block';
-    try {
-      const r = await fetch('/api/localidades/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
-      const d = await r.json();
-      if(!d.bairros || !d.bairros.length){ pfListaBairros.innerHTML = '<span style="color:#9ca3af;font-size:12px">Nenhum bairro encontrado pra essa cidade.</span>'; return; }
-      pfListaBairros.innerHTML = d.bairros.map(b => {
-        const marcado = _pfBairros.includes(b) ? ' checked' : '';
-        return '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'"'+marcado+' onchange="_pfToggleBairro(this)"> '+b+'</label>';
-      }).join('');
-    } catch(e){ pfListaBairros.innerHTML = '<span style="color:#dc2626;font-size:12px">Erro ao buscar bairros.</span>'; }
-  }
-  window._pfToggleBairro = function(chk){
-    if(chk.checked){ if(!_pfBairros.includes(chk.value)) _pfBairros.push(chk.value); }
-    else { _pfBairros = _pfBairros.filter(b => b !== chk.value); }
-    pfHiddenBairros.value = JSON.stringify(_pfBairros);
-    pfHiddenBairros.dispatchEvent(new Event('input', { bubbles: true }));
-  };
-  pfSelEstado.addEventListener('change', () => { pfInputCidade.value=''; pfWrapBairros.style.display='none'; pfHiddenEstado.value = pfSelEstado.value; pfHiddenEstado.dispatchEvent(new Event('input', { bubbles: true })); });
-  pfInputCidade.addEventListener('input', () => { clearTimeout(_pfDebounceCidade); _pfDebounceCidade = setTimeout(_pfBuscarCidades, 300); });
-  pfInputCidade.addEventListener('change', () => { _pfSelecionarCidade(false); pfHiddenCidade.dispatchEvent(new Event('input', { bubbles: true })); });
-  // Pré-carrega os bairros já salvos, mantendo os que já estavam marcados.
-  if(_estadoAtual && _cidadeAtual) _pfSelecionarCidade(true);
+  const _estadoAtual = <%- JSON.stringify(user.areaAtuacaoEstado||'') %>;
+  // Compatibilidade com contas que salvaram no formato antigo (1 cidade só
+  // em areaAtuacaoCidade, bairros como array de string) antes da mudança
+  // pra multi-cidade (ago/2026) — se não tiver o campo novo ainda, deriva
+  // do antigo em vez de mostrar o perfil vazio.
+  const _cidadesAtual = <%- JSON.stringify(Array.isArray(user.areaAtuacaoCidades) && user.areaAtuacaoCidades.length ? user.areaAtuacaoCidades : (user.areaAtuacaoCidade ? [user.areaAtuacaoCidade] : [])) %>;
+  const _bairrosAtualRaw = <%- JSON.stringify(user.areaAtuacaoBairros||[]) %>;
+  const _bairrosAtual = (_bairrosAtualRaw.length && typeof _bairrosAtualRaw[0] === 'object')
+    ? _bairrosAtualRaw
+    : _bairrosAtualRaw.map(b => ({ cidade: _cidadesAtual[0] || '', bairro: b })).filter(p => p.cidade && p.bairro);
+  const _pfAreaSel = criarSeletorAreaAtuacao('pfArea', { onChange: () => {} });
+  if (_estadoAtual) _pfAreaSel.preencher(_estadoAtual, _cidadesAtual, _bairrosAtual);
 
   let timer;
   // Salva automaticamente enquanto o usuário preenche — sem precisar clicar

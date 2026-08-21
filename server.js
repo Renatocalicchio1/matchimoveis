@@ -10755,7 +10755,10 @@ app.get('/api/localidades/bairros', async (req, res) => {
     const params = [cidade];
     let sql = "SELECT DISTINCT bairro FROM localidades WHERE bairro IS NOT NULL AND bairro != '' AND unaccent(lower(cidade)) = unaccent(lower($1))";
     if (estado) { params.push(estado); sql += ` AND unaccent(lower(estado)) = unaccent(lower($${params.length}))`; }
-    sql += ' ORDER BY bairro LIMIT 300';
+    // Mesmo problema do /cidades (LIMIT baixo cortando resultado de verdade
+    // antes do fim) — sobe pra 5000 pra nunca truncar nem a cidade com mais
+    // bairro mapeado na base (ago/2026, pedido explícito de mostrar tudo).
+    sql += ' ORDER BY bairro LIMIT 5000';
     const { rows } = await _qLocB(sql, params);
     res.json({ ok: true, bairros: rows.map(r => r.bairro) });
   } catch (e) { res.json({ ok: false, bairros: [] }); }

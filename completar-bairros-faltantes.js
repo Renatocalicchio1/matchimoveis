@@ -55,6 +55,17 @@ async function run() {
   let cidadesComBairroNovo = 0;
   let i = 0;
 
+  // Busca 1x; se vier vazio (0 bairro), tenta de novo depois de uma pausa
+  // maior — parte das cidades que ficam de fora na 1ª tentativa é falha
+  // passageira do Nominatim (bloqueio/instabilidade momentânea, já visto
+  // logo no início de uma rodada anterior), não ausência real do dado.
+  async function buscarBairros(cidade, nomeEstado) {
+    const url = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cidade)}&state=${encodeURIComponent(nomeEstado)}&country=Brazil&format=json&limit=50&featureType=neighbourhood`;
+    const r = await fetch(url, { headers: { 'User-Agent': 'MatchImoveis/1.0 contato@matchimoveis.com.br' } });
+    const d = await r.json();
+    return Array.isArray(d) ? d : null;
+  }
+
   for (const row of faltando) {
     i++;
     const cidade = row.cidade;
@@ -62,12 +73,17 @@ async function run() {
     const nomeEstado = SIGLA_PARA_NOME[uf] || uf;
     try {
       await sleep(1100);
-      const url = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cidade)}&state=${encodeURIComponent(nomeEstado)}&country=Brazil&format=json&limit=50&featureType=neighbourhood`;
-      const r = await fetch(url, { headers: { 'User-Agent': 'MatchImoveis/1.0 contato@matchimoveis.com.br' } });
-      const bairros = await r.json();
-      if (!Array.isArray(bairros)) {
+      let bairros = await buscarBairros(cidade, nomeEstado);
+      if (bairros === null) {
         console.log(`[${i}/${faltando.length}] ${cidade}/${uf} — resposta inesperada do Nominatim, pulando`);
         continue;
+      }
+      if (!bairros.length) {
+        // 2ª tentativa com pausa maior (3s) — cobre bloqueio/instabilidade
+        // momentânea sem precisar rodar o script inteiro de novo.
+        await sleep(3000);
+        bairros = await buscarBairros(cidade, nomeEstado);
+        if (bairros === null) bairros = [];
       }
 
       let n = 0;

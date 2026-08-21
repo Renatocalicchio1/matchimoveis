@@ -61,6 +61,13 @@ async function excluirImovelCap(imovelId, leadId){
   });
   location.reload();
 }
+async function excluirLeadCap(leadId, nomeEnc){
+  const nome = decodeURIComponent(nomeEnc);
+  if(!confirm('Excluir a lead "'+nome+'"?\n\nOs imóveis já cadastrados por ela continuam na sua carteira — só a lead sai do funil. Não dá pra desfazer.')) return;
+  const r = await fetch('/app/lead/'+leadId, { method:'DELETE' });
+  const d = await r.json();
+  if(d.ok) location.reload(); else alert('Erro ao excluir: '+(d.erro||''));
+}
 </script>
   <div class="cap-linkbox" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
     <div style="flex:1;min-width:0">
@@ -122,7 +129,7 @@ async function excluirImovelCap(imovelId, leadId){
         <% const _transacaoVerbo = _transacaoLead==='aluguel' ? 'alugar' : 'vender'; %>
         <% const _linkContato = _primeiroVinculado ? ('https://matchimoveis.ia.br/imovel/'+(_primeiroVinculado.id_interno||_primeiroVinculado.id)) : ''; %>
         <% const _msgContato = encodeURIComponent('Oi ' + (l.nome||'') + '! Vi que você tem um imóvel para ' + _transacaoVerbo + ' 🏠' + (_linkContato ? ('\n\nAqui está o link da página: ' + _linkContato) : '') + '\n\nJá estou entrando em contato pra continuar preenchendo os dados com você!'); %>
-        <tr>
+        <tr style="border-top:3px solid #FF385C">
           <td><strong><%= l.nome||'Sem nome' %></strong></td>
           <td><%= l.email||'-' %></td>
           <td><% if(_telCel){ %><a href="https://wa.me/55<%= _telCel %>?text=<%= _msgContato %>" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none;white-space:nowrap">📱 Solicite mais dados dos imóveis</a><% } else { %>-<% } %></td>
@@ -149,6 +156,7 @@ async function excluirImovelCap(imovelId, leadId){
             <% } else { %>
               <span style="color:#9ca3af;font-size:11px">Ações abaixo ↓</span>
             <% } %>
+            <button onclick="excluirLeadCap('<%= l.id %>', '<%= encodeURIComponent(l.nome||'essa lead') %>')" style="background:#fef2f2;color:#dc2626;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir lead</button>
           </td>
         </tr>
         <% if(l.imoveisRelacionados && l.imoveisRelacionados.length > 0) { %>

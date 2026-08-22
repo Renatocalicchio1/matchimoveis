@@ -435,10 +435,7 @@ async function excluirTelefoneContato(id) {
 // (e por fim pra pool normal) em vez de travar o ciclo ali — sem isso, 1
 // contato com envio sempre falhando vira "o próximo elegível" pra sempre e
 // bloqueia a campanha inteira (bug real, corrigido antes na campanha geral).
-async function enviarProximoEmail() {
-  await _garantirTabelas();
-  if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
-
+async function _enviarDosFollowupsCaptacao() {
   const f1 = await proximoFollowup1();
   if (f1) {
     const r1 = await _enviarFollowup(f1, 'followup1', 1);
@@ -454,7 +451,10 @@ async function enviarProximoEmail() {
     const r3 = await _enviarFollowup(f3, 'followup3', 3);
     if (r3.enviado) return r3;
   }
+  return null;
+}
 
+async function _enviarDaPoolCaptacao() {
   const { rows } = await query(`
     ${_POOL_CAPTACAO_CTE}
     SELECT DISTINCT ON (LOWER(TRIM(p.email))) p.id, p.nome, p.email, p.telefone
@@ -516,6 +516,32 @@ async function enviarProximoEmail() {
     await query(`UPDATE campanha_captacao_envios SET erro=$1 WHERE id=$2`, [e.message, envioId]);
     return { enviado: false, motivo: 'erro_envio', erro: e.message };
   }
+}
+
+// Follow-up sempre teve prioridade sobre a pool de gente nova — mas isso
+// deixava a pool sem avançar sempre que existisse QUALQUER follow-up
+// pendente (o normal em operação contínua). Mesmo fix do enviarProximo()
+// da campanha geral de corretor (services/campanha.js, ago/2026): 3 a
+// cada 4 chamadas tenta a pool de gente nova PRIMEIRO, só 1 a cada 4
+// prioriza follow-up primeiro.
+let _tickCampanhaCaptacao = 0;
+async function enviarProximoEmail() {
+  await _garantirTabelas();
+  if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
+
+  _tickCampanhaCaptacao++;
+  const priorizarPoolNova = (_tickCampanhaCaptacao % 4 !== 0);
+
+  if (priorizarPoolNova) {
+    const rPool = await _enviarDaPoolCaptacao();
+    if (rPool.motivo !== 'sem_elegiveis_novos') return rPool;
+    const rFollow = await _enviarDosFollowupsCaptacao();
+    return rFollow || rPool;
+  }
+
+  const rFollow = await _enviarDosFollowupsCaptacao();
+  if (rFollow) return rFollow;
+  return await _enviarDaPoolCaptacao();
 }
 
 async function registrarAbertura(envioId) {

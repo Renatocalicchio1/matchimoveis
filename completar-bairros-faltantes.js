@@ -18,7 +18,7 @@
 //   node completar-bairros-faltantes.js
 const { query, dbOk } = require('./services/db');
 
-const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // Nominatim exige o nome completo do estado (não sigla) no parâmetro

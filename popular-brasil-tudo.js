@@ -1,6 +1,6 @@
 const { Client } = require('pg');
 const DB_URL = 'postgresql://matchimoveis_db_user:ilVX3VfEMGkPsb6njTT8ADvwAaZt4PpZ@dpg-d85o5r3rjlhs73a5ggrg-a/matchimoveis_db';
-const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function run() {

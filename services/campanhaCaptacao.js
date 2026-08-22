@@ -571,16 +571,19 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
   else if (refAdmin) { params.push(refAdmin); where += ` AND e.atendido_por = $${params.length}`; }
 
   params.push(limite); params.push(offset);
+  // "lt" (LATERAL) calcula o telefone 1x por linha — antes essa mesma
+  // subquery correlacionada rodava 3x por linha (1x no SELECT, 2x repetida
+  // dentro do ORDER BY), sem nenhum índice em leads pra LOWER(email)+tipo_lead,
+  // então virava Seq Scan em leads inteira × 3 × cada uma das linhas de
+  // campanha_captacao_envios — com a base de leads grande isso nunca
+  // terminava a tempo (tela ficava presa em "Carregando..." pra sempre).
+  // Índice correspondente: idx_leads_email_lower_tipo (criar-indices-pendentes.js).
   const { rows } = await query(
     `SELECT e.id, e.nome, e.email, e.titulo_usado, e.enviado_em, e.aberto_em, e.clicado_em, e.iniciou_cadastro_em, e.erro,
        e.followup1_enviado_em, e.followup2_enviado_em, e.followup3_enviado_em,
        e.atendido_por, e.atendido_por_nome, e.atendido_por_cor, e.atendido_em, e.wa_manual_enviado_em,
        e.imovel_captado_id, e.bonus_captacao_pago_em,
-       COALESCE(
-         (SELECT l.telefone FROM leads l WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
-          AND LOWER(l.email)=LOWER(e.email) ORDER BY l.criado_em DESC LIMIT 1),
-         e.telefone
-       ) AS telefone,
+       COALESCE(lt.telefone, e.telefone) AS telefone,
        im.status AS imovel_status,
        -- Aproximação dos critérios de services/gerarXMLQuintoAndarGlobal (server.js): endereço + proprietário
        -- completos, transação venda, status ativo e dono autorizado — sem o filtro exato de cidade atendida
@@ -592,6 +595,12 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
      FROM campanha_captacao_envios e
      LEFT JOIN imoveis im ON im.id = e.imovel_captado_id
      LEFT JOIN usuarios u ON u.codigo_usuario = im.user_id
+     LEFT JOIN LATERAL (
+       SELECT l.telefone FROM leads l
+       WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
+         AND LOWER(l.email)=LOWER(e.email)
+       ORDER BY l.criado_em DESC LIMIT 1
+     ) lt ON true
      ${where}
      -- Quem já recebeu o WhatsApp manual (wa_manual_enviado_em) desce pro
      -- final da lista — mesmo critério (e mesma posição, na frente da
@@ -599,15 +608,8 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
      -- contatos (ago/2026), pra sumir de cima assim que o sub-admin clica
      -- "Enviar" e sobrar só quem ainda falta mandar.
      ORDER BY (e.wa_manual_enviado_em IS NULL) DESC,
-       (COALESCE(
-         (SELECT l.telefone FROM leads l WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
-          AND LOWER(l.email)=LOWER(e.email) ORDER BY l.criado_em DESC LIMIT 1),
-         e.telefone
-       ) IS NOT NULL AND COALESCE(
-         (SELECT l.telefone FROM leads l WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
-          AND LOWER(l.email)=LOWER(e.email) ORDER BY l.criado_em DESC LIMIT 1),
-         e.telefone
-       ) <> '' AND e.iniciou_cadastro_em IS NULL AND e.enviado_em IS NOT NULL) DESC,
+       (COALESCE(lt.telefone, e.telefone) IS NOT NULL AND COALESCE(lt.telefone, e.telefone) <> ''
+         AND e.iniciou_cadastro_em IS NULL AND e.enviado_em IS NOT NULL) DESC,
        e.enviado_em DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params

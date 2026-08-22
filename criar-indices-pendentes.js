@@ -41,6 +41,13 @@ const INDICES = [
   { nome: 'idx_imoveis_atualizado_em', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_atualizado_em ON imoveis(atualizado_em)' },
   { nome: 'idx_usuarios_atualizado_em', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_usuarios_atualizado_em ON usuarios(atualizado_em)' },
   { nome: 'idx_visitas_atualizado_em', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_visitas_atualizado_em ON visitas(atualizado_em)' },
+  // /admin/captacao-campanha (services/campanhaCaptacao.js → listarEnvios)
+  // busca o telefone mais atual da lead por LOWER(email)+tipo_lead pra cada
+  // linha de campanha_captacao_envios — sem índice isso é Seq Scan em leads
+  // inteira por linha, o que deixava a tabela "Carregando..." pra sempre com
+  // a base atual (ago/2026). criado_em DESC no fim cobre o ORDER BY ... LIMIT 1
+  // da subquery, tornando a busca praticamente instantânea.
+  { nome: 'idx_leads_email_lower_tipo', sql: "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_leads_email_lower_tipo ON leads(LOWER(email), tipo_lead, criado_em DESC) WHERE telefone IS NOT NULL AND telefone != ''" },
 ];
 
 async function run() {

@@ -13,13 +13,18 @@ function getPool() {
         // vai comendo as conexões do pool até travar o resto do app
         connectionTimeoutMillis: 10000,
         idleTimeoutMillis: 30000,
-        // Reduzido de 20 pra deixar espaço pro pool separado e pequeno da
-        // sessão (server.js, _pgPoolSessao) — sessão não pode competir por
-        // conexão com os jobs de fundo pesados (recarga completa de leads/
-        // imóveis/usuários/visitas etc, que disparam todos juntos no boot);
-        // se competisse, um pico desses jobs travava a página de todo mundo
-        // "carregando" sem abrir (ago/2026).
-        max: 15
+        // Subido de 15 pra 30 (ago/2026) — o teto real do banco é
+        // max_connections=103 e o uso medido num momento calmo foi só ~21
+        // (checado via check-pg-locks.js), então 15 sobrava pouca margem
+        // pra pilha de jobs que dispara toda junta no boot (cache incremental
+        // de leads/imóveis/usuários/visitas + campanha + onboarding + email +
+        // geocodificação) — o log mostrava "timeout exceeded when trying to
+        // connect" nesses jobs E no próprio /health (mesmo pool), o que
+        // travava o health check do Render bem no meio de um deploy, quando
+        // a instância antiga e a nova ficam as duas de pé por alguns
+        // segundos. 30 + os 5 do pool de sessão (_pgPoolSessao, server.js)
+        // ainda deixa margem folgada mesmo com 2 instâncias simultâneas.
+        max: 30
       });
     } else {
       // Sem banco configurado — retorna null (usa JSON como fallback)

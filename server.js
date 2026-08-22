@@ -20423,13 +20423,16 @@ app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
   const isSuper = req.session.adminSuper !== false;
   const { listarAdminContas: _listarContasFiltroCap } = require('./services/salvarAdminConta');
   const contasFiltro = isSuper ? (await _listarContasFiltroCap().catch(() => [])) : [];
+  // Nome de quem tá logado — usado na mensagem de WhatsApp que o sub-admin
+  // manda pro lead (se apresentar pelo próprio nome, não genérico).
+  const adminNome = req.session.adminNome || (isSuper ? 'Equipe' : '');
   try {
     const { contarStatus } = require('./services/campanhaCaptacao');
     const status = await contarStatus();
-    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper, contasFiltro });
+    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper, contasFiltro, adminNome });
   } catch (e) {
     console.error('[admin/captacao-campanha]', e.message);
-    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar, isSuper, contasFiltro });
+    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar, isSuper, contasFiltro, adminNome });
   }
 });
 app.get('/admin/captacao-campanha/status', authAdmin, async (req, res) => {

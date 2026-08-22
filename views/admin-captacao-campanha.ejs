@@ -143,6 +143,9 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
 </div>
 
 <script>
+// Nome de quem está logado agora — pra mensagem de WhatsApp se apresentar
+// pelo nome de verdade em vez de genérico (ago/2026, pedido do Renato).
+const ADMIN_NOME = <%- JSON.stringify((typeof adminNome !== 'undefined' && adminNome) ? adminNome.split(' ')[0] : 'Equipe') %>;
 async function _post(url){
   const r = await fetch(url, { method:'POST' });
   return r.json();
@@ -210,7 +213,7 @@ const LINK_CAPTACAO = 'https://matchimoveis.ia.br/captar/REN-G9K6';
 // /admin/captacao-campanha/lista, o cliente não pode gerar sozinho).
 function _avisoOptOutWA(e){
   const linkOptOut = 'https://www.matchimoveis.ia.br/wa-optout/captacao/'+e.id+'?t='+(e.optoutToken||'');
-  return '\n\n(Se esse número não é seu ou você não quer mais receber mensagens, clique aqui: '+linkOptOut+')';
+  return '\n\n(Desculpa se esse número não é seu ou se você não quer mais receber mensagens — clica aqui que a gente para: '+linkOptOut+')';
 }
 
 // Campo às vezes vem com mais de um número junto (fixo + celular na mesma
@@ -246,12 +249,12 @@ const WHATSAPP_VARIACOES = {
     'Oi '+nome+', bom dia! Vi que meu e-mail sobre cadastrar seu imóvel ainda não foi aberto. Vale a pena conferir: '+link,
     'Oi '+nome+'! Quero te ajudar a divulgar seu imóvel sem custo nenhum. Cadastra aqui quando puder: '+link,
   ]; },
-  abriu_sem_clicar: function(nome, link){ return [
-    'Oi '+nome+'! Vi que você abriu o e-mail sobre cadastrar seu imóvel, mas ainda não deu uma olhada na página. Segue o link: '+link,
-    'Oi '+nome+', tudo certo? Notei que você abriu meu e-mail sobre o imóvel. Falta só clicar aqui pra cadastrar: '+link,
-    'Oi '+nome+'! Você chegou a ver o convite pra cadastrar seu imóvel — se quiser continuar, é só entrar aqui: '+link,
-    'Oi '+nome+', passando pra lembrar: você abriu o e-mail sobre o imóvel mas ainda não visitou a página. Segue de novo: '+link,
-    'Oi '+nome+'! Vi que você abriu o e-mail. Ainda dá tempo de cadastrar seu imóvel sem custo: '+link,
+  abriu_sem_clicar: function(nome, link){ const sub = ADMIN_NOME; return [
+    'Oi '+nome+'! Vi que você abriu nosso e-mail sobre cadastrar seu imóvel. Sou '+sub+', da MatchImóveis, e queria me colocar à disposição! Hoje a gente já divulga automaticamente pra uma rede de mais de 9 mil corretores e imobiliárias parceiras, sem nenhum custo pra você. Topa cadastrar? É rapidinho: '+link,
+    'Oi '+nome+', tudo bem? Aqui é '+sub+', da MatchImóveis! Notei que você deu uma olhada no nosso e-mail sobre anunciar seu imóvel. Se tiver algo pra vender ou alugar, seu anúncio entra automaticamente em mais de 9 mil corretores e nos principais portais parceiros — de graça. Quer que eu te ajude a cadastrar agora? '+link,
+    'Oi '+nome+'! Sou '+sub+', aqui da MatchImóveis, e vi que você interagiu com nosso último e-mail. Você tem algum imóvel pra vender ou alugar? Cadastro é gratuito, e nosso sistema já distribui pra uma rede de +9 mil corretores, portais e imobiliárias parceiras — mais gente vendo seu imóvel, sem você correr atrás de nada. Segue o link: '+link,
+    'Oi '+nome+', passando rapidinho! Sou '+sub+', da MatchImóveis. Vi que você abriu nosso e-mail sobre o seu imóvel. Se ainda tiver interesse, o cadastro é gratuito e a gente já cuida de divulgar em mais de 9 mil corretores e portais parceiros — é só preencher aqui: '+link+'. Qualquer dúvida, me chama!',
+    'Oi '+nome+'! Aqui é '+sub+', da equipe MatchImóveis. Vi que você chegou a abrir nosso e-mail sobre cadastrar seu imóvel. Fico à disposição pra tirar qualquer dúvida! O cadastro é 100% gratuito e seu imóvel ganha visibilidade automática numa rede de +9 mil corretores e imobiliárias parceiras. Bora cadastrar? '+link,
   ]; },
   clicou_sem_iniciar: function(nome){ return [
     'Oi '+nome+'! Vi que você chegou a entrar na página do seu imóvel, mas não finalizou o cadastro. Posso te ajudar a terminar?',

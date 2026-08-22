@@ -18,13 +18,13 @@
  * Regras (definidas com o Renato, ago/2026):
  * - Só interessados com até 7 dias (hoje - 7 dias).
  * - Conta com bairro cadastrado: prioridade — recebe lead nova que bater o
- *   bairro dela, até um teto de 3 por dia (além do teto de sempre: máx 3
+ *   bairro dela, até um teto de 6 por dia (além do teto de sempre: máx 2
  *   contas/lead).
  * - Conta só com estado+cidade (sem bairro): recebe em lotes de 2 — dá 2 pra
  *   cada conta elegível da cidade; se sobrar interessado sem dono depois
  *   disso, dá mais 2 pra cada de novo, repetindo até esgotar o estoque do
- *   dia daquela cidade (ou faltar crédito).
- * - Mesmo interessado nunca vai pra mais de 3 contas no total (bairro + cidade
+ *   dia daquela cidade (ou faltar crédito) — até um teto de 3 por dia.
+ * - Mesmo interessado nunca vai pra mais de 2 contas no total (bairro + cidade
  *   somados).
  * - Sempre cobra em créditos (nova_lead, mesmo custo de qualquer lead nova).
  *
@@ -149,15 +149,17 @@ async function _mapaJaAtribuidos() {
   return mapa;
 }
 
-// Teto diário do nível bairro — 3 leads por conta por dia (horário de
-// Brasília), decidido com o Renato (ago/2026: rule mudou de "sem teto" pra
-// "3/dia" pra não uma conta só engolir a base inteira de bairro no 1º dia).
-// Conta com bairro cadastrado nunca entra no nível cidade (filtro
-// c.bairros.size===0 abaixo), então contar toda lead 'AREA-%' que ela já
-// recebeu hoje é exatamente a contagem do nível bairro, sem precisar marcar
-// de qual tier veio.
-const TETO_DIARIO_BAIRRO = 3;
-async function _recebidosHojeBairro() {
+// Teto diário por conta (horário de Brasília) — diferente por tier: conta
+// com bairro cadastrado recebe até 6/dia, conta só com cidade até 3/dia
+// (ago/2026, ajustado com o Renato). Máximo de contas que recebem a mesma
+// lead: 2 (bairro + cidade somados). Uma conta nunca entra nos dois tiers
+// pra uma MESMA cidade (é bairro OU cidade, filtro c.bairros.size abaixo),
+// então contar toda lead 'AREA-%' que ela já recebeu hoje serve pros dois
+// tetos, sem precisar marcar de qual tier veio.
+const TETO_DIARIO_BAIRRO = 6;
+const TETO_DIARIO_CIDADE = 3;
+const MAX_CONTAS_POR_LEAD = 2;
+async function _recebidosHoje() {
   const hojeSP = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
   const { rows } = await query(
     `SELECT user_id, COUNT(*)::int AS total FROM leads
@@ -194,7 +196,7 @@ async function distribuirLeadsPorArea() {
   const jaAtribuidos = await _mapaJaAtribuidos();
   const saldoRestante = {};
   for (const c of corretores) saldoRestante[c.userId] = c.saldo;
-  const recebidoHojeBairro = await _recebidosHojeBairro();
+  const recebidoHoje = await _recebidosHoje();
 
   const { CUSTO } = require('./creditos');
   const custoLead = CUSTO[CUSTO_LEAD_CHAVE] || 30;
@@ -217,28 +219,29 @@ async function distribuirLeadsPorArea() {
     if (!candidatosBairro.length && !candidatosCidade.length) continue;
 
     // Tier bairro — 1 passada por todos os interessados da região, com teto
-    // de TETO_DIARIO_BAIRRO (3) leads/dia por conta, além do teto de 3
-    // contas/lead e do saldo do corretor.
+    // de TETO_DIARIO_BAIRRO (6) leads/dia por conta, além do teto de
+    // MAX_CONTAS_POR_LEAD (2) contas/lead e do saldo do corretor.
     for (const it of lista) {
       const bairroN = _norm(it.bairro);
       if (!bairroN) continue;
       const jaTem = jaAtribuidos[it.id] || (jaAtribuidos[it.id] = new Set());
       for (const c of candidatosBairro) {
-        if (jaTem.size >= 3) break;
+        if (jaTem.size >= MAX_CONTAS_POR_LEAD) break;
         if (jaTem.has(c.userId) || !c.bairros.has(bairroN)) continue;
         if (saldoRestante[c.userId] < custoLead) continue;
-        if ((recebidoHojeBairro[c.userId] || 0) >= TETO_DIARIO_BAIRRO) continue;
+        if ((recebidoHoje[c.userId] || 0) >= TETO_DIARIO_BAIRRO) continue;
         jaTem.add(c.userId);
         saldoRestante[c.userId] -= custoLead;
-        recebidoHojeBairro[c.userId] = (recebidoHojeBairro[c.userId] || 0) + 1;
+        recebidoHoje[c.userId] = (recebidoHoje[c.userId] || 0) + 1;
         fila.push({ it, userId: c.userId });
       }
     }
 
     // Tier cidade — rodízio em lotes de LOTE_CIDADE por corretor, repetindo
     // rodadas enquanto alguém ainda receber algo (evita loop infinito quando
-    // ninguém mais pode receber — sem saldo, ou interessados todos com 3
-    // contas, ou já recebidos por todo mundo).
+    // ninguém mais pode receber — sem saldo, ou interessados todos com
+    // MAX_CONTAS_POR_LEAD contas, ou já recebidos por todo mundo, ou teto
+    // diário de TETO_DIARIO_CIDADE (3) batido).
     if (candidatosCidade.length) {
       let mudouAlgumaCoisa = true;
       while (mudouAlgumaCoisa) {
@@ -247,14 +250,16 @@ async function distribuirLeadsPorArea() {
         for (const c of candidatosCidade) recebidoNestaRodada[c.userId] = 0;
         for (const it of lista) {
           const jaTem = jaAtribuidos[it.id] || (jaAtribuidos[it.id] = new Set());
-          if (jaTem.size >= 3) continue;
+          if (jaTem.size >= MAX_CONTAS_POR_LEAD) continue;
           for (const c of candidatosCidade) {
-            if (jaTem.size >= 3) break;
+            if (jaTem.size >= MAX_CONTAS_POR_LEAD) break;
             if (recebidoNestaRodada[c.userId] >= LOTE_CIDADE) continue;
             if (jaTem.has(c.userId)) continue;
             if (saldoRestante[c.userId] < custoLead) continue;
+            if ((recebidoHoje[c.userId] || 0) >= TETO_DIARIO_CIDADE) continue;
             jaTem.add(c.userId);
             recebidoNestaRodada[c.userId]++;
+            recebidoHoje[c.userId] = (recebidoHoje[c.userId] || 0) + 1;
             saldoRestante[c.userId] -= custoLead;
             fila.push({ it, userId: c.userId });
             mudouAlgumaCoisa = true;

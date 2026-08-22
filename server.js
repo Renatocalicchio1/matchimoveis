@@ -11750,6 +11750,144 @@ app.get('/portal', async (req, res) => {
   }
 });
 
+// ── SERVIDOR MCP (Model Context Protocol) — App da MatchImóveis no ChatGPT ──
+// Projeto combinado com o Renato (ago/2026): expõe os imóveis públicos da
+// plataforma como ferramenta pro ChatGPT buscar/mostrar dentro da conversa,
+// via o App Directory da OpenAI (Apps SDK). Reaproveita a MESMA lógica de
+// visibilidade/filtro do /portal (imovelVisivelPublico, _dedupRodizioImoveis,
+// _filtrarEPaginarImoveis) — mesma base, mesmas regras, sem duplicar nem
+// arriscar divergência entre o que aparece no portal e o que aparece no
+// ChatGPT.
+//
+// Transporte: JSON-RPC 2.0 por POST simples (sem streaming/SSE) — modo
+// "Streamable HTTP" válido no protocolo MCP pra servidor que só responde,
+// nunca inicia mensagem por conta própria (não precisamos disso aqui, é só
+// busca). Sem autenticação — os dados expostos já são públicos, mesma
+// informação que qualquer visitante vê em /portal ou /imovel/:id.
+//
+// ⚠️ Implementa o protocolo MCP genérico (testável com qualquer cliente MCP
+// padrão/inspector) — as extensões específicas do Apps SDK da OpenAI (ex:
+// widget de UI rica via _meta, campos extras do manifesto de submissão)
+// ainda NÃO estão aqui: o acesso à documentação oficial (developers.openai.com,
+// help.openai.com) ficou bloqueado no ambiente onde isso foi escrito, então
+// preferi implementar só o que dá pra verificar contra o spec aberto do MCP
+// em vez de arriscar inventar campo que a OpenAI não usa. Ajustar isso é o
+// próximo passo natural assim que a conta de submissão estiver criada e a
+// gente puder ver os erros/avisos reais do portal de revisão.
+const MCP_PROTOCOL_VERSION = '2025-06-18';
+
+function _mcpTools() {
+  return [
+    {
+      name: 'buscar_imoveis',
+      description: 'Busca imóveis à venda ou aluguel na MatchImóveis por cidade, bairro, tipo, valor e outros filtros. Use quando o usuário perguntar sobre imóveis disponíveis numa região do Brasil.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          cidade: { type: 'string', description: 'Nome da cidade, ex: "Balneário Camboriú"' },
+          estado: { type: 'string', description: 'Nome ou sigla do estado, ex: "SC" ou "Santa Catarina"' },
+          bairro: { type: 'string', description: 'Nome do bairro (opcional)' },
+          transacao: { type: 'string', enum: ['venda', 'aluguel'], description: 'Tipo de transação' },
+          tipo: { type: 'string', description: 'Tipo de imóvel, ex: "Apartamento", "Casa"' },
+          valor_max: { type: 'number', description: 'Valor máximo em reais' },
+          quartos_min: { type: 'number', description: 'Número mínimo de quartos' }
+        }
+      }
+    },
+    {
+      name: 'detalhes_imovel',
+      description: 'Retorna os detalhes completos de um imóvel específico da MatchImóveis a partir do ID retornado por buscar_imoveis.',
+      inputSchema: {
+        type: 'object',
+        properties: { id: { type: 'string', description: 'ID do imóvel' } },
+        required: ['id']
+      }
+    }
+  ];
+}
+
+function _mcpBuscarImoveis(args) {
+  const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
+  const imoveisSemDuplicata = _dedupRodizioImoveis(imoveisAtivos);
+  const q = {
+    cidade: args.cidade || '', estado: args.estado || '', bairro: args.bairro || '',
+    operacao: args.transacao || '', tipo: args.tipo || '',
+    valorMax: args.valor_max || '', quartosMin: args.quartos_min || ''
+  };
+  const _r = _filtrarEPaginarImoveis(imoveisSemDuplicata, q, 10);
+  return _r.imoveisPagina.map(i => ({
+    id: i.id,
+    titulo: i.titulo || ([i.tipo, i.bairro].filter(Boolean).join(' em ')),
+    tipo: i.tipo, transacao: i.transacao,
+    bairro: i.bairro, cidade: i.cidade, estado: i.estado,
+    valor: Number(i.valor_imovel) || 0, quartos: i.quartos || 0, area_m2: i.area_m2 || 0,
+    link: 'https://www.matchimoveis.ia.br/imovel/' + (i.idInterno || i.id)
+  }));
+}
+
+async function _mcpDetalhesImovel(args) {
+  const imovel = await _buscarImovelCompleto(args.id);
+  if (!imovel || !imovelVisivelPublico(imovel)) return null;
+  return {
+    id: imovel.id, titulo: imovel.titulo, tipo: imovel.tipo, transacao: imovel.transacao,
+    bairro: imovel.bairro, cidade: imovel.cidade, estado: imovel.estado,
+    valor: Number(imovel.valor_imovel) || 0, quartos: imovel.quartos || 0, suites: imovel.suites || 0,
+    banheiros: imovel.banheiros || 0, vagas: imovel.vagas || 0, area_m2: imovel.area_m2 || 0,
+    descricao: (imovel.descricao || '').slice(0, 600),
+    fotos: (imovel.fotos || []).length,
+    link: 'https://www.matchimoveis.ia.br/imovel/' + (imovel.idInterno || imovel.id)
+  };
+}
+
+app.post('/mcp', async (req, res) => {
+  const corpo = req.body || {};
+  const id = corpo.id;
+  function reply(result) { res.json({ jsonrpc: '2.0', id, result }); }
+  function replyErr(code, message) { res.json({ jsonrpc: '2.0', id, error: { code, message } }); }
+  try {
+    const method = corpo.method;
+    const params = corpo.params || {};
+    if (method === 'initialize') {
+      return reply({
+        protocolVersion: MCP_PROTOCOL_VERSION,
+        capabilities: { tools: {} },
+        serverInfo: { name: 'matchimoveis', version: '1.0.0' }
+      });
+    }
+    // Notificação (sem id) — não espera resposta JSON-RPC, só um 202.
+    if (method === 'notifications/initialized') return res.status(202).end();
+    if (method === 'tools/list') return reply({ tools: _mcpTools() });
+    if (method === 'tools/call') {
+      const nomeFerramenta = params.name;
+      const args = params.arguments || {};
+      if (nomeFerramenta === 'buscar_imoveis') {
+        const resultados = _mcpBuscarImoveis(args);
+        return reply({
+          content: [{ type: 'text', text: resultados.length ? JSON.stringify(resultados) : 'Nenhum imóvel encontrado com esses critérios.' }],
+          structuredContent: { imoveis: resultados },
+          isError: false
+        });
+      }
+      if (nomeFerramenta === 'detalhes_imovel') {
+        const detalhe = await _mcpDetalhesImovel(args);
+        if (!detalhe) return reply({ content: [{ type: 'text', text: 'Imóvel não encontrado ou não disponível publicamente.' }], isError: true });
+        return reply({ content: [{ type: 'text', text: JSON.stringify(detalhe) }], structuredContent: detalhe, isError: false });
+      }
+      return replyErr(-32602, 'Ferramenta desconhecida: ' + nomeFerramenta);
+    }
+    return replyErr(-32601, 'Método não suportado: ' + method);
+  } catch (e) {
+    console.error('[MCP]', e.message);
+    return replyErr(-32603, 'Erro interno: ' + e.message);
+  }
+});
+// GET só existe no protocolo MCP pra servidor que quer manter um stream
+// (SSE) aberto e mandar mensagem por conta própria — não é o nosso caso
+// (só respondemos o que é perguntado), então 405 é a resposta correta.
+app.get('/mcp', (req, res) => {
+  res.status(405).json({ erro: 'Este servidor MCP só aceita POST (sem streaming server-initiated).' });
+});
+
 // ── ADMIN — CONFIGURAR SITE GLOBAL (mesmos campos do "Meu Site" do corretor) ──
 app.get('/admin/site-global', authAdmin, async (req, res) => {
   try {

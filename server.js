@@ -17199,12 +17199,12 @@ setInterval(async () => {
         } catch(e) { console.error('[leads-dia] erro usuario', uid, e.message); }
       }
     } catch(e) { console.error('[leads-dia] erro geral', e.message); }
-    // Agenda para o próximo dia às 8h
+    // Agenda para o próximo dia às 5h30
     setTimeout(_processarLeadsDia, _msAte8h());
   }
   // Primeira execução
   setTimeout(_processarLeadsDia, _msAte8h());
-  console.log('[leads-dia] job agendado para as 8h');
+  console.log('[leads-dia] job agendado para as 5h30');
 })();
 // ── FIM JOB_LEADS_DIA ────────────────────────────────────────────────────────
 

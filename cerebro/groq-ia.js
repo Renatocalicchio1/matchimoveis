@@ -56,7 +56,14 @@ ${ctx.feedbacks ? ctx.feedbacks.slice(0,500) : ''}
 
 REGRAS: Português BR. MUITO direto, máx 2 linhas. Negrito para números. Nunca invente dados — se a página/fluxo não estiver nas seções acima, diga que não sabe em vez de inventar. Nunca cite URLs técnicas, use nome do menu. Sem enrolação. Nunca diga "R$" ao falar de consumo de coins — coins e reais são unidades diferentes.`;
 
-    const messages = [{ role: 'system', content: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }] }];
+    // content precisa ser string simples aqui — Groq usa API compatível com
+    // OpenAI, não Anthropic; o formato de bloco com cache_control (`[{type:
+    // 'text', text, cache_control}]`) é sintaxe de prompt caching da Claude
+    // API, não da Groq. Groq pode rejeitar isso com 400 dependendo da
+    // validação do momento — motivo mais provável do assistente cair sempre
+    // no fallback genérico "Tive um problema ao processar" (relatado pelo
+    // Renato, print do app mobile, ago/2026).
+    const messages = [{ role: 'system', content: systemPrompt }];
 
     if (historico && historico.length) {
       historico.slice(-4).forEach(function(h) {
@@ -90,11 +97,18 @@ REGRAS: Português BR. MUITO direto, máx 2 linhas. Negrito para números. Nunca
       let data = '';
       res.on('data', function(chunk) { data += chunk; });
       res.on('end', function() {
+        // Inclui o status HTTP na mensagem de erro — sem isso o log
+        // `[groq]` só mostra "Resposta vazia" ou um erro de parse, sem dar
+        // pra distinguir 401 (chave inválida/revogada), 429 (rate limit),
+        // 400 (payload rejeitado) ou 5xx (Groq fora do ar) só olhando o log.
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          return reject(new Error('Groq HTTP ' + res.statusCode + ': ' + data.slice(0,300)));
+        }
         try {
           const json = JSON.parse(data);
           const texto = json.choices?.[0]?.message?.content;
           if (texto) resolve(texto.trim());
-          else reject(new Error('Resposta vazia: ' + data.slice(0,200)));
+          else reject(new Error('Resposta vazia (HTTP ' + res.statusCode + '): ' + data.slice(0,200)));
         } catch(e) { reject(e); }
       });
     });

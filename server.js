@@ -638,6 +638,20 @@ function _adminShellCss() {
       .admin-sidebar.open{transform:translateX(0)}
       .admin-content{margin-left:0;padding:56px 14px 24px}
       .admin-mob-btn{display:flex!important}
+      /* Toda página admin monta a própria <table> inline (dezenas de rotas
+         diferentes em server.js, sem wrapper de overflow-x cada uma) —
+         tabela de 6-9 colunas (comum aqui: "Meus corretores", "Meus leads"
+         etc.) cortava informação/empurrava a página inteira pro lado no
+         celular (relatado pelo Renato, ago/2026). Regra global em vez de
+         caçar tabela por tabela: display:block+overflow-x dá rolagem
+         própria pra qualquer <table> dentro do conteúdo admin, sem precisar
+         editar cada rota. white-space:nowrap junto evita quebra de linha
+         estranha dentro da célula enquanto rola.
+         Escape hatch: table.no-mobile-scroll pula essa regra. */
+      .admin-content table:not(.no-mobile-scroll){display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+      .admin-content table:not(.no-mobile-scroll) thead,
+      .admin-content table:not(.no-mobile-scroll) tbody,
+      .admin-content table:not(.no-mobile-scroll) tr{display:table;width:100%}
     }
   `;
 }
@@ -20653,16 +20667,28 @@ https://www.matchimoveis.ia.br
     if(fixo) return '55'+fixo;
     return '';
   }
-  // Sob o nome do contato: mostra quem já "atendeu" (se já tiver) E o botão
-  // de WhatsApp (se o estágio pedir um) — o botão continua disponível MESMO
-  // depois de atendido, porque a distribuição automática (a cada 5 min) já
-  // marca atendido_por pra todo o backlog sozinha; se o botão sumisse nesse
-  // momento, o sub-admin nunca conseguiria abrir o WhatsApp de quem foi
-  // atribuído a ele (mesmo bug corrigido em campanhaCaptacao.js/dc37e782).
+  // Sob o nome do contato: mostra quem é DONO do contato (se já tiver) E o
+  // botão de WhatsApp (se o estágio pedir um) — o botão continua disponível
+  // MESMO depois de atribuído, porque a distribuição automática (a cada 5
+  // min) já marca atendido_por pra todo o backlog sozinha; se o botão
+  // sumisse nesse momento, o sub-admin nunca conseguiria abrir o WhatsApp
+  // de quem foi atribuído a ele (mesmo bug corrigido em
+  // campanhaCaptacao.js/dc37e782).
+  // IMPORTANTE (ago/2026, relatado pelo Renato): "atendido_por" é só DONO/
+  // responsável do contato (atribuição automática, round-robin) — não
+  // prova que o sub-admin de fato falou com o contato. Rótulo antigo
+  // "✅ Atendido por X" aparecia pra todo mundo assim que distribuído,
+  // mesmo sem nenhum clique no WhatsApp, dando a entender falsamente que
+  // já tinha sido atendido. Agora 2 linhas separadas: "📌 Atribuído a X"
+  // (sempre que tem dono) e "✅ Conversou no WhatsApp em [data]" (só
+  // quando wa_manual_enviado_em existe de verdade).
   function _subNome(c){
     let html = '';
     if(c.atendido_por_nome){
-      html += '<div style="font-size:11px;font-weight:600;color:'+escHtml(c.atendido_por_cor||'#6b7280')+';margin-top:2px">✅ Atendido por '+escHtml(c.atendido_por_nome)+'</div>';
+      html += '<div style="font-size:11px;font-weight:600;color:'+escHtml(c.atendido_por_cor||'#6b7280')+';margin-top:2px">📌 Atribuído a '+escHtml(c.atendido_por_nome)+'</div>';
+    }
+    if(c.wa_manual_enviado_em){
+      html += '<div style="font-size:11px;font-weight:600;color:#16a34a;margin-top:2px">✅ Conversou no WhatsApp em '+escHtml(new Date(c.wa_manual_enviado_em).toLocaleDateString('pt-BR'))+'</div>';
     }
     const estagio = _whatsappEstagio(c);
     if(estagio && _celularWA(c.celular)){
@@ -21924,13 +21950,13 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         </div>
         `}
 
-        <div style="display:flex;gap:16px;margin-bottom:24px">
-          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">
+        <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px">
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1;min-width:200px">
             <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:700">Disponível pra resgatar</div>
             <div style="font-size:26px;font-weight:800;color:#111">${disponivel} coins</div>
             <div style="font-size:13px;color:#16a34a;font-weight:700;margin-top:2px">≈ R$ ${disponivelReais}</div>
           </div>
-          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1;min-width:200px">
             <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:700">Saldo em coins (pra revender)</div>
             <div style="font-size:26px;font-weight:800;color:#111">${conta.saldoCoins} coins</div>
           </div>

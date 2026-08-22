@@ -269,17 +269,29 @@ function _whatsappMensagem(e, estagio){
   const msg = _sorteiaWA(gerador(nome, LINK_CAPTACAO));
   return msg + _avisoOptOutWA(e);
 }
-// Sob o nome: quem já atendeu aparece marcado, e o botão de WhatsApp (com a
-// mensagem já pronta, mesmo padrão de /admin/campanha) continua disponível
-// mesmo depois de atendido — a distribuição automática já marca atendido_por
-// pra TODO o backlog (ver distribuirAtendimentosAbertos), então se o botão
-// sumisse nesse momento o sub-admin nunca conseguiria abrir o WhatsApp pra
-// falar com quem foi atribuído a ele. Isso é o canal manual até ligar o
-// disparo automático dessa campanha por template de WhatsApp da Meta.
+// Sob o nome: quem é DONO do contato aparece marcado (atendido_por — a
+// distribuição automática já preenche isso pra TODO o backlog via
+// round-robin, ver distribuirAtendimentosAbertos), e o botão de WhatsApp
+// (com a mensagem já pronta, mesmo padrão de /admin/campanha) continua
+// disponível mesmo depois de atribuído — se o botão sumisse nesse momento
+// o sub-admin nunca conseguiria abrir o WhatsApp pra falar com quem foi
+// atribuído a ele. Isso é o canal manual até ligar o disparo automático
+// dessa campanha por template de WhatsApp da Meta.
+// IMPORTANTE (ago/2026, relatado pelo Renato): "atendido_por" é só DONO/
+// responsável pelo contato (atribuição, round-robin) — não prova que o
+// sub-admin de fato falou com a lead. Rótulo antigo "✅ Atendido por X"
+// aparecia pra TODA a fila assim que distribuída, mesmo sem nenhum clique
+// no WhatsApp ainda, dando a entender falsamente que já tinha sido
+// atendida. Agora são 2 linhas separadas: "📌 Atribuído a X" (sempre que
+// tem dono) e "✅ Conversou no WhatsApp em [data]" (só quando
+// wa_manual_enviado_em existe de verdade — clicou pra falar).
 function _subNome(e){
   let html = '';
   if(e.atendido_por_nome){
-    html += '<div style="font-size:11px;font-weight:600;color:'+escHtml(e.atendido_por_cor||'#6b7280')+';margin-top:2px">✅ Atendido por '+escHtml(e.atendido_por_nome)+'</div>';
+    html += '<div style="font-size:11px;font-weight:600;color:'+escHtml(e.atendido_por_cor||'#6b7280')+';margin-top:2px">📌 Atribuído a '+escHtml(e.atendido_por_nome)+'</div>';
+  }
+  if(e.wa_manual_enviado_em){
+    html += '<div style="font-size:11px;font-weight:600;color:#16a34a;margin-top:2px">✅ Conversou no WhatsApp em '+escHtml(new Date(e.wa_manual_enviado_em).toLocaleDateString('pt-BR'))+'</div>';
   }
   const estagio = _whatsappEstagio(e);
   if(estagio){

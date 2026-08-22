@@ -1152,24 +1152,23 @@ async function _enviarFollowup(contato, tipo, numero) {
   }
 }
 
-// Um envio — chamado pelo job automático (server.js, intervalo aleatório
-// de 30s a 5min entre cada chamada). Follow-ups têm prioridade sobre o
-// primeiro contato "pendente" da fila — a lista de 118k é grande e sempre
-// vai ter gente nova pra mandar, mas o follow-up tem prazo (24h desde o
-// gatilho) e precisa sair no tempo certo.
-async function enviarProximo() {
-  await _garantirColunas();
-  await _backfillPrioridadePendente();
-  if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
+async function _enviarDaFilaPrincipal() {
+  const [contato] = await proximoLote(1);
+  if (!contato) return null;
+  const modelo = _sortearModelo();
+  const corpoPersonalizado = modelo.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
+  const html = gerarHTML(corpoPersonalizado, contato, modelo.tipo);
+  try {
+    await enviarEmail({ para: contato.email, assunto: modelo.assunto, html, texto: modelo.assunto });
+    await marcarEnviado(contato.id, null, { modelo: modelo.tipo, titulo: modelo.assunto, corpo: modelo.corpo });
+    return { enviado: true, email: contato.email, modelo: modelo.tipo, titulo: modelo.assunto };
+  } catch (e) {
+    await marcarEnviado(contato.id, e.message);
+    return { enviado: false, motivo: 'erro_envio', erro: e.message };
+  }
+}
 
-  // Follow-up com erro NÃO marca followupN_enviado_em (de propósito, pra
-  // tentar de novo no próximo ciclo) — mas isso significa que o MESMO
-  // contato quebrado (ex: SES rejeitando aquele endereço) volta a ser "o
-  // próximo elegível" pra sempre. Como follow-up tem prioridade sobre a
-  // fila normal, um único contato travado nunca deixava a campanha geral
-  // (118k contatos "pendente") sair do lugar — parecia campanha "parada"
-  // sem nenhum erro visível. Segue pra próxima camada (e por fim pra fila
-  // normal) sempre que o envio falha, em vez de parar o ciclo ali.
+async function _enviarDosFollowups() {
   const f1 = await proximoFollowup1();
   if (f1) {
     const r1 = await _enviarFollowup(f1, 'followup1', 1);
@@ -1185,21 +1184,49 @@ async function enviarProximo() {
     const r3 = await _enviarFollowup(f3, 'followup3', 3);
     if (r3.enviado) return r3;
   }
+  return null;
+}
 
-  const [contato] = await proximoLote(1);
-  if (!contato) return { enviado: false, motivo: 'sem_elegiveis' };
+// Um envio — chamado pelo job automático (server.js, intervalo aleatório
+// de 30s a 5min entre cada chamada).
+//
+// Follow-up tem prazo (24h desde o gatilho) e sempre teve prioridade sobre
+// a fila principal — mas "sempre prioridade" significava, na prática,
+// NUNCA avançar a fila de 118k contatos enquanto existisse QUALQUER
+// follow-up pendente, o que é o normal em operação contínua (todo dia
+// vence follow-up de gente nova). Confirmado em produção (ago/2026): a
+// fila principal ficou horas paralisada com só ~100 follow-ups pendentes.
+// Fix: proporção 3 contato novo pra 1 follow-up (pedido do Renato) — 3 a
+// cada 4 chamadas tenta a fila principal PRIMEIRO, só 1 a cada 4 prioriza
+// follow-up primeiro.
+let _tickCampanhaGeral = 0;
+async function enviarProximo() {
+  await _garantirColunas();
+  await _backfillPrioridadePendente();
+  if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
 
-  const modelo = _sortearModelo();
-  const corpoPersonalizado = modelo.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
-  const html = gerarHTML(corpoPersonalizado, contato, modelo.tipo);
-  try {
-    await enviarEmail({ para: contato.email, assunto: modelo.assunto, html, texto: modelo.assunto });
-    await marcarEnviado(contato.id, null, { modelo: modelo.tipo, titulo: modelo.assunto, corpo: modelo.corpo });
-    return { enviado: true, email: contato.email, modelo: modelo.tipo, titulo: modelo.assunto };
-  } catch (e) {
-    await marcarEnviado(contato.id, e.message);
-    return { enviado: false, motivo: 'erro_envio', erro: e.message };
+  _tickCampanhaGeral++;
+  const priorizarFilaPrincipal = (_tickCampanhaGeral % 4 !== 0);
+
+  if (priorizarFilaPrincipal) {
+    const rPrincipal = await _enviarDaFilaPrincipal();
+    if (rPrincipal) return rPrincipal;
+    const rFollow = await _enviarDosFollowups();
+    if (rFollow) return rFollow;
+    return { enviado: false, motivo: 'sem_elegiveis' };
   }
+
+  // Follow-up com erro NÃO marca followupN_enviado_em (de propósito, pra
+  // tentar de novo no próximo ciclo) — mas isso significa que o MESMO
+  // contato quebrado (ex: SES rejeitando aquele endereço) volta a ser "o
+  // próximo elegível" pra sempre. Segue pra próxima camada (e por fim pra
+  // fila normal) sempre que o envio falha, em vez de parar o ciclo ali.
+  const rFollow = await _enviarDosFollowups();
+  if (rFollow) return rFollow;
+
+  const rPrincipal = await _enviarDaFilaPrincipal();
+  if (rPrincipal) return rPrincipal;
+  return { enviado: false, motivo: 'sem_elegiveis' };
 }
 
 async function enviarTeste(emailTeste, { assunto, mensagem }) {

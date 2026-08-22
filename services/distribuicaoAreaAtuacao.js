@@ -18,12 +18,12 @@
  * Regras (definidas com o Renato, ago/2026):
  * - Só interessados com até 7 dias (hoje - 7 dias).
  * - Conta com bairro cadastrado: prioridade — recebe lead nova que bater o
- *   bairro dela, até um teto de 6 por dia (além do teto de sempre: máx 2
+ *   bairro dela, até um teto de 3 por dia (além do teto de sempre: máx 2
  *   contas/lead).
  * - Conta só com estado+cidade (sem bairro): recebe em lotes de 2 — dá 2 pra
  *   cada conta elegível da cidade; se sobrar interessado sem dono depois
  *   disso, dá mais 2 pra cada de novo, repetindo até esgotar o estoque do
- *   dia daquela cidade (ou faltar crédito) — até um teto de 3 por dia.
+ *   dia daquela cidade (ou faltar crédito) — até um teto de 2 por dia.
  * - Mesmo interessado nunca vai pra mais de 2 contas no total (bairro + cidade
  *   somados).
  * - Sempre cobra em créditos (nova_lead, mesmo custo de qualquer lead nova).
@@ -156,8 +156,8 @@ async function _mapaJaAtribuidos() {
 // pra uma MESMA cidade (é bairro OU cidade, filtro c.bairros.size abaixo),
 // então contar toda lead 'AREA-%' que ela já recebeu hoje serve pros dois
 // tetos, sem precisar marcar de qual tier veio.
-const TETO_DIARIO_BAIRRO = 6;
-const TETO_DIARIO_CIDADE = 3;
+const TETO_DIARIO_BAIRRO = 3;
+const TETO_DIARIO_CIDADE = 2;
 const MAX_CONTAS_POR_LEAD = 2;
 async function _recebidosHoje() {
   const hojeSP = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
@@ -219,7 +219,7 @@ async function distribuirLeadsPorArea() {
     if (!candidatosBairro.length && !candidatosCidade.length) continue;
 
     // Tier bairro — 1 passada por todos os interessados da região, com teto
-    // de TETO_DIARIO_BAIRRO (6) leads/dia por conta, além do teto de
+    // de TETO_DIARIO_BAIRRO (3) leads/dia por conta, além do teto de
     // MAX_CONTAS_POR_LEAD (2) contas/lead e do saldo do corretor.
     for (const it of lista) {
       const bairroN = _norm(it.bairro);
@@ -241,7 +241,7 @@ async function distribuirLeadsPorArea() {
     // rodadas enquanto alguém ainda receber algo (evita loop infinito quando
     // ninguém mais pode receber — sem saldo, ou interessados todos com
     // MAX_CONTAS_POR_LEAD contas, ou já recebidos por todo mundo, ou teto
-    // diário de TETO_DIARIO_CIDADE (3) batido).
+    // diário de TETO_DIARIO_CIDADE (2) batido).
     if (candidatosCidade.length) {
       let mudouAlgumaCoisa = true;
       while (mudouAlgumaCoisa) {

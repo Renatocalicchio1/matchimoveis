@@ -3223,17 +3223,25 @@ _agendarMatchPendentes();
 // provedores de email. 30s-5min (ago/2026) — mesma cadência da campanha
 // geral de corretor, revertida junto depois do aviso de reputação no SES
 // (taxa de devolução/reclamação subiram pra "Aviso").
-function _agendarProximoEnvioCampanha() {
-  const delayMs = (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
-  setTimeout(async () => {
-    try {
-      const { enviarProximoEmail } = require('./services/campanhaCaptacao');
-      await enviarProximoEmail();
-    } catch (e) { console.error('[JOB CAMPANHA CAPTACAO]', e.message); }
-    _agendarProximoEnvioCampanha();
-  }, delayMs);
-}
-_agendarProximoEnvioCampanha();
+// setInterval fixo (checa a cada 10s se já passou do horário sorteado) em vez
+// do padrão antigo de setTimeout que se auto-agendava recursivamente — esse
+// padrão tinha uma falha real: se por qualquer motivo uma rodada não
+// chegasse até a linha que reagenda a próxima (exceção escapando do
+// try/catch, travamento do event loop num ponto ruim, etc.), a cadeia
+// morria pra sempre e ninguém percebia até checar manualmente (aconteceu
+// com a campanha geral de corretor, ago/2026 — parou de enviar horas sem
+// nenhum erro visível). setInterval não depende de nada dentro do próprio
+// callback pra continuar — é registrado 1x e o Node continua chamando pra
+// sempre, então uma rodada travada nunca mata as próximas.
+let _proximoEnvioCampanha = Date.now() + (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
+setInterval(async () => {
+  if (Date.now() < _proximoEnvioCampanha) return;
+  _proximoEnvioCampanha = Date.now() + (30 + Math.random() * 270) * 1000;
+  try {
+    const { enviarProximoEmail } = require('./services/campanhaCaptacao');
+    await enviarProximoEmail();
+  } catch (e) { console.error('[JOB CAMPANHA CAPTACAO]', e.message); }
+}, 10000);
 
 // Job da campanha geral de email (services/campanha.js, base de ~118 mil
 // contatos) — mesmo princípio: só dispara quando ativa em /admin/campanha,
@@ -3245,17 +3253,19 @@ _agendarProximoEnvioCampanha();
 // subiram pra "Aviso" nas Métricas de reputação depois da redução — volume
 // maior não vale a pena se piora a reputação da conta inteira (afeta
 // entrega de TODO email do sistema, não só campanha).
-function _agendarProximoEnvioCampanhaGeral() {
-  const delayMs = (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
-  setTimeout(async () => {
-    try {
-      const { enviarProximo } = require('./services/campanha');
-      await enviarProximo();
-    } catch (e) { console.error('[JOB CAMPANHA GERAL]', e.message); }
-    _agendarProximoEnvioCampanhaGeral();
-  }, delayMs);
-}
-_agendarProximoEnvioCampanhaGeral();
+// setInterval fixo em vez de setTimeout auto-agendado — mesmo motivo do job
+// de captação logo acima (a cadeia recursiva morreu silenciosamente em
+// produção, ago/2026, deixando 100k+ contatos parados sem erro nenhum no
+// log; setInterval não tem esse ponto de falha).
+let _proximoEnvioCampanhaGeral = Date.now() + (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
+setInterval(async () => {
+  if (Date.now() < _proximoEnvioCampanhaGeral) return;
+  _proximoEnvioCampanhaGeral = Date.now() + (30 + Math.random() * 270) * 1000;
+  try {
+    const { enviarProximo } = require('./services/campanha');
+    await enviarProximo();
+  } catch (e) { console.error('[JOB CAMPANHA GERAL]', e.message); }
+}, 10000);
 
 // Job de validação de email da campanha geral — roda em paralelo ao envio,
 // processando lotes pequenos (50 por vez, a cada 5s) pra ir verificando
@@ -3306,17 +3316,17 @@ setTimeout(async () => {
 // Alcança toda lead do sistema com email, reenviando a cada 7 dias enquanto
 // ela não cancelar (services/emailPortalGlobal.js) — liberado pra base
 // histórica inteira em ago/2026, não só leads novas (pedido do Renato).
-function _agendarProximoConvitePortal() {
-  const delayMs = (10 + Math.random() * 110) * 1000; // 10s a 120s
-  setTimeout(async () => {
-    try {
-      const { enviarUmConvitePortal } = require('./services/emailPortalGlobal');
-      await enviarUmConvitePortal();
-    } catch (e) { console.error('[JOB CONVITE PORTAL]', e.message); }
-    _agendarProximoConvitePortal();
-  }, delayMs);
-}
-_agendarProximoConvitePortal();
+// setInterval fixo em vez de setTimeout auto-agendado — mesmo motivo dos 2
+// jobs de campanha acima (proteção contra a cadeia morrer silenciosamente).
+let _proximoConvitePortal = Date.now() + (10 + Math.random() * 110) * 1000; // 10s a 120s
+setInterval(async () => {
+  if (Date.now() < _proximoConvitePortal) return;
+  _proximoConvitePortal = Date.now() + (10 + Math.random() * 110) * 1000;
+  try {
+    const { enviarUmConvitePortal } = require('./services/emailPortalGlobal');
+    await enviarUmConvitePortal();
+  } catch (e) { console.error('[JOB CONVITE PORTAL]', e.message); }
+}, 10000);
 
 app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
   try {

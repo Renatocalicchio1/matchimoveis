@@ -344,7 +344,7 @@
       <span class="menu-ic"><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 13l4.553 2.276A1 1 0 0021 21.382V10.618a1 1 0 00-1.447-.894L15 12m0 8V12m0 0L9 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span style="font-size:12px">Mapa</span>
     </a>
     <% /* TEMP (jul/2026): Redes Sociais liberado só pras contas de teste — remover esse if quando liberar geral */ %>
-    <% if(user && ['REN-G9K6','ROD-P3V3','MAU-EHAM'].includes(user.codigoUsuario||user.id)){ %>
+    <% if(user && ['REN-G9K6'].includes(user.codigoUsuario||user.id)){ %>
     <a class="<%= (active==='posts'||active==='meta-campanha')?'active':'' %>" href="/app/posts" title="Redes Sociais">
       <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></span><span style="font-size:12px">Redes Sociais</span>
     </a>
@@ -451,7 +451,7 @@
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#FF385C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
       Assistente IA
     </a>
-    <% if(user && ['REN-G9K6','ROD-P3V3','MAU-EHAM'].includes(user.codigoUsuario||user.id)){ %>
+    <% if(user && ['REN-G9K6'].includes(user.codigoUsuario||user.id)){ %>
     <a class="mm-row" href="/app/posts" onclick="toggleMaisMenu()">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
       Redes Sociais — Posts

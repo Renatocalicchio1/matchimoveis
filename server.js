@@ -3218,11 +3218,13 @@ _agendarMatchPendentes();
 // Job da campanha global de captação (services/campanhaCaptacao.js) — só
 // dispara de fato quando o admin ativa em /admin/captacao-campanha
 // (enviarProximoEmail() já checa o flag "ativo" e não faz nada se pausada).
-// Intervalo entre envios é ALEATÓRIO (1 a 3 min), nunca fixo — um padrão
-// robótico de "exatamente a cada X segundos" é um sinal clássico de spam
-// pros provedores de email.
+// Intervalo entre envios é ALEATÓRIO, nunca fixo — um padrão robótico de
+// "exatamente a cada X segundos" é um sinal clássico de spam pros
+// provedores de email. 30s-5min (ago/2026) — mesma cadência da campanha
+// geral de corretor, revertida junto depois do aviso de reputação no SES
+// (taxa de devolução/reclamação subiram pra "Aviso").
 function _agendarProximoEnvioCampanha() {
-  const delayMs = (60 + Math.random() * 120) * 1000; // 60s a 180s
+  const delayMs = (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
   setTimeout(async () => {
     try {
       const { enviarProximoEmail } = require('./services/campanhaCaptacao');
@@ -3237,16 +3239,14 @@ _agendarProximoEnvioCampanha();
 // contatos) — mesmo princípio: só dispara quando ativa em /admin/campanha,
 // intervalo aleatório a cada envio (nunca fixo, sempre varia, pra não ter
 // padrão robótico "a cada X segundos exatos" — sinal clássico de spam).
-// Era 30s-5min, depois 30s-135s (~1.420 e depois ~1.047 envios/24h) —
-// reduzido de novo pra 10s-2min (ago/2026, pedido de aumentar o volume
-// diário) — nunca passa de 2 min, média cai de ~82s pra ~65s, ~1.330
-// envios/24h. Degrau moderado de propósito (não foi direto pro teto de 50
-// mil/dia da conta SES): essa cota é dividida com a campanha de captação e
-// e-mail transacional, e a assinatura SNS de bounce/reclamação ainda está
-// com confirmação pendente — subir volume rápido demais antes disso é
-// arriscado pra reputação da conta inteira (ver pendência no CLAUDE.md).
+// Era 30s-5min, foi reduzido pra 30s-135s e depois pra 10s-2min (ago/2026,
+// pedido de aumentar volume) — revertido de volta pra 30s-5min (ago/2026)
+// porque a taxa de devolução (5.32%) e de reclamação (0.19%) da conta SES
+// subiram pra "Aviso" nas Métricas de reputação depois da redução — volume
+// maior não vale a pena se piora a reputação da conta inteira (afeta
+// entrega de TODO email do sistema, não só campanha).
 function _agendarProximoEnvioCampanhaGeral() {
-  const delayMs = (10 + Math.random() * 110) * 1000; // 10s a 120s (nunca passa de 2min)
+  const delayMs = (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
   setTimeout(async () => {
     try {
       const { enviarProximo } = require('./services/campanha');

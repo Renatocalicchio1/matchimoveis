@@ -4,7 +4,10 @@ const fs    = require('fs');
 const path  = require('path');
 
 const GROQ_API_KEY = (process.env.GROQ_API_KEY||'').trim();
-const MODEL = 'llama-3.1-8b-instant';
+// llama-3.1-8b-instant foi descontinuado pela Groq em 16/ago/2026 (ver
+// https://console.groq.com/docs/deprecations) — trocado pro sucessor
+// recomendado por eles mesmos, openai/gpt-oss-20b.
+const MODEL = 'openai/gpt-oss-20b';
 
 let _contextoGroq = null;
 function getContextoGroq() {

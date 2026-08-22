@@ -10880,11 +10880,22 @@ const _httpServer = app.listen(process.env.PORT || 3000, () => {
     } catch(e) { console.error('[cerebro background]', e.message); }
   }, 20000);
   // Inicia atualizacao automatica do XML a cada 12h
+  // Cada iniciar*() agenda seus próprios timers internos de "1x no boot"
+  // (10s, 15s, 30s, 40s...) — chamando todos juntos aqui, todos esses timers
+  // internos caem quase no mesmo segundo, e cada um bate no banco. Com
+  // vários deploys/restarts no mesmo dia (ago/2026) isso empilhava justo no
+  // momento em que a instância nova mais precisa responder rápido ao health
+  // check do Render. Atrasando CADA chamada de iniciar*() por um valor
+  // diferente, os timers internos de cada job também deslocam junto,
+  // espalhando o pico de boot em vez de concentrar tudo nos primeiros ~45s.
+  const _iniciarComAtraso = (fn, atrasoMs) => setTimeout(() => {
+    try { fn(); } catch (e) { console.error('[server] erro ao iniciar job de boot:', e.message); }
+  }, atrasoMs);
   try {
     const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
-    const { iniciarJobCreditos } = require('./services/jobCreditos'); iniciarJobCreditos();
-    const { iniciarTopupPlanoLeads } = require('./services/topupPlanoLeads'); iniciarTopupPlanoLeads();
-    const { iniciarDistribuicaoAreaAtuacao } = require('./services/distribuicaoAreaAtuacao'); iniciarDistribuicaoAreaAtuacao();
+    _iniciarComAtraso(() => require('./services/jobCreditos').iniciarJobCreditos(), 8000);
+    _iniciarComAtraso(() => require('./services/topupPlanoLeads').iniciarTopupPlanoLeads(), 16000);
+    _iniciarComAtraso(() => require('./services/distribuicaoAreaAtuacao').iniciarDistribuicaoAreaAtuacao(), 24000);
     // DESATIVADO (jul/2026): fazerBackup() faz "SELECT *" de leads/visitas/usuarios/
     // imoveis/notificacoes inteiros a cada 1 minuto e monta tudo num JSON.stringify só
     // — com a base atual isso estoura o heap do processo (FATAL ERROR: JavaScript heap
@@ -10894,8 +10905,8 @@ const _httpServer = app.listen(process.env.PORT || 3000, () => {
     // antes reescrever fazerBackup() pra não segurar as 5 tabelas inteiras em memória
     // de uma vez, e rodar bem menos que 1x/min.
     // const { iniciarBackup } = require('./services/backup'); iniciarBackup();
-    const { iniciarMonitor } = require('./services/monitor'); iniciarMonitor();
-    const { iniciarPostsScheduler } = require('./services/postsScheduler'); iniciarPostsScheduler();
+    _iniciarComAtraso(() => require('./services/monitor').iniciarMonitor(), 32000);
+    _iniciarComAtraso(() => require('./services/postsScheduler').iniciarPostsScheduler(), 40000);
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
   }

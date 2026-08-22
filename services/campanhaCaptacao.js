@@ -567,8 +567,11 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
   // Sub-admin só vê os próprios atendimentos (cada um já tem atendimentos
   // feitos — não faz sentido ele ver a lista inteira de todo mundo). Pro
   // superadmin, refAdmin '_nenhum' acha quem ainda não tem sub-admin.
+  // Pra sub-admin (próprio login ou selecionado pelo superadmin no filtro),
+  // esconde quem nunca abriu o e-mail — contato que não abriu não tem o que
+  // o sub-admin fazer ainda, só polui a fila (pedido do Renato, ago/2026).
   if (refAdmin === '_nenhum') where += ` AND (e.atendido_por IS NULL OR e.atendido_por = '')`;
-  else if (refAdmin) { params.push(refAdmin); where += ` AND e.atendido_por = $${params.length}`; }
+  else if (refAdmin) { params.push(refAdmin); where += ` AND e.atendido_por = $${params.length} AND e.aberto_em IS NOT NULL`; }
 
   params.push(limite); params.push(offset);
   // "lt" (LATERAL) calcula o telefone 1x por linha — antes essa mesma

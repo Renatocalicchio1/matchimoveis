@@ -43,6 +43,15 @@ async function _garantirTabela() {
   // E-mail pessoal do sub-admin — só cadastro/contato, não é usado pra login
   // (login continua sendo por "usuario") nem por nenhum fluxo automático hoje.
   await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS email TEXT`);
+  // % de comissão sobre a compra do corretor indicado (1ª compra / recorrência
+  // nas seguintes) — passou a ser por conta, não mais fixo pro sistema todo,
+  // porque o Renato decidiu (ago/2026) baixar a taxa dos PRÓXIMOS sub-admins
+  // pra 20%/10%, mantendo os já existentes em 30%/15% (taxa histórica). Fica
+  // NULL até o backfill logo abaixo definir; `criarAdminConta` grava 20/10
+  // explícito em toda conta nova daqui pra frente.
+  await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS pct_primeira INTEGER`);
+  await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS pct_recorrencia INTEGER`);
+  await query(`UPDATE admin_contas SET pct_primeira=30, pct_recorrencia=15 WHERE pct_primeira IS NULL`);
   _tabelaPronta = true;
 }
 
@@ -68,6 +77,8 @@ function _rowToConta(r) {
     saldoCoins: r.saldo_coins || 0,
     celular: r.celular || '',
     email: r.email || '',
+    pctPrimeira: r.pct_primeira != null ? r.pct_primeira : 30,
+    pctRecorrencia: r.pct_recorrencia != null ? r.pct_recorrencia : 15,
     criadoPor: r.criado_por || '',
     criadoEm: r.criado_em,
     ultimoLogin: r.ultimo_login
@@ -96,9 +107,12 @@ async function criarAdminConta({ usuario, senhaHash, nome, permissoes, criadoPor
   await _garantirTabela();
   const { rows: existentes } = await query('SELECT COUNT(*)::int AS total FROM admin_contas');
   const cor = _PALETA_CORES[(existentes[0]?.total || 0) % _PALETA_CORES.length];
+  // Taxa de comissão do sub-admin novo (ago/2026): 20% na 1ª compra do
+  // corretor indicado, 10% na recorrência — mais baixa que a taxa histórica
+  // (30%/15%) das contas já existentes, que não mudam retroativamente.
   const { rows } = await query(
-    `INSERT INTO admin_contas (usuario, senha_hash, nome, permissoes, criado_por, cor) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-    [String(usuario).trim(), senhaHash, nome || '', JSON.stringify(permissoes || []), criadoPor || '', cor]
+    `INSERT INTO admin_contas (usuario, senha_hash, nome, permissoes, criado_por, cor, pct_primeira, pct_recorrencia) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+    [String(usuario).trim(), senhaHash, nome || '', JSON.stringify(permissoes || []), criadoPor || '', cor, 20, 10]
   );
   return _rowToConta(rows[0]);
 }

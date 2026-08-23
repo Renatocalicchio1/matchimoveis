@@ -26,6 +26,15 @@ function getPool() {
         // ainda deixa margem folgada mesmo com 2 instâncias simultâneas.
         max: 30
       });
+      // Sem isso, um erro numa conexão OCIOSA do pool (queda de rede, o
+      // banco derrubando a conexão do lado dele) é um 'error' sem listener
+      // no EventEmitter — derruba o processo Node inteiro (uncaught
+      // exception), Render reinicia, e quem estava logado nesse momento cai
+      // (mesmo a sessão sendo persistente no PG, a troca abrupta de
+      // instância no meio de uma navegação passa a impressão de "desloga
+      // sozinho"). Só loga e deixa o pool descartar essa conexão e abrir
+      // outra — não derruba o app.
+      pool.on('error', e => console.error('[pg-pool] erro em conexão ociosa:', e.message));
     } else {
       // Sem banco configurado — retorna null (usa JSON como fallback)
       return null;

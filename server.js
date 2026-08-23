@@ -232,15 +232,32 @@ const pgSession = require('connect-pg-simple')(session);
 // ainda bem abaixo do teto do banco, mas segregado.
 const { Pool } = require('pg');
 const _pgPoolSessao = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false }, max: 5, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000 });
+// Mesmo motivo do pool principal (services/db.js) — sem listener, um erro
+// numa conexão ociosa desse pool (só usado pra ler/gravar sessão) derrubava
+// o processo inteiro, e todo mundo logado (corretor E admin) caía junto.
+_pgPoolSessao.on('error', e => console.error('[pg-pool-sessao] erro em conexão ociosa:', e.message));
 const { getPool } = require('./services/db');
 const _pgPool = getPool();
 
 app.set('trust proxy', 1);
+const _sessaoStore = new pgSession({ pool: _pgPoolSessao, tableName: 'session', createTableIfMissing: true });
+// Sem isso, uma falha ao GRAVAR a sessão no PG (pool cheio, blip de rede)
+// passava batido — o cookie do navegador continuava valendo, mas o servidor
+// não achava a sessão dele no banco na próxima request, e a pessoa caía pra
+// tela de login sem nenhum log explicando o porquê. Agora fica registrado.
+_sessaoStore.on('error', e => console.error('[sessao-pg] erro no store de sessão:', e.message));
 app.use(session({
-  store: new pgSession({ pool: _pgPoolSessao, tableName: 'session', createTableIfMissing: true }),
+  store: _sessaoStore,
   secret: process.env.SESSION_SECRET || require('crypto').randomBytes(64).toString('hex'),
   resave: false,
   saveUninitialized: false,
+  // "Tem que manter logado" (admin/sub-admin caindo de sessão ao navegar,
+  // ago/2026): sem rolling, o cookie de 7 dias contava a partir do LOGIN e
+  // não se renovava nunca mais — alguém usando o admin todo dia, mas sem
+  // nenhuma outra ação que gravasse a sessão de novo (resave:false), podia
+  // vencer o prazo mesmo tocando o sistema com frequência. Com rolling:true
+  // toda request ativa empurra o vencimento pra mais 7 dias pra frente.
+  rolling: true,
   cookie: {
     secure: process.env.RENDER ? true : false,
     sameSite: process.env.RENDER ? 'none' : 'lax',
@@ -13531,10 +13548,13 @@ async function _checarMarcoIndicacao(indicadorCodigo) {
 // Bônus de indicação: 10% dos créditos comprados vão pro indicador (corretor
 // que indicou outro corretor), sempre que o indicado recarrega. Além disso,
 // se essa conta foi criada por uma campanha de WhatsApp com sub-admin
-// responsável (atendidoPorAdmin), o sub-admin ganha 30% na primeira compra
-// desse indicado e 15% nas recargas seguintes (recorrência) — mas isso fica só
-// no ledger (indicacoes_bonus, indicador_tipo='admin'), nunca em
-// usuarios.match_coins, porque sub-admin não é corretor.
+// responsável (atendidoPorAdmin), o sub-admin ganha um % na primeira compra
+// desse indicado e outro % nas recargas seguintes (recorrência) — taxa é por
+// conta (admin_contas.pct_primeira/pct_recorrencia, ver services/salvarAdminConta.js):
+// contas antigas ficam na taxa histórica 30%/15%, sub-admins criados a partir
+// de ago/2026 usam 20%/10%. Fica só no ledger (indicacoes_bonus,
+// indicador_tipo='admin'), nunca em usuarios.match_coins, porque sub-admin
+// não é corretor.
 async function _processarBonusIndicacao(userId, creditosComprados) {
   try {
     const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
@@ -13542,8 +13562,8 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
 
     // Primeira compra — marca pra statsPorTemplate() conseguir medir conversão
     // até "comprou", não só até "cadastrou" — e também decide a faixa de
-    // comissão do sub-admin (30% na 1ª, 15% depois). Só grava na 1ª vez
-    // (evita reescrever a cada recarga seguinte).
+    // comissão do sub-admin (pct_primeira x pct_recorrencia da conta). Só
+    // grava na 1ª vez (evita reescrever a cada recarga seguinte).
     const _eraPrimeiraCompra = !comprador.comprouEm;
     if (_eraPrimeiraCompra) {
       const { atualizarUsuario: _auComprouEm } = require('./services/salvarUsuario');
@@ -13579,7 +13599,7 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
       const { buscarAdminConta } = require('./services/salvarAdminConta');
       const conta = await buscarAdminConta(comprador.atendidoPorAdmin);
       if (conta && conta.ativo) {
-        const bonusAdmin = Math.floor(creditosComprados * (_eraPrimeiraCompra ? 0.30 : 0.15));
+        const bonusAdmin = Math.floor(creditosComprados * (_eraPrimeiraCompra ? conta.pctPrimeira : conta.pctRecorrencia) / 100);
         if (bonusAdmin > 0) {
           const { registrarBonus, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
           await registrarBonus({ indicadorCodigo: conta.usuario, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonusAdmin, indicadorTipo: 'admin' });
@@ -22047,7 +22067,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     <div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req), req)}
       <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
-        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 30% na primeira compra de cada corretor que entrar pelo seu link, e 15% nas recargas seguintes dele (recorrência).</p>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de ${conta.pctPrimeira}% na primeira compra de cada corretor que entrar pelo seu link, e ${conta.pctRecorrencia}% nas recargas seguintes dele (recorrência).</p>
 
         ${!_temPermCampanha ? '' : `
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
@@ -22187,7 +22207,7 @@ app.get('/admin/meus-links', authAdmin, async (req, res) => {
     <div class="admin-app">${_adminSidebarHtml('meus-links', _sidebarPerm(req), req)}
       <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Meus Links de Indicação</h1>
-        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Compartilhe cada link com o público certo — todos ficam atrelados a você automaticamente. Comissão de 30% na primeira compra de cada corretor que entrar pelo seu link, e 15% nas recargas seguintes dele (recorrência).</p>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Compartilhe cada link com o público certo — todos ficam atrelados a você automaticamente. Comissão de ${conta.pctPrimeira}% na primeira compra de cada corretor que entrar pelo seu link, e ${conta.pctRecorrencia}% nas recargas seguintes dele (recorrência).</p>
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
           <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link (pra corretores e imobiliárias)</h3>
@@ -22231,13 +22251,13 @@ app.get('/admin/meus-links', authAdmin, async (req, res) => {
           <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
           <p style="margin:0 0 10px"><a href="#" onclick="abrirModalConsumoCreditosSub();return false;" style="font-size:12px;color:#00A699;font-weight:600;text-decoration:none">💡 Como funciona o consumo de créditos?</a></p>
           <table style="width:100%">
-            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">1ª compra (30%)</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Recorrência (15%)</th></tr></thead>
+            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">1ª compra (${conta.pctPrimeira}%)</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Recorrência (${conta.pctRecorrencia}%)</th></tr></thead>
             <tbody>${Object.values(PLANOS_LEADS).map(p => `
               <tr style="border-bottom:1px solid #f3f4f6">
                 <td style="padding:8px;font-size:12.5px">R$ ${p.valor}</td>
                 <td style="padding:8px;font-size:12.5px;font-weight:600">${p.creditos.toLocaleString('pt-BR')}</td>
-                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.3).toLocaleString('pt-BR')} coins</td>
-                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.15).toLocaleString('pt-BR')} coins</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*conta.pctPrimeira/100).toLocaleString('pt-BR')} coins</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*conta.pctRecorrencia/100).toLocaleString('pt-BR')} coins</td>
               </tr>`).join('')}
             </tbody>
           </table>

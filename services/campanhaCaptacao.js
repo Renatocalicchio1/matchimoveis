@@ -240,11 +240,18 @@ async function pausarCampanha() {
 //    telefone/email com uma lead de captação existente (mesmo critério do
 //    job antigo de reenvio). NÃO mexe em vendido_em/vendido_para dessa
 //    tabela — isso é de um fluxo diferente (compra paga via /demanda).
+// BUG corrigido (ago/2026, achado pelo Renato): coluna solta leads.email
+// fica quase sempre NULL — o email real vive em dados->>'email'
+// (rowToLead() em services/salvarLead.js nunca mapeia coluna própria, só
+// espalha ...dados). Com o filtro na coluna errada, esse pool (metade do
+// "elegíveis" da campanha) achava quase ninguém em leads — praticamente
+// todo o volume real vinha só de interessados_portal (a outra fonte do
+// UNION abaixo). 4.380 leads em ~5.510 têm email de verdade em dados.
 const _POOL_CAPTACAO_CTE = `
   WITH pool_captacao AS (
-    SELECT l.id::text AS id, l.nome, l.email, COALESCE(l.telefone, l.whatsapp, l.contato) AS telefone, l.criado_em
+    SELECT l.id::text AS id, l.nome, l.dados->>'email' AS email, COALESCE(l.telefone, l.whatsapp, l.contato) AS telefone, l.criado_em
     FROM leads l
-    WHERE l.email IS NOT NULL AND l.email != ''
+    WHERE l.dados->>'email' IS NOT NULL AND l.dados->>'email' != ''
       AND COALESCE(l.tipo_lead, '') != 'cliente_vendedor'
       AND COALESCE(l.origem, '') != 'captacao_link'
       AND COALESCE(l.dados->>'temImovelParaCaptar', '') != 'true'
@@ -747,7 +754,7 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
      LEFT JOIN LATERAL (
        SELECT l.telefone FROM leads l
        WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
-         AND LOWER(l.email)=LOWER(e.email)
+         AND LOWER(l.dados->>'email')=LOWER(e.email)
        ORDER BY l.criado_em DESC LIMIT 1
      ) lt ON true
      ${where}

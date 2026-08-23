@@ -24210,8 +24210,11 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
       [JSON.stringify({ imovelCaptadoId: 'captado', captadoEm: new Date().toISOString(), temImovelParaCaptar: true }), req.params.leadId, uid]
     );
     if (_updCM.rowCount === 0) return res.status(404).json({ ok: false, erro: 'lead nao encontrada' });
-    // Buscar imóveis do lead por telefone/email
-    const leadR = await _qCM('SELECT nome, telefone, whatsapp, email FROM leads WHERE id=$1', [req.params.leadId]);
+    // Buscar imóveis do lead por telefone/email — email vem de dados->>'email'
+    // (coluna solta leads.email fica quase sempre NULL, ver rowToLead() em
+    // services/salvarLead.js; bug achado pelo Renato ago/2026, mesma causa
+    // do convite de portal global só achar 1 lead elegível em 5.510).
+    const leadR = await _qCM("SELECT nome, telefone, whatsapp, dados->>'email' AS email FROM leads WHERE id=$1", [req.params.leadId]);
     const lead = leadR.rows[0];
     if(!lead) return res.json({ ok: true, imoveis: [] });
     let tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);

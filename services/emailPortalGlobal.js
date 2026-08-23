@@ -53,14 +53,33 @@ async function _marcarEnviada(leadId) {
   await query('UPDATE leads SET portal_email_enviado = true, portal_email_enviado_em = NOW() WHERE id = $1', [leadId]).catch(() => {});
 }
 
+// Janela de horário permitido (8h-21h, horário de Brasília) — pedido do
+// Renato (ago/2026), depois de corrigir o bug acima que deixava o pool real
+// de elegíveis quase vazio: com 4.380 leads elegíveis de verdade e o job
+// batendo a cada 10-120s, sem essa trava ia mandar e-mail de madrugada
+// também. Fora da janela o job só pula (sem erro, sem consumir a fila) e
+// volta a mandar sozinho assim que a hora virar 8h de novo.
+function _dentroHorarioPermitido() {
+  const horaSP = Number(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false }));
+  return horaSP >= 8 && horaSP < 21;
+}
+
 // Envia pra UMA lead elegível por chamada — mesmo padrão de
 // _agendarProximoEnvioCampanhaGeral (server.js): reagendado externamente com
 // intervalo aleatório de 10s a 2min entre envios, nunca em lote de uma vez.
 async function enviarUmConvitePortal() {
+  if (!_dentroHorarioPermitido()) return { enviado: false, motivo: 'fora_do_horario' };
   try {
+    // BUG corrigido (ago/2026, achado pelo Renato): a coluna solta `email`
+    // de `leads` fica quase sempre NULL — o email real de cada lead vive
+    // dentro do JSONB `dados` (rowToLead() em services/salvarLead.js nunca
+    // mapeia uma coluna `email` própria, só espalha `...dados`). Com o
+    // filtro na coluna errada, esse job achava só 1 lead elegível (a única
+    // linha com a coluna solta preenchida por acaso) em ~5.510 leads, sendo
+    // que 4.380 têm email de verdade em `dados->>'email'`.
     const { rows } = await query(
-      `SELECT id, nome, email, user_id, codigo_usuario FROM leads
-       WHERE email IS NOT NULL AND email != ''
+      `SELECT id, nome, dados->>'email' AS email, user_id, codigo_usuario FROM leads
+       WHERE dados->>'email' IS NOT NULL AND dados->>'email' != ''
          AND (portal_email_enviado_em IS NULL OR portal_email_enviado_em < NOW() - INTERVAL '${CICLO_DIAS} days')
          AND COALESCE((dados->>'portalEmailOptOut')::boolean, false) = false
        ORDER BY portal_email_enviado_em ASC NULLS FIRST LIMIT 1`

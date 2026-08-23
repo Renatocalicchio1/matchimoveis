@@ -11240,6 +11240,7 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Legenda (edite se quiser) — Story não usa legenda, o Instagram não tem campo pra isso</label>
         <textarea id="legendaTexto" placeholder="Clique em 'Gerar legenda' acima..."></textarea>
         <input type="hidden" id="fatoAtual" value="">
+        <input type="hidden" id="corIndiceAtual" value="">
 
         <div id="blocoFeed" style="margin-top:16px">
           <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Imagem do Feed (gerada automaticamente — troque se quiser outra)</label>
@@ -11288,6 +11289,7 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
       if(!j.ok){ document.getElementById('fatoUsado').textContent = 'Erro: ' + j.erro; return; }
       document.getElementById('legendaTexto').value = j.legenda;
       document.getElementById('fatoAtual').value = j.fato;
+      document.getElementById('corIndiceAtual').value = j.corIndice;
       document.getElementById('fatoUsado').textContent = 'Baseado em: ' + j.fato;
       ['feed','story'].forEach(function(formato){
         const url = j.imagens && j.imagens[formato];
@@ -11301,9 +11303,10 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
     async function recriarImagem(formato){
       const tipo = document.getElementById('tipoPost').value;
       const fato = document.getElementById('fatoAtual').value;
+      const corIndice = document.getElementById('corIndiceAtual').value;
       if(!fato) return alert('Gere a legenda primeiro (é o mesmo fato que vira a imagem).');
       document.getElementById('statusPublicar').textContent = 'Recriando imagem...';
-      const r = await fetch('/admin/instagram-posts/recriar-imagem', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formato, fato})});
+      const r = await fetch('/admin/instagram-posts/recriar-imagem', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formato, fato, corIndice})});
       const j = await r.json();
       document.getElementById('statusPublicar').textContent = '';
       if(!j.ok){ alert('Erro: ' + j.erro); return; }
@@ -11345,12 +11348,37 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
   </body></html>`);
 });
 
+// Rotação de cor do card do Instagram: 3 posts publicados no Feed de uma
+// cor, 3 da próxima, 3 da próxima, repete — em vez de cor fixa por tipo de
+// conteúdo (que deixava o grid do perfil "carnaval" de cor misturada, já
+// que o admin escolhe o tipo livremente a cada post — pedido do Renato,
+// ago/2026). Contador vive em usuarios.dados (conta oficial do Instagram da
+// marca), mesmo padrão de flag avulsa já usado (onboardingPerfilVisto etc).
+function _contaInstagramMarca() {
+  return (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === _CONTA_INSTAGRAM_MARCA);
+}
+function _proximoIndiceCorInstagram() {
+  const conta = _contaInstagramMarca();
+  const contador = Number((conta && conta.dados && conta.dados.instagramCorRotacaoContador) || 0);
+  return Math.floor(contador / 3) % 3;
+}
+async function _avancarRotacaoCorInstagram() {
+  const conta = _contaInstagramMarca();
+  if (!conta) return;
+  const contador = Number((conta.dados && conta.dados.instagramCorRotacaoContador) || 0) + 1;
+  conta.dados = { ...(conta.dados || {}), instagramCorRotacaoContador: contador };
+  const { atualizarUsuario: _auCorIg } = require('./services/salvarUsuario');
+  await _auCorIg(conta.codigoUsuario || conta.id, { instagramCorRotacaoContador: contador }).catch(e => console.error('[instagram-cor-rotacao]', e.message));
+}
+
 // Gera a imagem do card e salva em /data-uploads — usado tanto na 1ª geração
 // (junto com a legenda) quanto pra recriar só a imagem num formato diferente
-// (feed/story) sem gastar chamada nova no Groq.
-async function _gerarESalvarCardImagem(req, { tipo, fato, formato }) {
+// (feed/story) sem gastar chamada nova no Groq. corIndice vem sempre de fora
+// (calculado 1x por post em /gerar) pra feed e story do mesmo post saírem
+// com a mesma cor.
+async function _gerarESalvarCardImagem(req, { tipo, fato, formato, corIndice }) {
   const { gerarCardImagemBuffer } = require('./services/instagramCardImagem');
-  const buffer = await gerarCardImagemBuffer({ tipo, fato, formato });
+  const buffer = await gerarCardImagemBuffer({ tipo, fato, formato, corIndice });
   const nomeArquivo = 'ig-post-' + formato + '-' + Date.now() + '.png';
   fs.writeFileSync(path.join(UPLOADS_IMOVEIS_DIR, nomeArquivo), buffer);
   return (req.protocol + '://' + req.get('host')) + '/data-uploads/' + nomeArquivo;
@@ -11367,6 +11395,12 @@ app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, 
     const { gerarLegendaInstagram } = require('./services/instagramPostsIA');
     const legenda = await gerarLegendaInstagram({ tipo, fato });
 
+    // Cor calculada 1x aqui (não avança o contador — só avança quando o
+    // Feed é de fato publicado, ver /publicar) e reaproveitada pra todos os
+    // formatos gerados agora, pra feed e story do mesmo post saírem com a
+    // mesma cor.
+    const corIndice = _proximoIndiceCorInstagram();
+
     // Gera a imagem do card pra cada formato pedido — mesmo fato, sem
     // precisar de upload manual (ver services/instagramCardImagem.js). Se o
     // Chromium falhar num formato, não derruba os outros nem a legenda — só
@@ -11374,14 +11408,14 @@ app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, 
     const imagens = {};
     for (const formato of formatos) {
       try {
-        imagens[formato] = await _gerarESalvarCardImagem(req, { tipo, fato, formato });
+        imagens[formato] = await _gerarESalvarCardImagem(req, { tipo, fato, formato, corIndice });
       } catch (eImg) {
         console.error('[instagram-posts/gerar] falha ao gerar card de imagem (' + formato + '):', eImg.message);
         imagens[formato] = null;
       }
     }
 
-    res.json({ ok: true, legenda, fato, tipo, imagens });
+    res.json({ ok: true, legenda, fato, tipo, corIndice, imagens });
   } catch (e) {
     console.error('[instagram-posts/gerar]', e.message);
     res.json({ ok: false, erro: e.message });
@@ -11390,13 +11424,15 @@ app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, 
 
 // Recria só a imagem (mesmo fato/tipo já gerados) noutro formato — ex:
 // admin gerou pro feed e decidiu trocar pra story. Não chama o Groq de novo.
+// corIndice vem do que /gerar devolveu, pra manter a mesma cor do post.
 app.post('/admin/instagram-posts/recriar-imagem', authAdmin, express.json(), async (req, res) => {
   try {
     const tipo = ['feature', 'dica', 'prova_social'].includes(req.body.tipo) ? req.body.tipo : 'feature';
     const formato = req.body.formato === 'story' ? 'story' : 'feed';
     const fato = String(req.body.fato || '').trim();
     if (!fato) return res.json({ ok: false, erro: 'Gere a legenda primeiro.' });
-    const imagemUrl = await _gerarESalvarCardImagem(req, { tipo, fato, formato });
+    const corIndice = Number.isFinite(Number(req.body.corIndice)) ? Number(req.body.corIndice) : _proximoIndiceCorInstagram();
+    const imagemUrl = await _gerarESalvarCardImagem(req, { tipo, fato, formato, corIndice });
     res.json({ ok: true, imagemUrl });
   } catch (e) {
     console.error('[instagram-posts/recriar-imagem]', e.message);
@@ -11445,6 +11481,12 @@ app.post('/admin/instagram-posts/publicar', authAdmin, express.json(), async (re
       }
     }
     const todosOk = formatos.every(f => resultados[f].ok);
+    // Avança a rotação de cor só quando o Feed publica com sucesso — é o
+    // único formato que fica permanente no grid do perfil (Story some em
+    // 24h), então é o que importa pro padrão de 3-em-3 não virar carnaval.
+    if (formatos.includes('feed') && resultados.feed && resultados.feed.ok) {
+      await _avancarRotacaoCorInstagram();
+    }
     res.json({ ok: todosOk, resultados, erro: todosOk ? undefined : 'Um ou mais formatos falharam — ver detalhes.' });
   } catch (e) {
     console.error('[instagram-posts/publicar]', e.message);

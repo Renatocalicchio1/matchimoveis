@@ -26,11 +26,26 @@ const _ICONES = {
   feature: '<path fill="currentColor" stroke="none" d="M16 2c0 7.2 3 10.5 10.5 10.5C19 12.5 16 15.8 16 23c0-7.2-3-10.5-10.5-10.5C13 12.5 16 9.2 16 2z"/>'
 };
 
-const _CORES_TIPO = {
-  prova_social: { bg: '#FF385C', bg2: '#8F1436', eyebrow: 'PROVA SOCIAL' },
-  dica: { bg: '#00A699', bg2: '#00443E', eyebrow: 'DICA' },
-  feature: { bg: '#FC642D', bg2: '#8A2E0A', eyebrow: 'FUNCIONALIDADE' }
+// Selo (eyebrow) continua ligado ao TIPO do post (conteúdo) — mas a cor do
+// card agora é independente disso, ver _PALETA_ROTACAO abaixo. Antes cor e
+// tipo eram a mesma coisa (prova_social sempre vermelho etc), e como o admin
+// escolhe o tipo livremente a cada post, o grid do perfil saía com as 3
+// cores misturadas sem padrão ("carnaval", como o Renato descreveu — ago/2026).
+const _EYEBROW_TIPO = {
+  prova_social: 'PROVA SOCIAL',
+  dica: 'DICA',
+  feature: 'FUNCIONALIDADE'
 };
+
+// Rotação de cor por bloco de 3 posts publicados no Feed (3 vermelho, 3
+// teal, 3 laranja, repete) — controlada por server.js
+// (_proximoIndiceCorInstagram/_avancarRotacaoCorInstagram), aqui só recebe o
+// índice já calculado.
+const _PALETA_ROTACAO = [
+  { bg: '#FF385C', bg2: '#8F1436' }, // vermelho Rausch
+  { bg: '#00A699', bg2: '#00443E' }, // teal Babu
+  { bg: '#FC642D', bg2: '#8A2E0A' }  // laranja Arches
+];
 
 let _browserPromise = null;
 let _idleTimer = null;
@@ -105,10 +120,11 @@ const _FORMATOS = {
   story: { w: 1080, h: 1920, padV: 230, padH: 84 }
 };
 
-function _montarHtmlCard(tipo, fato, formato) {
+function _montarHtmlCard(tipo, fato, formato, corIndice) {
   const dim = _FORMATOS[formato] || _FORMATOS.feed;
   const ehStory = formato === 'story';
-  const cor = _CORES_TIPO[tipo] || _CORES_TIPO.feature;
+  const idx = ((Number(corIndice) || 0) % _PALETA_ROTACAO.length + _PALETA_ROTACAO.length) % _PALETA_ROTACAO.length;
+  const cor = { ..._PALETA_ROTACAO[idx], eyebrow: _EYEBROW_TIPO[tipo] || _EYEBROW_TIPO.feature };
   const icone = _ICONES[tipo] || _ICONES.feature;
   const { headline, corpo } = _partesDoFato(tipo, fato);
   const baseHeadline = tipo === 'prova_social' ? (headline.length > 6 ? 230 : 296) : (headline.length > 24 ? 72 : 90);
@@ -155,12 +171,12 @@ function _montarHtmlCard(tipo, fato, formato) {
   </body></html>`;
 }
 
-async function gerarCardImagemBuffer({ tipo, fato, formato }) {
+async function gerarCardImagemBuffer({ tipo, fato, formato, corIndice }) {
   const dim = _FORMATOS[formato] || _FORMATOS.feed;
   const browser = await _getBrowser();
   const page = await browser.newPage({ viewport: { width: dim.w, height: dim.h } });
   try {
-    await page.setContent(_montarHtmlCard(tipo, fato, formato), { waitUntil: 'networkidle' });
+    await page.setContent(_montarHtmlCard(tipo, fato, formato, corIndice), { waitUntil: 'networkidle' });
     // Garante que a fonte do Google Fonts já carregou antes do print — sem
     // isso o screenshot às vezes sai com a fonte de fallback do sistema.
     await page.evaluate(() => document.fonts.ready).catch(() => {});

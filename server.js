@@ -11198,6 +11198,17 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
   const _escC = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const conta = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === _CONTA_INSTAGRAM_MARCA);
   const conectado = !!(conta && conta.instagramToken && conta.instagramContaId);
+  const _autoDados = (conta && conta.dados) || {};
+  const autoAtivo = _autoDados.instagramAutoPostAtivo === true;
+  const _AUTO_TIPO_LABEL = { dica: 'Dica prática', feature: 'Funcionalidade', prova_social: 'Prova social' };
+  const _proximoTipoLabel = _AUTO_TIPO_LABEL[_INSTAGRAM_AUTO_TIPOS[Number(_autoDados.instagramAutoPostTipoIndice || 0) % _INSTAGRAM_AUTO_TIPOS.length]];
+  let _statusAuto = 'Nunca postou automaticamente ainda.';
+  if (_autoDados.instagramAutoPostUltimoEm) {
+    const _ultimoData = new Date(_autoDados.instagramAutoPostUltimoEm);
+    const _proximoData = new Date(_ultimoData.getTime() + _INSTAGRAM_AUTO_INTERVALO_MS);
+    _statusAuto = 'Último post automático: ' + _ultimoData.toLocaleString('pt-BR') + ' — próximo por volta de ' + _proximoData.toLocaleString('pt-BR') + '.';
+  }
+  _statusAuto += ' Próximo tipo: ' + _proximoTipoLabel + '.';
   res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Posts Instagram MatchImóveis</title>
   <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}
   .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px}
@@ -11222,6 +11233,13 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
       </div>
 
       ${conectado ? `
+      <div class="card" style="border-color:${autoAtivo ? '#00A699' : '#e5e7eb'}">
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">📅 Postagem automática</label>
+        <p style="font-size:12.5px;color:#6b7280;margin-bottom:10px">A cada 3h publica um post novo sozinho (Feed + Story), sem revisão manual — rotaciona Dica prática → Funcionalidade → Prova social.</p>
+        <label style="font-size:13px;font-weight:600"><input type="checkbox" id="autoPostToggle" ${autoAtivo ? 'checked' : ''} onchange="toggleAutoPost()"> Ativado</label>
+        <p style="font-size:11.5px;color:#9ca3af;margin-top:8px">${_escC(_statusAuto)}</p>
+      </div>
+
       <div class="card">
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Tipo de post</label>
         <select id="tipoPost">
@@ -11344,6 +11362,20 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
       if(j.resultados.story) partes.push('Story: ' + (j.resultados.story.ok ? '✅' : ('❌ ' + j.resultados.story.erro)));
       document.getElementById('statusPublicar').textContent = partes.join(' | ');
     }
+    async function toggleAutoPost(){
+      const chk = document.getElementById('autoPostToggle');
+      const ativo = chk.checked;
+      if(ativo && !confirm('Ativar postagem automática? Vai publicar Feed + Story sozinho a cada 3h no Instagram oficial da MatchImóveis, sem revisão manual.')){
+        chk.checked = false;
+        return;
+      }
+      chk.disabled = true;
+      const r = await fetch('/admin/instagram-posts/auto-toggle', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ativo})});
+      const j = await r.json();
+      chk.disabled = false;
+      if(!j.ok){ alert('Erro: ' + j.erro); chk.checked = !ativo; return; }
+      location.reload();
+    }
   </script>
   </body></html>`);
 });
@@ -11376,13 +11408,94 @@ async function _avancarRotacaoCorInstagram() {
 // (feed/story) sem gastar chamada nova no Groq. corIndice vem sempre de fora
 // (calculado 1x por post em /gerar) pra feed e story do mesmo post saírem
 // com a mesma cor.
-async function _gerarESalvarCardImagem(req, { tipo, fato, formato, corIndice }) {
+async function _gerarESalvarCardImagemComBase(baseUrl, { tipo, fato, formato, corIndice }) {
   const { gerarCardImagemBuffer } = require('./services/instagramCardImagem');
   const buffer = await gerarCardImagemBuffer({ tipo, fato, formato, corIndice });
   const nomeArquivo = 'ig-post-' + formato + '-' + Date.now() + '.png';
   fs.writeFileSync(path.join(UPLOADS_IMOVEIS_DIR, nomeArquivo), buffer);
-  return (req.protocol + '://' + req.get('host')) + '/data-uploads/' + nomeArquivo;
+  return baseUrl + '/data-uploads/' + nomeArquivo;
 }
+async function _gerarESalvarCardImagem(req, opts) {
+  return _gerarESalvarCardImagemComBase(req.protocol + '://' + req.get('host'), opts);
+}
+
+// Postagem automática do Instagram oficial — a cada 3h publica um post
+// novo sozinho (Feed + Story), sem revisão manual, rotacionando o tipo de
+// conteúdo (dica → feature → prova_social → repete). Pedido do Renato
+// (ago/2026). Desligado por padrão — só liga de verdade quando o admin
+// marca o checkbox em /admin/instagram-posts
+// (usuarios.dados.instagramAutoPostAtivo). Reaproveita a MESMA geração do
+// fluxo manual (fato real, legenda via Groq, imagem, rotação de cor) — não
+// duplica lógica, só decide sozinho tipo+hora em vez do admin clicar.
+//
+// Checa a cada 15min (não a cada 3h) e decide pelo tempo real decorrido
+// desde o último post (instagramAutoPostUltimoEm) — assim sobrevive a
+// redeploy do Render sem perder o timer nem postar em dobro (cada deploy
+// reinicia o processo, um setInterval(3h) puro reiniciaria a contagem do
+// zero a cada vez).
+const _INSTAGRAM_AUTO_BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : 'http://localhost:' + (process.env.PORT || 3000);
+const _INSTAGRAM_AUTO_TIPOS = ['dica', 'feature', 'prova_social'];
+const _INSTAGRAM_AUTO_INTERVALO_MS = 3 * 60 * 60 * 1000;
+const _INSTAGRAM_AUTO_CHECK_MS = 15 * 60 * 1000;
+
+async function _rodarCicloAutoPostInstagram() {
+  try {
+    const conta = _contaInstagramMarca();
+    if (!conta || !conta.dados || conta.dados.instagramAutoPostAtivo !== true) return;
+    if (!conta.instagramToken || !conta.instagramContaId) return;
+
+    const ultimoEm = conta.dados.instagramAutoPostUltimoEm ? new Date(conta.dados.instagramAutoPostUltimoEm).getTime() : 0;
+    if (Date.now() - ultimoEm < _INSTAGRAM_AUTO_INTERVALO_MS) return;
+
+    const tipoIdx = Number(conta.dados.instagramAutoPostTipoIndice || 0) % _INSTAGRAM_AUTO_TIPOS.length;
+    const tipo = _INSTAGRAM_AUTO_TIPOS[tipoIdx];
+    const fato = _fatoInstitucionalInstagram(tipo);
+    const { gerarLegendaInstagram } = require('./services/instagramPostsIA');
+    const legenda = await gerarLegendaInstagram({ tipo, fato });
+    const corIndice = _proximoIndiceCorInstagram();
+
+    const imagens = {};
+    for (const formato of ['feed', 'story']) {
+      try {
+        imagens[formato] = await _gerarESalvarCardImagemComBase(_INSTAGRAM_AUTO_BASE_URL, { tipo, fato, formato, corIndice });
+      } catch (eImg) {
+        console.error('[instagram-auto-post] falha ao gerar card (' + formato + '):', eImg.message);
+      }
+    }
+
+    const { publicarFeed, publicarStory } = require('./services/instagram');
+    let feedOk = false;
+    if (imagens.feed) {
+      try {
+        await publicarFeed(conta.instagramContaId, conta.instagramToken, [imagens.feed], legenda);
+        feedOk = true;
+      } catch (e) {
+        console.error('[instagram-auto-post] falha ao publicar feed:', e.message);
+      }
+    }
+    if (imagens.story) {
+      try {
+        await publicarStory(conta.instagramContaId, conta.instagramToken, imagens.story);
+      } catch (e) {
+        console.error('[instagram-auto-post] falha ao publicar story:', e.message);
+      }
+    }
+
+    if (feedOk) await _avancarRotacaoCorInstagram();
+
+    const proximoTipoIdx = (tipoIdx + 1) % _INSTAGRAM_AUTO_TIPOS.length;
+    const agoraIso = new Date().toISOString();
+    const contaAtual = _contaInstagramMarca();
+    if (contaAtual) contaAtual.dados = { ...(contaAtual.dados || {}), instagramAutoPostUltimoEm: agoraIso, instagramAutoPostTipoIndice: proximoTipoIdx };
+    const { atualizarUsuario: _auAutoIg } = require('./services/salvarUsuario');
+    await _auAutoIg(conta.codigoUsuario || conta.id, { instagramAutoPostUltimoEm: agoraIso, instagramAutoPostTipoIndice: proximoTipoIdx }).catch(e => console.error('[instagram-auto-post]', e.message));
+
+    console.log('[instagram-auto-post] ✅ ciclo concluído — tipo=' + tipo + ' corIndice=' + corIndice + ' feedOk=' + feedOk + ' storyOk=' + !!imagens.story);
+  } catch (e) {
+    console.error('[instagram-auto-post] erro no ciclo:', e.message);
+  }
+}
+setInterval(_rodarCicloAutoPostInstagram, _INSTAGRAM_AUTO_CHECK_MS);
 
 app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, res) => {
   try {
@@ -11490,6 +11603,24 @@ app.post('/admin/instagram-posts/publicar', authAdmin, express.json(), async (re
     res.json({ ok: todosOk, resultados, erro: todosOk ? undefined : 'Um ou mais formatos falharam — ver detalhes.' });
   } catch (e) {
     console.error('[instagram-posts/publicar]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
+app.post('/admin/instagram-posts/auto-toggle', authAdmin, express.json(), async (req, res) => {
+  try {
+    const ativo = req.body.ativo === true;
+    const conta = _contaInstagramMarca();
+    if (!conta) return res.json({ ok: false, erro: 'Conta do Instagram da marca não encontrada.' });
+    if (ativo && (!conta.instagramToken || !conta.instagramContaId)) {
+      return res.json({ ok: false, erro: 'Conecte o Instagram da marca antes de ativar a postagem automática.' });
+    }
+    conta.dados = { ...(conta.dados || {}), instagramAutoPostAtivo: ativo };
+    const { atualizarUsuario: _auToggleIg } = require('./services/salvarUsuario');
+    await _auToggleIg(conta.codigoUsuario || conta.id, { instagramAutoPostAtivo: ativo });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[instagram-posts/auto-toggle]', e.message);
     res.json({ ok: false, erro: e.message });
   }
 });

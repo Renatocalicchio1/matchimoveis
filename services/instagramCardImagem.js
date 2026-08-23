@@ -166,7 +166,9 @@ function _montarHtmlCard(tipo, fato, formato, corIndice) {
     </div>
     <div class="rodape">
       <div class="logo">M</div>
-      <div class="dominio"><b>matchimoveis.ia.br</b><span>Match automático de imóveis</span></div>
+      <div class="dominio">${ehStory
+        ? '<b>Conheça — link na bio</b><span>Match automático de imóveis</span>'
+        : '<b>matchimoveis.ia.br</b><span>Match automático de imóveis</span>'}</div>
     </div>
   </body></html>`;
 }

@@ -103,7 +103,7 @@ function _montarHtmlCard(tipo, fato, formato) {
   const cor = _CORES_TIPO[tipo] || _CORES_TIPO.feature;
   const icone = _ICONES[tipo] || _ICONES.feature;
   const { headline, corpo } = _partesDoFato(tipo, fato);
-  const baseHeadline = tipo === 'prova_social' ? (headline.length > 6 ? 200 : 260) : (headline.length > 24 ? 62 : 78);
+  const baseHeadline = tipo === 'prova_social' ? (headline.length > 6 ? 230 : 296) : (headline.length > 24 ? 72 : 90);
   const tamanhoHeadline = ehStory ? Math.round(baseHeadline * (tipo === 'prova_social' ? 1.05 : 1.15)) : baseHeadline;
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
   <link rel="stylesheet" href="${_FONTS_URL}">
@@ -122,17 +122,17 @@ function _montarHtmlCard(tipo, fato, formato) {
       padding:${dim.padV}px ${dim.padH}px;color:#fff;position:relative;overflow:hidden;
     }
     .marca-agua{position:absolute;right:-90px;top:-60px;width:520px;height:520px;color:rgba(255,255,255,.10);opacity:.9}
-    .eyebrow{display:inline-flex;align-items:center;gap:12px;font-family:'Manrope';font-size:23px;font-weight:800;letter-spacing:.11em;color:#fff;z-index:1;width:fit-content}
-    .eyebrow .ic-wrap{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.20);display:flex;align-items:center;justify-content:center}
-    .eyebrow svg{width:24px;height:24px;color:#fff}
-    .meio{flex:1;display:flex;flex-direction:column;justify-content:center;z-index:1;max-width:${ehStory ? 900 : 920}px}
-    .headline{font-family:'Fraunces';font-optical-sizing:auto;font-size:${tamanhoHeadline}px;font-weight:900;line-height:${tipo === 'prova_social' ? '0.92' : '1.04'};letter-spacing:-.02em;text-wrap:balance;margin-bottom:30px;text-shadow:0 10px 40px rgba(0,0,0,.16)}
-    .corpo{font-size:${ehStory ? 40 : 35}px;font-weight:500;line-height:1.42;opacity:.97;max-width:${ehStory ? 860 : 840}px}
-    .rodape{display:flex;align-items:center;gap:16px;z-index:1;background:rgba(255,255,255,.98);border-radius:20px;padding:18px 26px;width:fit-content;box-shadow:0 16px 40px rgba(0,0,0,.22)}
-    .logo{width:52px;height:52px;border-radius:13px;background:${cor.bg};display:flex;align-items:center;justify-content:center;font-family:'Fraunces';font-weight:900;font-size:27px;color:#fff;flex-shrink:0}
-    .dominio{display:flex;flex-direction:column;line-height:1.2}
-    .dominio b{font-family:'Manrope';font-size:27px;font-weight:800;color:#16181A}
-    .dominio span{font-size:18px;font-weight:600;color:#6b7280}
+    .eyebrow{display:inline-flex;align-items:center;gap:18px;font-family:'Manrope';font-size:44px;font-weight:800;letter-spacing:.06em;color:#fff;z-index:1;width:fit-content}
+    .eyebrow .ic-wrap{width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,.20);display:flex;align-items:center;justify-content:center}
+    .eyebrow svg{width:34px;height:34px;color:#fff}
+    .meio{flex:1;display:flex;flex-direction:column;justify-content:center;z-index:1;max-width:${ehStory ? 940 : 960}px}
+    .headline{font-family:'Fraunces';font-optical-sizing:auto;font-size:${tamanhoHeadline}px;font-weight:900;line-height:${tipo === 'prova_social' ? '0.92' : '1.04'};letter-spacing:-.02em;text-wrap:balance;margin-bottom:32px;text-shadow:0 10px 40px rgba(0,0,0,.16)}
+    .corpo{font-size:${ehStory ? 52 : 46}px;font-weight:500;line-height:1.38;opacity:.97;max-width:${ehStory ? 920 : 900}px}
+    .rodape{display:flex;align-items:center;gap:22px;z-index:1;background:rgba(255,255,255,.98);border-radius:26px;padding:26px 36px;width:fit-content;box-shadow:0 16px 40px rgba(0,0,0,.22)}
+    .logo{width:76px;height:76px;border-radius:18px;background:${cor.bg};display:flex;align-items:center;justify-content:center;font-family:'Fraunces';font-weight:900;font-size:40px;color:#fff;flex-shrink:0}
+    .dominio{display:flex;flex-direction:column;line-height:1.24}
+    .dominio b{font-family:'Manrope';font-size:48px;font-weight:800;color:#16181A}
+    .dominio span{font-size:27px;font-weight:600;color:#6b7280}
   </style></head><body>
     <svg class="marca-agua" viewBox="0 0 32 32" fill="currentColor" stroke="none"><path d="M16 2c0 7.2 3 10.5 10.5 10.5C19 12.5 16 15.8 16 23c0-7.2-3-10.5-10.5-10.5C13 12.5 16 9.2 16 2z"/></svg>
     <div class="eyebrow"><span class="ic-wrap"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${icone}</svg></span>${_escHtml(cor.eyebrow)}</div>

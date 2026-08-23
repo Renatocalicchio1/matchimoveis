@@ -93,6 +93,42 @@ R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
 - Dois mockups publicados como Artifact (privados, no scratchpad da sessão) mostrando o conceito: um com o carrossel de ações do corretor, outro com o carrossel de imóveis do cliente lado a lado.
 - **Insight de dor do corretor (ago/2026)**: a dor não é só "gerenciar" (organizar lead/visita), é também "conseguir cliente" (aquisição) — e a plataforma já tem várias ferramentas de aquisição (Meta Ads, Instagram, captação, indicação, portais) só que espalhadas em menus que o corretor esquece de usar. Ideia em aberto, **ainda não decidida**: incluir uma 3ª categoria "Aquisição parada" no resumo inteligente (ex: imóvel sem lead há X dias → sugere publicar/impulsionar; campanha parada → sugere reativar; indicação pendente → sugere mandar link), no mesmo padrão proativo dos cards de Leads/Visitas/Captação — ou deixar isso pra uma fase separada, depois da base (Leads/Imóveis) validada. Retomar essa decisão antes de fechar o roadmap de fases.
 
+## Vídeos tutoriais das telas (FAQ/suporte, ago/2026, em planejamento)
+Objetivo: gravar vídeo curto de cada tela do app explicando como usar, pra servir de FAQ/suporte ao usuário dentro da plataforma — depois reaproveitar o mesmo material pra posts (Instagram/redes). Vídeo com texto (legenda) + narração falada (TTS), os dois juntos.
+- Abordagem técnica planejada: reaproveitar a mesma base já validada no gerador de posts de Instagram (`services/instagramCardImagem.js`) — Playwright/Chromium headless, só que aqui gravando vídeo da navegação real pelas telas do app (`context.recordVideo` do Playwright) em vez de só um screenshot estático, mais narração TTS sincronizada e composição final via ffmpeg.
+- Ainda não decidido/verificado: provedor de TTS (nenhum integrado hoje — cogitado AWS Polly por já ter a mesma conta AWS em uso pro SES, mas a credencial atual só tem permissão de SES, precisa o Renato liberar `polly:SynthesizeSpeech` no IAM se for esse o caminho), se ffmpeg está disponível no ambiente do Render (produção) ou se a geração roda só como pipeline manual/local por enquanto, se o vídeo final vai morar como asset embutido no app (ex: botão "Como usar" em cada tela) ou só publicado fora (central de ajuda/YouTube).
+- **Ordem completa das 30 telas, definida com o Renato (ago/2026) — seguir essa ordem, não pular pra outra sem avisar**:
+  1. Dashboard (`/app-home`)
+  2. Perfil — dados da conta, área de atuação (`/app/perfil`)
+  3. WhatsApp — inbox e conectar instância (`/app/whatsapp`)
+  4. **Meus Imóveis — listagem/filtros (`/app/imoveis`) ← piloto, começar por aqui**
+  5. Cadastrar imóvel (`/app/cadastro`)
+  6. Editar imóvel (`/app/imovel/:id/editar`)
+  7. Detalhe do imóvel (`/app/imovel/:id`)
+  8. Importar XML de portal
+  9. Portais — ativar VivaReal/ZAP/OLX etc (`/app/portais`)
+  10. Mapa da carteira (`/app/mapa`)
+  11. Captação — proprietário se auto-cadastra (`/app/captacao`)
+  12. Leads — kanban (`/app/leads`)
+  13. Detalhe da lead (`/app/lead/:id`)
+  14. Importar leads via planilha
+  15. Recomendações da IA pra uma lead
+  16. Visitas — lista (`/app/visitas`)
+  17. Visitas — kanban (`/app/visitas-kanban`)
+  18. Assistente IA (`/app/assistente`)
+  19. Central Operacional — comando por texto (`/app/central`)
+  20. Parceiros (`/app/parceiros`)
+  21. Indicações (`/app/indicacoes`)
+  22. Parceria QuintoAndar (`/app/parceria-quintoandar`)
+  23. Feed estilo reels (`/app/feed`)
+  24. Meu Site (`/app/meu-site`)
+  25. Instagram — conectar e postar
+  26. Meta Ads — conectar, contas, públicos salvos
+  27. Posts gerados (`/app/posts`)
+  28. Campanha de redes sociais
+  29. Notificações (`/app/notificacoes`)
+  30. Coins — saldo e créditos (`/app/coins`)
+
 ## Usuários/contas de referência
 Jane: JAN-MGF9 (~1.700 imóveis) | Mauricio: MAU-EHAM (~432) | Alexandre: ALE-DU2K (~845, enriquecido via CADIMO/CADCLI) | Barros: BAR-GALN | Valdete: VAL-9PCH | Rodrigo: ROD-AFQ4
 

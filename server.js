@@ -11168,11 +11168,14 @@ function _fatoInstitucionalInstagram(tipo) {
     const _30diasAtras = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const leadsUltimos30d = (_cacheLeads || []).filter(l => l.criadoEm && new Date(l.criadoEm).getTime() >= _30diasAtras).length;
     const leadsComMatch = (_cacheLeads || []).filter(l => (l.matches || []).length > 0 || (l.matchesBase || []).length > 0).length;
+    // Número SEMPRE no começo da frase — services/instagramCardImagem.js
+    // extrai esse número pra deixar gigante no card do post (regex simples,
+    // não dá pra depender de achar o número no meio do texto).
     const candidatos = [
-      `A rede MatchImóveis já tem ${imoveisAtivos.toLocaleString('pt-BR')} imóveis ativos de corretores e imobiliárias parceiras.`,
+      `${imoveisAtivos.toLocaleString('pt-BR')} imóveis ativos na rede MatchImóveis, de corretores e imobiliárias parceiras.`,
       `${corretoresAtivos.toLocaleString('pt-BR')} corretores e imobiliárias já usam a MatchImóveis.`,
-      leadsUltimos30d > 0 ? `A rede recebeu ${leadsUltimos30d.toLocaleString('pt-BR')} leads novas nos últimos 30 dias.` : null,
-      leadsComMatch > 0 ? `Já são ${leadsComMatch.toLocaleString('pt-BR')} leads com match automático encontrado na plataforma.` : null
+      leadsUltimos30d > 0 ? `${leadsUltimos30d.toLocaleString('pt-BR')} leads novas chegaram na rede MatchImóveis nos últimos 30 dias.` : null,
+      leadsComMatch > 0 ? `${leadsComMatch.toLocaleString('pt-BR')} leads já têm match automático encontrado na plataforma.` : null
     ].filter(Boolean);
     return candidatos[Math.floor(Math.random() * candidatos.length)] || 'A MatchImóveis conecta leads e imóveis automaticamente pra corretores e imobiliárias.';
   }
@@ -11226,21 +11229,28 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
           <option value="dica">Dica prática</option>
           <option value="prova_social">Prova social (número real)</option>
         </select>
+        <label style="font-size:12px;font-weight:700;margin:0 8px 0 16px">Formato</label>
+        <select id="formatoPost" onchange="trocarFormato()">
+          <option value="feed">Feed (quadrado)</option>
+          <option value="story">Story (vertical)</option>
+        </select>
         <button class="btn-primaria" style="margin-left:8px" onclick="gerarLegenda()">✨ Gerar legenda</button>
         <p id="fatoUsado" style="font-size:11.5px;color:#9ca3af;margin-top:8px"></p>
       </div>
 
       <div class="card">
-        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Legenda (edite se quiser)</label>
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Legenda (edite se quiser) — Story não usa legenda, o Instagram não tem campo pra isso</label>
         <textarea id="legendaTexto" placeholder="Clique em 'Gerar legenda' acima..."></textarea>
 
-        <label style="font-size:12px;font-weight:700;display:block;margin:14px 0 6px">Imagem do post</label>
+        <label style="font-size:12px;font-weight:700;display:block;margin:14px 0 6px">Imagem do post (gerada automaticamente — troque se quiser outra)</label>
         <input type="file" id="imagemArquivo" accept="image/*" onchange="enviarImagem()">
         <input type="hidden" id="imagemUrl" value="">
-        <img id="previewImg" class="preview-img">
+        <input type="hidden" id="fatoAtual" value="">
+        <br><img id="previewImg" class="preview-img">
 
-        <div style="margin-top:16px;display:flex;gap:8px">
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn-secundaria" onclick="publicar()">📲 Publicar no Instagram</button>
+          <button style="background:#f3f4f6;color:#374151;border:none;padding:9px 18px;border-radius:8px;font-weight:700" onclick="recriarImagem()">🖼️ Recriar imagem nesse formato</button>
         </div>
         <p id="statusPublicar" style="font-size:12.5px;margin-top:10px"></p>
       </div>
@@ -11248,14 +11258,41 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
     </main>
   </div>
   <script>
+    function trocarFormato(){
+      const ehStory = document.getElementById('formatoPost').value === 'story';
+      document.getElementById('previewImg').style.maxWidth = ehStory ? '160px' : '280px';
+    }
     async function gerarLegenda(){
       const tipo = document.getElementById('tipoPost').value;
-      document.getElementById('fatoUsado').textContent = 'Gerando...';
-      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo})});
+      const formato = document.getElementById('formatoPost').value;
+      document.getElementById('fatoUsado').textContent = 'Gerando legenda e imagem...';
+      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formato})});
       const j = await r.json();
       if(!j.ok){ document.getElementById('fatoUsado').textContent = 'Erro: ' + j.erro; return; }
       document.getElementById('legendaTexto').value = j.legenda;
+      document.getElementById('fatoAtual').value = j.fato;
       document.getElementById('fatoUsado').textContent = 'Baseado em: ' + j.fato;
+      if(j.imagemUrl){
+        document.getElementById('imagemUrl').value = j.imagemUrl;
+        trocarFormato();
+        const img = document.getElementById('previewImg');
+        img.src = j.imagemUrl; img.style.display = 'block';
+      }
+    }
+    async function recriarImagem(){
+      const tipo = document.getElementById('tipoPost').value;
+      const formato = document.getElementById('formatoPost').value;
+      const fato = document.getElementById('fatoAtual').value;
+      if(!fato) return alert('Gere a legenda primeiro (é o mesmo fato que vira a imagem).');
+      document.getElementById('statusPublicar').textContent = 'Recriando imagem...';
+      const r = await fetch('/admin/instagram-posts/recriar-imagem', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formato, fato})});
+      const j = await r.json();
+      document.getElementById('statusPublicar').textContent = '';
+      if(!j.ok){ alert('Erro: ' + j.erro); return; }
+      document.getElementById('imagemUrl').value = j.imagemUrl;
+      trocarFormato();
+      const img = document.getElementById('previewImg');
+      img.src = j.imagemUrl; img.style.display = 'block';
     }
     async function enviarImagem(){
       const arq = document.getElementById('imagemArquivo').files[0];
@@ -11272,11 +11309,12 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
     async function publicar(){
       const legenda = document.getElementById('legendaTexto').value.trim();
       const imagemUrl = document.getElementById('imagemUrl').value;
-      if(!legenda) return alert('Gere ou escreva uma legenda primeiro.');
-      if(!imagemUrl) return alert('Envie uma imagem primeiro.');
-      if(!confirm('Publicar esse post no Instagram oficial da MatchImóveis agora?')) return;
+      const formato = document.getElementById('formatoPost').value;
+      if(!legenda && formato !== 'story') return alert('Gere ou escreva uma legenda primeiro.');
+      if(!imagemUrl) return alert('Gere ou envie uma imagem primeiro.');
+      if(!confirm('Publicar esse ' + (formato === 'story' ? 'STORY' : 'post no FEED') + ' no Instagram oficial da MatchImóveis agora?')) return;
       document.getElementById('statusPublicar').textContent = 'Publicando...';
-      const r = await fetch('/admin/instagram-posts/publicar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({legenda, imagemUrl})});
+      const r = await fetch('/admin/instagram-posts/publicar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({legenda, imagemUrl, formato})});
       const j = await r.json();
       document.getElementById('statusPublicar').textContent = j.ok ? '✅ Publicado!' : ('Erro: ' + j.erro);
     }
@@ -11284,15 +11322,55 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
   </body></html>`);
 });
 
+// Gera a imagem do card e salva em /data-uploads — usado tanto na 1ª geração
+// (junto com a legenda) quanto pra recriar só a imagem num formato diferente
+// (feed/story) sem gastar chamada nova no Groq.
+async function _gerarESalvarCardImagem(req, { tipo, fato, formato }) {
+  const { gerarCardImagemBuffer } = require('./services/instagramCardImagem');
+  const buffer = await gerarCardImagemBuffer({ tipo, fato, formato });
+  const nomeArquivo = 'ig-post-' + formato + '-' + Date.now() + '.png';
+  fs.writeFileSync(path.join(UPLOADS_IMOVEIS_DIR, nomeArquivo), buffer);
+  return (req.protocol + '://' + req.get('host')) + '/data-uploads/' + nomeArquivo;
+}
+
 app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, res) => {
   try {
     const tipo = ['feature', 'dica', 'prova_social'].includes(req.body.tipo) ? req.body.tipo : 'feature';
+    const formato = req.body.formato === 'story' ? 'story' : 'feed';
     const fato = _fatoInstitucionalInstagram(tipo);
     const { gerarLegendaInstagram } = require('./services/instagramPostsIA');
     const legenda = await gerarLegendaInstagram({ tipo, fato });
-    res.json({ ok: true, legenda, fato });
+
+    // Gera a imagem do card junto — mesmo fato, sem precisar de upload
+    // manual (ver services/instagramCardImagem.js). Se o Chromium falhar
+    // por qualquer motivo, não derruba a geração da legenda — só devolve
+    // sem imagem e o admin sobe uma manualmente (fallback já existia).
+    let imagemUrl = null;
+    try {
+      imagemUrl = await _gerarESalvarCardImagem(req, { tipo, fato, formato });
+    } catch (eImg) {
+      console.error('[instagram-posts/gerar] falha ao gerar card de imagem:', eImg.message);
+    }
+
+    res.json({ ok: true, legenda, fato, tipo, formato, imagemUrl });
   } catch (e) {
     console.error('[instagram-posts/gerar]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
+// Recria só a imagem (mesmo fato/tipo já gerados) noutro formato — ex:
+// admin gerou pro feed e decidiu trocar pra story. Não chama o Groq de novo.
+app.post('/admin/instagram-posts/recriar-imagem', authAdmin, express.json(), async (req, res) => {
+  try {
+    const tipo = ['feature', 'dica', 'prova_social'].includes(req.body.tipo) ? req.body.tipo : 'feature';
+    const formato = req.body.formato === 'story' ? 'story' : 'feed';
+    const fato = String(req.body.fato || '').trim();
+    if (!fato) return res.json({ ok: false, erro: 'Gere a legenda primeiro.' });
+    const imagemUrl = await _gerarESalvarCardImagem(req, { tipo, fato, formato });
+    res.json({ ok: true, imagemUrl });
+  } catch (e) {
+    console.error('[instagram-posts/recriar-imagem]', e.message);
     res.json({ ok: false, erro: e.message });
   }
 });
@@ -11305,13 +11383,16 @@ app.post('/admin/instagram-posts/imagem', authAdmin, uploadImoveis.single('image
 app.post('/admin/instagram-posts/publicar', authAdmin, express.json(), async (req, res) => {
   try {
     const { legenda, imagemUrl } = req.body;
+    const formato = req.body.formato === 'story' ? 'story' : 'feed';
     if (!legenda || !imagemUrl) return res.json({ ok: false, erro: 'Legenda e imagem são obrigatórias.' });
     const conta = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === _CONTA_INSTAGRAM_MARCA);
     if (!conta || !conta.instagramToken || !conta.instagramContaId) {
       return res.json({ ok: false, erro: 'Instagram da marca não conectado — conecte em /app/perfil logado como ' + _CONTA_INSTAGRAM_MARCA + '.' });
     }
-    const { publicarFeed } = require('./services/instagram');
-    const resultado = await publicarFeed(conta.instagramContaId, conta.instagramToken, [imagemUrl], legenda);
+    const { publicarFeed, publicarStory } = require('./services/instagram');
+    const resultado = formato === 'story'
+      ? await publicarStory(conta.instagramContaId, conta.instagramToken, imagemUrl)
+      : await publicarFeed(conta.instagramContaId, conta.instagramToken, [imagemUrl], legenda);
     res.json({ ok: true, resultado });
   } catch (e) {
     console.error('[instagram-posts/publicar]', e.message);

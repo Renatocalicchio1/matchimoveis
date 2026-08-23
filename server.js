@@ -22046,6 +22046,32 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           </div>
         </div>
 
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
+          <h3 style="margin:0 0 6px;font-size:14px">🏠 Link do Portal (pra quem busca imóvel)</h3>
+          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Manda pra quem estiver <strong>procurando comprar ou alugar um imóvel</strong> — a pessoa faz a busca e cadastra o interesse direto no Portal, sem precisar de conta. O corretor dono do imóvel que ela se interessar entra em contato com ela.</p>
+          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
+            <span id="link-portal">https://www.matchimoveis.ia.br/portal</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button onclick="copiarLinkPortal()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Se você está procurando um imóvel pra comprar ou alugar, dá uma olhada aqui — assim que você se interessar por um, o corretor responsável já entra em contato com você:\n\nhttps://www.matchimoveis.ia.br/portal`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
+          </div>
+        </div>
+
+        ${_temPermCaptacao ? `
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 6px;font-size:14px">🏗️ Seu link de captação de proprietário</h3>
+          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Manda pra quem tiver <strong>um imóvel pra vender ou alugar</strong> — o cadastro é gratuito e fica atrelado a você automaticamente, pra aparecer aqui em "Minhas captações".</p>
+          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
+            <span id="link-captacao">https://www.matchimoveis.ia.br/captar/REN-G9K6?ref=${_escC(conta.usuario)}</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button onclick="copiarLinkCaptacao()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Você é proprietário(a) de um imóvel pra vender ou alugar? O cadastro é gratuito e a gente já divulga automaticamente pra uma rede de mais de 9 mil corretores e imobiliárias parceiras:\n\nhttps://www.matchimoveis.ia.br/captar/REN-G9K6?ref=${conta.usuario}`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
+          </div>
+        </div>
+        ` : ''}
+
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
           <p style="margin:0 0 10px"><a href="#" onclick="abrirModalConsumoCreditosSub();return false;" style="font-size:12px;color:#00A699;font-weight:600;text-decoration:none">💡 Como funciona o consumo de créditos?</a></p>
@@ -22219,6 +22245,15 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         function copiarLinkSubadmin(){
           const link = document.getElementById('link-subadmin').textContent;
           navigator.clipboard.writeText(link).then(function(){ alert('Link copiado!'); });
+        }
+        function copiarLinkPortal(){
+          const link = document.getElementById('link-portal').textContent;
+          navigator.clipboard.writeText(link).then(function(){ alert('Link copiado!'); });
+        }
+        function copiarLinkCaptacao(){
+          const el = document.getElementById('link-captacao');
+          if(!el) return;
+          navigator.clipboard.writeText(el.textContent).then(function(){ alert('Link copiado!'); });
         }
         async function resgatar(){
           const ids = [...document.querySelectorAll('.chk-resgate:checked')].map(c=>c.value);
@@ -22988,12 +23023,17 @@ app.get('/captar/:userId', async (req, res) => {
   // imóvel já foi preenchido antes, só falta foto, então pula direto pra
   // etapa 5 em vez de pedir pro proprietário passar pelas telas de novo.
   const irDireto = req.query.fotos === '1' ? 'fotos' : '';
-  res.render('captar-imovel', { leadId: '', userId, telPreenchido, imovelExistente, campanhaEnvioId, irDireto });
+  // ?ref= vem do link pessoal de captação de proprietário que cada
+  // sub-admin compartilha (/admin/minhas-comissoes) — segue até
+  // POST /captar/iniciar pra marcar atendidoPorAdminCaptacao na hora,
+  // sem depender do round-robin (que só pega quem ainda não tem dono).
+  const refSubAdmin = String(req.query.ref || '').trim();
+  res.render('captar-imovel', { leadId: '', userId, telPreenchido, imovelExistente, campanhaEnvioId, irDireto, refSubAdmin });
 });
 
 app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
   try {
-    const { transacao, nome, celular, email, campanhaEnvioId } = req.body;
+    const { transacao, nome, celular, email, campanhaEnvioId, refSubAdmin } = req.body;
     const userId = req.params.userId;
     const { salvarLead: _slIni } = require('./services/salvarLead');
     const { salvarImovel: _siIni } = require('./services/salvarImovel');
@@ -23028,6 +23068,20 @@ app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
       }
     }
 
+    // Link pessoal de captação (?ref= na URL, ver GET /captar/:userId) —
+    // valida contra admin_contas de verdade antes de gravar, pra não deixar
+    // qualquer string virar atribuição (parâmetro de URL é editável por
+    // qualquer um). Só faz sentido pro link fixo REN-G9K6 (conta que
+    // concentra os imóveis captados via sub-admin).
+    let _refSubAdminValido = '';
+    if (refSubAdmin && userId === 'REN-G9K6') {
+      try {
+        const { buscarAdminConta: _bacIni } = require('./services/salvarAdminConta');
+        const _contaRef = await _bacIni(String(refSubAdmin).trim());
+        if (_contaRef && _contaRef.ativo !== false) _refSubAdminValido = _contaRef.usuario;
+      } catch (e) {}
+    }
+
     const leadId = Date.now().toString();
     await _slIni({
       id: leadId,
@@ -23039,12 +23093,12 @@ app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
       status: 'captacao',
       faseFunil: 'captacao', fase_funil: 'captacao',
       tipoLead: 'cliente_vendedor', tipo_lead: 'cliente_vendedor',
-      dados: { temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString() },
+      dados: { temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString(), ...(_refSubAdminValido ? { atendidoPorAdminCaptacao: _refSubAdminValido } : {}) },
       _lote: true
     });
     // Coloca temImovelParaCaptar/transacaoCaptar no nível certo do JSONB
     // (salvarLead() aninha o objeto "dados" passado dentro da própria coluna dados)
-    const _dadosIniciar = JSON.stringify({ temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString() });
+    const _dadosIniciar = JSON.stringify({ temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString(), ...(_refSubAdminValido ? { atendidoPorAdminCaptacao: _refSubAdminValido } : {}) });
     await _qCI(`UPDATE leads SET dados = dados || $1::jsonb WHERE id=$2`, [_dadosIniciar, leadId]);
     // Distribuição pros sub-admins (quando não veio da campanha de e-mail,
     // sem campanhaEnvioId) não acontece aqui na hora — fica por conta do job

@@ -192,6 +192,7 @@ const userId = '<%= userId %>';
 const leadIdInicial = '<%= leadId %>';
 const _destino = leadIdInicial && leadIdInicial !== userId ? leadIdInicial : userId;
 const _campanhaEnvioId = '<%= campanhaEnvioId || "" %>';
+const _refSubAdmin = '<%= (typeof refSubAdmin !== "undefined" && refSubAdmin) || "" %>';
 const _imovelExistente = <%- imovelExistente ? JSON.stringify(imovelExistente).replace(/</g, '\\u003c') : 'null' %>;
 const _irDireto = '<%= (typeof irDireto !== "undefined" && irDireto) || "" %>';
 
@@ -286,7 +287,7 @@ async function selecionar(op){
     const r = await fetch('/captar/iniciar/'+_destino, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ transacao: op, nome, celular, email, campanhaEnvioId: _campanhaEnvioId })
+      body: JSON.stringify({ transacao: op, nome, celular, email, campanhaEnvioId: _campanhaEnvioId, refSubAdmin: _refSubAdmin })
     });
     const d = await r.json();
     if(!d.ok){ msg.textContent = 'Erro ao enviar, tenta de novo.'; document.querySelectorAll('.btn-op').forEach(b=>b.removeAttribute('disabled')); return; }

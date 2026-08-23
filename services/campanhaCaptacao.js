@@ -57,20 +57,36 @@ const GANCHOS = [
   'Vender ou alugar um imóvel sozinho dá trabalho: atender ligação, marcar visita, negociar. A gente faz isso por você, de graça.'
 ];
 
-// GANCHOS acima presumem que a pessoa já usou a plataforma pra buscar
-// imóvel ("Você entrou em contato com um corretor...") — verdade pra quem
-// vem de `leads`/`interessados_portal`, mas FALSO pra contato importado de
-// lista externa (pool manual, ver importarPoolManual/campanha_captacao_pool_manual,
-// ago/2026 — 42k proprietários de SP comprados/minerados, nunca interagiram
-// com a Match Imóveis). Gancho separado pra esse público, sem alegar uso
-// prévio da plataforma — resto (TITULOS/CORPOS) já é genérico o suficiente,
-// não alega nada específico sobre a pessoa, reaproveitado pros dois públicos.
-const GANCHOS_FRIOS = [
-  'Você tem um imóvel disponível pra vender ou alugar? A Match Imóveis conecta ele com milhares de corretores automaticamente, sem custo pra você.',
-  'Imóvel parado sem gerar contato é dinheiro parado. A gente divulga automaticamente em vários portais e conecta com corretores da sua região.',
-  'Cadastrar seu imóvel na Match Imóveis é grátis e leva menos de 2 minutos — a gente cuida da divulgação, você só recebe os interessados.',
-  'Tem uma rede de corretores procurando imóvel pra oferecer aos clientes deles agora — o seu pode ser um dos que aparecem.',
-  'Divulgar um imóvel sozinho dá trabalho: atender ligação, marcar visita, negociar. A Match Imóveis faz isso por você, sem cobrar nada.'
+// GANCHOS/CORPOS acima presumem que a pessoa já usou a plataforma pra
+// buscar imóvel ("Você entrou em contato com um corretor...") — verdade pra
+// quem vem de `leads`/`interessados_portal`, mas FALSO pra contato
+// importado de lista externa (pool manual, ver importarPoolManual/
+// campanha_captacao_pool_manual, ago/2026 — 42k proprietários de SP
+// comprados/minerados, nunca interagiram com a Match Imóveis).
+//
+// CORPOS_FRIOS: mensagens completas (não gancho+corpo picados) pra esse
+// público, com o que o Renato pediu pra deixar explícito (ago/2026):
+// - é uma empresa do Grupo Rankim (mesmo grupo já citado no rodapé de
+//   identificação legal de todo email, services/email.js)
+// - +9 mil corretores cadastrados na plataforma (mesmo número já usado em
+//   TITULOS acima e no WhatsApp manual do sub-admin, ver admin-captacao-
+//   campanha.ejs) que divulgam nos maiores portais do Brasil
+// - parceria com imobiliárias da região
+// - diferencial de privacidade: o contato do proprietário fica RESTRITO
+//   com o time da MatchImóveis — não é repassado pro corretor, é a própria
+//   equipe que acompanha a visita junto com o corretor interessado. Evita
+//   que múltiplos corretores liguem direto pro proprietário.
+// - próximo passo é só o cadastro inicial; o time humano entra em contato
+//   depois pra dar sequência (não é 100% self-service).
+const CORPOS_FRIOS = [
+  'A MatchImóveis é uma empresa do Grupo Rankim com mais de 9 mil corretores cadastrados na plataforma — divulgamos seu imóvel automaticamente nos maiores portais do Brasil e também através de imobiliárias parceiras da sua região. Seu contato fica protegido com a gente: você não recebe ligação de corretor nenhum, é a nossa equipe que atende e acompanha pessoalmente a visita de quem se interessar. Faça o cadastro inicial em 2 minutos que nosso time entra em contato pra dar sequência.',
+  'Vender ou alugar um imóvel sozinho costuma significar atender corretor atrás de corretor. Com a MatchImóveis, do Grupo Rankim, isso não acontece: seu contato fica restrito com a nossa equipe, que acompanha a visita junto com o corretor interessado. Enquanto isso, seu imóvel é divulgado automaticamente pra uma rede de mais de 9 mil corretores e pros maiores portais do Brasil. Cadastre-se agora — o resto do processo nosso time cuida com você.',
+  'Somos a MatchImóveis, do Grupo Rankim, e usamos tecnologia pra acelerar a venda ou locação de imóveis: seu anúncio chega automaticamente aos maiores portais do país e a uma rede de mais de 9 mil corretores, além de imobiliárias parceiras da sua região. E o seu telefone não fica exposto — todo contato passa pela nossa equipe, que acompanha as visitas pessoalmente. Comece agora com um cadastro rápido; o resto a gente ajuda.',
+  'Diferente de anunciar por conta própria, com a MatchImóveis (Grupo Rankim) seus dados de contato ficam só com a gente — nada de vários corretores ligando direto pra você. Quem se interessa é atendido pelo nosso time, que acompanha a visita junto com o corretor. Nesse meio tempo, seu imóvel já está sendo divulgado pros maiores portais do Brasil e pra mais de 9 mil corretores parceiros. Faça o cadastro inicial — a gente entra em contato pra seguir com você.',
+  'A MatchImóveis pertence ao Grupo Rankim e existe pra acelerar a venda ou locação do seu imóvel com tecnologia: divulgação automática nos maiores portais do Brasil, mais de 9 mil corretores cadastrados e parceria com imobiliárias da sua região. E o seu contato não é repassado pra ninguém — fica com a nossa equipe, que participa pessoalmente das visitas. Cadastre seu imóvel agora; nosso time entra em contato logo em seguida pra te ajudar.',
+  'Ter um imóvel parado sem gerar contato costuma significar atender corretor um por um. A MatchImóveis, do Grupo Rankim, resolve isso: seu imóvel entra numa rede de mais de 9 mil corretores e nos maiores portais do Brasil, mas seu telefone continua só com a gente — alguém do nosso time sempre acompanha a visita de quem se interessar. Faça o cadastro inicial gratuito; depois nosso time entra em contato.',
+  'Você não precisa sair anunciando seu imóvel em vários lugares nem atender ligação de corretor: a MatchImóveis (Grupo Rankim) divulga automaticamente pros maiores portais do Brasil e pra uma rede de mais de 9 mil corretores, além de imobiliárias parceiras da região — e seu contato fica protegido com a gente o tempo todo, com alguém da nossa equipe presente em toda visita. É só fazer o cadastro inicial que nosso time cuida do resto.',
+  'A MatchImóveis é uma plataforma do Grupo Rankim feita pra acelerar venda e locação de imóvel com tecnologia — hoje já são mais de 9 mil corretores cadastrados, divulgação automática nos maiores portais do Brasil e parceria com imobiliárias da sua região. Uma coisa importante: seus dados de contato não vão pra ninguém além da nossa equipe, que acompanha pessoalmente cada visita. Comece com um cadastro rápido — o resto, nosso time faz com você.'
 ];
 
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
@@ -484,8 +500,8 @@ async function _enviarDosFollowupsCaptacao() {
 // Reserva a linha em campanha_captacao_envios (protege contra o próximo
 // tick rodar antes desse terminar, ex: envio lento na SES) e manda o
 // email. `frio: true` = veio do pool manual (nunca usou a plataforma) →
-// usa GANCHOS_FRIOS em vez de GANCHOS (que alega uso prévio, falso pra
-// esse público).
+// usa CORPOS_FRIOS (mensagem completa, explica grupo/rede/privacidade) em
+// vez de GANCHOS+CORPOS (que alega uso prévio, falso pra esse público).
 async function _enviarParaCandidato(lead, { frio = false } = {}) {
   const emailNorm = String(lead.email).trim();
 
@@ -509,7 +525,7 @@ async function _enviarParaCandidato(lead, { frio = false } = {}) {
   }
 
   const titulo = _sorteia(TITULOS);
-  const corpo = _sorteia(frio ? GANCHOS_FRIOS : GANCHOS) + ' ' + _sorteia(CORPOS);
+  const corpo = frio ? _sorteia(CORPOS_FRIOS) : (_sorteia(GANCHOS) + ' ' + _sorteia(CORPOS));
   const linkRastreado = BASE_URL + '/captacao-campanha/click/' + envioId;
   const pixelUrl = BASE_URL + '/captacao-campanha/open/' + envioId;
 

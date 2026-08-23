@@ -272,20 +272,27 @@ function _whatsappEstagio(e){
   return null;
 }
 
+// Explicação do Grupo Rankim / rede de +9 mil corretores / imobiliárias
+// parceiras / privacidade do contato do proprietário reforçada em todos os
+// estágios (ago/2026, pedido do Renato — mesmo conteúdo usado no
+// CORPOS_FRIOS do e-mail, services/campanhaCaptacao.js) — diferencial
+// principal: contato do proprietário fica restrito com a MatchImóveis, é a
+// própria equipe que acompanha a visita junto com o corretor interessado,
+// evitando que vários corretores liguem direto pro proprietário.
 const WHATSAPP_VARIACOES = {
   nao_abriu: function(nome, link){ return [
-    'Oi '+nome+'! Te mandei um e-mail sobre cadastrar seu imóvel com a gente, mas acho que passou despercebido. Dá uma olhada aqui: '+link,
-    'Oi '+nome+', tudo bem? Reforçando o convite pra cadastrar seu imóvel — sem custo, leva 2 minutos: '+link,
-    'Oi '+nome+'! Passando rapidinho — mandei um e-mail sobre colocar seu imóvel na nossa rede de corretores. Segue o link: '+link,
-    'Oi '+nome+', bom dia! Vi que meu e-mail sobre cadastrar seu imóvel ainda não foi aberto. Vale a pena conferir: '+link,
-    'Oi '+nome+'! Quero te ajudar a divulgar seu imóvel sem custo nenhum. Cadastra aqui quando puder: '+link,
+    'Oi '+nome+'! Te mandei um e-mail sobre cadastrar seu imóvel com a MatchImóveis (Grupo Rankim), mas acho que passou despercebido. A gente divulga automaticamente pra mais de 9 mil corretores e nos maiores portais do Brasil, e seu contato fica protegido com a gente — ninguém liga direto pra você. Dá uma olhada aqui: '+link,
+    'Oi '+nome+', tudo bem? Reforçando o convite: a MatchImóveis (Grupo Rankim) acelera a venda ou locação do seu imóvel com tecnologia — mais de 9 mil corretores, os maiores portais do Brasil e imobiliárias parceiras da região, sem custo. Cadastro leva 2 minutos: '+link,
+    'Oi '+nome+'! Passando rapidinho — mandei um e-mail sobre colocar seu imóvel na nossa rede de mais de 9 mil corretores e imobiliárias parceiras. Seu telefone fica só com a nossa equipe, sem corretor te ligando direto. Segue o link: '+link,
+    'Oi '+nome+', bom dia! Vi que meu e-mail sobre cadastrar seu imóvel ainda não foi aberto. A MatchImóveis (Grupo Rankim) divulga nos maiores portais do Brasil e protege seu contato — vale a pena conferir: '+link,
+    'Oi '+nome+'! Quero te ajudar a divulgar seu imóvel sem custo nenhum, com nossa rede de +9 mil corretores e imobiliárias parceiras da região — e sem expor seu telefone pra ninguém. Cadastra aqui quando puder: '+link,
   ]; },
   abriu_sem_clicar: function(nome, link){ const sub = ADMIN_NOME; return [
-    'Oi '+nome+'! Você é proprietário(a) de um imóvel? Vi que você abriu nosso e-mail sobre cadastrar seu imóvel. Sou '+sub+', da MatchImóveis, e queria me colocar à disposição! Hoje a gente já divulga automaticamente pra uma rede de mais de 9 mil corretores e imobiliárias parceiras, sem nenhum custo pra você. Topa cadastrar? É rapidinho: '+link,
-    'Oi '+nome+', tudo bem? Você é proprietário(a) de um imóvel? Aqui é '+sub+', da MatchImóveis! Notei que você deu uma olhada no nosso e-mail sobre anunciar seu imóvel. Se tiver algo pra vender ou alugar, seu anúncio entra automaticamente em mais de 9 mil corretores e nos principais portais parceiros — de graça. Quer que eu te ajude a cadastrar agora? '+link,
-    'Oi '+nome+'! Você é proprietário(a) de algum imóvel? Sou '+sub+', aqui da MatchImóveis, e vi que você interagiu com nosso último e-mail. Se tiver algo pra vender ou alugar, cadastro é gratuito, e nosso sistema já distribui pra uma rede de +9 mil corretores, portais e imobiliárias parceiras — mais gente vendo seu imóvel, sem você correr atrás de nada. Segue o link: '+link,
-    'Oi '+nome+', passando rapidinho! Você é proprietário(a) de um imóvel? Sou '+sub+', da MatchImóveis. Vi que você abriu nosso e-mail sobre o assunto. Se ainda tiver interesse, o cadastro é gratuito e a gente já cuida de divulgar em mais de 9 mil corretores e portais parceiros — é só preencher aqui: '+link+'. Qualquer dúvida, me chama!',
-    'Oi '+nome+'! Você é proprietário(a) de um imóvel? Aqui é '+sub+', da equipe MatchImóveis. Vi que você chegou a abrir nosso e-mail sobre cadastrar imóvel. Fico à disposição pra tirar qualquer dúvida! O cadastro é 100% gratuito e seu imóvel ganha visibilidade automática numa rede de +9 mil corretores e imobiliárias parceiras. Bora cadastrar? '+link,
+    'Oi '+nome+'! Você é proprietário(a) de um imóvel? Vi que você abriu nosso e-mail sobre cadastrar seu imóvel. Sou '+sub+', da MatchImóveis (Grupo Rankim), e queria me colocar à disposição! A gente divulga automaticamente pra mais de 9 mil corretores, nos maiores portais do Brasil e imobiliárias parceiras da região — sem custo, e seu contato fica protegido com a nossa equipe (é a gente que acompanha as visitas junto com o corretor interessado, sem passar seu telefone adiante). Topa cadastrar? É rapidinho: '+link,
+    'Oi '+nome+', tudo bem? Você é proprietário(a) de um imóvel? Aqui é '+sub+', da MatchImóveis, empresa do Grupo Rankim! Notei que você deu uma olhada no nosso e-mail sobre anunciar seu imóvel. Se tiver algo pra vender ou alugar, seu anúncio entra automaticamente em mais de 9 mil corretores, nos principais portais e imobiliárias parceiras — de graça, e seu contato não é repassado pra ninguém, é a nossa equipe que acompanha a visita. Quer que eu te ajude a cadastrar agora? '+link,
+    'Oi '+nome+'! Você é proprietário(a) de algum imóvel? Sou '+sub+', aqui da MatchImóveis (Grupo Rankim), e vi que você interagiu com nosso último e-mail. Cadastro é gratuito, e nosso sistema já distribui pra uma rede de +9 mil corretores, portais e imobiliárias parceiras — mais gente vendo seu imóvel, sem você correr atrás de nada e sem receber ligação de corretor nenhum (isso fica com a nossa equipe). Segue o link: '+link,
+    'Oi '+nome+', passando rapidinho! Você é proprietário(a) de um imóvel? Sou '+sub+', da MatchImóveis, do Grupo Rankim. Vi que você abriu nosso e-mail sobre o assunto. Se ainda tiver interesse, o cadastro é gratuito, a gente já cuida de divulgar em mais de 9 mil corretores e portais parceiros, e seu contato fica restrito com a nossa equipe — é só preencher aqui: '+link+'. Qualquer dúvida, me chama!',
+    'Oi '+nome+'! Você é proprietário(a) de um imóvel? Aqui é '+sub+', da equipe MatchImóveis (Grupo Rankim). Vi que você chegou a abrir nosso e-mail sobre cadastrar imóvel. Fico à disposição pra tirar qualquer dúvida! O cadastro é 100% gratuito, seu imóvel ganha visibilidade automática numa rede de +9 mil corretores e imobiliárias parceiras, e seu telefone não fica exposto — a gente acompanha as visitas pessoalmente. Bora cadastrar? '+link,
   ]; },
   clicou_sem_iniciar: function(nome){ return [
     'Oi '+nome+'! Vi que você chegou a entrar na página do seu imóvel, mas não finalizou o cadastro. Posso te ajudar a terminar?',

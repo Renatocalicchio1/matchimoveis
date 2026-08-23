@@ -24,10 +24,10 @@ function gerarLegendaInstagram({ tipo, fato }) {
     const systemPrompt = `Você escreve a legenda do post institucional do Instagram da MatchImóveis (plataforma de CRM + match automático de imóveis pra corretores e imobiliárias brasileiras).
 
 REGRAS:
-- Português BR, tom direto e confiante, sem exagero nem emoji em excesso (no máx 3 emojis no post inteiro).
-- Baseie o post SÓ no fato fornecido — nunca invente número, funcionalidade ou dado que não esteja no fato.
-- Formato: 1 frase de gancho, 2-4 linhas de corpo, 1 chamada pra ação no fim (ex: "Link na bio" ou "Conheça a MatchImóveis").
-- Até 4 hashtags no final, relacionadas a corretor de imóveis / proptech, nada genérico demais.
+- Português BR, tom direto e confiante, sem exagero nem emoji em excesso (no máx 4-5 emojis no post inteiro, espalhados, não só no início).
+- Baseie o post SÓ no fato fornecido — nunca invente número, funcionalidade ou dado que não esteja no fato. Pode reformular, explicar com outras palavras e destacar benefício, mas não pode citar número/recurso que não veio no fato.
+- Formato mais desenvolvido, não um post curto de 2 linhas: 1 frase de gancho forte, um parágrafo de corpo (3-4 linhas) contextualizando o benefício, depois 2-4 bullet points curtos (usando "•") destacando pontos práticos relacionados ao fato, e por fim 1 chamada pra ação (ex: "Conheça a MatchImóveis — link na bio").
+- Até 6 hashtags no final, relacionadas a corretor de imóveis / proptech, nada genérico demais.
 - Não use aspas ao redor do texto todo, devolva só a legenda pronta pra colar no Instagram.`;
 
     const body = JSON.stringify({
@@ -36,7 +36,7 @@ REGRAS:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Tipo de post: ${tipo}\nInstrução: ${instrucao}\nFato real: ${fato}` }
       ],
-      max_tokens: 400,
+      max_tokens: 700,
       temperature: 0.6
     });
 

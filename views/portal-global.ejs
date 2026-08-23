@@ -173,21 +173,21 @@
     </div>
     <div class="ffield">
       <label>Cidade</label>
-      <select name="cidade" onchange="this.form.submit()">
-        <option value="">Todas</option>
+      <input type="text" name="cidade" list="portal-cidades-list" value="<%= filtros.cidade||'' %>" placeholder="Digite pra buscar..." autocomplete="off" onchange="this.form.submit()">
+      <datalist id="portal-cidades-list">
         <% Object.keys(cidades).forEach(function(est){ (cidades[est]||[]).forEach(function(c){ %>
-        <option value="<%= c %>" <%= filtros.cidade===c?'selected':'' %>><%= c %></option>
+        <option value="<%= c %>"><%= c %></option>
         <% }); }); %>
-      </select>
+      </datalist>
     </div>
     <div class="ffield">
       <label>Bairro</label>
-      <select name="bairro" onchange="this.form.submit()">
-        <option value="">Todos</option>
+      <input type="text" name="bairro" list="portal-bairros-list" value="<%= filtros.bairro||'' %>" placeholder="Digite pra buscar..." autocomplete="off" onchange="this.form.submit()">
+      <datalist id="portal-bairros-list">
         <% Object.keys(bairros).forEach(function(cid){ (bairros[cid]||[]).forEach(function(b){ %>
-        <option value="<%= b %>" <%= filtros.bairro===b?'selected':'' %>><%= b %></option>
+        <option value="<%= b %>"><%= b %></option>
         <% }); }); %>
-      </select>
+      </datalist>
     </div>
     <div class="ffield">
       <label>Tipo</label>

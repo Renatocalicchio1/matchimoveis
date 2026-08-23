@@ -627,7 +627,8 @@ const _ADMIN_NAV = [
   { sec: 'Administração', items: [
     { key: 'contas-admin', href: '/admin/contas-admin', icon: '👤', label: 'Contas Admin' },
     { key: 'comissoes-pendentes', href: '/admin/comissoes-pendentes', icon: '💸', label: 'Comissões Pendentes' },
-    { key: 'atribuicoes-subadmin', href: '/admin/atribuicoes-subadmin', icon: '🔍', label: 'Revisar Atribuições' }
+    { key: 'atribuicoes-subadmin', href: '/admin/atribuicoes-subadmin', icon: '🔍', label: 'Revisar Atribuições' },
+    { key: 'pagamentos', href: '/admin/pagamentos', icon: '💳', label: 'Pagamentos e Tentativas' }
   ]}
 ];
 
@@ -881,7 +882,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/captacao-campanha/distribuir-atendimentos',
   '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global', '/admin/emails',
-  '/admin/instagram-posts'
+  '/admin/instagram-posts', '/admin/pagamentos'
 ];
 // Sempre acessível pra qualquer conta admin logada, sem depender de
 // permissão marcada — são telas que já filtram pelos dados da PRÓPRIA
@@ -14062,6 +14063,13 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
       }
     });
 
+    const { registrarTentativa } = require('./services/salvarTentativaPagamento');
+    registrarTentativa({
+      userId: user.codigoUsuario || user.codigo || user.id, nome: user.nome, telefone: user.celular || user.telefone, email: user.email,
+      tipo: 'avulso', plano: '', label: 'Recarga avulsa', valor: Number(valor), creditos: Math.floor(Number(valor) * 20),
+      caminho: 'app_avulso', preferenceId: result.id
+    }).catch(() => {});
+
     res.json({ ok: true, url: result.init_point, id: result.id });
   } catch(e) {
     console.error('[MP] erro criar preferencia:', e.message);
@@ -14132,6 +14140,13 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
         metadata: { userId, tipo: 'plano_leads', plano, qtd: pacote.qtd || 0, label: pacote.label, valor: pacote.valor, creditos: pacote.creditos }
       }
     });
+
+    const { registrarTentativa: _regTentPlano } = require('./services/salvarTentativaPagamento');
+    _regTentPlano({
+      userId, nome: user.nome, telefone: user.celular || user.telefone, email: user.email,
+      tipo: 'plano_leads', plano, label: pacote.label, valor: pacote.valor, creditos: pacote.creditos,
+      caminho: 'app_plano', preferenceId: result.id
+    }).catch(() => {});
 
     res.json({ ok: true, url: result.init_point, id: result.id });
   } catch(e) {
@@ -14327,6 +14342,20 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
     const payment = new Payment(_mpClient);
     const pagamento = await payment.get({ id: data.id });
 
+    // Atualiza a tentativa de pagamento (services/salvarTentativaPagamento.js)
+    // com o status final, aprovado ou não — é o que faz o painel de
+    // "quem tentou comprar e desistiu" funcionar. Casa pelo preference_id,
+    // que a Mercado Pago devolve no próprio objeto de pagamento. Roda ANTES
+    // do early-return abaixo de propósito, porque esse early-return existe
+    // só pra pular o resto (entrega de crédito) quando não é aprovado — mas
+    // aqui a gente quer registrar o status mesmo assim.
+    try {
+      const { atualizarStatusPorPreference } = require('./services/salvarTentativaPagamento');
+      await atualizarStatusPorPreference(pagamento.preference_id, {
+        status: pagamento.status, paymentId: data.id, valorPago: pagamento.transaction_amount
+      });
+    } catch (eTent) { console.error('[MP webhook] erro ao atualizar tentativa:', eTent.message); }
+
     if(pagamento.status !== 'approved') return res.sendStatus(200);
 
     const { tentarMarcarProcessado } = require('./services/salvarPagamentoMP');
@@ -14500,6 +14529,131 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
   } catch(e) {
     console.error('[MP] webhook erro:', e.message);
     res.sendStatus(200);
+  }
+});
+
+// ── ADMIN: PAGAMENTOS E TENTATIVAS ──────────────────────────────────────────
+// Painel de quem comprou e quem tentou comprar e não completou (ver
+// services/salvarTentativaPagamento.js) — pedido do Renato (ago/2026): saber
+// plano/valor/data de cada compra, e dos que abandonaram no meio do
+// caminho (Mercado Pago), pra entender o porquê e poder chamar no WhatsApp.
+// Mostra os 3 caminhos de compra que existem hoje: avulso dentro do app
+// (/pagamento/criar), combo de plano dentro do app (/pagamento/criar-plano)
+// e combo a partir de /demanda (/demanda/comprar).
+const _CAMINHO_LABEL_PAGAMENTO = { app_avulso: 'App — Recarga avulsa', app_plano: 'App — Combo de plano', demanda: 'Demanda' };
+const _STATUS_LABEL_PAGAMENTO = {
+  approved: '✅ Aprovado', iniciado: '⏳ Iniciado (sem retorno)', pending: '🕓 Pendente',
+  in_process: '🕓 Em análise', rejected: '❌ Rejeitado', cancelled: '🚫 Cancelado'
+};
+app.get('/admin/pagamentos', authAdmin, async (req, res) => {
+  const { resumoTentativas } = require('./services/salvarTentativaPagamento');
+  const resumo = await resumoTentativas().catch(() => null);
+  const _escC = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagamentos e Tentativas</title>
+  <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px}
+  .resumo{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+  .resumo-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center}
+  .resumo-n{font-size:24px;font-weight:700;color:#111}
+  .resumo-l{font-size:11px;color:#6b7280;margin-top:4px}
+  select,input[type=text]{padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:8px;background:#f9fafb;font-size:10.5px;text-transform:uppercase;color:#6b7280;white-space:nowrap;border-bottom:1px solid #e5e7eb}
+  td{padding:8px;border-bottom:1px solid #f3f4f6;white-space:nowrap}
+  .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600}
+  .tag-ok{background:#f0fdf4;color:#16a34a}
+  .tag-off{background:#fef2f2;color:#dc2626}
+  .lb-wa{background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap}
+  </style></head>
+  <body>
+  <div class="admin-app">${_adminSidebarHtml('pagamentos', true, req)}
+    <main class="admin-content" style="max-width:1400px">
+      <h1 style="font-size:22px;margin-bottom:4px">💳 Pagamentos e Tentativas</h1>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Toda tentativa de checkout no Mercado Pago fica registrada aqui a partir de agora — quem comprou (plano, valor, data) e quem tentou e não completou. Compras feitas ANTES dessa tela existir não aparecem retroativamente (não tinha registro nenhum de tentativa antes).</p>
+
+      ${resumo ? `
+      <div class="resumo">
+        <div class="resumo-card"><div class="resumo-n">${resumo.aprovados}</div><div class="resumo-l">Compras aprovadas</div></div>
+        <div class="resumo-card"><div class="resumo-n">${resumo.abandonados}</div><div class="resumo-l">Tentaram e não completaram</div></div>
+        <div class="resumo-card"><div class="resumo-n">R$ ${Number(resumo.valor_total_aprovado).toLocaleString('pt-BR')}</div><div class="resumo-l">Valor total aprovado</div></div>
+        <div class="resumo-card"><div class="resumo-n">${resumo.aprovados_app_avulso + resumo.aprovados_app_plano}</div><div class="resumo-l">Aprovados via App</div></div>
+        <div class="resumo-card"><div class="resumo-n">${resumo.aprovados_demanda}</div><div class="resumo-l">Aprovados via Demanda</div></div>
+      </div>` : ''}
+
+      <div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="busca" placeholder="Nome, email ou telefone..." style="min-width:220px">
+        <select id="filtroStatus" onchange="carregarTabela(1)">
+          <option value="">Todos os status</option>
+          <option value="aprovado">Só aprovados</option>
+          <option value="abandonado">Só quem não completou</option>
+        </select>
+        <select id="filtroCaminho" onchange="carregarTabela(1)">
+          <option value="">Todos os caminhos</option>
+          <option value="app_avulso">App — Recarga avulsa</option>
+          <option value="app_plano">App — Combo de plano</option>
+          <option value="demanda">Demanda</option>
+        </select>
+        <button onclick="carregarTabela(1)" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:700;cursor:pointer">Buscar</button>
+      </div>
+
+      <div class="card" style="overflow-x:auto">
+        <table id="tabela"><thead><tr>
+          <th>Nome</th><th>Status</th><th>Caminho</th><th>Plano</th><th>Valor</th><th>Criado em</th><th>Atualizado em</th><th>Telefone</th><th>Email</th><th>WhatsApp</th>
+        </tr></thead><tbody id="tabelaBody"><tr><td colspan="10" style="text-align:center;color:#9ca3af;padding:16px">Carregando...</td></tr></tbody></table>
+        <div id="paginacao" style="margin-top:12px;display:flex;gap:8px;align-items:center"></div>
+      </div>
+    </main>
+  </div>
+  <script>
+    function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    const CAMINHO_LABEL = ${JSON.stringify(_CAMINHO_LABEL_PAGAMENTO)};
+    const STATUS_LABEL = ${JSON.stringify(_STATUS_LABEL_PAGAMENTO)};
+    let _pagina = 1;
+    async function carregarTabela(pagina){
+      _pagina = pagina || _pagina;
+      const q = document.getElementById('busca').value;
+      const status = document.getElementById('filtroStatus').value;
+      const caminho = document.getElementById('filtroCaminho').value;
+      const r = await fetch('/admin/pagamentos/lista?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+encodeURIComponent(status)+'&caminho='+encodeURIComponent(caminho));
+      const d = await r.json();
+      const tbody = document.getElementById('tabelaBody');
+      if(!d.ok || !d.rows.length){ tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#9ca3af;padding:16px">Nenhum registro encontrado.</td></tr>'; document.getElementById('paginacao').innerHTML=''; return; }
+      tbody.innerHTML = d.rows.map(function(r){
+        const aprovado = r.status === 'approved';
+        const statusTxt = STATUS_LABEL[r.status] || escHtml(r.status);
+        const tel = (r.telefone||'').replace(/\\D/g,'');
+        const msg = aprovado
+          ? 'Oi '+escHtml(r.nome||'')+'! Vi aqui que você concluiu a compra ('+escHtml(r.label||'')+') na MatchImóveis, muito obrigado! Qualquer dúvida sobre como usar, me chama.'
+          : 'Oi '+escHtml(r.nome||'')+'! Vi que você chegou a tentar comprar ('+escHtml(r.label||'')+') na MatchImóveis mas não finalizou. Posso te ajudar a completar ou tirar alguma dúvida?';
+        const waCel = tel ? '<a class="lb-wa" href="https://wa.me/55'+tel+'?text='+encodeURIComponent(msg)+'" target="_blank">💬 WhatsApp</a>' : '<span style="color:#9ca3af">—</span>';
+        return '<tr><td>'+escHtml(r.nome)+'</td><td><span class="tag '+(aprovado?'tag-ok':'tag-off')+'">'+statusTxt+'</span></td><td>'+(CAMINHO_LABEL[r.caminho]||escHtml(r.caminho))+'</td><td>'+escHtml(r.label)+'</td><td>R$ '+Number(r.valor||0).toLocaleString('pt-BR')+'</td><td>'+new Date(r.criado_em).toLocaleString('pt-BR')+'</td><td>'+(r.atualizado_em?new Date(r.atualizado_em).toLocaleString('pt-BR'):'—')+'</td><td>'+escHtml(r.telefone||'—')+'</td><td>'+escHtml(r.email||'—')+'</td><td>'+waCel+'</td></tr>';
+      }).join('');
+      const totalPaginas = Math.max(1, Math.ceil(d.total / 100));
+      let pag = '';
+      if(_pagina > 1) pag += '<button onclick="carregarTabela('+(_pagina-1)+')" style="padding:6px 12px;border-radius:6px;border:1px solid #d1d5db;background:#fff;cursor:pointer">← Anterior</button>';
+      pag += '<span style="font-size:12px;color:#6b7280">Página '+_pagina+' de '+totalPaginas+' ('+d.total+' registros)</span>';
+      if(_pagina < totalPaginas) pag += '<button onclick="carregarTabela('+(_pagina+1)+')" style="padding:6px 12px;border-radius:6px;border:1px solid #d1d5db;background:#fff;cursor:pointer">Próxima →</button>';
+      document.getElementById('paginacao').innerHTML = pag;
+    }
+    document.getElementById('busca').addEventListener('keydown', function(e){ if(e.key==='Enter') carregarTabela(1); });
+    carregarTabela(1);
+  </script>
+  </body></html>`);
+});
+
+app.get('/admin/pagamentos/lista', authAdmin, async (req, res) => {
+  try {
+    const { listarTentativas } = require('./services/salvarTentativaPagamento');
+    const pagina = Math.max(1, parseInt(req.query.pagina) || 1);
+    const limite = 100;
+    const { rows, total } = await listarTentativas({
+      limite, offset: (pagina - 1) * limite,
+      status: req.query.status || '', caminho: req.query.caminho || '', q: req.query.q || ''
+    });
+    res.json({ ok: true, rows, total });
+  } catch (e) {
+    console.error('[admin/pagamentos/lista]', e.message);
+    res.json({ ok: false, erro: e.message });
   }
 });
 
@@ -21025,6 +21179,13 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         }
       }
     });
+
+    const { registrarTentativa: _regTentDemanda } = require('./services/salvarTentativaPagamento');
+    _regTentDemanda({
+      userId: codigoNovo, nome: nomeVal, telefone: req.body.celular || (req.session.user && req.session.user.celular) || '', email: emailVal,
+      tipo: 'combo_demanda', plano, label: pacote.label, valor: pacote.valor, creditos: pacote.creditos,
+      caminho: 'demanda', preferenceId: result.id
+    }).catch(() => {});
 
     res.json({ ok: true, url: result.init_point });
   } catch (e) {

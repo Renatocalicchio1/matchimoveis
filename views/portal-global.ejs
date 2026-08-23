@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MatchImóveis · Todos os imóveis da rede</title>
-  <% const _descPortal = totalImoveis + ' imóve' + (totalImoveis===1?'l':'is') + ' de corretores e imobiliárias parceiras, em todo o Brasil.'; %>
-  <% const _urlPortal = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + '/portal' : ''; %>
+  <% const _loc = (typeof localizacao !== 'undefined' && localizacao) ? localizacao : null; %>
+  <% const _tituloLoc = _loc ? (_loc.nivel==='bairro' ? (_loc.bairroNome+', '+_loc.cidadeNome) : (_loc.cidadeNome+', '+_loc.estadoNome)) : ''; %>
+  <title><%= _loc ? ('Imóveis à venda e pra alugar em '+_tituloLoc+' · MatchImóveis') : 'MatchImóveis · Todos os imóveis da rede' %></title>
+  <% const _descPortal = _loc
+       ? (totalImoveis + ' imóve' + (totalImoveis===1?'l':'is') + ' à venda e pra alugar em ' + _tituloLoc + (_loc.stats ? (', de R$ '+_loc.stats.min.toLocaleString('pt-BR')+' a R$ '+_loc.stats.max.toLocaleString('pt-BR')) : '') + '.')
+       : (totalImoveis + ' imóve' + (totalImoveis===1?'l':'is') + ' de corretores e imobiliárias parceiras, em todo o Brasil.'); %>
+  <% const _urlPortal = _loc ? _loc.canonicalUrl : ((typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + '/portal' : ''); %>
   <% const _sc = (typeof siteConfig !== 'undefined' && siteConfig) ? siteConfig : {}; %>
   <meta name="description" content="<%= _descPortal %>">
   <% if(_urlPortal){ %><link rel="canonical" href="<%= _urlPortal %>"><% } %>
+  <% if(_loc && !_loc.indexavel){ %><meta name="robots" content="noindex,follow"><% } %>
   <meta property="og:type" content="website">
-  <meta property="og:title" content="MatchImóveis · Todos os imóveis da rede">
+  <meta property="og:title" content="<%= _loc ? ('Imóveis em '+_tituloLoc+' · MatchImóveis') : 'MatchImóveis · Todos os imóveis da rede' %>">
   <meta property="og:description" content="<%= _descPortal %>">
   <% if(_urlPortal){ %><meta property="og:url" content="<%= _urlPortal %>"><% } %>
   <% if(_sc.logoUrl){ %><meta property="og:image" content="<%= _sc.logoUrl %>"><% } %>
@@ -28,9 +33,10 @@
     const _jsonLdPortal = {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: 'MatchImóveis · Todos os imóveis da rede',
+      name: _loc ? ('Imóveis em '+_tituloLoc) : 'MatchImóveis · Todos os imóveis da rede',
       description: _descPortal,
       url: _urlPortal || undefined,
+      dateModified: _loc ? _loc.atualizadoEm : undefined,
       mainEntity: {
         '@type': 'ItemList',
         itemListElement: (typeof imoveis !== 'undefined' ? imoveis : []).slice(0, 20).map(function(im, i){
@@ -38,13 +44,26 @@
           return {
             '@type': 'ListItem',
             position: i + 1,
-            url: (_urlPortal ? _urlPortal.replace(/\/portal$/, '') : '') + '/imovel/' + (im.idExterno || im.idInterno || im.id) + (_slugLd ? '--'+_slugLd : '')
+            url: ((typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin : '') + '/imovel/' + (im.idExterno || im.idInterno || im.id) + (_slugLd ? '--'+_slugLd : '')
           };
         })
       }
     };
   %>
   <script type="application/ld+json"><%- JSON.stringify(_jsonLdPortal).replace(/</g, '\\u003c') %></script>
+  <% if(_loc){
+    const _jsonLdBreadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: _loc.breadcrumb.map(function(b, i){
+        const item = { '@type': 'ListItem', position: i+1, name: b.nome };
+        if (b.path) item.item = siteOrigin + b.path;
+        return item;
+      })
+    };
+  %>
+  <script type="application/ld+json"><%- JSON.stringify(_jsonLdBreadcrumb).replace(/</g, '\\u003c') %></script>
+  <% } %>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -82,6 +101,15 @@
     .hero{padding:40px 24px 8px;max-width:1200px;margin:0 auto}
     .hero h1{font-size:23px;font-weight:800;letter-spacing:-.6px;margin-bottom:4px}
     .hero p{color:var(--muted);font-size:14px}
+    .breadcrumb{max-width:1200px;margin:0 auto;padding:16px 24px 0;font-size:12.5px;color:var(--muted-2)}
+    .breadcrumb a{color:var(--muted-2);text-decoration:none}
+    .breadcrumb a:hover{color:var(--brand);text-decoration:underline}
+    .breadcrumb .bc-sep{margin:0 6px;color:var(--line)}
+    .breadcrumb .bc-atual{color:var(--ink);font-weight:600}
+    .bairros-vizinhos{max-width:1200px;margin:0 auto;padding:4px 24px 20px;font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .bairros-vizinhos .bv-label{font-weight:700;color:var(--ink);margin-right:2px}
+    .bairros-vizinhos a{color:var(--teal-ink);text-decoration:none;background:var(--sand);border-radius:20px;padding:4px 10px;white-space:nowrap}
+    .bairros-vizinhos a:hover{background:var(--line)}
 
     .filtros{max-width:1200px;margin:20px auto 0;padding:0 24px}
     .filtros-box{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
@@ -134,6 +162,8 @@
     @media(max-width:640px){
       header{padding:14px 16px}
       .hero{padding:28px 16px 4px}
+      .breadcrumb{padding:12px 16px 0}
+      .bairros-vizinhos{padding:4px 16px 16px}
       .filtros{padding:0 16px}
       .container{padding:16px}
       .ffield{min-width:100%}
@@ -170,19 +200,35 @@
 </div>
 <% } %>
 
+<% if(_loc){ %>
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <% _loc.breadcrumb.forEach(function(b, i){ %>
+    <% if(i>0){ %><span class="bc-sep">›</span><% } %>
+    <% if(b.path){ %><a href="<%= b.path %>"><%= b.nome %></a><% } else { %><span class="bc-atual"><%= b.nome %></span><% } %>
+  <% }); %>
+</nav>
+<div class="hero">
+  <h1>Imóveis à venda e pra alugar em <%= _tituloLoc %></h1>
+  <p><%= totalImoveis %> imóve<%= totalImoveis===1?'l':'is' %> disponí<%= totalImoveis===1?'vel':'veis' %> de corretores e imobiliárias parceiras
+  <% if(_loc.stats){ %> · de R$ <%= _loc.stats.min.toLocaleString('pt-BR') %> a R$ <%= _loc.stats.max.toLocaleString('pt-BR') %> · média R$ <%= _loc.stats.media.toLocaleString('pt-BR') %><% } %></p>
+</div>
+<% } else { %>
 <div class="hero">
   <h1>Todos os imóveis da rede MatchImóveis</h1>
   <p><%= totalImoveis %> imóve<%= totalImoveis===1?'l':'is' %> disponí<%= totalImoveis===1?'vel':'veis' %> de corretores e imobiliárias parceiras</p>
 </div>
+<% } %>
 
 <% var _bairrosSelecionados = (Array.isArray(filtros.bairro) ? filtros.bairro : (filtros.bairro ? [filtros.bairro] : [])).filter(Boolean); %>
 <% var _temBairroFiltro = _bairrosSelecionados.length > 0; %>
+<% var _basePath = _loc ? _loc.canonicalPath : '/portal'; %>
 <div class="filtros">
-  <form class="filtros-box" method="GET" action="/portal">
+  <form class="filtros-box" method="GET" action="<%= _basePath %>">
     <div class="ffield" style="min-width:200px;flex:2">
       <label>Buscar</label>
       <input type="text" name="busca" placeholder="Bairro, título..." value="<%= filtros.busca||'' %>">
     </div>
+    <% if(!_loc){ %>
     <div class="ffield">
       <label>Cidade</label>
       <input type="text" name="cidade" id="portal-cidade-input" value="<%= filtros.cidade||'' %>" placeholder="Digite pra buscar..." autocomplete="off">
@@ -198,6 +244,7 @@
       <input type="text" id="portal-bairro-input" placeholder="Digite pra adicionar..." autocomplete="off">
       <div class="portal-suggest" id="portal-bairro-suggest"></div>
     </div>
+    <% } %>
     <div class="ffield">
       <label>Tipo</label>
       <select name="tipo" onchange="this.form.submit()">
@@ -248,11 +295,20 @@
         <option value="recentes" <%= filtros.ordenar==='recentes'?'selected':'' %>>Mais recentes</option>
       </select>
     </div>
-    <% if(filtros.busca||filtros.cidade||_temBairroFiltro||filtros.tipo||filtros.operacao||filtros.condicao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')){ %>
-    <a href="/portal" class="btn-limpar">Limpar filtros</a>
+    <% if(filtros.busca||(!_loc&&filtros.cidade)||(!_loc&&_temBairroFiltro)||filtros.tipo||filtros.operacao||filtros.condicao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')){ %>
+    <a href="<%= _basePath %>" class="btn-limpar">Limpar filtros</a>
     <% } %>
   </form>
 </div>
+
+<% if(_loc && _loc.bairrosIrmaos.length){ %>
+<div class="container" style="padding-top:0;padding-bottom:0">
+  <div class="bairros-vizinhos">
+    <span class="bv-label">Outros bairros em <%= _loc.cidadeNome %>:</span>
+    <% _loc.bairrosIrmaos.forEach(function(b){ %><a href="<%= b.path %>"><%= b.nome %> (<%= b.count %>)</a><% }); %>
+  </div>
+</div>
+<% } %>
 
 <div class="container">
   <% if(!imoveis.length){ %>
@@ -307,15 +363,15 @@
     }
   %>
   <div class="paginacao">
-    <a class="pg-link <%= page<=1?'desabilitado':'' %>" href="/portal?page=<%= page-1 %>&<%= queryPagina %>">‹</a>
+    <a class="pg-link <%= page<=1?'desabilitado':'' %>" href="<%= _basePath %>?page=<%= page-1 %>&<%= queryPagina %>">‹</a>
     <% _paginas.forEach(p => { %>
       <% if(p==='...'){ %>
       <span class="pg-link desabilitado" style="border:none;background:transparent">…</span>
       <% } else { %>
-      <a class="pg-link <%= p===page?'atual':'' %>" href="/portal?page=<%= p %>&<%= queryPagina %>"><%= p %></a>
+      <a class="pg-link <%= p===page?'atual':'' %>" href="<%= _basePath %>?page=<%= p %>&<%= queryPagina %>"><%= p %></a>
       <% } %>
     <% }) %>
-    <a class="pg-link <%= page>=totalPages?'desabilitado':'' %>" href="/portal?page=<%= page+1 %>&<%= queryPagina %>">›</a>
+    <a class="pg-link <%= page>=totalPages?'desabilitado':'' %>" href="<%= _basePath %>?page=<%= page+1 %>&<%= queryPagina %>">›</a>
   </div>
   <% } %>
 </div>
@@ -368,7 +424,7 @@
   reiniciar();
 })();
 
-<% if(!filtros.busca && !filtros.cidade && !_temBairroFiltro && !filtros.tipo && !filtros.operacao && !filtros.condicao && !filtros.quartosMin && !filtros.valorMin && !filtros.valorMax && !filtros.page){ %>
+<% if(!_loc && !filtros.busca && !filtros.cidade && !_temBairroFiltro && !filtros.tipo && !filtros.operacao && !filtros.condicao && !filtros.quartosMin && !filtros.valorMin && !filtros.valorMax && !filtros.page){ %>
 (function(){
   // Sem nenhum filtro aplicado ainda: se o navegador autorizar, pré-filtra pela cidade do visitante.
   if(localStorage.getItem('mi_portal_geo_perguntado')) return;

@@ -11803,6 +11803,158 @@ app.get('/portal', async (req, res) => {
   }
 });
 
+// ── PÁGINAS DE SEO POR LOCALIZAÇÃO (/portal/:uf/:cidadeSlug[/:bairroSlug]) ──
+// Piloto ago/2026 (pedido do Renato, inspirado no modelo do Zillow — página
+// indexável por localização em cima do estoque REAL agregado, não conteúdo
+// fabricado): expõe o MESMO filtro que /portal já faz por querystring
+// (?cidade=X&bairro=Y) como URL de caminho limpo, com contexto que falta pra
+// virar "conteúdo único" de verdade (breadcrumb, estatística real de preço,
+// links pros bairros vizinhos) — não só uma lista de card repaginada.
+// Limiar mínimo pra indexar veio do levantamento real feito em
+// levantar-bairros-cidades-seo.js (ago/2026): página de bairro/cidade com
+// pouco estoque some do Search Console (thin/near-duplicate content), então
+// só marca indexável quem bate o piso — o resto continua funcionando normal
+// pra quem entrar direto no link, só não pede pro Google indexar.
+const _SEO_LOC_CIDADE_MIN = 20;
+const _SEO_LOC_BAIRRO_MIN = 30;
+
+function _slugLoc(s) {
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+// Cache de 15min (mesmo padrão de global._cacheRede em /app/imoveis) — monta
+// a árvore uf→cidade→bairro com contagem/slug/data mais recente 1x só, em
+// vez de recalcular em cada request de cada uma das páginas do piloto.
+async function _indiceLocalizacoesSeoPortal() {
+  if (global._cacheLocSeoPortal && Date.now() < global._cacheLocSeoPortalTTL) return global._cacheLocSeoPortal;
+  const { normalizarEstadoBR, normalizarCidadeBR, normalizarBairroBR, siglaEstadoBR } = require('./services/salvarImovel');
+  const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
+  const imoveisSemDuplicata = _dedupRodizioImoveis(imoveisAtivos);
+  const porUf = {};
+  imoveisSemDuplicata.forEach(im => {
+    const estadoNome = normalizarEstadoBR(im.estado);
+    const cidadeNome = normalizarCidadeBR(estadoNome, im.cidade);
+    const bairroNome = normalizarBairroBR(cidadeNome, im.bairro);
+    const uf = siglaEstadoBR(estadoNome);
+    if (!uf || !cidadeNome) return;
+    const dataRef = im.atualizadoEm || im.criadoEm || null;
+
+    if (!porUf[uf]) porUf[uf] = { estadoNome, cidades: {} };
+    const cidadeSlug = _slugLoc(cidadeNome);
+    if (!porUf[uf].cidades[cidadeSlug]) porUf[uf].cidades[cidadeSlug] = { nome: cidadeNome, count: 0, atualizadoEm: null, bairros: {} };
+    const cCidade = porUf[uf].cidades[cidadeSlug];
+    cCidade.count++;
+    if (dataRef && (!cCidade.atualizadoEm || dataRef > cCidade.atualizadoEm)) cCidade.atualizadoEm = dataRef;
+
+    if (!bairroNome) return;
+    const bairroSlug = _slugLoc(bairroNome);
+    if (!cCidade.bairros[bairroSlug]) cCidade.bairros[bairroSlug] = { nome: bairroNome, count: 0, atualizadoEm: null };
+    const cBairro = cCidade.bairros[bairroSlug];
+    cBairro.count++;
+    if (dataRef && (!cBairro.atualizadoEm || dataRef > cBairro.atualizadoEm)) cBairro.atualizadoEm = dataRef;
+  });
+  global._cacheLocSeoPortal = porUf;
+  global._cacheLocSeoPortalTTL = Date.now() + 15 * 60 * 1000;
+  return porUf;
+}
+
+// Estatística de preço real da localização (min/máx/médio) — é o que dá
+// substância única pra página além da lista de card (ver nota acima sobre
+// thin content). Calcula em cima do MESMO array já filtrado/dedupado, sem
+// depender da paginação de _filtrarEPaginarImoveis (que só devolve a página
+// atual, não o conjunto inteiro).
+function _statsPrecoLocalizacao(imoveisSemDuplicata, cidadeNome, bairroNome) {
+  const _chave = s => (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  const alvo = imoveisSemDuplicata.filter(i => {
+    if (_chave(i.cidade) !== _chave(cidadeNome)) return false;
+    if (bairroNome && _chave(i.bairro) !== _chave(bairroNome)) return false;
+    return true;
+  });
+  const valores = alvo.map(i => Number(i.valor_imovel) || 0).filter(v => v > 0);
+  if (!valores.length) return null;
+  const min = Math.min(...valores);
+  const max = Math.max(...valores);
+  const media = Math.round(valores.reduce((s, v) => s + v, 0) / valores.length);
+  return { min, max, media, total: alvo.length };
+}
+
+async function _paginaLocalizacaoPortal(req, res, { ufParam, cidadeSlug, bairroSlug }) {
+  try {
+    const siteConfig = await _carregarSiteConfigGlobal();
+    if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, { nome: 'MatchImóveis' });
+    const indice = await _indiceLocalizacoesSeoPortal();
+    const uf = String(ufParam || '').toLowerCase();
+    const ufInfo = indice[uf];
+    if (!ufInfo) return _pagina404Site(res, { titulo: 'Localização não encontrada', mensagem: 'Não temos imóveis cadastrados nesse estado ainda.' });
+    const cCidade = ufInfo.cidades[cidadeSlug];
+    if (!cCidade) return _pagina404Site(res, { titulo: 'Cidade não encontrada', mensagem: 'Não temos imóveis cadastrados nessa cidade ainda.' });
+    let cBairro = null;
+    if (bairroSlug) {
+      cBairro = cCidade.bairros[bairroSlug];
+      if (!cBairro) return _pagina404Site(res, { titulo: 'Bairro não encontrado', mensagem: 'Não temos imóveis cadastrados nesse bairro ainda.' });
+    }
+
+    const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
+    const imoveisSemDuplicata = _dedupRodizioImoveis(imoveisAtivos);
+    const _q = Object.assign({}, req.query, { cidade: cCidade.nome }, cBairro ? { bairro: cBairro.nome } : {});
+    const _r = _filtrarEPaginarImoveis(imoveisSemDuplicata, _q, 24);
+    const stats = _statsPrecoLocalizacao(imoveisSemDuplicata, cCidade.nome, cBairro ? cBairro.nome : null);
+    // cidade/bairro já estão no PATH da página — não repete na querystring
+    // de paginação (senão cada página 2+ ganha uma URL alternativa
+    // querystring-duplicada da mesma localização, brigando com a canonical).
+    const _paramsPagina = new URLSearchParams(_r.queryPagina);
+    _paramsPagina.delete('cidade');
+    _paramsPagina.delete('bairro');
+    const queryPaginaLoc = _paramsPagina.toString();
+
+    const base = (req.protocol + '://' + req.get('host')).replace(/\/$/, '');
+    const pathCidade = '/portal/' + uf + '/' + cidadeSlug;
+    const canonicalPath = cBairro ? pathCidade + '/' + bairroSlug : pathCidade;
+    const breadcrumb = [
+      { nome: 'Portal', path: '/portal' },
+      { nome: ufInfo.estadoNome, path: null },
+      { nome: cCidade.nome, path: cBairro ? pathCidade : null }
+    ];
+    if (cBairro) breadcrumb.push({ nome: cBairro.nome, path: null });
+
+    // "Outros bairros em X" — link interno pro resto da cidade, essencial
+    // pro Google achar as páginas de bairro sem depender só do sitemap
+    // (mesmo princípio de navegação em rede que o Zillow usa entre bairro e
+    // cidade). Só entra quem também bate o piso de indexação.
+    const bairrosIrmaos = Object.entries(cCidade.bairros)
+      .filter(([slug, b]) => slug !== bairroSlug && b.count >= _SEO_LOC_BAIRRO_MIN)
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 20)
+      .map(([slug, b]) => ({ nome: b.nome, count: b.count, path: pathCidade + '/' + slug }));
+
+    const indexavel = cBairro ? cBairro.count >= _SEO_LOC_BAIRRO_MIN : cCidade.count >= _SEO_LOC_CIDADE_MIN;
+    const atualizadoEm = (cBairro ? cBairro.atualizadoEm : cCidade.atualizadoEm) || new Date().toISOString();
+
+    res.render('portal-global', {
+      imoveis: _r.imoveisPagina, estados: _r.estados, cidades: _r.cidades, bairros: _r.bairros,
+      page: _r.page, totalPages: _r.totalPages, totalImoveis: _r.totalImoveis,
+      filtros: req.query, queryPagina: queryPaginaLoc,
+      siteOrigin: base,
+      portalUrl: req.originalUrl,
+      siteConfig,
+      localizacao: {
+        nivel: cBairro ? 'bairro' : 'cidade',
+        estadoNome: ufInfo.estadoNome, uf,
+        cidadeNome: cCidade.nome,
+        bairroNome: cBairro ? cBairro.nome : null,
+        canonicalPath, canonicalUrl: base + canonicalPath,
+        indexavel, atualizadoEm,
+        breadcrumb, bairrosIrmaos, stats
+      }
+    });
+  } catch(e) {
+    console.error('[portal-localizacao]', e.message);
+    res.status(500).send('Erro ao carregar o portal');
+  }
+}
+app.get('/portal/:uf/:cidadeSlug', (req, res) => _paginaLocalizacaoPortal(req, res, { ufParam: req.params.uf, cidadeSlug: req.params.cidadeSlug }));
+app.get('/portal/:uf/:cidadeSlug/:bairroSlug', (req, res) => _paginaLocalizacaoPortal(req, res, { ufParam: req.params.uf, cidadeSlug: req.params.cidadeSlug, bairroSlug: req.params.bairroSlug }));
+
 // ── SERVIDOR MCP (Model Context Protocol) — App da MatchImóveis no ChatGPT ──
 // Projeto combinado com o Renato (ago/2026): expõe os imóveis públicos da
 // plataforma como ferramenta pro ChatGPT buscar/mostrar dentro da conversa,
@@ -12295,12 +12447,26 @@ app.get('/site/:codigoUsuario/robots.txt', (req, res) => _handlerSiteRobots(req,
 // Antes só existia sitemap/robots por corretor (/site/:codigo/sitemap.xml) —
 // o domínio institucional (landing, /portal, /imovel/:id acessado solto) não
 // tinha nenhum arquivo de descoberta pro Google indexar.
-app.get('/sitemap.xml', (req, res) => {
+app.get('/sitemap.xml', async (req, res) => {
   try {
     const base = (req.protocol + '://' + req.get('host')).replace(/\/$/, '');
     const imoveis = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
+    // Só entram no sitemap as páginas de localização que bateram o piso de
+    // indexação (_SEO_LOC_CIDADE_MIN/_SEO_LOC_BAIRRO_MIN) — as que não
+    // bateram continuam no ar (noindex), só não convidam o Google.
+    const indice = await _indiceLocalizacoesSeoPortal();
+    const urlsLocalizacao = [];
+    Object.keys(indice).forEach(uf => {
+      Object.entries(indice[uf].cidades).forEach(([cidadeSlug, cCidade]) => {
+        if (cCidade.count >= _SEO_LOC_CIDADE_MIN) urlsLocalizacao.push(base + '/portal/' + uf + '/' + cidadeSlug);
+        Object.entries(cCidade.bairros).forEach(([bairroSlug, cBairro]) => {
+          if (cBairro.count >= _SEO_LOC_BAIRRO_MIN) urlsLocalizacao.push(base + '/portal/' + uf + '/' + cidadeSlug + '/' + bairroSlug);
+        });
+      });
+    });
     const urls = [base + '/', base + '/portal', base + '/demanda', base + '/politica-privacidade', base + '/termos-de-uso']
       .concat(Object.keys(_CONTEUDO_SEO).map(slug => base + '/' + slug))
+      .concat(urlsLocalizacao)
       .concat(imoveis.map(i => base + _pathImovelSeo(i)));
     const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       urls.map(u => '  <url><loc>' + u.replace(/&/g, '&amp;') + '</loc></url>').join('\n') +

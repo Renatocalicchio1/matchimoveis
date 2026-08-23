@@ -30,6 +30,11 @@ function normalizarEstadoBR(valor) {
   if (!bruto) return '';
   return _ESTADOS_POR_CHAVE[_chaveLocalidade(bruto)] || bruto.toString().trim();
 }
+// Nome completo (já normalizado por normalizarEstadoBR) -> sigla minúscula —
+// usado pra montar URL de localização (/portal/sp/sao-paulo/vila-mariana).
+function siglaEstadoBR(estadoCanonico) {
+  return _SIGLA_POR_CHAVE[_chaveLocalidade(estadoCanonico)] || '';
+}
 const _CONECTIVOS_LOCALIDADE = new Set(['de','da','do','das','dos','e']);
 function normalizarNomeLocalidade(valor) {
   const bruto = (valor || '').toString().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -302,6 +307,7 @@ function rowToImovel(r) {
     xmlUrl: r.xml_url,
     lastUpdate: r.last_update,
     criadoEm: r.criado_em,
+    atualizadoEm: r.atualizado_em,
     ...(r.dados || {})
   };
 }
@@ -554,4 +560,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, imovelVisivelPublico, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR, buscarBairroEmTexto };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, imovelVisivelPublico, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR, siglaEstadoBR, buscarBairroEmTexto };

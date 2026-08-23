@@ -156,11 +156,8 @@ async function excluirLeadCap(leadId, nomeEnc){
 
       <div class="lead-btns">
         <% if(_telCel){ %><a href="https://wa.me/55<%= _telCel %>?text=<%= _msgContato %>" target="_blank" class="lb wa">💬 Falar no WhatsApp</a><% } %>
-        <% if(!imovelCaptado) { %>
+        <% if(!_primeiroVinculado) { %>
           <a href="https://matchimoveis.onrender.com/app/cadastro" class="lb prim">+ Cadastrar imóvel</a>
-        <% } else if(!_primeiroVinculado) { %>
-          <a href="https://matchimoveis.onrender.com/app/imovel/<%= imovelCaptado %>/editar" class="lb prim">✏️ Editar para completar</a>
-          <a href="https://www.matchimoveis.ia.br/imovel/<%= imovelCaptado %>?userId=<%= user.codigoUsuario||user.id %>&preview=1" target="_blank" class="lb">🔗 Link público</a>
         <% } %>
         <button onclick="excluirLeadCap('<%= l.id %>', '<%= encodeURIComponent(l.nome||'essa lead') %>')" class="lb danger">🗑️ Excluir lead</button>
       </div>

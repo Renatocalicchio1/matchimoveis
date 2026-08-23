@@ -92,8 +92,14 @@ function _partesDoFato(tipo, fato) {
 // topo (foto de perfil/nome/hora) e o rodapé (caixa de resposta) da própria
 // UI dele por cima da imagem, então o conteúdo real fica com padding vertical
 // bem maior que o do feed (zona "segura"), senão nasce cortado atrás da UI.
+// padH do feed maior que o vertical de propósito: o grid do perfil (3
+// colunas) dá um leve zoom/corte no thumbnail mesmo em post quadrado 1080x1080
+// — reportado pelo Renato ago/2026, o post aberto individualmente vem
+// completo, só o thumbnail do grid corta texto que fica perto da borda
+// lateral. Margem horizontal maior (~13%) evita que headline/corpo/rodapé
+// entrem nessa zona de corte.
 const _FORMATOS = {
-  feed: { w: 1080, h: 1080, padV: 78, padH: 78 },
+  feed: { w: 1080, h: 1080, padV: 78, padH: 148 },
   story: { w: 1080, h: 1920, padV: 230, padH: 84 }
 };
 

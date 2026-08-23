@@ -277,9 +277,18 @@ async function contarStatus() {
   if (_cacheStatus && (Date.now() - _cacheStatusEm) < _CACHE_STATUS_TTL_MS) return _cacheStatus;
   await _garantirTabelas();
   const { rows: [ativo] } = await query('SELECT ativo, iniciado_em FROM captacao_campanha_config WHERE id=1');
+  // Elegíveis = pool normal (leads+interessados_portal) + pool prioritário
+  // manual, deduplicados por email entre os dois — sem isso "Elegíveis"/
+  // "Progresso do envio" ficava sem contar quem entrou via importação de
+  // CSV externo (ago/2026, reportado pelo Renato: painel mostrava só ~9k
+  // elegíveis com 42k+ importados na lista prioritária).
   const { rows: [elegRow] } = await query(`
     ${_POOL_CAPTACAO_CTE}
-    SELECT COUNT(DISTINCT LOWER(TRIM(email)))::int AS total FROM pool_captacao
+    SELECT COUNT(*)::int AS total FROM (
+      SELECT LOWER(TRIM(email)) AS email FROM pool_captacao
+      UNION
+      SELECT LOWER(TRIM(email)) AS email FROM campanha_captacao_pool_manual
+    ) todos_elegiveis
   `);
   const { rows: [envRow] } = await query(`
     SELECT
@@ -714,6 +723,15 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
        e.followup1_enviado_em, e.followup2_enviado_em, e.followup3_enviado_em,
        e.atendido_por, e.atendido_por_nome, e.atendido_por_cor, e.atendido_em, e.wa_manual_enviado_em,
        e.imovel_captado_id, e.bonus_captacao_pago_em,
+       -- Origem do contato — deduzida do prefixo de lead_id (ver
+       -- _enviarDoPoolManualCaptacao/_POOL_CAPTACAO_CTE, que montam esse id
+       -- como 'manual-'+id, 'interessado-'+id, ou o id puro da tabela leads.
+       -- Pedido do Renato (ago/2026): mostrar de onde veio cada envio.
+       CASE
+         WHEN e.lead_id LIKE 'manual-%' THEN 'Lista importada'
+         WHEN e.lead_id LIKE 'interessado-%' THEN 'Interessados de Portal'
+         ELSE 'Lead da plataforma'
+       END AS origem,
        COALESCE(lt.telefone, e.telefone) AS telefone,
        im.status AS imovel_status,
        -- Aproximação dos critérios de services/gerarXMLQuintoAndarGlobal (server.js): endereço + proprietário

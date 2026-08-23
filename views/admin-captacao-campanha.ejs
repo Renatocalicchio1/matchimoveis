@@ -64,7 +64,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
     <div class="aviso">⚠️ Erro ao carregar status da campanha.</div>
   <% } else { %>
     <div class="aviso">
-      Dispara e-mails com intervalo aleatório de 1 a 3 minutos (nunca fixo, pra não parecer robô pros provedores de email) pra leads sem imóvel captado ainda — busca em <strong>duas fontes</strong>: leads que já buscaram imóvel na plataforma (tabela leads) e a base de Interessados de Portal que você importou, sempre convidando a cadastrar via <strong>matchimoveis.ia.br/captar/REN-G9K6</strong>. Título e corpo também alternam entre várias variações pra não cair em spam. Não mexe no e-mail individual que já dispara quando uma lead nova entra (esse continua igual, com o link do corretor dono dela).
+      Dispara e-mails com intervalo aleatório de 1 a 3 minutos (nunca fixo, pra não parecer robô pros provedores de email) pra leads sem imóvel captado ainda — busca em <strong>três fontes</strong>, sempre nessa ordem de prioridade: 1) lista prioritária importada por CSV externo (card abaixo — esse contato nunca usou a plataforma, por isso recebe uma mensagem diferente, sem alegar uso prévio); 2) leads que já buscaram imóvel na plataforma (tabela leads); 3) a base de Interessados de Portal que você importou. Todos convidados a cadastrar via <strong>matchimoveis.ia.br/captar/REN-G9K6</strong>. Título e corpo também alternam entre várias variações pra não cair em spam. Não mexe no e-mail individual que já dispara quando uma lead nova entra (esse continua igual, com o link do corretor dono dela).
     </div>
 
     <% if (isSuper) { %>
@@ -144,8 +144,8 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
         <% } %>
       </div>
       <table>
-        <thead><tr><th>Nome</th><th>Email</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>Imóvel captado</th><th>QuintoAndar</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>E-mail</th></tr></thead>
-        <tbody id="tabelaEnvios"><tr><td colspan="13" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
+        <thead><tr><th>Nome</th><th>Email</th><th>Origem</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>Imóvel captado</th><th>QuintoAndar</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>E-mail</th></tr></thead>
+        <tbody id="tabelaEnvios"><tr><td colspan="14" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
       </table>
       <div id="paginacao" style="margin-top:10px;font-size:12.5px;color:#6b7280"></div>
     </div>
@@ -400,7 +400,7 @@ async function carregarTabela(pagina){
     const d = await r.json();
     const tbody = document.getElementById('tabelaEnvios');
     if(!tbody) return;
-    if(!d.ok || !d.envios.length){ tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;color:#9ca3af">Nenhum envio encontrado.</td></tr>'; document.getElementById('paginacao').innerHTML = ''; return; }
+    if(!d.ok || !d.envios.length){ tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;color:#9ca3af">Nenhum envio encontrado.</td></tr>'; document.getElementById('paginacao').innerHTML = ''; return; }
     _ultimosEnvios = d.envios;
     tbody.innerHTML = d.envios.map(function(e){
       const trBg = e.atendido_por_cor ? ' style="background:'+escHtml(e.atendido_por_cor)+'1a"' : '';
@@ -412,8 +412,13 @@ async function carregarTabela(pagina){
       // /captar/imovel/:id (finalizar=true) em server.js.
       const captadoCel = e.bonus_captacao_pago_em ? '<span class="tag tag-sim">✅ +200 coins</span>' : (e.imovel_captado_id ? '<span class="tag tag-nao">Em cadastro</span>' : '<span style="color:#9ca3af">—</span>');
       const qaCel = e.elegivel_quintoandar ? '<span class="tag tag-sim">🏠 Foi pro QuintoAndar</span>' : '<span style="color:#9ca3af">—</span>';
-      if(e.erro) return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="8"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
-      return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td>'+captadoCel+'</td><td>'+qaCel+'</td><td>'+_tag(e.followup1_enviado_em)+'</td><td>'+_tag(e.followup2_enviado_em)+'</td><td>'+_tag(e.followup3_enviado_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
+      // Origem — "Lista importada" (pool manual, ver services/campanhaCaptacao.js)
+      // ganha cor própria pra achar rápido na tabela quem veio de lá.
+      const origemCel = e.origem === 'Lista importada'
+        ? '<span class="tag" style="background:#eef2ff;color:#4338ca">📋 Lista importada</span>'
+        : '<span style="color:#6b7280">'+escHtml(e.origem||'—')+'</span>';
+      if(e.erro) return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+origemCel+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="8"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
+      return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+origemCel+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td>'+captadoCel+'</td><td>'+qaCel+'</td><td>'+_tag(e.followup1_enviado_em)+'</td><td>'+_tag(e.followup2_enviado_em)+'</td><td>'+_tag(e.followup3_enviado_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
     }).join('');
     document.querySelectorAll('.btn-atender-wa').forEach(function(btn){
       btn.addEventListener('click', function(){

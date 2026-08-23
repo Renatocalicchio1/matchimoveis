@@ -187,7 +187,7 @@ Ideia do Renato: corretor poder "impulsionar" um imóvel pra aparecer com priori
 - Quer um comando por vez, sem explicação a menos que peça
 - Não modificar arquivos além do pedido
 - Sempre referenciar como coisas parecidas já foram feitas antes de propor algo novo
-- **Commit/push (ago/2026): não pedir confirmação — sempre commitar e dar push pra main direto depois de validar (node --check / EJS compile).** Regra antiga era só commitar quando ele mandasse explicitamente; substituída por pedido direto do usuário ("nao precis ame perguntar mais, sempre fac o commit e peush para man").
+- **Commit/push (ago/2026, revertido no mesmo mês): só commitar e dar push quando o Renato mandar explicitamente.** Chegou a valer uma regra de "não precisa mais perguntar, sempre commita e dá push" por um tempo (pedido direto dele: "nao precis ame perguntar mais, sempre fac o commit e peush para man"), mas ele reverteu essa mudança de volta pro padrão original ("Só faça commit e push quando eu mandar") — validar (node --check / EJS compile) e deixar as mudanças prontas, mas aguardar confirmação explícita antes de cada commit/push.
 
 ---
 

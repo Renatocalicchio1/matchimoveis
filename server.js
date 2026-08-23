@@ -21133,8 +21133,9 @@ app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
   // manda pro lead (se apresentar pelo próprio nome, não genérico).
   const adminNome = req.session.adminNome || (isSuper ? 'Equipe' : '');
   try {
-    const { contarStatus } = require('./services/campanhaCaptacao');
+    const { contarStatus, contarPoolManualPendente } = require('./services/campanhaCaptacao');
     const status = await contarStatus();
+    status.poolManualPendente = await contarPoolManualPendente().catch(() => 0);
     res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper, contasFiltro, adminNome });
   } catch (e) {
     console.error('[admin/captacao-campanha]', e.message);
@@ -21144,8 +21145,52 @@ app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
 app.get('/admin/captacao-campanha/status', authAdmin, async (req, res) => {
   try {
     const { contarStatus } = require('./services/campanhaCaptacao');
-    res.json({ ok: true, status: await contarStatus() });
+    const { contarPoolManualPendente } = require('./services/campanhaCaptacao');
+    const status = await contarStatus();
+    status.poolManualPendente = await contarPoolManualPendente().catch(() => 0);
+    res.json({ ok: true, status });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Importa lista externa de proprietários (CSV específico — mesmo formato
+// gerado no levantamento de ago/2026: sem cabeçalho, ; como separador, 23
+// colunas — id;nome;rua;numero;bairro;cidade;estado;cep;ddd_tel1;tel1;
+// ddd_tel2;tel2;ddd_tel3;tel3;ddd_cel1;cel1;ddd_cel2;cel2;ddd_cel3;cel3;
+// email1;email2;email3) pro pool prioritário da campanha de captação —
+// esses contatos são tentados ANTES do pool normal (leads/interessados_portal)
+// em enviarProximoEmail(). Pedido do Renato (ago/2026).
+function _parseLinhaProprietarios(linha) {
+  const c = linha.replace(/\r$/, '').split(';');
+  if (c.length < 23) return null;
+  const nome = (c[1] || '').trim();
+  const cels = [[c[14], c[15]], [c[16], c[17]], [c[18], c[19]]];
+  const fixos = [[c[8], c[9]], [c[10], c[11]], [c[12], c[13]]];
+  const tel = cels.find(([, n]) => n && n.trim()) || fixos.find(([, n]) => n && n.trim());
+  const telefone = tel ? ((tel[0] || '').trim() + (tel[1] || '').trim()) : '';
+  const _reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const email = [c[20], c[21], c[22]].map(e => (e || '').trim().toLowerCase()).find(e => _reEmail.test(e)) || '';
+  if (!email) return null;
+  return { nome, email, telefone };
+}
+app.post('/admin/captacao-campanha/importar', authAdmin, async (req, res) => {
+  const upload3 = require('multer')({ dest: dataPath('uploads/') });
+  upload3.single('arquivo')(req, res, async (err) => {
+    if (err) return res.json({ ok: false, erro: err.message });
+    if (!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });
+    try {
+      const conteudo = fs.readFileSync(req.file.path, 'utf8');
+      fs.unlink(req.file.path, () => {});
+      const linhas = conteudo.split(/\r?\n/).filter(l => l.trim());
+      const contatos = linhas.map(_parseLinhaProprietarios).filter(Boolean);
+      if (!contatos.length) return res.json({ ok: false, erro: 'Nenhuma linha com email válido encontrada — confirma se o arquivo tá no formato esperado (23 colunas, ; como separador, sem cabeçalho).' });
+      const { importarPoolManual } = require('./services/campanhaCaptacao');
+      const resultado = await importarPoolManual(contatos);
+      res.json({ ok: true, linhasLidas: linhas.length, comEmailValido: contatos.length, ...resultado });
+    } catch (e) {
+      console.error('[captacao-campanha/importar]', e.message);
+      res.json({ ok: false, erro: e.message });
+    }
+  });
 });
 app.post('/admin/captacao-campanha/iniciar', authAdmin, async (req, res) => {
   try {

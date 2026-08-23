@@ -83,6 +83,17 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
 
     <% if (isSuper) { %>
     <div class="status-box" style="flex-direction:column;align-items:flex-start;gap:6px">
+      <div style="font-weight:600;font-size:13.5px">📋 Importar lista prioritária de proprietários</div>
+      <div style="font-size:12px;color:#6b7280">CSV externo (formato: sem cabeçalho, <code>;</code> como separador, 23 colunas — id;nome;rua;numero;bairro;cidade;estado;cep;ddd_tel1;tel1;ddd_tel2;tel2;ddd_tel3;tel3;ddd_cel1;cel1;ddd_cel2;cel2;ddd_cel3;cel3;email1;email2;email3). Esses contatos são tentados <strong>antes</strong> do pool normal (leads/interessados de portal) em todo envio, até esvaziar. E-mail duplicado (já importado antes) não conta 2x.</div>
+      <input type="file" id="arquivoPoolManual" accept=".csv,text/csv" style="font-size:12.5px">
+      <button class="btn btn-iniciar" onclick="importarPoolManual()">⬆️ Importar</button>
+      <div id="importar-resultado" style="font-size:12.5px"></div>
+      <div style="font-size:12px;color:#6b7280">Pendentes na lista prioritária agora: <strong id="poolManualPendente"><%= status.poolManualPendente || 0 %></strong></div>
+    </div>
+    <% } %>
+
+    <% if (isSuper) { %>
+    <div class="status-box" style="flex-direction:column;align-items:flex-start;gap:6px">
       <div style="font-weight:600;font-size:13.5px">🤝 Distribuir atendimentos abertos</div>
       <div style="font-size:12px;color:#6b7280">Quem clicou e ainda não tem sub-admin atendendo é dividido em round-robin entre os sub-admins ativos — não mexe em quem já tem atendente. Cada sub-admin só vê os que são dele em "Envios recentes" abaixo.</div>
       <button class="btn btn-iniciar" onclick="distribuirAtendimentos()">🔀 Distribuir agora</button>
@@ -189,6 +200,26 @@ async function iniciarCampanha(){
 async function pausarCampanha(){
   const d = await _post('/admin/captacao-campanha/pausar');
   if(d.ok) _atualizarTela(d.status);
+}
+async function importarPoolManual(){
+  const input = document.getElementById('arquivoPoolManual');
+  const arq = input.files[0];
+  if(!arq) return alert('Escolhe o arquivo CSV primeiro.');
+  const resultadoEl = document.getElementById('importar-resultado');
+  resultadoEl.textContent = 'Importando (pode demorar alguns segundos pra listas grandes)...';
+  const fd = new FormData();
+  fd.append('arquivo', arq);
+  try {
+    const r = await fetch('/admin/captacao-campanha/importar', { method:'POST', body: fd });
+    const j = await r.json();
+    if(!j.ok){ resultadoEl.textContent = '❌ ' + j.erro; return; }
+    resultadoEl.textContent = '✅ ' + j.linhasLidas + ' linhas lidas, ' + j.comEmailValido + ' com email válido — ' + j.inseridos + ' novos importados, ' + j.duplicados + ' já estavam na lista.';
+    input.value = '';
+    const s = await (await fetch('/admin/captacao-campanha/status')).json();
+    if(s.ok) _setTxt('poolManualPendente', s.status.poolManualPendente || 0);
+  } catch(e) {
+    resultadoEl.textContent = '❌ ' + e.message;
+  }
 }
 async function distribuirAtendimentos(){
   const el = document.getElementById('distribuir-resultado');

@@ -57,6 +57,22 @@ const GANCHOS = [
   'Vender ou alugar um imóvel sozinho dá trabalho: atender ligação, marcar visita, negociar. A gente faz isso por você, de graça.'
 ];
 
+// GANCHOS acima presumem que a pessoa já usou a plataforma pra buscar
+// imóvel ("Você entrou em contato com um corretor...") — verdade pra quem
+// vem de `leads`/`interessados_portal`, mas FALSO pra contato importado de
+// lista externa (pool manual, ver importarPoolManual/campanha_captacao_pool_manual,
+// ago/2026 — 42k proprietários de SP comprados/minerados, nunca interagiram
+// com a Match Imóveis). Gancho separado pra esse público, sem alegar uso
+// prévio da plataforma — resto (TITULOS/CORPOS) já é genérico o suficiente,
+// não alega nada específico sobre a pessoa, reaproveitado pros dois públicos.
+const GANCHOS_FRIOS = [
+  'Você tem um imóvel disponível pra vender ou alugar? A Match Imóveis conecta ele com milhares de corretores automaticamente, sem custo pra você.',
+  'Imóvel parado sem gerar contato é dinheiro parado. A gente divulga automaticamente em vários portais e conecta com corretores da sua região.',
+  'Cadastrar seu imóvel na Match Imóveis é grátis e leva menos de 2 minutos — a gente cuida da divulgação, você só recebe os interessados.',
+  'Tem uma rede de corretores procurando imóvel pra oferecer aos clientes deles agora — o seu pode ser um dos que aparecem.',
+  'Divulgar um imóvel sozinho dá trabalho: atender ligação, marcar visita, negociar. A Match Imóveis faz isso por você, sem cobrar nada.'
+];
+
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
 
 // ── Follow-ups automáticos (3 estágios, 5 variações cada) ──────────────────
@@ -168,6 +184,17 @@ async function _garantirTabelas() {
     atualizado_em TIMESTAMP DEFAULT NOW()
   )`);
   await query(`INSERT INTO captacao_campanha_config (id, ativo) VALUES (1, false) ON CONFLICT (id) DO NOTHING`);
+  // Pool prioritário — lista importada manualmente pelo admin (CSV externo
+  // de proprietários, ver importarPoolManual), sempre tentada ANTES do pool
+  // normal (leads+interessados_portal) em enviarProximoEmail(). Pedido do
+  // Renato ago/2026.
+  await query(`CREATE TABLE IF NOT EXISTS campanha_captacao_pool_manual (
+    id SERIAL PRIMARY KEY,
+    nome TEXT,
+    email TEXT NOT NULL UNIQUE,
+    telefone TEXT,
+    criado_em TIMESTAMP DEFAULT NOW()
+  )`);
   _tabelasProntas = true;
 }
 
@@ -454,28 +481,14 @@ async function _enviarDosFollowupsCaptacao() {
   return null;
 }
 
-async function _enviarDaPoolCaptacao() {
-  const { rows } = await query(`
-    ${_POOL_CAPTACAO_CTE}
-    SELECT DISTINCT ON (LOWER(TRIM(p.email))) p.id, p.nome, p.email, p.telefone
-    FROM pool_captacao p
-    WHERE NOT EXISTS (
-      SELECT 1 FROM campanha_captacao_envios e WHERE LOWER(TRIM(e.email)) = LOWER(TRIM(p.email))
-    )
-    ORDER BY LOWER(TRIM(p.email)), p.criado_em ASC
-    LIMIT 1
-  `);
-  // Antes, "acabou a pool de gente nova" pausava a campanha inteira — mas
-  // isso também impediria os follow-ups (que dependem de ativo=true) de
-  // continuarem disparando pros dias seguintes, pra quem só ainda não
-  // completou 24h de espera. Só registra "sem novo elegível" e segue ativa.
-  if (!rows.length) return { enviado: false, motivo: 'sem_elegiveis_novos' };
-
-  const lead = rows[0];
+// Reserva a linha em campanha_captacao_envios (protege contra o próximo
+// tick rodar antes desse terminar, ex: envio lento na SES) e manda o
+// email. `frio: true` = veio do pool manual (nunca usou a plataforma) →
+// usa GANCHOS_FRIOS em vez de GANCHOS (que alega uso prévio, falso pra
+// esse público).
+async function _enviarParaCandidato(lead, { frio = false } = {}) {
   const emailNorm = String(lead.email).trim();
 
-  // Reserva a linha já (protege contra o próximo tick rodar antes desse
-  // terminar de enviar, ex: envio lento na SES).
   let envioId;
   try {
     const { rows: ins } = await query(
@@ -496,7 +509,7 @@ async function _enviarDaPoolCaptacao() {
   }
 
   const titulo = _sorteia(TITULOS);
-  const corpo = _sorteia(GANCHOS) + ' ' + _sorteia(CORPOS);
+  const corpo = _sorteia(frio ? GANCHOS_FRIOS : GANCHOS) + ' ' + _sorteia(CORPOS);
   const linkRastreado = BASE_URL + '/captacao-campanha/click/' + envioId;
   const pixelUrl = BASE_URL + '/captacao-campanha/open/' + envioId;
 
@@ -518,6 +531,73 @@ async function _enviarDaPoolCaptacao() {
   }
 }
 
+// Pool prioritário (lista importada manualmente) — sempre tentado primeiro
+// em enviarProximoEmail(), antes do pool normal e dos follow-ups. Retorna
+// null quando não tem mais ninguém pendente aqui (aí cai pro resto).
+async function _enviarDoPoolManualCaptacao() {
+  await _garantirTabelas();
+  const { rows } = await query(`
+    SELECT ('manual-' || m.id) AS id, m.nome, m.email, m.telefone
+    FROM campanha_captacao_pool_manual m
+    WHERE NOT EXISTS (
+      SELECT 1 FROM campanha_captacao_envios e WHERE LOWER(TRIM(e.email)) = LOWER(TRIM(m.email))
+    )
+    ORDER BY m.criado_em ASC
+    LIMIT 1
+  `);
+  if (!rows.length) return null;
+  return _enviarParaCandidato(rows[0], { frio: true });
+}
+
+async function _enviarDaPoolCaptacao() {
+  const { rows } = await query(`
+    ${_POOL_CAPTACAO_CTE}
+    SELECT DISTINCT ON (LOWER(TRIM(p.email))) p.id, p.nome, p.email, p.telefone
+    FROM pool_captacao p
+    WHERE NOT EXISTS (
+      SELECT 1 FROM campanha_captacao_envios e WHERE LOWER(TRIM(e.email)) = LOWER(TRIM(p.email))
+    )
+    ORDER BY LOWER(TRIM(p.email)), p.criado_em ASC
+    LIMIT 1
+  `);
+  // Antes, "acabou a pool de gente nova" pausava a campanha inteira — mas
+  // isso também impediria os follow-ups (que dependem de ativo=true) de
+  // continuarem disparando pros dias seguintes, pra quem só ainda não
+  // completou 24h de espera. Só registra "sem novo elegível" e segue ativa.
+  if (!rows.length) return { enviado: false, motivo: 'sem_elegiveis_novos' };
+  return _enviarParaCandidato(rows[0]);
+}
+
+// Importa contatos de um CSV externo (proprietários, formato específico —
+// ver _parseLinhaProprietarios em server.js) pro pool prioritário. Dedup
+// por email (UNIQUE na tabela) — reimportar a mesma lista não duplica.
+async function importarPoolManual(contatos) {
+  await _garantirTabelas();
+  let inseridos = 0, duplicados = 0;
+  for (const c of contatos) {
+    const email = String(c.email || '').trim().toLowerCase();
+    if (!email) continue;
+    try {
+      const { rowCount } = await query(
+        `INSERT INTO campanha_captacao_pool_manual (nome, email, telefone) VALUES ($1,$2,$3)
+         ON CONFLICT (email) DO NOTHING`,
+        [String(c.nome || '').trim(), email, String(c.telefone || '').trim()]
+      );
+      if (rowCount > 0) inseridos++; else duplicados++;
+    } catch (e) { console.error('[campanhaCaptacao/importarPoolManual]', e.message); }
+  }
+  return { inseridos, duplicados };
+}
+
+async function contarPoolManualPendente() {
+  await _garantirTabelas();
+  const { rows } = await query(`
+    SELECT COUNT(*)::int AS total FROM campanha_captacao_pool_manual m
+    WHERE NOT EXISTS (SELECT 1 FROM campanha_captacao_envios e WHERE LOWER(TRIM(e.email)) = LOWER(TRIM(m.email)))
+  `);
+  return rows[0]?.total || 0;
+}
+
 // Follow-up sempre teve prioridade sobre a pool de gente nova — mas isso
 // deixava a pool sem avançar sempre que existisse QUALQUER follow-up
 // pendente (o normal em operação contínua). Mesmo fix do enviarProximo()
@@ -528,6 +608,12 @@ let _tickCampanhaCaptacao = 0;
 async function enviarProximoEmail() {
   await _garantirTabelas();
   if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
+
+  // Pool prioritário (lista importada manualmente pelo admin) sempre
+  // tentado primeiro, antes até dos follow-ups — só cai pro resto quando
+  // esvaziar. Pedido do Renato (ago/2026, lista de proprietários de SP).
+  const rManual = await _enviarDoPoolManualCaptacao();
+  if (rManual) return rManual;
 
   _tickCampanhaCaptacao++;
   const priorizarPoolNova = (_tickCampanhaCaptacao % 4 !== 0);
@@ -704,5 +790,6 @@ module.exports = {
   marcarAtendido, excluirTelefoneContato,
   distribuirAtendimentosAbertos, vincularImovelCaptado,
   buscarEnvioParaBonus, marcarBonusCaptacaoPago,
-  distribuirCaptacaoDireta, marcarWhatsappManualEnviado
+  distribuirCaptacaoDireta, marcarWhatsappManualEnviado,
+  importarPoolManual, contarPoolManualPendente
 };

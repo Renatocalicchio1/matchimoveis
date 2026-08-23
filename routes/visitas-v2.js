@@ -66,6 +66,13 @@ async function notificar(userId, tipo, titulo, mensagem) {
 
 async function enviarWA(instancia, numero, texto) {
   try {
+    // Todo chamador desse arquivo passa getInstancia(userId) direto (função
+    // async) sem "await" na frente — instancia chegava aqui como Promise,
+    // virava "[object Promise]" na URL do Evolution, e a mensagem nunca
+    // saía (erro engolido pelo catch, silencioso). "await" numa Promise ou
+    // num valor comum funciona igual, então resolve todo mundo aqui de uma
+    // vez sem precisar mexer em cada um dos ~10 pontos que chamam isso.
+    instancia = await instancia;
     const num = String(numero).replace(/\D/g,'');
     if (!num || !instancia) return;
     await fetch(`${EVOLUTION_URL}/message/sendText/${instancia}`, {

@@ -48,6 +48,12 @@
     .btn-sec{background:#fff;color:var(--dark);padding:11px 24px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--border);cursor:pointer;transition:background .15s}
     .btn-sec:hover{background:var(--light)}
     .hero-note{font-size:12px;color:var(--muted)}
+    .sec-cta{display:flex;justify-content:center;margin-top:44px}
+    .cta-flutuante{position:fixed;right:20px;bottom:20px;z-index:200;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease}
+    .cta-flutuante.visivel{opacity:1;pointer-events:auto;transform:translateY(0)}
+    .cta-flutuante button{background:var(--rosa);color:#fff;padding:13px 22px;border-radius:999px;font-size:13.5px;font-weight:600;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(255,56,92,.35);transition:opacity .15s}
+    .cta-flutuante button:hover{opacity:.9}
+    @media(max-width:640px){ .cta-flutuante{left:16px;right:16px;bottom:16px} .cta-flutuante button{width:100%} }
 
     .numeros{background:var(--dark);padding:48px}
     .numeros-inner{max-width:800px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center}
@@ -215,6 +221,9 @@
       <div class="dor-desc">Confirmar visita, avisar proprietário, mandar lembrete. Tudo manual, tudo no seu tempo. Enquanto isso, oportunidades passando.</div>
     </div>
   </div>
+  <div class="sec-cta">
+    <button class="btn-main" onclick="openModal('cadastro')">Chega de perder lead — cadastre-se agora</button>
+  </div>
 </section>
 
 <section class="como" id="como-funciona">
@@ -254,6 +263,9 @@
         <div class="fluxo-label">Você fecha</div>
         <div class="fluxo-sub">Cliente aquecido</div>
       </div>
+    </div>
+    <div class="sec-cta">
+      <button class="btn-main" onclick="openModal('cadastro')">Quero automatizar isso na minha carteira</button>
     </div>
   </div>
 </section>
@@ -363,6 +375,9 @@
       </div>
     </div>
   </div>
+  <div class="sec-cta">
+    <button class="btn-main" onclick="openModal('cadastro')">Ver tudo isso funcionando — cadastre-se grátis</button>
+  </div>
 </section>
 
 <section class="depos" id="depoimentos">
@@ -449,6 +464,10 @@
   </div>
 </footer>
 
+<div class="cta-flutuante" id="cta-flutuante">
+  <button onclick="openModal('cadastro')">Cadastre-se grátis</button>
+</div>
+
 <div class="modal-overlay" id="modal-login">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal()">×</button>
@@ -529,6 +548,18 @@
 
 <script src="/area-atuacao-widget.js"></script>
 <script>
+// Botão flutuante de CTA — some com a hero à vista (já tem 2 CTAs ali),
+// aparece só depois que o visitante rola a página (sinal de que já leu
+// algo e pode precisar de um lembrete de conversão sempre à mão).
+(function(){
+  const heroEl = document.querySelector('.hero');
+  const flutuante = document.getElementById('cta-flutuante');
+  if(!heroEl || !flutuante) return;
+  window.addEventListener('scroll', function(){
+    const passouHero = window.scrollY > heroEl.offsetHeight;
+    flutuante.classList.toggle('visivel', passouHero);
+  }, { passive: true });
+})();
 function openModal(aba){
   document.getElementById('modal-login').style.display='flex';
   if(aba) setTab(aba);

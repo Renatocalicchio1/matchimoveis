@@ -269,7 +269,14 @@ function _whatsappMensagem(e, estagio){
   const nome = (e.nome||'').trim().split(' ')[0] || 'tudo bem';
   const gerador = WHATSAPP_VARIACOES[estagio];
   if(!gerador) return '';
-  const msg = _sorteiaWA(gerador(nome, LINK_CAPTACAO));
+  // ?ce= (mesmo parâmetro que os e-mails da campanha já usam, lido em
+  // GET /captar/:userId e propagado por registrarInicioCadastro/
+  // vincularImovelCaptado) — sem isso o link genérico não tinha como
+  // reconectar o cadastro final com ESSE envio específico, então o
+  // "Atendido por"/"Captado por" nunca sabia de qual sub-admin veio
+  // quando a captação chegou pelo botão manual de WhatsApp (ago/2026).
+  const linkComRastreio = LINK_CAPTACAO + '?ce=' + encodeURIComponent(e.id);
+  const msg = _sorteiaWA(gerador(nome, linkComRastreio));
   return msg + _avisoOptOutWA(e);
 }
 // Sob o nome: quem é DONO do contato aparece marcado (atendido_por — a

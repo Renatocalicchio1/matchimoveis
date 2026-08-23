@@ -12400,7 +12400,7 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
       if (_geo) { pub.latitude = _geo.latitude; pub.longitude = _geo.longitude; }
     }
 
-    const parecidos = _imoveisCompativeis(imovel, imoveisDoUsuario.filter(imovelVisivelPublico), 4);
+    const parecidos = _imoveisCompativeis(imovel, _dedupRodizioImoveis(imoveisDoUsuario.filter(imovelVisivelPublico)), 4);
 
     res.render('imovel-publico', {
       imovel: pub, corretor, leadDados: { nome: '', telefone: '' }, temLeadId: false, leadId: '',
@@ -12539,7 +12539,7 @@ app.get('/imovel/:id', async (req, res) => {
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
     const _compartilhador = (_uidLead && _uidLead !== _uid2) ? ((_cacheUsuarios||[]).find(u=>(u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;
-    const _parecidos = _imoveisCompativeis(imovel, imoveis.filter(imovelVisivelPublico), 4);
+    const _parecidos = _imoveisCompativeis(imovel, _dedupRodizioImoveis(imoveis.filter(imovelVisivelPublico)), 4);
     const _voltarQuery = req.query.voltar || '';
     const _voltarPortalUrl = (_voltarQuery && _voltarQuery.startsWith('/portal')) ? _voltarQuery : '';
     return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador, siteOrigin: req.protocol + '://' + req.get('host'), parecidos: _parecidos, voltarPortalUrl: _voltarPortalUrl });

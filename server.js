@@ -609,6 +609,7 @@ const _ADMIN_NAV = [
     { key: 'minhas-comissoes', href: '/admin/minhas-comissoes', icon: '💰', label: 'Minhas Comissões' },
     { key: 'meus-links', href: '/admin/meus-links', icon: '🔗', label: 'Meus Links de Indicação' },
     { key: 'whatsapp-cloud', href: '/admin/whatsapp-cloud', icon: '💬', label: 'Inbox WhatsApp' },
+    { key: 'instagram-posts', href: '/admin/instagram-posts', icon: '📸', label: 'Posts Instagram MatchImóveis' },
     { key: 'painel-whatsapp', href: 'https://match-evolution-api.onrender.com/manager', icon: '📱', label: 'Painel WhatsApp', externo: true }
   ]},
   { sec: 'Ferramentas', items: [
@@ -879,7 +880,8 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/campanha/distribuir-atendimentos',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/captacao-campanha/distribuir-atendimentos',
-  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global', '/admin/emails'
+  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global', '/admin/emails',
+  '/admin/instagram-posts'
 ];
 // Sempre acessível pra qualquer conta admin logada, sem depender de
 // permissão marcada — são telas que já filtram pelos dados da PRÓPRIA
@@ -11129,6 +11131,191 @@ const uploadImoveis = multer({
     const ext = (file.originalname.split('.').pop() || '').toLowerCase();
     if (!_EXTENSOES_PERMITIDAS_IMOVEIS.includes(ext)) return cb(new Error('Tipo de arquivo não permitido: ' + ext));
     cb(null, true);
+  }
+});
+
+// ── POSTS INSTITUCIONAIS DE INSTAGRAM DA MARCA MATCHIMÓVEIS (ago/2026) ──────
+// Pedido do Renato: gerar post pro Instagram OFICIAL da MatchImóveis (não é
+// o Instagram de um corretor). Reaproveita 100% a conexão que já existe pro
+// corretor (services/instagram.js, /app/instagram/conectar) — o Renato loga
+// como REN-G9K6 (a mesma conta "dona" do portal/captação global) e conecta
+// o Instagram normalmente em /app/perfil; aqui só lê o token já salvo
+// naquela conta. Conteúdo é só institucional (feature real / dica real /
+// prova social com número real agregado da rede) — nunca vitrine de imóvel
+// específico, e sempre com prévia: nada publica sem confirmação manual
+// nesta 1ª versão. Restrito ao superadmin (ver _ADMIN_ROTAS_SUPERADMIN_ONLY)
+// porque publica no perfil oficial da empresa, não é ação de sub-admin.
+const _CONTA_INSTAGRAM_MARCA = 'REN-G9K6';
+
+let _contextoGroqPosts = null;
+function _lerContextoGroqPosts() {
+  if (_contextoGroqPosts) return _contextoGroqPosts;
+  try {
+    _contextoGroqPosts = JSON.parse(fs.readFileSync(path.join(__dirname, 'cerebro', 'contexto-groq.json'), 'utf8'));
+  } catch (e) { _contextoGroqPosts = { paginas: [], fluxos: [], conceitos: {} }; }
+  return _contextoGroqPosts;
+}
+
+// Monta a lista de fatos REAIS candidatos pro tipo de post escolhido — nunca
+// texto livre, sempre algo que já existe de verdade (feature/conceito do
+// cerebro.js, que é a fonte única de conhecimento da plataforma; ou número
+// agregado calculado na hora a partir do cache). Escolhe 1 ao acaso.
+function _fatoInstitucionalInstagram(tipo) {
+  const ctx = _lerContextoGroqPosts();
+  if (tipo === 'prova_social') {
+    const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido').length;
+    const corretoresAtivos = (_cacheUsuarios || []).filter(u => u.ativo !== false).length;
+    const _30diasAtras = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const leadsUltimos30d = (_cacheLeads || []).filter(l => l.criadoEm && new Date(l.criadoEm).getTime() >= _30diasAtras).length;
+    const leadsComMatch = (_cacheLeads || []).filter(l => (l.matches || []).length > 0 || (l.matchesBase || []).length > 0).length;
+    const candidatos = [
+      `A rede MatchImóveis já tem ${imoveisAtivos.toLocaleString('pt-BR')} imóveis ativos de corretores e imobiliárias parceiras.`,
+      `${corretoresAtivos.toLocaleString('pt-BR')} corretores e imobiliárias já usam a MatchImóveis.`,
+      leadsUltimos30d > 0 ? `A rede recebeu ${leadsUltimos30d.toLocaleString('pt-BR')} leads novas nos últimos 30 dias.` : null,
+      leadsComMatch > 0 ? `Já são ${leadsComMatch.toLocaleString('pt-BR')} leads com match automático encontrado na plataforma.` : null
+    ].filter(Boolean);
+    return candidatos[Math.floor(Math.random() * candidatos.length)] || 'A MatchImóveis conecta leads e imóveis automaticamente pra corretores e imobiliárias.';
+  }
+  if (tipo === 'dica') {
+    const pool = [
+      ...Object.entries(ctx.conceitos || {}).map(([k, v]) => `${k}: ${v}`),
+      ...(ctx.fluxos || []).map(f => `${f.titulo}: ${(f.passos || []).join(' → ')}`)
+    ];
+    if (!pool.length) return 'A MatchImóveis organiza leads e imóveis automaticamente pro corretor.';
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  // feature
+  const pool = (ctx.paginas || []).filter(p => p.descricao);
+  if (!pool.length) return 'A MatchImóveis tem match automático de leads e imóveis.';
+  const p = pool[Math.floor(Math.random() * pool.length)];
+  return `${p.label}: ${p.descricao}`;
+}
+
+app.get('/admin/instagram-posts', authAdmin, (req, res) => {
+  const _escC = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const conta = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === _CONTA_INSTAGRAM_MARCA);
+  const conectado = !!(conta && conta.instagramToken && conta.instagramContaId);
+  res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Posts Instagram MatchImóveis</title>
+  <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px}
+  textarea{width:100%;min-height:160px;border:1px solid #d1d5db;border-radius:8px;padding:10px;font-size:13.5px;font-family:inherit;resize:vertical}
+  select,input[type=text]{padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px}
+  button{cursor:pointer}
+  .btn-primaria{background:#111;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700}
+  .btn-secundaria{background:#00A699;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700}
+  .preview-img{max-width:280px;border-radius:8px;margin-top:10px;display:none}
+  .status-ok{color:#16a34a;font-weight:700}.status-off{color:#dc2626;font-weight:700}
+  </style></head>
+  <body>
+  <div class="admin-app">${_adminSidebarHtml('instagram-posts', true, req)}
+    <main class="admin-content" style="max-width:720px">
+      <h1 style="font-size:22px;margin-bottom:4px">📸 Posts Instagram MatchImóveis</h1>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Gera legenda com IA a partir de um fato real da plataforma. Nada publica sozinho — você revisa a prévia e confirma antes.</p>
+
+      <div class="card">
+        ${conectado
+          ? `<p>Conta conectada: <span class="status-ok">✅ @${_escC(conta.instagramUsername || '')}</span></p>`
+          : `<p><span class="status-off">⚠️ Instagram da marca ainda não conectado</span></p><p style="font-size:12.5px;color:#6b7280;margin-top:6px">Loga como <b>${_CONTA_INSTAGRAM_MARCA}</b> e conecta em <a href="/app/perfil">/app/perfil</a> (mesmo fluxo do corretor).</p>`}
+      </div>
+
+      ${conectado ? `
+      <div class="card">
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Tipo de post</label>
+        <select id="tipoPost">
+          <option value="feature">Feature da plataforma</option>
+          <option value="dica">Dica prática</option>
+          <option value="prova_social">Prova social (número real)</option>
+        </select>
+        <button class="btn-primaria" style="margin-left:8px" onclick="gerarLegenda()">✨ Gerar legenda</button>
+        <p id="fatoUsado" style="font-size:11.5px;color:#9ca3af;margin-top:8px"></p>
+      </div>
+
+      <div class="card">
+        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Legenda (edite se quiser)</label>
+        <textarea id="legendaTexto" placeholder="Clique em 'Gerar legenda' acima..."></textarea>
+
+        <label style="font-size:12px;font-weight:700;display:block;margin:14px 0 6px">Imagem do post</label>
+        <input type="file" id="imagemArquivo" accept="image/*" onchange="enviarImagem()">
+        <input type="hidden" id="imagemUrl" value="">
+        <img id="previewImg" class="preview-img">
+
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button class="btn-secundaria" onclick="publicar()">📲 Publicar no Instagram</button>
+        </div>
+        <p id="statusPublicar" style="font-size:12.5px;margin-top:10px"></p>
+      </div>
+      ` : ''}
+    </main>
+  </div>
+  <script>
+    async function gerarLegenda(){
+      const tipo = document.getElementById('tipoPost').value;
+      document.getElementById('fatoUsado').textContent = 'Gerando...';
+      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo})});
+      const j = await r.json();
+      if(!j.ok){ document.getElementById('fatoUsado').textContent = 'Erro: ' + j.erro; return; }
+      document.getElementById('legendaTexto').value = j.legenda;
+      document.getElementById('fatoUsado').textContent = 'Baseado em: ' + j.fato;
+    }
+    async function enviarImagem(){
+      const arq = document.getElementById('imagemArquivo').files[0];
+      if(!arq) return;
+      const fd = new FormData();
+      fd.append('imagem', arq);
+      const r = await fetch('/admin/instagram-posts/imagem', {method:'POST', body: fd});
+      const j = await r.json();
+      if(!j.ok){ alert('Erro ao enviar imagem: ' + j.erro); return; }
+      document.getElementById('imagemUrl').value = j.url;
+      const img = document.getElementById('previewImg');
+      img.src = j.url; img.style.display = 'block';
+    }
+    async function publicar(){
+      const legenda = document.getElementById('legendaTexto').value.trim();
+      const imagemUrl = document.getElementById('imagemUrl').value;
+      if(!legenda) return alert('Gere ou escreva uma legenda primeiro.');
+      if(!imagemUrl) return alert('Envie uma imagem primeiro.');
+      if(!confirm('Publicar esse post no Instagram oficial da MatchImóveis agora?')) return;
+      document.getElementById('statusPublicar').textContent = 'Publicando...';
+      const r = await fetch('/admin/instagram-posts/publicar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({legenda, imagemUrl})});
+      const j = await r.json();
+      document.getElementById('statusPublicar').textContent = j.ok ? '✅ Publicado!' : ('Erro: ' + j.erro);
+    }
+  </script>
+  </body></html>`);
+});
+
+app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const tipo = ['feature', 'dica', 'prova_social'].includes(req.body.tipo) ? req.body.tipo : 'feature';
+    const fato = _fatoInstitucionalInstagram(tipo);
+    const { gerarLegendaInstagram } = require('./services/instagramPostsIA');
+    const legenda = await gerarLegendaInstagram({ tipo, fato });
+    res.json({ ok: true, legenda, fato });
+  } catch (e) {
+    console.error('[instagram-posts/gerar]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
+app.post('/admin/instagram-posts/imagem', authAdmin, uploadImoveis.single('imagem'), (req, res) => {
+  if (!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo recebido' });
+  res.json({ ok: true, url: (req.protocol + '://' + req.get('host')) + '/data-uploads/' + req.file.filename });
+});
+
+app.post('/admin/instagram-posts/publicar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { legenda, imagemUrl } = req.body;
+    if (!legenda || !imagemUrl) return res.json({ ok: false, erro: 'Legenda e imagem são obrigatórias.' });
+    const conta = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === _CONTA_INSTAGRAM_MARCA);
+    if (!conta || !conta.instagramToken || !conta.instagramContaId) {
+      return res.json({ ok: false, erro: 'Instagram da marca não conectado — conecte em /app/perfil logado como ' + _CONTA_INSTAGRAM_MARCA + '.' });
+    }
+    const { publicarFeed } = require('./services/instagram');
+    const resultado = await publicarFeed(conta.instagramContaId, conta.instagramToken, [imagemUrl], legenda);
+    res.json({ ok: true, resultado });
+  } catch (e) {
+    console.error('[instagram-posts/publicar]', e.message);
+    res.json({ ok: false, erro: e.message });
   }
 });
 

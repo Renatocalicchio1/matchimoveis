@@ -144,7 +144,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
         <% } %>
       </div>
       <table>
-        <thead><tr><th>Nome</th><th>Email</th><th>Origem</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>Imóvel captado</th><th>QuintoAndar</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>E-mail</th></tr></thead>
+        <thead><tr><th>Nome</th><th>Origem</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>Imóvel captado</th><th>QuintoAndar</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>Celular</th><th>Email</th><th>E-mail</th></tr></thead>
         <tbody id="tabelaEnvios"><tr><td colspan="14" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
       </table>
       <div id="paginacao" style="margin-top:10px;font-size:12.5px;color:#6b7280"></div>
@@ -417,8 +417,8 @@ async function carregarTabela(pagina){
       const origemCel = e.origem === 'Lista importada'
         ? '<span class="tag" style="background:#eef2ff;color:#4338ca">📋 Lista importada</span>'
         : '<span style="color:#6b7280">'+escHtml(e.origem||'—')+'</span>';
-      if(e.erro) return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+origemCel+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="8"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
-      return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+origemCel+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td>'+captadoCel+'</td><td>'+qaCel+'</td><td>'+_tag(e.followup1_enviado_em)+'</td><td>'+_tag(e.followup2_enviado_em)+'</td><td>'+_tag(e.followup3_enviado_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
+      if(e.erro) return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+origemCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="8"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>'+celularCel+'</td><td>'+escHtml(e.email)+'</td><td>—</td></tr>';
+      return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+origemCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td>'+captadoCel+'</td><td>'+qaCel+'</td><td>'+_tag(e.followup1_enviado_em)+'</td><td>'+_tag(e.followup2_enviado_em)+'</td><td>'+_tag(e.followup3_enviado_em)+'</td><td>'+celularCel+'</td><td>'+escHtml(e.email)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
     }).join('');
     document.querySelectorAll('.btn-atender-wa').forEach(function(btn){
       btn.addEventListener('click', function(){

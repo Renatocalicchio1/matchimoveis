@@ -11247,6 +11247,13 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
           <option value="dica">Dica prática</option>
           <option value="prova_social">Prova social (número real)</option>
         </select>
+        <label style="font-size:12px;font-weight:700;margin:0 8px 0 16px">Cor</label>
+        <select id="corPost">
+          <option value="auto">Automática (rotação 3-em-3)</option>
+          <option value="0">🔴 Vermelho</option>
+          <option value="1">🟢 Teal</option>
+          <option value="2">🟠 Laranja</option>
+        </select>
         <label style="font-size:12px;font-weight:700;margin:0 8px 0 16px">Onde publicar</label>
         <label style="font-size:13px;font-weight:600;margin-right:12px"><input type="checkbox" id="formatoFeed" checked onchange="atualizarFormatos()"> Feed</label>
         <label style="font-size:13px;font-weight:600"><input type="checkbox" id="formatoStory" checked onchange="atualizarFormatos()"> Story</label>
@@ -11301,8 +11308,10 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
       const tipo = document.getElementById('tipoPost').value;
       const formatos = formatosSelecionados();
       if(!formatos.length) return alert('Marca pelo menos Feed ou Story.');
+      const corSel = document.getElementById('corPost').value;
+      const corIndice = corSel === 'auto' ? null : Number(corSel);
       document.getElementById('fatoUsado').textContent = 'Gerando legenda e imagem...';
-      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formatos})});
+      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formatos, corIndice})});
       const j = await r.json();
       if(!j.ok){ document.getElementById('fatoUsado').textContent = 'Erro: ' + j.erro; return; }
       document.getElementById('legendaTexto').value = j.legenda;
@@ -11508,11 +11517,14 @@ app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, 
     const { gerarLegendaInstagram } = require('./services/instagramPostsIA');
     const legenda = await gerarLegendaInstagram({ tipo, fato });
 
-    // Cor calculada 1x aqui (não avança o contador — só avança quando o
-    // Feed é de fato publicado, ver /publicar) e reaproveitada pra todos os
-    // formatos gerados agora, pra feed e story do mesmo post saírem com a
-    // mesma cor.
-    const corIndice = _proximoIndiceCorInstagram();
+    // Cor: se o admin escolheu manualmente (0/1/2) usa essa, senão cai na
+    // rotação automática 3-em-3. Calculada 1x aqui (não avança o contador —
+    // só avança quando o Feed é de fato publicado, ver /publicar) e
+    // reaproveitada pra todos os formatos gerados agora, pra feed e story
+    // do mesmo post saírem com a mesma cor.
+    const corManual = (req.body.corIndice !== null && req.body.corIndice !== undefined && [0, 1, 2].includes(Number(req.body.corIndice)))
+      ? Number(req.body.corIndice) : null;
+    const corIndice = corManual !== null ? corManual : _proximoIndiceCorInstagram();
 
     // Gera a imagem do card pra cada formato pedido — mesmo fato, sem
     // precisar de upload manual (ver services/instagramCardImagem.js). Se o

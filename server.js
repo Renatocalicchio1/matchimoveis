@@ -11229,11 +11229,9 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
           <option value="dica">Dica prática</option>
           <option value="prova_social">Prova social (número real)</option>
         </select>
-        <label style="font-size:12px;font-weight:700;margin:0 8px 0 16px">Formato</label>
-        <select id="formatoPost" onchange="trocarFormato()">
-          <option value="feed">Feed (quadrado)</option>
-          <option value="story">Story (vertical)</option>
-        </select>
+        <label style="font-size:12px;font-weight:700;margin:0 8px 0 16px">Onde publicar</label>
+        <label style="font-size:13px;font-weight:600;margin-right:12px"><input type="checkbox" id="formatoFeed" checked onchange="atualizarFormatos()"> Feed</label>
+        <label style="font-size:13px;font-weight:600"><input type="checkbox" id="formatoStory" checked onchange="atualizarFormatos()"> Story</label>
         <button class="btn-primaria" style="margin-left:8px" onclick="gerarLegenda()">✨ Gerar legenda</button>
         <p id="fatoUsado" style="font-size:11.5px;color:#9ca3af;margin-top:8px"></p>
       </div>
@@ -11241,16 +11239,26 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
       <div class="card">
         <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Legenda (edite se quiser) — Story não usa legenda, o Instagram não tem campo pra isso</label>
         <textarea id="legendaTexto" placeholder="Clique em 'Gerar legenda' acima..."></textarea>
-
-        <label style="font-size:12px;font-weight:700;display:block;margin:14px 0 6px">Imagem do post (gerada automaticamente — troque se quiser outra)</label>
-        <input type="file" id="imagemArquivo" accept="image/*" onchange="enviarImagem()">
-        <input type="hidden" id="imagemUrl" value="">
         <input type="hidden" id="fatoAtual" value="">
-        <br><img id="previewImg" class="preview-img">
+
+        <div id="blocoFeed" style="margin-top:16px">
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Imagem do Feed (gerada automaticamente — troque se quiser outra)</label>
+          <input type="file" id="imagemArquivoFeed" accept="image/*" onchange="enviarImagem('feed')">
+          <input type="hidden" id="imagemUrlFeed" value="">
+          <br><img id="previewImgFeed" class="preview-img" style="max-width:280px">
+          <br><button style="background:#f3f4f6;color:#374151;border:none;padding:7px 14px;border-radius:8px;font-weight:700;margin-top:8px;font-size:12px" onclick="recriarImagem('feed')">🖼️ Recriar imagem do Feed</button>
+        </div>
+
+        <div id="blocoStory" style="margin-top:16px">
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Imagem do Story (gerada automaticamente — troque se quiser outra)</label>
+          <input type="file" id="imagemArquivoStory" accept="image/*" onchange="enviarImagem('story')">
+          <input type="hidden" id="imagemUrlStory" value="">
+          <br><img id="previewImgStory" class="preview-img" style="max-width:160px">
+          <br><button style="background:#f3f4f6;color:#374151;border:none;padding:7px 14px;border-radius:8px;font-weight:700;margin-top:8px;font-size:12px" onclick="recriarImagem('story')">🖼️ Recriar imagem do Story</button>
+        </div>
 
         <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn-secundaria" onclick="publicar()">📲 Publicar no Instagram</button>
-          <button style="background:#f3f4f6;color:#374151;border:none;padding:9px 18px;border-radius:8px;font-weight:700" onclick="recriarImagem()">🖼️ Recriar imagem nesse formato</button>
         </div>
         <p id="statusPublicar" style="font-size:12.5px;margin-top:10px"></p>
       </div>
@@ -11258,30 +11266,40 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
     </main>
   </div>
   <script>
-    function trocarFormato(){
-      const ehStory = document.getElementById('formatoPost').value === 'story';
-      document.getElementById('previewImg').style.maxWidth = ehStory ? '160px' : '280px';
+    function formatosSelecionados(){
+      const arr = [];
+      if(document.getElementById('formatoFeed').checked) arr.push('feed');
+      if(document.getElementById('formatoStory').checked) arr.push('story');
+      return arr;
+    }
+    function elId(formato){ return formato === 'story' ? 'Story' : 'Feed'; }
+    function atualizarFormatos(){
+      const f = formatosSelecionados();
+      document.getElementById('blocoFeed').style.display = f.includes('feed') ? 'block' : 'none';
+      document.getElementById('blocoStory').style.display = f.includes('story') ? 'block' : 'none';
     }
     async function gerarLegenda(){
       const tipo = document.getElementById('tipoPost').value;
-      const formato = document.getElementById('formatoPost').value;
+      const formatos = formatosSelecionados();
+      if(!formatos.length) return alert('Marca pelo menos Feed ou Story.');
       document.getElementById('fatoUsado').textContent = 'Gerando legenda e imagem...';
-      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formato})});
+      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formatos})});
       const j = await r.json();
       if(!j.ok){ document.getElementById('fatoUsado').textContent = 'Erro: ' + j.erro; return; }
       document.getElementById('legendaTexto').value = j.legenda;
       document.getElementById('fatoAtual').value = j.fato;
       document.getElementById('fatoUsado').textContent = 'Baseado em: ' + j.fato;
-      if(j.imagemUrl){
-        document.getElementById('imagemUrl').value = j.imagemUrl;
-        trocarFormato();
-        const img = document.getElementById('previewImg');
-        img.src = j.imagemUrl; img.style.display = 'block';
-      }
+      ['feed','story'].forEach(function(formato){
+        const url = j.imagens && j.imagens[formato];
+        if(!url) return;
+        document.getElementById('imagemUrl' + elId(formato)).value = url;
+        const img = document.getElementById('previewImg' + elId(formato));
+        img.src = url; img.style.display = 'block';
+      });
+      atualizarFormatos();
     }
-    async function recriarImagem(){
+    async function recriarImagem(formato){
       const tipo = document.getElementById('tipoPost').value;
-      const formato = document.getElementById('formatoPost').value;
       const fato = document.getElementById('fatoAtual').value;
       if(!fato) return alert('Gere a legenda primeiro (é o mesmo fato que vira a imagem).');
       document.getElementById('statusPublicar').textContent = 'Recriando imagem...';
@@ -11289,34 +11307,39 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
       const j = await r.json();
       document.getElementById('statusPublicar').textContent = '';
       if(!j.ok){ alert('Erro: ' + j.erro); return; }
-      document.getElementById('imagemUrl').value = j.imagemUrl;
-      trocarFormato();
-      const img = document.getElementById('previewImg');
+      document.getElementById('imagemUrl' + elId(formato)).value = j.imagemUrl;
+      const img = document.getElementById('previewImg' + elId(formato));
       img.src = j.imagemUrl; img.style.display = 'block';
     }
-    async function enviarImagem(){
-      const arq = document.getElementById('imagemArquivo').files[0];
+    async function enviarImagem(formato){
+      const arq = document.getElementById('imagemArquivo' + elId(formato)).files[0];
       if(!arq) return;
       const fd = new FormData();
       fd.append('imagem', arq);
       const r = await fetch('/admin/instagram-posts/imagem', {method:'POST', body: fd});
       const j = await r.json();
       if(!j.ok){ alert('Erro ao enviar imagem: ' + j.erro); return; }
-      document.getElementById('imagemUrl').value = j.url;
-      const img = document.getElementById('previewImg');
+      document.getElementById('imagemUrl' + elId(formato)).value = j.url;
+      const img = document.getElementById('previewImg' + elId(formato));
       img.src = j.url; img.style.display = 'block';
     }
     async function publicar(){
       const legenda = document.getElementById('legendaTexto').value.trim();
-      const imagemUrl = document.getElementById('imagemUrl').value;
-      const formato = document.getElementById('formatoPost').value;
-      if(!legenda && formato !== 'story') return alert('Gere ou escreva uma legenda primeiro.');
-      if(!imagemUrl) return alert('Gere ou envie uma imagem primeiro.');
-      if(!confirm('Publicar esse ' + (formato === 'story' ? 'STORY' : 'post no FEED') + ' no Instagram oficial da MatchImóveis agora?')) return;
+      const formatos = formatosSelecionados();
+      if(!formatos.length) return alert('Marca pelo menos Feed ou Story.');
+      const imagens = { feed: document.getElementById('imagemUrlFeed').value, story: document.getElementById('imagemUrlStory').value };
+      if(formatos.includes('feed') && !legenda) return alert('Gere ou escreva uma legenda primeiro (necessária pro Feed).');
+      for(const f of formatos){ if(!imagens[f]) return alert('Gere ou envie a imagem do ' + elId(f) + ' primeiro.'); }
+      const label = formatos.map(function(f){ return f === 'story' ? 'STORY' : 'FEED'; }).join(' + ');
+      if(!confirm('Publicar ' + label + ' no Instagram oficial da MatchImóveis agora?')) return;
       document.getElementById('statusPublicar').textContent = 'Publicando...';
-      const r = await fetch('/admin/instagram-posts/publicar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({legenda, imagemUrl, formato})});
+      const r = await fetch('/admin/instagram-posts/publicar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({legenda, formatos, imagens})});
       const j = await r.json();
-      document.getElementById('statusPublicar').textContent = j.ok ? '✅ Publicado!' : ('Erro: ' + j.erro);
+      if(!j.resultados){ document.getElementById('statusPublicar').textContent = j.ok ? '✅ Publicado!' : ('Erro: ' + j.erro); return; }
+      const partes = [];
+      if(j.resultados.feed) partes.push('Feed: ' + (j.resultados.feed.ok ? '✅' : ('❌ ' + j.resultados.feed.erro)));
+      if(j.resultados.story) partes.push('Story: ' + (j.resultados.story.ok ? '✅' : ('❌ ' + j.resultados.story.erro)));
+      document.getElementById('statusPublicar').textContent = partes.join(' | ');
     }
   </script>
   </body></html>`);
@@ -11336,23 +11359,29 @@ async function _gerarESalvarCardImagem(req, { tipo, fato, formato }) {
 app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, res) => {
   try {
     const tipo = ['feature', 'dica', 'prova_social'].includes(req.body.tipo) ? req.body.tipo : 'feature';
-    const formato = req.body.formato === 'story' ? 'story' : 'feed';
+    // Aceita formatos: ['feed','story'] (um ou os dois) — mantém compat com
+    // o antigo `formato` singular pra quem ainda chamar a API assim.
+    let formatos = Array.isArray(req.body.formatos) ? req.body.formatos.filter(f => ['feed', 'story'].includes(f)) : [];
+    if (!formatos.length) formatos = [req.body.formato === 'story' ? 'story' : 'feed'];
     const fato = _fatoInstitucionalInstagram(tipo);
     const { gerarLegendaInstagram } = require('./services/instagramPostsIA');
     const legenda = await gerarLegendaInstagram({ tipo, fato });
 
-    // Gera a imagem do card junto — mesmo fato, sem precisar de upload
-    // manual (ver services/instagramCardImagem.js). Se o Chromium falhar
-    // por qualquer motivo, não derruba a geração da legenda — só devolve
-    // sem imagem e o admin sobe uma manualmente (fallback já existia).
-    let imagemUrl = null;
-    try {
-      imagemUrl = await _gerarESalvarCardImagem(req, { tipo, fato, formato });
-    } catch (eImg) {
-      console.error('[instagram-posts/gerar] falha ao gerar card de imagem:', eImg.message);
+    // Gera a imagem do card pra cada formato pedido — mesmo fato, sem
+    // precisar de upload manual (ver services/instagramCardImagem.js). Se o
+    // Chromium falhar num formato, não derruba os outros nem a legenda — só
+    // devolve esse formato sem imagem e o admin sobe uma manualmente.
+    const imagens = {};
+    for (const formato of formatos) {
+      try {
+        imagens[formato] = await _gerarESalvarCardImagem(req, { tipo, fato, formato });
+      } catch (eImg) {
+        console.error('[instagram-posts/gerar] falha ao gerar card de imagem (' + formato + '):', eImg.message);
+        imagens[formato] = null;
+      }
     }
 
-    res.json({ ok: true, legenda, fato, tipo, formato, imagemUrl });
+    res.json({ ok: true, legenda, fato, tipo, imagens });
   } catch (e) {
     console.error('[instagram-posts/gerar]', e.message);
     res.json({ ok: false, erro: e.message });
@@ -11382,18 +11411,41 @@ app.post('/admin/instagram-posts/imagem', authAdmin, uploadImoveis.single('image
 
 app.post('/admin/instagram-posts/publicar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { legenda, imagemUrl } = req.body;
-    const formato = req.body.formato === 'story' ? 'story' : 'feed';
-    if (!legenda || !imagemUrl) return res.json({ ok: false, erro: 'Legenda e imagem são obrigatórias.' });
+    const { legenda, imagens } = req.body;
+    // Aceita formatos: ['feed','story'] (publica um ou os dois na mesma
+    // chamada) — mantém compat com o antigo `formato`+`imagemUrl` singular.
+    let formatos = Array.isArray(req.body.formatos) ? req.body.formatos.filter(f => ['feed', 'story'].includes(f)) : [];
+    let imagensPorFormato = imagens && typeof imagens === 'object' ? imagens : null;
+    if (!formatos.length) {
+      const formatoLegado = req.body.formato === 'story' ? 'story' : 'feed';
+      formatos = [formatoLegado];
+      imagensPorFormato = { [formatoLegado]: req.body.imagemUrl };
+    }
+    if (formatos.includes('feed') && !legenda) return res.json({ ok: false, erro: 'Legenda é obrigatória pro Feed.' });
+    for (const f of formatos) {
+      if (!imagensPorFormato || !imagensPorFormato[f]) return res.json({ ok: false, erro: 'Imagem do ' + f + ' é obrigatória.' });
+    }
     const conta = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === _CONTA_INSTAGRAM_MARCA);
     if (!conta || !conta.instagramToken || !conta.instagramContaId) {
       return res.json({ ok: false, erro: 'Instagram da marca não conectado — conecte em /app/perfil logado como ' + _CONTA_INSTAGRAM_MARCA + '.' });
     }
     const { publicarFeed, publicarStory } = require('./services/instagram');
-    const resultado = formato === 'story'
-      ? await publicarStory(conta.instagramContaId, conta.instagramToken, imagemUrl)
-      : await publicarFeed(conta.instagramContaId, conta.instagramToken, [imagemUrl], legenda);
-    res.json({ ok: true, resultado });
+    // Publica cada formato marcado — um falhar não impede o outro, o
+    // resultado de cada um volta separado pro admin ver o que deu certo.
+    const resultados = {};
+    for (const formato of formatos) {
+      try {
+        const r = formato === 'story'
+          ? await publicarStory(conta.instagramContaId, conta.instagramToken, imagensPorFormato.story)
+          : await publicarFeed(conta.instagramContaId, conta.instagramToken, [imagensPorFormato.feed], legenda);
+        resultados[formato] = { ok: true, resultado: r };
+      } catch (e) {
+        console.error('[instagram-posts/publicar] falha em ' + formato + ':', e.message);
+        resultados[formato] = { ok: false, erro: e.message };
+      }
+    }
+    const todosOk = formatos.every(f => resultados[f].ok);
+    res.json({ ok: todosOk, resultados, erro: todosOk ? undefined : 'Um ou mais formatos falharam — ver detalhes.' });
   } catch (e) {
     console.error('[instagram-posts/publicar]', e.message);
     res.json({ ok: false, erro: e.message });

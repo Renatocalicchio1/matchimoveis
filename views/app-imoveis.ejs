@@ -391,6 +391,15 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
       </div>
       <% } %>
 
+      <!-- Captado por: só na conta REN-G9K6 (sub-admin já vê as próprias
+           captações na tela dele) — mostra quem trouxe o imóvel. -->
+      <% if(item.captador && item.captador.nome && _userCod === 'REN-G9K6') { %>
+      <div class="im-prop" style="background:#fff7ed;border-color:#fed7aa">
+        <span style="font-size:11px;color:#9a3412;font-weight:700">📋 Captado por</span><br>
+        <strong><%= item.captador.nome %></strong>
+      </div>
+      <% } %>
+
       <% if(typeof rede!=='undefined'&&rede) {
         const _ownerRede = (typeof usersRede!=='undefined'?usersRede:[]).find(u => u.id===(item.userId||item.user_id||item.usuarioId) || u.codigoUsuario===(item.userId||item.user_id||item.usuarioId));
         if(_ownerRede) { %>

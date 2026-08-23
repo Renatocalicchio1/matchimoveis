@@ -23122,6 +23122,38 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
       valor_imovel: valor_imovel !== undefined ? (parseFloat(valor_imovel)||0) : atual.valor_imovel,
     };
     atualizado.titulo = atualizado.titulo || [atualizado.tipo, atualizado.bairro].filter(Boolean).join(' em ');
+
+    // Captador: quem trouxe esse imóvel pra dentro da plataforma — vai pra
+    // dados.captador (catch-all JSONB, sem precisar de coluna nova). Sub-admin
+    // (veio da campanha de captação ou do link direto com atendimento, sempre
+    // conta REN-G9K6) ou o próprio corretor (link de captação da conta dele
+    // mesmo, não REN-G9K6). Calculado 1x só (não sobrescreve se já tiver sido
+    // setado numa chamada anterior desse mesmo form em etapas).
+    if (!atualizado.captador) {
+      try {
+        const _donoImovel = atualizado.userId || atualizado.user_id;
+        let _subAdminCaptCodigo = null;
+        if (_donoImovel === 'REN-G9K6') {
+          const { buscarEnvioParaBonus: _bebCapt } = require('./services/campanhaCaptacao');
+          const _envioCapt = await _bebCapt(imovelId);
+          if (_envioCapt && _envioCapt.atendido_por) {
+            _subAdminCaptCodigo = _envioCapt.atendido_por;
+          } else if (atualizado.leadOrigemId) {
+            const { rows: _leadRowsCapt } = await _qCIS(`SELECT dados->>'atendidoPorAdminCaptacao' AS sub FROM leads WHERE id=$1`, [atualizado.leadOrigemId]);
+            if (_leadRowsCapt[0] && _leadRowsCapt[0].sub) _subAdminCaptCodigo = _leadRowsCapt[0].sub;
+          }
+        }
+        if (_subAdminCaptCodigo) {
+          const { buscarAdminConta: _bacCapt } = require('./services/salvarAdminConta');
+          const _subCapt = await _bacCapt(_subAdminCaptCodigo);
+          if (_subCapt) atualizado.captador = { nome: _subCapt.nome, email: _subCapt.email, telefone: _subCapt.celular };
+        } else if (_donoImovel && _donoImovel !== 'REN-G9K6') {
+          const _corretorCapt = (_cacheUsuarios || []).find(u => (u.codigoUsuario||u.codigo_usuario||u.id) === _donoImovel);
+          if (_corretorCapt) atualizado.captador = { nome: _corretorCapt.nome || '', email: _corretorCapt.email || '', telefone: _corretorCapt.celular || _corretorCapt.telefone || '' };
+        }
+      } catch (eCapt) { console.error('[captar/imovel] captador:', eCapt.message); }
+    }
+
     await _siSalvar(atualizado);
     if (cep) _geoSalvar(cep, imovelId).catch(()=>{});
 

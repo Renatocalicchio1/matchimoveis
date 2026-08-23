@@ -94,6 +94,11 @@
     .portal-suggest div{padding:9px 12px;font-size:13.5px;cursor:pointer;color:var(--ink)}
     .portal-suggest div:hover,.portal-suggest div.hl{background:var(--paper)}
     .portal-suggest .vazio{color:var(--muted);cursor:default}
+    .portal-bairro-chips{display:flex;flex-wrap:wrap;gap:5px}
+    .portal-bairro-chips:not(:empty){margin-bottom:5px}
+    .chip-bairro{display:inline-flex;align-items:center;gap:5px;background:var(--teal);color:#fff;border-radius:20px;padding:4px 6px 4px 10px;font-size:12px;font-weight:600;white-space:nowrap}
+    .chip-bairro button{background:rgba(255,255,255,.25);border:none;color:#fff;width:16px;height:16px;border-radius:50%;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0}
+    .chip-bairro button:hover{background:rgba(255,255,255,.4)}
     .faixa{display:flex;gap:6px}
     .faixa input{width:100%}
     .btn-limpar{color:var(--muted);font-size:12.5px;text-decoration:none;padding:10px 4px;white-space:nowrap}
@@ -170,6 +175,8 @@
   <p><%= totalImoveis %> imóve<%= totalImoveis===1?'l':'is' %> disponí<%= totalImoveis===1?'vel':'veis' %> de corretores e imobiliárias parceiras</p>
 </div>
 
+<% var _bairrosSelecionados = (Array.isArray(filtros.bairro) ? filtros.bairro : (filtros.bairro ? [filtros.bairro] : [])).filter(Boolean); %>
+<% var _temBairroFiltro = _bairrosSelecionados.length > 0; %>
 <div class="filtros">
   <form class="filtros-box" method="GET" action="/portal">
     <div class="ffield" style="min-width:200px;flex:2">
@@ -183,7 +190,12 @@
     </div>
     <div class="ffield">
       <label>Bairro</label>
-      <input type="text" name="bairro" id="portal-bairro-input" value="<%= filtros.bairro||'' %>" placeholder="Digite pra buscar..." autocomplete="off">
+      <div class="portal-bairro-chips" id="portal-bairro-chips">
+        <% _bairrosSelecionados.forEach(function(b){ %>
+        <span class="chip-bairro"><%= b %><input type="hidden" name="bairro" value="<%= b %>"><button type="button" onclick="removerBairroChip(this)" aria-label="Remover <%= b %>">×</button></span>
+        <% }); %>
+      </div>
+      <input type="text" id="portal-bairro-input" placeholder="Digite pra adicionar..." autocomplete="off">
       <div class="portal-suggest" id="portal-bairro-suggest"></div>
     </div>
     <div class="ffield">
@@ -236,7 +248,7 @@
         <option value="recentes" <%= filtros.ordenar==='recentes'?'selected':'' %>>Mais recentes</option>
       </select>
     </div>
-    <% if(filtros.busca||filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.condicao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')){ %>
+    <% if(filtros.busca||filtros.cidade||_temBairroFiltro||filtros.tipo||filtros.operacao||filtros.condicao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')){ %>
     <a href="/portal" class="btn-limpar">Limpar filtros</a>
     <% } %>
   </form>
@@ -356,7 +368,7 @@
   reiniciar();
 })();
 
-<% if(!filtros.busca && !filtros.cidade && !filtros.bairro && !filtros.tipo && !filtros.operacao && !filtros.condicao && !filtros.quartosMin && !filtros.valorMin && !filtros.valorMax && !filtros.page){ %>
+<% if(!filtros.busca && !filtros.cidade && !_temBairroFiltro && !filtros.tipo && !filtros.operacao && !filtros.condicao && !filtros.quartosMin && !filtros.valorMin && !filtros.valorMax && !filtros.page){ %>
 (function(){
   // Sem nenhum filtro aplicado ainda: se o navegador autorizar, pré-filtra pela cidade do visitante.
   if(localStorage.getItem('mi_portal_geo_perguntado')) return;
@@ -378,19 +390,24 @@
   // dropdown nativo dele não funciona de forma confiável no Safari do
   // iPhone, reportado pelo Renato, ago/2026). Lista já vem pronta do
   // servidor (mesmos dados que alimentavam os <select> antigos).
+  // Cidade continua single (escolheu, já busca); bairro virou multi —
+  // cada clique numa sugestão ADICIONA um chip em vez de substituir
+  // (ago/2026, pedido do Renato: dá pra marcar mais de um bairro).
   var CIDADES = <%- JSON.stringify(Object.keys(cidades).reduce(function(acc,k){ return acc.concat(cidades[k]||[]); }, [])) %>;
   var BAIRROS = <%- JSON.stringify(Object.keys(bairros).reduce(function(acc,k){ return acc.concat(bairros[k]||[]); }, [])) %>;
 
   function norm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+  function escAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  function montarAutocomplete(inputId, boxId, lista){
-    var input = document.getElementById(inputId);
-    var box = document.getElementById(boxId);
+  // Cidade: comportamento de antes, um valor só.
+  (function(){
+    var input = document.getElementById('portal-cidade-input');
+    var box = document.getElementById('portal-cidade-suggest');
     if(!input || !box) return;
     var filtrados = [];
     function renderizar(){
       var termoNorm = norm(input.value.trim());
-      filtrados = termoNorm ? lista.filter(function(c){ return norm(c).indexOf(termoNorm) !== -1; }).slice(0,8) : [];
+      filtrados = termoNorm ? CIDADES.filter(function(c){ return norm(c).indexOf(termoNorm) !== -1; }).slice(0,8) : [];
       if(!filtrados.length){ box.classList.remove('on'); box.innerHTML=''; return; }
       box.innerHTML = filtrados.map(function(c){ return '<div>'+c+'</div>'; }).join('');
       box.classList.add('on');
@@ -406,9 +423,50 @@
     input.addEventListener('input', renderizar);
     input.addEventListener('focus', renderizar);
     input.addEventListener('blur', function(){ setTimeout(function(){ box.classList.remove('on'); }, 150); });
+  })();
+
+  // Bairro: multi, por chip.
+  function bairrosJaSelecionados(){
+    return Array.prototype.map.call(document.querySelectorAll('#portal-bairro-chips input[name="bairro"]'), function(i){ return i.value; });
   }
-  montarAutocomplete('portal-cidade-input', 'portal-cidade-suggest', CIDADES);
-  montarAutocomplete('portal-bairro-input', 'portal-bairro-suggest', BAIRROS);
+  window.removerBairroChip = function(btnEl){
+    var chip = btnEl.closest('.chip-bairro');
+    if(chip) chip.parentNode.removeChild(chip);
+    document.querySelector('.filtros-box').submit();
+  };
+  window.adicionarBairroChip = function(nome){
+    if(!nome || bairrosJaSelecionados().indexOf(nome) !== -1) return;
+    var chips = document.getElementById('portal-bairro-chips');
+    var chip = document.createElement('span');
+    chip.className = 'chip-bairro';
+    chip.innerHTML = escAttr(nome) + '<input type="hidden" name="bairro" value="' + escAttr(nome) + '"><button type="button" onclick="removerBairroChip(this)" aria-label="Remover ' + escAttr(nome) + '">×</button>';
+    chips.appendChild(chip);
+    document.querySelector('.filtros-box').submit();
+  };
+  (function(){
+    var input = document.getElementById('portal-bairro-input');
+    var box = document.getElementById('portal-bairro-suggest');
+    if(!input || !box) return;
+    var filtrados = [];
+    function renderizar(){
+      var termoNorm = norm(input.value.trim());
+      var jaSelecionados = bairrosJaSelecionados();
+      filtrados = termoNorm ? BAIRROS.filter(function(b){ return jaSelecionados.indexOf(b) === -1 && norm(b).indexOf(termoNorm) !== -1; }).slice(0,8) : [];
+      if(!filtrados.length){ box.classList.remove('on'); box.innerHTML=''; return; }
+      box.innerHTML = filtrados.map(function(b){ return '<div>'+b+'</div>'; }).join('');
+      box.classList.add('on');
+      Array.prototype.forEach.call(box.children, function(el, i){
+        el.addEventListener('mousedown', function(ev){
+          ev.preventDefault();
+          box.classList.remove('on');
+          adicionarBairroChip(filtrados[i]);
+        });
+      });
+    }
+    input.addEventListener('input', renderizar);
+    input.addEventListener('focus', renderizar);
+    input.addEventListener('blur', function(){ setTimeout(function(){ box.classList.remove('on'); }, 150); });
+  })();
 })();
 </script>
 

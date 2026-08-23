@@ -6893,12 +6893,17 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   // Filtros do servidor
   const _fEstado = (q.estado||'').trim();
   const _fCidade = (q.cidade||'').trim();
-  const _fBairro = (q.bairro||'').trim();
+  // Bairro aceita 1 valor (string, uso histórico — app/imoveis, meu-site)
+  // ou vários (array, quando o mesmo nome de campo é repetido na query —
+  // /portal, ago/2026, permite marcar mais de um bairro na busca).
+  const _fBairroRaw = q.bairro;
+  const _bairrosArr = (Array.isArray(_fBairroRaw) ? _fBairroRaw : [_fBairroRaw]).map(b => (b||'').toString().trim()).filter(Boolean);
+  const _fBairro = _bairrosArr.join(',');
   const _fBusca  = (q.busca||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const _norm = s => (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
   if (_fEstado) imoveis = imoveis.filter(i => _chaveLoc(i.estado) === _chaveLoc(_fEstado));
   if (_fCidade) imoveis = imoveis.filter(i => _chaveLoc(i.cidade) === _chaveLoc(_fCidade));
-  if (_fBairro) imoveis = imoveis.filter(i => _chaveLoc(i.bairro) === _chaveLoc(_fBairro));
+  if (_bairrosArr.length) { const _chavesBairro = _bairrosArr.map(_chaveLoc); imoveis = imoveis.filter(i => _chavesBairro.includes(_chaveLoc(i.bairro))); }
   if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
   const _fCorretor = (q.corretor||'').trim();
   if (_fCorretor) imoveis = imoveis.filter(i => String(i.userId||i.user_id) === _fCorretor);
@@ -6953,15 +6958,24 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   }
   const _totalImoveisFiltrado = imoveis.length;
   const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / perPage);
-  const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca || _fCorretor;
+  const _temFiltro = _fEstado || _fCidade || _bairrosArr.length || _fBusca || _fCorretor;
   imoveis = imoveis.slice((_page-1)*perPage, _page*perPage);
-  const _queryPagina = new URLSearchParams(q);
-  _queryPagina.delete('page');
+  // Monta manualmente (em vez de "new URLSearchParams(q)") porque o
+  // construtor, dado um objeto plano, transforma valor-array em string
+  // única separada por vírgula em vez de repetir a chave — perderia os
+  // vários "bairro=" na paginação de uma busca com mais de 1 bairro marcado.
+  const _queryPagina = new URLSearchParams();
+  Object.keys(q).forEach(k => {
+    if (k === 'page') return;
+    const v = q[k];
+    if (Array.isArray(v)) v.forEach(vv => { if (vv) _queryPagina.append(k, vv); });
+    else if (v) _queryPagina.append(k, v);
+  });
   return {
     imoveisPagina: imoveis, estados, cidades, bairros, page: _page,
     totalPages: _temFiltro ? _totalPagesFiltrado : _totalPages,
     totalImoveis: _temFiltro ? _totalImoveisFiltrado : _totalImoveis,
-    filtros: { estado: _fEstado, cidade: _fCidade, bairro: _fBairro },
+    filtros: { estado: _fEstado, cidade: _fCidade, bairro: Array.isArray(_fBairroRaw) ? _bairrosArr : _fBairro },
     queryPagina: _queryPagina.toString()
   };
 }
@@ -22176,8 +22190,8 @@ app.get('/admin/meus-links', authAdmin, async (req, res) => {
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Compartilhe cada link com o público certo — todos ficam atrelados a você automaticamente. Comissão de 30% na primeira compra de cada corretor que entrar pelo seu link, e 15% nas recargas seguintes dele (recorrência).</p>
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
-          <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link</h3>
-          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Compartilhe direto — quando alguém se cadastra por esse link, fica atrelado a você pra sempre.</p>
+          <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link (pra corretores e imobiliárias)</h3>
+          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Manda pra <strong>corretores autônomos e imobiliárias</strong> que ainda não usam a plataforma — quando a conta se cadastra por esse link, fica atrelada a você pra sempre.</p>
           <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
             <span id="link-subadmin">https://www.matchimoveis.ia.br/?ref=${_escC(conta.usuario)}</span>
           </div>

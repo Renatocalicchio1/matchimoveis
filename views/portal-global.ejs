@@ -85,10 +85,15 @@
 
     .filtros{max-width:1200px;margin:20px auto 0;padding:0 24px}
     .filtros-box{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
-    .ffield{display:flex;flex-direction:column;gap:5px;min-width:120px;flex:1}
+    .ffield{display:flex;flex-direction:column;gap:5px;min-width:120px;flex:1;position:relative}
     .ffield label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
     .ffield select,.ffield input{border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:13.5px;font-family:inherit;background:var(--paper);color:var(--ink);outline:none}
     .ffield select:focus,.ffield input:focus{border-color:var(--brand)}
+    .portal-suggest{position:absolute;top:100%;left:0;right:0;background:var(--white);border:1px solid var(--line);border-radius:9px;margin-top:4px;max-height:220px;overflow-y:auto;z-index:50;display:none;box-shadow:var(--shadow)}
+    .portal-suggest.on{display:block}
+    .portal-suggest div{padding:9px 12px;font-size:13.5px;cursor:pointer;color:var(--ink)}
+    .portal-suggest div:hover,.portal-suggest div.hl{background:var(--paper)}
+    .portal-suggest .vazio{color:var(--muted);cursor:default}
     .faixa{display:flex;gap:6px}
     .faixa input{width:100%}
     .btn-limpar{color:var(--muted);font-size:12.5px;text-decoration:none;padding:10px 4px;white-space:nowrap}
@@ -173,21 +178,13 @@
     </div>
     <div class="ffield">
       <label>Cidade</label>
-      <input type="text" name="cidade" list="portal-cidades-list" value="<%= filtros.cidade||'' %>" placeholder="Digite pra buscar..." autocomplete="off" onchange="this.form.submit()">
-      <datalist id="portal-cidades-list">
-        <% Object.keys(cidades).forEach(function(est){ (cidades[est]||[]).forEach(function(c){ %>
-        <option value="<%= c %>"><%= c %></option>
-        <% }); }); %>
-      </datalist>
+      <input type="text" name="cidade" id="portal-cidade-input" value="<%= filtros.cidade||'' %>" placeholder="Digite pra buscar..." autocomplete="off">
+      <div class="portal-suggest" id="portal-cidade-suggest"></div>
     </div>
     <div class="ffield">
       <label>Bairro</label>
-      <input type="text" name="bairro" list="portal-bairros-list" value="<%= filtros.bairro||'' %>" placeholder="Digite pra buscar..." autocomplete="off" onchange="this.form.submit()">
-      <datalist id="portal-bairros-list">
-        <% Object.keys(bairros).forEach(function(cid){ (bairros[cid]||[]).forEach(function(b){ %>
-        <option value="<%= b %>"><%= b %></option>
-        <% }); }); %>
-      </datalist>
+      <input type="text" name="bairro" id="portal-bairro-input" value="<%= filtros.bairro||'' %>" placeholder="Digite pra buscar..." autocomplete="off">
+      <div class="portal-suggest" id="portal-bairro-suggest"></div>
     </div>
     <div class="ffield">
       <label>Tipo</label>
@@ -375,6 +372,44 @@
   }, function(){ /* usuário negou ou indisponível — segue sem filtro */ }, { timeout: 8000 });
 })();
 <% } %>
+
+(function(){
+  // Autocomplete de cidade/bairro em JS puro (não usa <datalist> — o
+  // dropdown nativo dele não funciona de forma confiável no Safari do
+  // iPhone, reportado pelo Renato, ago/2026). Lista já vem pronta do
+  // servidor (mesmos dados que alimentavam os <select> antigos).
+  var CIDADES = <%- JSON.stringify(Object.keys(cidades).reduce(function(acc,k){ return acc.concat(cidades[k]||[]); }, [])) %>;
+  var BAIRROS = <%- JSON.stringify(Object.keys(bairros).reduce(function(acc,k){ return acc.concat(bairros[k]||[]); }, [])) %>;
+
+  function norm(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+
+  function montarAutocomplete(inputId, boxId, lista){
+    var input = document.getElementById(inputId);
+    var box = document.getElementById(boxId);
+    if(!input || !box) return;
+    var filtrados = [];
+    function renderizar(){
+      var termoNorm = norm(input.value.trim());
+      filtrados = termoNorm ? lista.filter(function(c){ return norm(c).indexOf(termoNorm) !== -1; }).slice(0,8) : [];
+      if(!filtrados.length){ box.classList.remove('on'); box.innerHTML=''; return; }
+      box.innerHTML = filtrados.map(function(c){ return '<div>'+c+'</div>'; }).join('');
+      box.classList.add('on');
+      Array.prototype.forEach.call(box.children, function(el, i){
+        el.addEventListener('mousedown', function(ev){
+          ev.preventDefault();
+          input.value = filtrados[i];
+          box.classList.remove('on');
+          input.form.submit();
+        });
+      });
+    }
+    input.addEventListener('input', renderizar);
+    input.addEventListener('focus', renderizar);
+    input.addEventListener('blur', function(){ setTimeout(function(){ box.classList.remove('on'); }, 150); });
+  }
+  montarAutocomplete('portal-cidade-input', 'portal-cidade-suggest', CIDADES);
+  montarAutocomplete('portal-bairro-input', 'portal-bairro-suggest', BAIRROS);
+})();
 </script>
 
 </body>

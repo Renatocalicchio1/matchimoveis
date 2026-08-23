@@ -590,6 +590,7 @@ const _ADMIN_NAV = [
     { key: 'disparos', href: '/admin/disparos', icon: '📲', label: 'Disparos WhatsApp' },
     { key: 'optout', href: '/admin/disparos/optout', icon: '🚫', label: 'Opt-out' },
     { key: 'minhas-comissoes', href: '/admin/minhas-comissoes', icon: '💰', label: 'Minhas Comissões' },
+    { key: 'meus-links', href: '/admin/meus-links', icon: '🔗', label: 'Meus Links de Indicação' },
     { key: 'whatsapp-cloud', href: '/admin/whatsapp-cloud', icon: '💬', label: 'Inbox WhatsApp' },
     { key: 'painel-whatsapp', href: 'https://match-evolution-api.onrender.com/manager', icon: '📱', label: 'Painel WhatsApp', externo: true }
   ]},
@@ -676,7 +677,7 @@ function _adminSidebarHtml(activeKey, segundoArg, req) {
   // 'minhas-comissoes' segue a mesma liberação geral de authAdmin
   // (_ADMIN_ROTAS_SEMPRE_PERMITIDAS) — sem isso o link some do menu de quem
   // não tem a permissão marcada, mesmo a página sendo acessível direto.
-  const permitido = (key) => !restringir || key === 'minhas-comissoes' || segundoArg.includes(key);
+  const permitido = (key) => !restringir || key === 'minhas-comissoes' || key === 'meus-links' || segundoArg.includes(key);
   const secoes = _ADMIN_NAV
     .filter(sec => sec.sec !== 'Administração' || segundoArg === true)
     .map(sec => {
@@ -868,7 +869,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
 // conta (req.session.adminUsuario), não dão acesso a nada de outra conta,
 // então não faz sentido travar atrás de uma permissão que o superadmin
 // pode esquecer de marcar.
-const _ADMIN_ROTAS_SEMPRE_PERMITIDAS = ['/admin/minhas-comissoes', '/admin/meu-corretor', '/admin/voltar-superadmin'];
+const _ADMIN_ROTAS_SEMPRE_PERMITIDAS = ['/admin/minhas-comissoes', '/admin/meus-links', '/admin/meu-corretor', '/admin/voltar-superadmin'];
 function authAdmin(req, res, next) {
   if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
   // !== false (não === true): sessão de admin aberta ANTES desse recurso
@@ -22034,60 +22035,6 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 30% na primeira compra de cada corretor que entrar pelo seu link, e 15% nas recargas seguintes dele (recorrência).</p>
 
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
-          <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link</h3>
-          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Compartilhe direto — quando alguém se cadastra por esse link, fica atrelado a você pra sempre.</p>
-          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
-            <span id="link-subadmin">https://www.matchimoveis.ia.br/?ref=${_escC(conta.usuario)}</span>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-            <button onclick="copiarLinkSubadmin()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
-            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Convido você a conhecer a plataforma que une leads e imóveis automaticamente — cadastre-se pelo meu link e já entra com créditos de bônus:\n\nhttps://www.matchimoveis.ia.br/?ref=${conta.usuario}`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
-          </div>
-        </div>
-
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
-          <h3 style="margin:0 0 6px;font-size:14px">🏠 Link do Portal (pra quem busca imóvel)</h3>
-          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Manda pra quem estiver <strong>procurando comprar ou alugar um imóvel</strong> — a pessoa faz a busca e cadastra o interesse direto no Portal, sem precisar de conta. O corretor dono do imóvel que ela se interessar entra em contato com ela.</p>
-          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
-            <span id="link-portal">https://www.matchimoveis.ia.br/portal</span>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-            <button onclick="copiarLinkPortal()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
-            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Se você está procurando um imóvel pra comprar ou alugar, dá uma olhada aqui — assim que você se interessar por um, o corretor responsável já entra em contato com você:\n\nhttps://www.matchimoveis.ia.br/portal`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
-          </div>
-        </div>
-
-        ${_temPermCaptacao ? `
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
-          <h3 style="margin:0 0 6px;font-size:14px">🏗️ Seu link de captação de proprietário</h3>
-          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Manda pra quem tiver <strong>um imóvel pra vender ou alugar</strong> — o cadastro é gratuito e fica atrelado a você automaticamente, pra aparecer aqui em "Minhas captações".</p>
-          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
-            <span id="link-captacao">https://www.matchimoveis.ia.br/captar/REN-G9K6?ref=${_escC(conta.usuario)}</span>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-            <button onclick="copiarLinkCaptacao()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
-            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Você é proprietário(a) de um imóvel pra vender ou alugar? O cadastro é gratuito e a gente já divulga automaticamente pra uma rede de mais de 9 mil corretores e imobiliárias parceiras:\n\nhttps://www.matchimoveis.ia.br/captar/REN-G9K6?ref=${conta.usuario}`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
-          </div>
-        </div>
-        ` : ''}
-
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
-          <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
-          <p style="margin:0 0 10px"><a href="#" onclick="abrirModalConsumoCreditosSub();return false;" style="font-size:12px;color:#00A699;font-weight:600;text-decoration:none">💡 Como funciona o consumo de créditos?</a></p>
-          <table style="width:100%">
-            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">1ª compra (30%)</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Recorrência (15%)</th></tr></thead>
-            <tbody>${Object.values(PLANOS_LEADS).map(p => `
-              <tr style="border-bottom:1px solid #f3f4f6">
-                <td style="padding:8px;font-size:12.5px">R$ ${p.valor}</td>
-                <td style="padding:8px;font-size:12.5px;font-weight:600">${p.creditos.toLocaleString('pt-BR')}</td>
-                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.3).toLocaleString('pt-BR')} coins</td>
-                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.15).toLocaleString('pt-BR')} coins</td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-
         ${!_temPermCampanha ? '' : `
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 6px;font-size:14px">👤 Meus corretores cadastrados (${meusCorretores.length})</h3>
@@ -22121,7 +22068,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         ${!_temPermCaptacao ? '' : `
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 6px;font-size:14px">🏠 Minhas Captações Cadastradas (${minhasCaptacoes.length})</h3>
-          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários que já iniciaram o cadastro do imóvel — chame no WhatsApp e ajude a completar o que ainda falta (cada imóvel captado até o fim vale +200 coins pra você). Aproveite também pra oferecer os planos acima pros seus corretores já cadastrados.</p>
+          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários que já iniciaram o cadastro do imóvel — chame no WhatsApp e ajude a completar o que ainda falta (cada imóvel captado até o fim vale +200 coins pra você). Aproveite também pra oferecer os <a href="/admin/meus-links" style="color:#00A699;font-weight:600">planos</a> pros seus corretores já cadastrados.</p>
           <table style="width:100%">
             <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
             <tbody>${captacoesHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação atribuída a você ainda</td></tr>'}</tbody>
@@ -22175,6 +22122,111 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <thead><tr style="background:#f3f4f6;text-align:left"><th style="padding:8px;font-size:11px;color:#6b7280"></th><th style="padding:8px;font-size:11px;color:#6b7280">Compra em</th><th style="padding:8px;font-size:11px;color:#6b7280">Corretor</th><th style="padding:8px;font-size:11px;color:#6b7280">Compra</th><th style="padding:8px;font-size:11px;color:#6b7280">Comissão</th><th style="padding:8px;font-size:11px;color:#6b7280">Data solicitação</th><th style="padding:8px;font-size:11px;color:#6b7280">Data pagamento</th><th style="padding:8px;font-size:11px;color:#6b7280">Status</th></tr></thead>
           <tbody>${linhasHtml || '<tr><td colspan="8" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma comissão ainda</td></tr>'}</tbody>
         </table>
+        </div>
+      </main>
+    </div>
+
+      <script>
+        async function resgatar(){
+          const ids = [...document.querySelectorAll('.chk-resgate:checked')].map(c=>c.value);
+          if(!ids.length) return alert('Selecione ao menos uma comissão disponível.');
+          const modo = document.querySelector('input[name="modoResgate"]:checked').value;
+          const r = await fetch('/admin/minhas-comissoes/resgatar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ids, modo})});
+          const j = await r.json();
+          if(!j.ok) return alert('Erro: ' + j.erro);
+          alert(modo === 'credito' ? 'Creditado no seu saldo!' : 'Solicitação enviada — aguarde o pagamento.');
+          location.reload();
+        }
+        async function revender(){
+          const corretorCodigo = document.getElementById('revCodigo').value.trim();
+          const quantidade = parseInt(document.getElementById('revQtd').value, 10);
+          if(!corretorCodigo || !quantidade) return alert('Preencha código do corretor e quantidade.');
+          const r = await fetch('/admin/minhas-comissoes/revender', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({corretorCodigo, quantidade})});
+          const j = await r.json();
+          if(!j.ok) return alert('Erro: ' + j.erro);
+          alert('Revendido! Você ganhou +' + j.bonus + ' coins de volta.');
+          location.reload();
+        }
+      </script>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+// Links de indicação/captação + tabela de planos — separado de
+// /admin/minhas-comissoes (ago/2026, pedido do Renato) pra virar uma tela
+// própria, sempre visível no menu de qualquer sub-admin (mesma liberação
+// de /admin/minhas-comissoes, ver _ADMIN_ROTAS_SEMPRE_PERMITIDAS).
+app.get('/admin/meus-links', authAdmin, async (req, res) => {
+  try {
+    const _escC = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const { buscarAdminConta } = require('./services/salvarAdminConta');
+    const usuarioAdmin = req.session.adminUsuario;
+    const conta = await buscarAdminConta(usuarioAdmin);
+    if (!conta) return res.send(_paginaSimples('Meus Links de Indicação', '<p>Essa conta de login não tem um cadastro de sub-admin vinculado (ex: é a conta superadmin principal) — nada pra mostrar aqui.</p>'));
+
+    const _permsAtual = req.session.adminPermissoes || [];
+    const _temPermCaptacao = req.session.adminSuper !== false || _permsAtual.includes('captacao-campanha');
+
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meus Links de Indicação</title>
+    <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}</style></head>
+    <body>
+    <div class="admin-app">${_adminSidebarHtml('meus-links', _sidebarPerm(req), req)}
+      <main class="admin-content" style="max-width:960px">
+        <h1 style="font-size:22px;margin-bottom:4px">Meus Links de Indicação</h1>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Compartilhe cada link com o público certo — todos ficam atrelados a você automaticamente. Comissão de 30% na primeira compra de cada corretor que entrar pelo seu link, e 15% nas recargas seguintes dele (recorrência).</p>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
+          <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link</h3>
+          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Compartilhe direto — quando alguém se cadastra por esse link, fica atrelado a você pra sempre.</p>
+          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
+            <span id="link-subadmin">https://www.matchimoveis.ia.br/?ref=${_escC(conta.usuario)}</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button onclick="copiarLinkSubadmin()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Convido você a conhecer a plataforma que une leads e imóveis automaticamente — cadastre-se pelo meu link e já entra com créditos de bônus:\n\nhttps://www.matchimoveis.ia.br/?ref=${conta.usuario}`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
+          <h3 style="margin:0 0 6px;font-size:14px">🏠 Link do Portal (pra quem busca imóvel)</h3>
+          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Manda pra quem estiver <strong>procurando comprar ou alugar um imóvel</strong> — a pessoa faz a busca e cadastra o interesse direto no Portal, sem precisar de conta. O corretor dono do imóvel que ela se interessar entra em contato com ela.</p>
+          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
+            <span id="link-portal">https://www.matchimoveis.ia.br/portal</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button onclick="copiarLinkPortal()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Se você está procurando um imóvel pra comprar ou alugar, dá uma olhada aqui — assim que você se interessar por um, o corretor responsável já entra em contato com você:\n\nhttps://www.matchimoveis.ia.br/portal`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
+          </div>
+        </div>
+
+        ${_temPermCaptacao ? `
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 6px;font-size:14px">🏗️ Seu link de captação de proprietário</h3>
+          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Manda pra quem tiver <strong>um imóvel pra vender ou alugar</strong> — o cadastro é gratuito e fica atrelado a você automaticamente, pra aparecer aqui em "Minhas captações".</p>
+          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
+            <span id="link-captacao">https://www.matchimoveis.ia.br/captar/REN-G9K6?ref=${_escC(conta.usuario)}</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button onclick="copiarLinkCaptacao()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Você é proprietário(a) de um imóvel pra vender ou alugar? O cadastro é gratuito e a gente já divulga automaticamente pra uma rede de mais de 9 mil corretores e imobiliárias parceiras:\n\nhttps://www.matchimoveis.ia.br/captar/REN-G9K6?ref=${conta.usuario}`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
+          </div>
+        </div>
+        ` : ''}
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
+          <p style="margin:0 0 10px"><a href="#" onclick="abrirModalConsumoCreditosSub();return false;" style="font-size:12px;color:#00A699;font-weight:600;text-decoration:none">💡 Como funciona o consumo de créditos?</a></p>
+          <table style="width:100%">
+            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">1ª compra (30%)</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Recorrência (15%)</th></tr></thead>
+            <tbody>${Object.values(PLANOS_LEADS).map(p => `
+              <tr style="border-bottom:1px solid #f3f4f6">
+                <td style="padding:8px;font-size:12.5px">R$ ${p.valor}</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:600">${p.creditos.toLocaleString('pt-BR')}</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.3).toLocaleString('pt-BR')} coins</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.15).toLocaleString('pt-BR')} coins</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
         </div>
       </main>
     </div>
@@ -22254,26 +22306,6 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           const el = document.getElementById('link-captacao');
           if(!el) return;
           navigator.clipboard.writeText(el.textContent).then(function(){ alert('Link copiado!'); });
-        }
-        async function resgatar(){
-          const ids = [...document.querySelectorAll('.chk-resgate:checked')].map(c=>c.value);
-          if(!ids.length) return alert('Selecione ao menos uma comissão disponível.');
-          const modo = document.querySelector('input[name="modoResgate"]:checked').value;
-          const r = await fetch('/admin/minhas-comissoes/resgatar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ids, modo})});
-          const j = await r.json();
-          if(!j.ok) return alert('Erro: ' + j.erro);
-          alert(modo === 'credito' ? 'Creditado no seu saldo!' : 'Solicitação enviada — aguarde o pagamento.');
-          location.reload();
-        }
-        async function revender(){
-          const corretorCodigo = document.getElementById('revCodigo').value.trim();
-          const quantidade = parseInt(document.getElementById('revQtd').value, 10);
-          if(!corretorCodigo || !quantidade) return alert('Preencha código do corretor e quantidade.');
-          const r = await fetch('/admin/minhas-comissoes/revender', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({corretorCodigo, quantidade})});
-          const j = await r.json();
-          if(!j.ok) return alert('Erro: ' + j.erro);
-          alert('Revendido! Você ganhou +' + j.bonus + ' coins de volta.');
-          location.reload();
         }
       </script>
     </body></html>`);

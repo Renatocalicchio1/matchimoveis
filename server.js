@@ -871,9 +871,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex',
   '/admin/campanha/importar', '/admin/campanha/teste',
   '/admin/campanha/iniciar', '/admin/campanha/pausar',
-  '/admin/campanha/distribuir-atendimentos',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
-  '/admin/captacao-campanha/distribuir-atendimentos',
   '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global', '/admin/emails',
   '/admin/instagram-posts', '/admin/pagamentos'
 ];
@@ -2100,9 +2098,6 @@ app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
     // Última execução real do job de distribuição automática (ver
     // JOB_DISTRIBUICAO_SUBADMIN) — confirma direto na tela se ele tá rodando
     // e o que fez, sem precisar adivinhar.
-    const _statusJob = await _qAtrib(`SELECT atualizado_em, detalhe FROM job_status WHERE id='distribuicao_subadmin'`).catch(() => ({ rows: [] }));
-    const _ultimoStatusJob = _statusJob.rows[0];
-
     // Usuários com sub-admin gravado — normalmente um grupo pequeno, mesmo
     // que a base de usuarios seja grande (o filtro já corta antes de trazer
     // tudo pra memória).
@@ -2166,13 +2161,7 @@ app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
     <body><div class="admin-app">${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
     <main class="admin-content">
       <h1 style="font-size:20px;margin-bottom:6px">Revisão de atribuições sub-admin (${rows.length})</h1>
-      <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contas com um sub-admin gravado (comissão futura). Linhas em vermelho não têm nenhum rastro de campanha achado — vale conferir antes de confiar na comissão.</p>
-      <div style="background:${_ultimoStatusJob ? '#f0fdf4' : '#fef2f2'};border:1px solid ${_ultimoStatusJob ? '#86efac' : '#fca5a5'};border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12.5px">
-        <strong>🤖 Job de distribuição automática</strong> (roda a cada 5 min sozinho, sem precisar de clique):<br>
-        ${_ultimoStatusJob
-          ? `Última execução: <strong>${new Date(_ultimoStatusJob.atualizado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</strong> — ${_ultimoStatusJob.detalhe}`
-          : 'Ainda não rodou nenhuma vez desde o deploy dessa checagem — espere alguns minutos e recarregue essa página.'}
-      </div>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Registro histórico — sub-admin foi descontinuado (ago/2026), essas atribuições não geram mais comissão nem recebem contato novo. Fica só como auditoria do que aconteceu até a migração pro programa de afiliados.</p>
       <table>
         <thead><tr><th>Cadastro</th><th>Corretor</th><th>Sub-admin</th><th>Indicado por (corretor)</th><th>Evidência</th><th>Recebeu e-mail recarga</th><th></th></tr></thead>
         <tbody>${linhas || '<tr><td colspan="7" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma conta com sub-admin atribuído</td></tr>'}</tbody>
@@ -9940,95 +9929,6 @@ setInterval(async () => {
 
 }, 5 * 60 * 1000); // roda a cada 5 minutos
 
-// ── JOB_DISTRIBUICAO_SUBADMIN — round-robin automático entre sub-admins ──────
-// Campanha de Captação e Campanha de E-mail (corretores) — antes só rodava
-// manual (botão "Distribuir agora"). Separado do JOB_JOBS_TRAVADOS de propósito:
-// aquele é um setInterval puro, sem primeira execução no boot — só dispara depois
-// de 5min rodando. Com deploy frequente (Render reinicia o processo a cada push),
-// o timer não dava tempo de completar o primeiro ciclo antes do próximo restart,
-// e esse job efetivamente nunca rodava (bug real: só 1 contato tinha sido
-// distribuído depois de várias horas de campanha ativa). Aqui roda 1x logo no
-// boot (15s de atraso, pra deixar o resto da inicialização assentar) + repete a
-// cada 5min. Idempotente (distribuirAtendimentosAbertos só mexe em quem tá com
-// atendido_por vazio), então rodar logo e com frequência é seguro.
-// Registra CADA execução (rodou ou não, achou conta ativa ou não, quantos
-// distribuiu) numa tabela simples — sem isso não tinha como confirmar de
-// fora se o job realmente tá rodando ou só "parece" que devia estar (foi
-// exatamente esse tipo de dúvida que gerou idas e voltas — agora dá pra
-// olhar direto em /admin/atribuicoes-subadmin ou consultar a tabela).
-// Solta atendido_por de contato preso numa conta que não tem (ou perdeu) a
-// permissão daquela campanha — sem isso o round-robin nunca redistribuía,
-// porque distribuirAtendimentosAbertos só mexe em quem está com atendido_por
-// vazio. tabela é sempre um literal fixo abaixo, nunca vem de request.
-async function _liberarSemPermissao(tabela, contasValidas) {
-  const { query: _qLib } = require('./services/db');
-  const usuariosValidos = new Set(contasValidas.map(c => c.usuario));
-  const { rows } = await _qLib(`SELECT id, atendido_por FROM ${tabela} WHERE atendido_por IS NOT NULL AND atendido_por != ''`);
-  const semPermissao = rows.filter(r => !usuariosValidos.has(r.atendido_por)).map(r => r.id);
-  if (!semPermissao.length) return 0;
-  await _qLib(`UPDATE ${tabela} SET atendido_por=NULL, atendido_por_nome=NULL, atendido_por_cor=NULL, atendido_em=NULL WHERE id = ANY($1)`, [semPermissao]);
-  return semPermissao.length;
-}
-async function _registrarStatusJobDistribuicao(detalhe) {
-  try {
-    const { query: _qJobStatus } = require('./services/db');
-    await _qJobStatus(`CREATE TABLE IF NOT EXISTS job_status (id TEXT PRIMARY KEY, atualizado_em TIMESTAMP DEFAULT NOW(), detalhe TEXT)`);
-    await _qJobStatus(
-      `INSERT INTO job_status (id, atualizado_em, detalhe) VALUES ('distribuicao_subadmin', NOW(), $1)
-       ON CONFLICT (id) DO UPDATE SET atualizado_em=NOW(), detalhe=$1`,
-      [detalhe]
-    );
-  } catch (e) { console.error('[JOB DISTRIBUICAO] erro ao registrar status:', e.message); }
-}
-async function _rodarDistribuicaoSubAdmin() {
-  try {
-    const { listarAdminContas } = require('./services/salvarAdminConta');
-    const _todasContasAtivas = (await listarAdminContas()).filter(c => c.ativo);
-    if (!_todasContasAtivas.length) {
-      await _registrarStatusJobDistribuicao('rodou, mas 0 sub-admin ativo em /admin/contas-admin — nada foi distribuído');
-      return;
-    }
-    // Cada campanha só pode distribuir pra quem tem a permissão daquela
-    // página marcada em /admin/contas-admin — sem isso um sub-admin sem
-    // acesso a 'campanha'/'captacao-campanha' ainda recebia contato na régua
-    // (só não conseguia ver a lista, mas o round-robin não sabia disso).
-    const _contasCaptAuto = _todasContasAtivas.filter(c => (c.permissoes || []).includes('captacao-campanha'));
-    const _contasEmailAuto = _todasContasAtivas.filter(c => (c.permissoes || []).includes('campanha'));
-
-    const _liberadosCaptAuto = await _liberarSemPermissao('campanha_captacao_envios', _contasCaptAuto);
-    const _liberadosEmailAuto = await _liberarSemPermissao('campanha_contatos', _contasEmailAuto);
-    if (_liberadosCaptAuto > 0) console.log('[JOB DISTRIBUICAO] captação: liberados de conta sem permissão ->', _liberadosCaptAuto);
-    if (_liberadosEmailAuto > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: liberados de conta sem permissão ->', _liberadosEmailAuto);
-
-    let _resultCaptAuto = { distribuidos: 0 };
-    let _resultCaptDiretaAuto = { distribuidos: 0 };
-    if (_contasCaptAuto.length) {
-      const { distribuirAtendimentosAbertos: _distribuirCaptAuto, distribuirCaptacaoDireta: _distribuirCaptDiretaAuto } = require('./services/campanhaCaptacao');
-      _resultCaptAuto = await _distribuirCaptAuto(_contasCaptAuto);
-      if (_resultCaptAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
-      // Captações do link fixo /captar/REN-G9K6 sem passar pela campanha de
-      // e-mail (ver nota em distribuirCaptacaoDireta) — mesma permissão
-      // 'captacao-campanha', job/cadência compartilhados.
-      _resultCaptDiretaAuto = await _distribuirCaptDiretaAuto(_contasCaptAuto);
-      if (_resultCaptDiretaAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] captação direta: distribuídos automaticamente ->', _resultCaptDiretaAuto.distribuidos);
-    }
-
-    let _resultEmailAuto = { distribuidos: 0 };
-    if (_contasEmailAuto.length) {
-      const { distribuirAtendimentosAbertos: _distribuirEmailAuto } = require('./services/campanha');
-      _resultEmailAuto = await _distribuirEmailAuto(_contasEmailAuto);
-      if (_resultEmailAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
-    }
-
-    await _registrarStatusJobDistribuicao(`rodou com ${_todasContasAtivas.length} sub-admin(s) ativo(s) (${_contasCaptAuto.length} c/ permissão captação, ${_contasEmailAuto.length} c/ permissão e-mail) — liberados sem permissão: captação ${_liberadosCaptAuto}, e-mail ${_liberadosEmailAuto} — distribuídos: captação +${_resultCaptAuto.distribuidos}, captação direta +${_resultCaptDiretaAuto.distribuidos}, e-mail +${_resultEmailAuto.distribuidos}`);
-  } catch(e) {
-    console.error('[JOB DISTRIBUICAO] erro:', e.message);
-    await _registrarStatusJobDistribuicao('ERRO: ' + e.message);
-  }
-}
-setTimeout(_rodarDistribuicaoSubAdmin, 15000);
-setInterval(_rodarDistribuicaoSubAdmin, 5 * 60 * 1000);
-// ── FIM JOB_DISTRIBUICAO_SUBADMIN ────────────────────────────────────────────
 // ── FIM JOB_JOBS_TRAVADOS ─────────────────────────────────────────────────────
 
 // INBOX WHATSAPP
@@ -21511,12 +21411,6 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <button class="no" id="btnPausarAuto" onclick="pausarAutomatico()" ${!ativo?'disabled':''}>⏸ Pausar</button>
   </div>
   <div class="box">
-    <h3>🤝 Distribuir atendimentos abertos</h3>
-    <p class="gray">Quem clicou e ainda não tem ninguém atendendo é dividido em round-robin entre os sub-admins ativos — não mexe em quem já tem atendente. Cada sub-admin só vê os que são dele em "Contatos importados" abaixo.</p>
-    <button onclick="distribuirAtendimentos()">🔀 Distribuir agora</button>
-    <div id="distribuir-resultado"></div>
-  </div>
-  <div class="box">
     <h3>1. Importar contatos</h3>
     <p class="gray">CSV ou Excel com colunas: nome, email, celular</p>
     <input type="file" id="arquivo" accept=".csv,.xlsx,.xls">
@@ -21632,14 +21526,6 @@ https://www.matchimoveis.ia.br
     document.getElementById('statusAutomatico').textContent = '⏸ Parado';
     document.getElementById('btnIniciarAuto').disabled = false;
     document.getElementById('btnPausarAuto').disabled = true;
-  }
-  async function distribuirAtendimentos(){
-    const el = document.getElementById('distribuir-resultado');
-    el.innerHTML = '<p>⏳ Distribuindo...</p>';
-    const r = await fetch('/admin/campanha/distribuir-atendimentos', {method:'POST'});
-    const d = await r.json();
-    if(!d.ok){ el.innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
-    el.innerHTML = '<p class="green">✅ '+d.distribuidos+' contato(s) distribuído(s).'+(d.liberadosSemPermissao > 0 ? ' ('+d.liberadosSemPermissao+' estavam presos numa conta sem permissão e foram redistribuídos.)' : '')+'</p>';
   }
   function _setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
   function _setDisabled(id, val){ const el = document.getElementById(id); if(el) el.disabled = val; }
@@ -22092,35 +21978,6 @@ app.post('/admin/campanha/contatos/:id/excluir-celular', authAdmin, async (req, 
     const { excluirCelularContato } = require('./services/campanha');
     await excluirCelularContato(req.params.id);
     res.json({ ok: true });
-  } catch (e) { res.json({ ok: false, erro: e.message }); }
-});
-
-// Divide os contatos que clicaram e ainda estão sem atendente entre os
-// sub-admins ativos — restrito ao superadmin (ver _ADMIN_ROTAS_SUPERADMIN_ONLY)
-// porque é uma ação em lote que muda o dono de vários contatos de uma vez.
-app.post('/admin/campanha/distribuir-atendimentos', authAdmin, async (req, res) => {
-  try {
-    const { listarAdminContas } = require('./services/salvarAdminConta');
-    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo && (c.permissoes || []).includes('campanha'));
-    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo com permissão de Campanha Email pra distribuir' });
-    const liberados = await _liberarSemPermissao('campanha_contatos', contasAtivas);
-    const { distribuirAtendimentosAbertos } = require('./services/campanha');
-    const resultado = await distribuirAtendimentosAbertos(contasAtivas);
-    res.json({ ok: true, ...resultado, liberadosSemPermissao: liberados });
-  } catch (e) { res.json({ ok: false, erro: e.message }); }
-});
-
-// Mesma lógica acima, pra Campanha de Captação — restrito ao superadmin
-// (ver _ADMIN_ROTAS_SUPERADMIN_ONLY).
-app.post('/admin/captacao-campanha/distribuir-atendimentos', authAdmin, async (req, res) => {
-  try {
-    const { listarAdminContas } = require('./services/salvarAdminConta');
-    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo && (c.permissoes || []).includes('captacao-campanha'));
-    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo com permissão de Campanha Captação pra distribuir' });
-    const liberados = await _liberarSemPermissao('campanha_captacao_envios', contasAtivas);
-    const { distribuirAtendimentosAbertos } = require('./services/campanhaCaptacao');
-    const resultado = await distribuirAtendimentosAbertos(contasAtivas);
-    res.json({ ok: true, ...resultado, liberadosSemPermissao: liberados });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 

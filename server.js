@@ -620,7 +620,6 @@ const _ADMIN_NAV = [
   { sec: 'Administração', items: [
     { key: 'afiliados-admin', href: '/admin/afiliados', icon: '🌳', label: 'Afiliados' },
     { key: 'comissoes-pendentes', href: '/admin/comissoes-pendentes', icon: '💸', label: 'Comissões Pendentes' },
-    { key: 'atribuicoes-subadmin', href: '/admin/atribuicoes-subadmin', icon: '🔍', label: 'Revisar Atribuições' },
     { key: 'pagamentos', href: '/admin/pagamentos', icon: '💳', label: 'Pagamentos e Tentativas' }
   ]}
 ];
@@ -872,7 +871,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/campanha/importar', '/admin/campanha/teste',
   '/admin/campanha/iniciar', '/admin/campanha/pausar',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
-  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global', '/admin/emails',
+  '/admin/comissoes-pendentes', '/admin/site-global', '/admin/emails',
   '/admin/instagram-posts', '/admin/pagamentos'
 ];
 // Sempre acessível pra qualquer conta admin logada, sem depender de
@@ -2080,102 +2079,6 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
   } catch(e) {
     res.send('Erro: ' + e.message);
   }
-});
-
-// Revisão de atribuições sub-admin (usuarios.dados->>'atendidoPorAdmin') —
-// não dá pra saber com certeza absoluta quem foi setado certo vs errado (não
-// ficou timestamp de QUANDO cada atribuição foi feita), então em vez de
-// apagar automático, mostra a lista com as pistas disponíveis pro superadmin
-// decidir caso a caso: se tem rastro real de campanha (linha em
-// campanha_contatos OU campanha_captacao_envios com atendido_por igual, achada
-// por telefone/email) é forte indício de que veio pelo link/trabalho do
-// sub-admin de verdade; se não tem NENHUM rastro, é suspeito (pode ter sido o
-// bug do e-mail de recarga, corrigido no commit 2c3fd1e0, que inventava um
-// sub-admin por rodízio pra corretor já cadastrado sem referral nenhum).
-app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
-  try {
-    const { query: _qAtrib } = require('./services/db');
-    // Última execução real do job de distribuição automática (ver
-    // JOB_DISTRIBUICAO_SUBADMIN) — confirma direto na tela se ele tá rodando
-    // e o que fez, sem precisar adivinhar.
-    // Usuários com sub-admin gravado — normalmente um grupo pequeno, mesmo
-    // que a base de usuarios seja grande (o filtro já corta antes de trazer
-    // tudo pra memória).
-    const { rows: usuariosComRef } = await _qAtrib(`
-      SELECT codigo_usuario, nome, telefone, email, criado_em,
-        dados->>'atendidoPorAdmin' AS atendido_por_admin,
-        dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome,
-        dados->>'indicadoPor' AS indicado_por,
-        dados->>'ultimoEmailRecargaEm' AS ultimo_email_recarga_em
-      FROM usuarios
-      WHERE dados->>'atendidoPorAdmin' IS NOT NULL AND dados->>'atendidoPorAdmin' != ''
-      ORDER BY criado_em DESC
-    `);
-
-    // Cruzamento de rastro feito em memória (Node), não em SQL — a versão
-    // anterior fazia uma subquery correlacionada com REGEXP_REPLACE por
-    // CADA usuário, escaneando a campanha_contatos inteira (~118 mil linhas)
-    // de novo a cada linha — pesado o bastante pra contribuir com um OOM em
-    // produção (heap estourou, viu o log de crash). Aqui cada tabela de
-    // campanha é lida 1x só (já filtrada por atendido_por preenchido, que é
-    // um subconjunto bem menor que o total) e vira um Set em memória —
-    // O(1) por usuário depois disso, sem repetir varredura nenhuma.
-    const _normTel = t => String(t || '').replace(/\D/g, '').slice(-8);
-    const _rastro = new Set(); // chave: "atendido_por|email" ou "atendido_por|tel"
-    const [{ rows: ccRows }, { rows: ceRows }] = await Promise.all([
-      _qAtrib(`SELECT atendido_por, email, celular FROM campanha_contatos WHERE atendido_por IS NOT NULL AND atendido_por != ''`),
-      _qAtrib(`SELECT atendido_por, email, telefone FROM campanha_captacao_envios WHERE atendido_por IS NOT NULL AND atendido_por != ''`)
-    ]);
-    for (const c of ccRows) {
-      if (c.email) _rastro.add(c.atendido_por + '|e|' + c.email.toLowerCase());
-      if (c.celular) _rastro.add(c.atendido_por + '|t|' + _normTel(c.celular));
-    }
-    for (const c of ceRows) {
-      if (c.email) _rastro.add(c.atendido_por + '|e|' + c.email.toLowerCase());
-      if (c.telefone) _rastro.add(c.atendido_por + '|t|' + _normTel(c.telefone));
-    }
-    const rows = usuariosComRef.map(u => ({
-      ...u,
-      tem_rastro_campanha:
-        (u.email && _rastro.has(u.atendido_por_admin + '|e|' + u.email.toLowerCase())) ||
-        (u.telefone && _rastro.has(u.atendido_por_admin + '|t|' + _normTel(u.telefone)))
-    }));
-    const linhas = rows.map(r => `
-      <tr style="border-bottom:1px solid #f3f4f6;background:${r.tem_rastro_campanha ? '' : '#fef2f2'}">
-        <td style="padding:8px;font-size:12px">${new Date(r.criado_em).toLocaleDateString('pt-BR')}</td>
-        <td style="padding:8px;font-size:12px;font-weight:600">${r.nome || ''}<br><span style="color:#9ca3af;font-size:10.5px">${r.codigo_usuario}</span></td>
-        <td style="padding:8px;font-size:12px">${r.atendido_por_admin_nome || r.atendido_por_admin}</td>
-        <td style="padding:8px;font-size:12px">${r.indicado_por ? `<span style="color:#16a34a">✓ ${r.indicado_por}</span>` : '<span style="color:#9ca3af">—</span>'}</td>
-        <td style="padding:8px;font-size:12px">${r.tem_rastro_campanha ? '<span style="color:#16a34a;font-weight:600">✅ Tem rastro de campanha</span>' : '<span style="color:#dc2626;font-weight:600">⚠️ Sem rastro — suspeito</span>'}</td>
-        <td style="padding:8px;font-size:12px">${r.ultimo_email_recarga_em ? new Date(r.ultimo_email_recarga_em).toLocaleDateString('pt-BR') : '—'}</td>
-        <td style="padding:8px">
-          <form method="POST" action="/admin/atribuicoes-subadmin/${r.codigo_usuario}/remover" onsubmit="return confirm('Remover a atribuição de sub-admin de ${(r.nome||'').replace(/'/g,"")}? Ele deixa de ser contado pra comissões futuras.')" style="display:inline">
-            <button type="submit" style="font-size:11px;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600">Remover</button>
-          </form>
-        </td>
-      </tr>`).join('');
-    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Atribuições sub-admin · Admin</title>
-    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;background:#f9fafb;font-size:13px}${_adminShellCss()}
-    .admin-content{max-width:1100px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb}
-    th{text-align:left;padding:8px;font-size:11px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb}</style></head>
-    <body><div class="admin-app">${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
-    <main class="admin-content">
-      <h1 style="font-size:20px;margin-bottom:6px">Revisão de atribuições sub-admin (${rows.length})</h1>
-      <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Registro histórico — sub-admin foi descontinuado (ago/2026), essas atribuições não geram mais comissão nem recebem contato novo. Fica só como auditoria do que aconteceu até a migração pro programa de afiliados.</p>
-      <table>
-        <thead><tr><th>Cadastro</th><th>Corretor</th><th>Sub-admin</th><th>Indicado por (corretor)</th><th>Evidência</th><th>Recebeu e-mail recarga</th><th></th></tr></thead>
-        <tbody>${linhas || '<tr><td colspan="7" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma conta com sub-admin atribuído</td></tr>'}</tbody>
-      </table>
-    </main></div></body></html>`);
-  } catch(e) { res.status(500).send('Erro: ' + e.message); }
-});
-app.post('/admin/atribuicoes-subadmin/:codigo/remover', authAdmin, async (req, res) => {
-  try {
-    const { query: _qRemAtrib } = require('./services/db');
-    await _qRemAtrib(`UPDATE usuarios SET dados = dados - 'atendidoPorAdmin' - 'atendidoPorAdminNome' - 'atendidoPorAdminCor', atualizado_em=NOW() WHERE codigo_usuario=$1`, [req.params.codigo]);
-    if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.codigoUsuario === req.params.codigo || u.id === req.params.codigo); if (idx >= 0) { delete _cacheUsuarios[idx].atendidoPorAdmin; delete _cacheUsuarios[idx].atendidoPorAdminNome; delete _cacheUsuarios[idx].atendidoPorAdminCor; } }
-    res.redirect('/admin/atribuicoes-subadmin');
-  } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
 // ── USUÁRIOS ONLINE (tempo real) ─────────────────────────────────────────────

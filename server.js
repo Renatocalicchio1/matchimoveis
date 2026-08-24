@@ -7540,9 +7540,8 @@ app.get('/app/afiliados', auth, async (req, res) => {
   try {
     const meUser = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === uid) || req.session.user;
     const nivel = _nivelAfiliado(meUser);
-    // Nível 1 é afiliado-sub-admin — acessa pelo /admin/login, não por aqui
-    // (essa tela é só pra Nível 2 e 3, que usam a própria conta de corretor).
-    if (nivel === 1) return res.redirect('/admin/login');
+    // Sub-admin foi descontinuado (ago/2026) — Nível 1, 2 e 3 são todos conta
+    // de corretor comum, todos usam essa mesma tela, só o nível muda.
 
     if (!meUser.afiliadoContratoAceitoEm) {
       return res.render('app-afiliados', { user: req.session.user, aceitouContrato: false, nivel, dados: null });
@@ -14673,41 +14672,11 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
     }
 
     await _processarComissaoAfiliado(userId, creditosComprados, _eraPrimeiraCompra);
-
-    if (comprador.atendidoPorAdmin) {
-      const { buscarAdminConta } = require('./services/salvarAdminConta');
-      const conta = await buscarAdminConta(comprador.atendidoPorAdmin);
-      if (conta && conta.ativo) {
-        const bonusAdmin = Math.floor(creditosComprados * (_eraPrimeiraCompra ? conta.pctPrimeira : conta.pctRecorrencia) / 100);
-        if (bonusAdmin > 0) {
-          const { registrarBonus, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
-          await registrarBonus({ indicadorCodigo: conta.usuario, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonusAdmin, indicadorTipo: 'admin' });
-          console.log('[bonus-admin] comissão registrada:', conta.usuario, '| valor:', bonusAdmin, '| indicado:', userId);
-          // Avisa o sub-admin na hora, pelo número OFICIAL (Meta Cloud API) —
-          // não pelo Evolution/suporte: número de automação não-oficial tem
-          // risco real de bloqueio em uso automatizado, e esse aviso dispara
-          // toda vez que alguém compra, então é volume recorrente, não pontual.
-          // É mensagem iniciada pela empresa (fora da janela de 24h), então
-          // precisa de template aprovado — TEMPLATE_AVISO_COMISSAO ainda não
-          // existe no Meta, configurar via env quando for criado.
-          if (conta.celular && process.env.TEMPLATE_AVISO_COMISSAO) {
-            (async () => {
-              try {
-                const totalDisp = await totalDisponivelPorIndicador(conta.usuario);
-                const { enviarTemplate } = require('./services/metaWhatsapp');
-                await enviarTemplate({
-                  telefone: conta.celular,
-                  templateNome: process.env.TEMPLATE_AVISO_COMISSAO,
-                  templateIdioma: process.env.TEMPLATE_AVISO_COMISSAO_IDIOMA || 'pt_BR',
-                  // ordem combinada com o corpo do template: {{1}} valor ganho, {{2}} total disponível
-                  parametros: [String(bonusAdmin), String(totalDisp)]
-                });
-              } catch(e) { console.error('[bonus-admin] erro ao avisar sub-admin:', e.message); }
-            })();
-          }
-        }
-      }
-    }
+    // Comissão fixa de sub-admin (30%/15%/20%/10% via atendidoPorAdmin) foi
+    // aposentada (ago/2026) — sub-admin não existe mais como login separado,
+    // virou só afiliado (indicadoPor + níveis). O campo atendidoPorAdmin em
+    // si continua sendo gravado no cadastro só pra rastreio histórico, mas
+    // não gera mais comissão nenhuma daqui pra frente.
   } catch(e) { console.error('[bonus-indicacao]', e.message); }
 }
 

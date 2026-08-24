@@ -7532,7 +7532,7 @@ app.get('/app/afiliados', auth, async (req, res) => {
     };
     const arvore = _montarArvore(uid, 0);
 
-    const volumeAtual = await _volumeVendasAfiliado(uid).catch(() => 0);
+    const volumeAtual = await _volumeVendasAfiliado(uid, nivel).catch(() => 0);
     const faltaProximoNivel = nivel === 3 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel2 - volumeAtual)
       : nivel === 2 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel1 - volumeAtual) : 0;
 
@@ -14415,12 +14415,25 @@ function _buscarAncestralNivel(codigoInicial, nivelAlvo, _profundidade) {
   return _buscarAncestralNivel(u.indicadoPor, nivelAlvo, _profundidade + 1);
 }
 
-async function _volumeVendasAfiliado(codigo) {
+// Volume de venda pra fins de promoção depende do nível de quem tá sendo
+// medido (regra combinada com o Renato): Nível 3 conta só a venda dele
+// mesmo (papel='propria'); Nível 2 conta a própria + a dos afiliados dele
+// que estão no Nível 3 (papel='override_n2', criado exatamente quando um
+// Nível 3 descendente vende — ver _lancar em _processarComissaoAfiliado);
+// Nível 1 soma tudo (própria + override de N2 + override de N1 que ele
+// recebeu), pra manter o número coerente mesmo sem mais promoção acima dele.
+// nivelParaFiltro é passado explicitamente (não lido do cadastro) pra dar
+// pra recalcular sob um nível hipotético dentro de _checarPromocaoAfiliado,
+// sem precisar gravar o nível antes de saber se a segunda faixa também bateu.
+async function _volumeVendasAfiliado(codigo, nivelParaFiltro) {
   try {
+    const papeis = nivelParaFiltro === 3 ? ['propria']
+      : nivelParaFiltro === 2 ? ['propria', 'override_n2']
+      : ['propria', 'override_n2', 'override_n1'];
     const { query: _qVolAfil } = require('./services/db');
     const { rows } = await _qVolAfil(
-      `SELECT COALESCE(SUM(valor_compra_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo='afiliado' AND papel='propria'`,
-      [codigo]
+      `SELECT COALESCE(SUM(valor_compra_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo='afiliado' AND papel = ANY($2)`,
+      [codigo, papeis]
     );
     return parseInt(rows[0]?.total || 0) / 20;
   } catch(e) { console.error('[afiliado-volume]', e.message); return 0; }
@@ -14430,13 +14443,18 @@ async function _checarPromocaoAfiliado(codigo) {
   try {
     const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
     if (!u) return;
-    const nivelAtual = _nivelAfiliado(u);
-    if (nivelAtual === 1) return;
-    const volume = await _volumeVendasAfiliado(codigo);
-    let novoNivel = nivelAtual;
-    if (novoNivel === 3 && volume >= _PROMOCAO_AFILIADO.paraNivel2) novoNivel = 2;
-    if (novoNivel === 2 && volume >= _PROMOCAO_AFILIADO.paraNivel1) novoNivel = 1;
-    if (novoNivel === nivelAtual) return;
+    const nivelOriginal = _nivelAfiliado(u);
+    if (nivelOriginal === 1) return;
+    let novoNivel = nivelOriginal;
+    if (novoNivel === 3) {
+      const volume3 = await _volumeVendasAfiliado(codigo, 3);
+      if (volume3 >= _PROMOCAO_AFILIADO.paraNivel2) novoNivel = 2;
+    }
+    if (novoNivel === 2) {
+      const volume2 = await _volumeVendasAfiliado(codigo, 2);
+      if (volume2 >= _PROMOCAO_AFILIADO.paraNivel1) novoNivel = 1;
+    }
+    if (novoNivel === nivelOriginal) return;
     const { atualizarUsuario: _auProm } = require('./services/salvarUsuario');
     await _auProm(codigo, { afiliadoNivel: novoNivel });
     u.afiliadoNivel = novoNivel;

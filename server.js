@@ -7217,10 +7217,14 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
       const celular = ehRaizSintetica ? '' : String((u.celular || u.telefone || '')).replace(/\D/g, '');
       const online = !ehRaizSintetica && u.whatsappStatus === 'open';
       let html = '<li><div class="af-no" style="border-color:' + cor + '">';
+      if (!ehRaizSintetica) html += `<span class="af-no-dot ${online ? 'af-no-dot-on' : 'af-no-dot-off'}" title="${online ? 'Online agora' : 'Offline'}"></span>`;
       html += '<div class="af-no-badge" style="background:' + cor + '">' + (ehRaizSintetica ? '★' : 'N' + nivel) + '</div>';
       html += '<div class="af-no-nome">' + _escAf(nomeExibido) + '</div>';
       if (!ehRaizSintetica) {
         html += '<div class="af-no-codigo">' + _escAf(codigo) + '</div>';
+        html += celular
+          ? `<a href="https://wa.me/${celular.startsWith('55') ? celular : '55' + celular}?text=${encodeURIComponent('Olá! Sou da equipe MatchImóveis. Tudo bem?')}" target="_blank" class="af-no-wa-btn" title="Falar no WhatsApp">💬</a>`
+          : '';
         html += `<form method="post" action="/admin/afiliados/${encodeURIComponent(codigo)}/nivel" class="af-no-form">
           <select name="nivel">
             <option value="1" ${nivel===1?'selected':''}>N1</option>
@@ -7228,11 +7232,7 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
             <option value="3" ${nivel===3?'selected':''}>N3</option>
           </select>
           <button type="submit">✓</button>
-        </form>
-        <div class="af-no-pop">
-          <div class="af-no-pop-status"><span class="af-dot ${online ? 'af-dot-on' : 'af-dot-off'}"></span>${online ? 'Online agora' : 'Offline'}</div>
-          ${celular ? `<a href="https://wa.me/${celular.startsWith('55') ? celular : '55' + celular}" target="_blank" class="af-no-pop-wa">💬 Falar no WhatsApp</a>` : '<span style="font-size:9px;color:#9ca3af">sem celular</span>'}
-        </div>`;
+        </form>`;
       }
       html += '</div>';
       if (filhos.length) {
@@ -7274,13 +7274,10 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
     .af-no{border:2px solid;border-radius:7px;padding:3px 5px;background:#fff;min-width:0;width:66px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
     .af-no-badge{display:inline-block;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:7px;margin-bottom:1px}
     .af-no-nome{font-size:9.5px;font-weight:700;color:#111827;white-space:normal;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-    .af-no-pop{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.15);padding:8px;z-index:30;width:120px;text-align:center}
-    .af-no:hover .af-no-pop{display:block}
-    .af-no-pop-status{font-size:9px;color:#6b7280;margin-bottom:5px;white-space:nowrap}
-    .af-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
-    .af-dot-on{background:#16a34a}
-    .af-dot-off{background:#9ca3af}
-    .af-no-pop-wa{display:block;font-size:9px;font-weight:700;background:#25D366;color:#fff;padding:4px 6px;border-radius:5px;text-decoration:none}
+    .af-no-dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;border:1.5px solid #fff;z-index:5}
+    .af-no-dot-on{background:#16a34a}
+    .af-no-dot-off{background:#9ca3af}
+    .af-no-wa-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#25D366;color:#fff;font-size:10px;text-decoration:none;margin-top:3px}
     .af-no-codigo{font-size:8px;color:#9ca3af;margin-top:1px}
     .af-no-form{display:flex;gap:1px;justify-content:center;margin-top:3px}
     .af-no-form select{font-size:8px;padding:0 1px;border-radius:3px;border:1px solid #e5e7eb}

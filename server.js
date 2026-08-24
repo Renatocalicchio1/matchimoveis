@@ -7162,6 +7162,29 @@ app.post('/app/afiliados/resgate', auth, express.json(), async (req, res) => {
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
+// Botão "Falar no WhatsApp" da aba Convidar novos passa por aqui em vez de
+// linkar direto pro wa.me — marca contato_afiliado_em (congela o contato
+// nessa conta, tira ele do rebalanceamento automático, ver
+// _rodarReequilibrioContatosAfiliado) e só depois manda pro WhatsApp de
+// verdade. Só marca se o contato realmente é desse afiliado (evita marcar
+// clique de outro por engano/URL adivinhada).
+app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    const telefone = String(req.query.tel || '').replace(/\D/g, '');
+    const msg = encodeURIComponent('Oi! Vi que você tem interesse na MatchImóveis, plataforma de match imobiliário com IA. Posso te ajudar a começar?');
+    const destino = telefone ? `https://wa.me/${telefone}?text=${msg}` : 'https://wa.me/';
+    const { buscarContato, marcarContatoAfiliadoClicado } = require('./services/salvarDisparo');
+    const contato = await buscarContato(req.params.id).catch(() => null);
+    if (contato && contato.variaveis && contato.variaveis.refAdmin === uid) {
+      await marcarContatoAfiliadoClicado(req.params.id);
+    }
+    res.redirect(destino);
+  } catch(e) {
+    res.redirect('https://wa.me/');
+  }
+});
+
 // Admin: árvore geral de todos os afiliados + edição manual de nível — só o
 // superadmin principal (é aqui que o Renato marca as 6 contas fixas + os
 // sub-admins existentes como Nível 1, já que nenhuma conta nasce Nível 1).
@@ -14071,6 +14094,71 @@ function _ehAfiliadoLiberado(codigo) {
 function _afiliadosNivel1() {
   return (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 1).map(u => u.codigoUsuario || u.id);
 }
+
+// ── JOB_REATRIBUICAO_CONTATOS_AFILIADO — reequilibra os contatos de campanha
+// que "Convidar novos" mostra pra cada afiliado (ago/2026, pedido explícito).
+// Duas situações fazem um contato mudar de dono, sempre dentro do MESMO
+// nível (não mexe no peso 35/35/30 entre níveis):
+//  1) Afiliado novo assina o contrato e fica com 0 contato, enquanto outros
+//     do mesmo nível têm vários — "todos têm que ter lead pra chamar".
+//  2) Contato passou 24h desde que caiu pro afiliado (ou desde a última
+//     reatribuição) sem ele clicar em "Falar no WhatsApp" — não é fila
+//     parada, alguém puxa.
+// Nos dois casos só tira contato de quem está ACIMA da média do nível e só
+// move contato que o dono atual ainda não clicou (contato_afiliado_em nulo)
+// — clicou, fica com ele (congelado). Roda em memória (_cacheUsuarios já
+// carregado) + 1 query de leitura + N updates pontuais, nada pesado.
+async function _rodarReequilibrioContatosAfiliado() {
+  try {
+    const { listarContatosAbertosComAfiliado, reatribuirContato } = require('./services/salvarDisparo');
+    const abertos = await listarContatosAbertosComAfiliado();
+    for (const nivel of [1, 2, 3]) {
+      const pool = (_cacheUsuarios || [])
+        .filter(u => _nivelAfiliado(u) === nivel && u.afiliadoContratoAceitoEm)
+        .map(u => u.codigoUsuario || u.id);
+      if (pool.length < 2) continue; // ninguém pra redistribuir entre
+
+      const porDono = {};
+      pool.forEach(p => { porDono[p] = []; });
+      abertos.forEach(c => {
+        const dono = c.variaveis && c.variaveis.refAdmin;
+        if (porDono[dono]) porDono[dono].push(c);
+      });
+
+      const total = pool.reduce((s, p) => s + porDono[p].length, 0);
+      const alvo = Math.floor(total / pool.length);
+      if (!alvo && total < pool.length) continue; // pouco contato pra distribuir 1 por pessoa ainda
+
+      const _agora = Date.now();
+      const _24h = 24 * 60 * 60 * 1000;
+      const doarPool = [];
+      pool.forEach(p => {
+        const meus = porDono[p];
+        if (meus.length <= alvo) return;
+        const excedente = meus.length - alvo;
+        const elegiveis = meus
+          .filter(c => !c.contato_afiliado_em && (_agora - new Date(c.reatribuido_em || c.criado_em).getTime()) > _24h)
+          .sort((a, b) => new Date(a.criado_em) - new Date(b.criado_em))
+          .slice(0, excedente);
+        doarPool.push(...elegiveis);
+      });
+      const receberPool = [];
+      pool.forEach(p => {
+        const falta = alvo - porDono[p].length;
+        for (let i = 0; i < falta; i++) receberPool.push(p);
+      });
+
+      const n = Math.min(doarPool.length, receberPool.length);
+      for (let i = 0; i < n; i++) {
+        await reatribuirContato(doarPool[i].id, receberPool[i]);
+      }
+      if (n > 0) console.log('[reequilibrio-afiliado] Nível ' + nivel + ': ' + n + ' contato(s) reatribuído(s)');
+    }
+  } catch(e) { console.error('[reequilibrio-afiliado]', e.message); }
+}
+setTimeout(_rodarReequilibrioContatosAfiliado, 30000);
+setInterval(_rodarReequilibrioContatosAfiliado, 30 * 60 * 1000);
+// ── FIM JOB_REATRIBUICAO_CONTATOS_AFILIADO ─────────────────────────────────
 
 function _nivelAfiliado(u) {
   return (u && u.afiliadoNivel) ? u.afiliadoNivel : 2;

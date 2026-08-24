@@ -197,12 +197,11 @@ async function afAceitarContrato(){
     <tbody>
       <% dados.contatosCampanha.forEach(function(c){
         const tel = String(c.telefone||'').replace(/\D/g,'');
-        const msg = encodeURIComponent('Oi! Vi que você tem interesse na MatchImóveis, plataforma de match imobiliário com IA. Posso te ajudar a começar?');
       %>
       <tr>
         <td><%= new Date(c.criado_em).toLocaleDateString('pt-BR') %></td>
         <td><%= c.nome || '(sem nome)' %></td>
-        <td><% if (tel) { %><a href="https://wa.me/<%= tel %>?text=<%= msg %>" target="_blank" style="color:#00A699;text-decoration:none"><%= c.telefone %></a><% } else { %>-<% } %></td>
+        <td><% if (tel) { %><a href="/app/afiliados/contato/<%= c.id %>/whatsapp?tel=<%= tel %>" target="_blank" style="color:#00A699;text-decoration:none"><%= c.telefone %></a><% } else { %>-<% } %></td>
         <td>
           <% if (c.status === 'convertido') { %><span style="color:#16a34a;font-weight:700">✅ Cadastrou</span>
           <% } else if (c.status === 'enviado' && c.auto_respondido_em) { %><span style="color:#2563eb;font-weight:700">💬 Respondeu</span>
@@ -274,6 +273,7 @@ async function afAceitarContrato(){
     <p><strong>4. O convite em si.</strong> A MatchImóveis manda a mensagem de WhatsApp oficial pra cada contato, com um botão que já leva pro cadastro na plataforma — e esse link já carrega escondido o <strong>seu código de afiliado</strong>, sem você precisar fazer nada.</p>
     <p><strong>5. Se a pessoa se cadastrar.</strong> A conta nova entra automaticamente na sua rede como Nível 3 — vira comissão de verdade dali pra frente (25% na primeira compra, 7% na recorrência). O contato some da sua lista "Convidar novos" (deixou de ser prospecto, já é afiliado seu).</p>
     <p><strong>6. O que você faz.</strong> Acompanha os contatos que caíram pra você na aba "Convidar novos" — cada linha tem um link de WhatsApp pra você puxar conversa manualmente com quem ainda não respondeu ao convite automático.</p>
+    <p><strong>7. Se você não clicar em até 24h.</strong> O contato passa pra outro afiliado do seu mesmo nível — não fica parado esperando. Assim que você clica em "Falar no WhatsApp" (mesmo que ele não responda ainda), o contato fica travado com você. Sempre que um afiliado novo assina o contrato, o sistema também redistribui um pouco dos contatos já em aberto pra ele — todo mundo com contrato assinado sempre tem gente pra chamar.</p>
   </div>
 </div>
 

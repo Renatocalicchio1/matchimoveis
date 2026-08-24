@@ -89,6 +89,16 @@ async function _inicializar() {
   await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS status_entrega TEXT`);
   await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS status_entrega_em TIMESTAMP`);
   await query(`CREATE INDEX IF NOT EXISTS idx_disparos_contatos_message_id ON disparos_contatos(message_id)`);
+  // Reatribuição automática de contato de campanha (ago/2026): se o afiliado
+  // dono (variaveis->>'refAdmin') não clicar em "Falar no WhatsApp" dentro de
+  // 24h, o contato passa pra outro afiliado do mesmo nível — ver
+  // _rodarReatribuicaoContatosAfiliado em server.js. contato_afiliado_em
+  // marca o clique (GET /app/afiliados/contato/:id/whatsapp); reatribuido_em
+  // reinicia a contagem de 24h a cada reatribuição (sem isso o
+  // COALESCE(reatribuido_em, criado_em) usaria sempre a data de criação
+  // original e reatribuiria de novo a cada ciclo do job).
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS contato_afiliado_em TIMESTAMP`);
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS reatribuido_em TIMESTAMP`);
   // Mensagem de follow-up (dispara dentro da janela de 24h pra quem respondeu
   // uma campanha) — linha única (id=1), editável pela tela em vez de fixa no
   // código.
@@ -270,6 +280,39 @@ async function listarContatosPorRefAdmin(refAdmin, limite = 200) {
     [refAdmin, limite]
   );
   return rows;
+}
+
+// Marca que o afiliado clicou em "Falar no WhatsApp" pra esse contato —
+// congela ele na conta atual (não entra mais no rebalanceamento/reatribuição
+// automática, ver _rodarReatribuicaoContatosAfiliado em server.js).
+async function marcarContatoAfiliadoClicado(id) {
+  await _inicializar();
+  await query(`UPDATE disparos_contatos SET contato_afiliado_em=NOW() WHERE id=$1`, [id]);
+}
+
+// Todo contato de campanha ainda em aberto (não convertido) com um afiliado
+// dono — base pro job de reatribuição/rebalanceamento entre afiliados do
+// mesmo nível. Sem limite: o job processa nível a nível em memória.
+async function listarContatosAbertosComAfiliado() {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT id, variaveis, criado_em, reatribuido_em, contato_afiliado_em
+     FROM disparos_contatos
+     WHERE variaveis->>'refAdmin' IS NOT NULL AND variaveis->>'refAdmin' != '' AND status != 'convertido'`
+  );
+  return rows;
+}
+
+// Move o contato pra outro afiliado — usado tanto na reatribuição por
+// inatividade (24h sem clicar) quanto no rebalanceamento quando um afiliado
+// novo assina o contrato (todo mundo tem que ter contato pra ligar).
+// reatribuido_em reinicia a contagem de 24h a partir de agora.
+async function reatribuirContato(id, novoRefAdmin) {
+  await _inicializar();
+  await query(
+    `UPDATE disparos_contatos SET variaveis = jsonb_set(COALESCE(variaveis,'{}'::jsonb), '{refAdmin}', to_jsonb($1::text)), reatribuido_em=NOW() WHERE id=$2`,
+    [novoRefAdmin, id]
+  );
 }
 
 // Usado pelo webhook de mensagem recebida (/webhook/whatsapp-cloud) pra
@@ -495,5 +538,8 @@ module.exports = {
   buscarContatoPorTelefone,
   marcarAutoRespondido,
   listarContatosPorRefAdmin,
-  statsPorTemplate
+  statsPorTemplate,
+  marcarContatoAfiliadoClicado,
+  listarContatosAbertosComAfiliado,
+  reatribuirContato
 };

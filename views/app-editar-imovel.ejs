@@ -225,9 +225,9 @@ const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); retu
     <div class="fm-card">
       <div class="fm-title">Valores</div>
       <div class="fg3" style="margin-bottom:10px">
-        <div class="campo"><label>Valor (R$)</label><input name="valor_imovel" type="number" step="any" value="<%= _val('valor_imovel') %>" placeholder="500000"></div>
-        <div class="campo"><label>Condomínio (R$)</label><input name="condominio" type="number" step="any" value="<%= _val('condominio') %>" placeholder="1200"></div>
-        <div class="campo"><label>IPTU anual (R$)</label><input name="iptu" type="number" step="any" value="<%= _val('iptu') %>" placeholder="3600"></div>
+        <div class="campo"><label>Valor (R$)</label><input name="valor_imovel" type="text" inputmode="numeric" value="<%= _val('valor_imovel') ? Number(_val('valor_imovel')).toLocaleString('pt-BR') : '' %>" placeholder="500.000" oninput="fmtMoeda(this)"></div>
+        <div class="campo"><label>Condomínio (R$)</label><input name="condominio" type="text" inputmode="numeric" value="<%= _val('condominio') ? Number(_val('condominio')).toLocaleString('pt-BR') : '' %>" placeholder="1.200" oninput="fmtMoeda(this)"></div>
+        <div class="campo"><label>IPTU anual (R$)</label><input name="iptu" type="text" inputmode="numeric" value="<%= _val('iptu') ? Number(_val('iptu')).toLocaleString('pt-BR') : '' %>" placeholder="3.600" oninput="fmtMoeda(this)"></div>
       </div>
       <div class="fg2">
         <div class="campo">
@@ -439,13 +439,26 @@ const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); retu
 </div>
 
 <script>
+// Máscara de milhar pros campos de valor (R$) — só dígitos, ponto a cada 3
+// casas a partir da direita. Campo é type="text" de propósito: type="number"
+// nativo só aceita 1 ponto (decimal), então "1.300.000" (formato brasileiro
+// de milhar) quebrava o campo no 2º ponto (bug relatado ago/2026, valor
+// virava 1 ao salvar). getValorLimpo() desfaz a máscara antes de enviar.
+function fmtMoeda(input) {
+  let v = input.value.replace(/\D/g,'');
+  input.value = v ? Number(v).toLocaleString('pt-BR') : '';
+}
+function getValorLimpo(input) {
+  return input.value.replace(/\D/g,'') || '0';
+}
 async function gerarDescricaoIA(){
   const tipo = document.querySelector('[name="tipo"]')?.value||'imóvel';
   const bairro = document.querySelector('[name="bairro"]')?.value||'';
   const cidade = document.querySelector('[name="cidade"]')?.value||'';
   const quartos = document.querySelector('[name="quartos"]')?.value||'';
   const area = document.querySelector('[name="area_m2"]')?.value||'';
-  const valor = document.querySelector('[name="valor_imovel"]')?.value||'';
+  const _valorEl = document.querySelector('[name="valor_imovel"]');
+  const valor = _valorEl ? getValorLimpo(_valorEl) : '';
   const res = await fetch('/api/gerar-descricao-imovel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo,bairro,cidade,quartos,area,valor})});
   const data = await res.json();
   const campo = document.querySelector('[name="descricao"]');

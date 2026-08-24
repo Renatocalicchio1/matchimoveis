@@ -11460,6 +11460,13 @@ app.post('/app/imoveis/portais-lote', auth, async (req, res) => {
   }
 });
 
+// Limpa campo de valor em R$ vindo com máscara de milhar (ex: "1.300.000",
+// ver fmtMoeda() nas views de cadastro/edição) — tira tudo que não é dígito
+// e converte pra inteiro. Preço de imóvel aqui nunca tem centavos.
+function _limparValorBR(v) {
+  return parseInt(String(v || '').replace(/\D/g, ''), 10) || 0;
+}
+
 app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async (req, res) => {
   // verifica saldo antes de cadastrar
   const _userCad = (_cacheUsuarios||[]).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario);
@@ -11495,17 +11502,16 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
     estado: b.estado || 'SP',
     latitude: parseFloat(b.latitude) || null,
     longitude: parseFloat(b.longitude) || null,
-    // valores — arredondado pro real inteiro mais próximo: preço de imóvel
-    // nessa plataforma é sempre exibido/tratado como valor cheio (toLocaleString
-    // sem casas decimais em todo o resto do código), nunca com centavos. Sem
-    // isso, um resíduo tipo "300000.1" (ex: veio de import de XML/planilha
-    // com valor quebrado) fica preso pra sempre — toda vez que o corretor
-    // reabre e salva de novo, o Number(...) recém-digitado herda o mesmo
-    // resíduo que já tava no banco, e o campo continua mostrando "300000,1"
-    // mesmo digitando "300000" por cima sem apagar tudo primeiro.
-    valor_imovel: Math.round(parseFloat(b.valor_imovel) || 0),
-    condominio: Math.round(parseFloat(b.condominio) || 0),
-    iptu: Math.round(parseFloat(b.iptu) || 0),
+    // valores — campo agora chega como texto com ponto de milhar (ex:
+    // "1.300.000", máscara em fmtMoeda() nas views) em vez de number puro —
+    // _limparValorBR tira tudo que não é dígito antes de converter. Antes,
+    // um type="number" nativo só aceitava 1 ponto (decimal): digitar
+    // "1.300.000" quebrava no 2º ponto e o valor salvo virava 1 (bug
+    // relatado ago/2026). Sempre número inteiro (preço aqui nunca tem
+    // centavos, é exibido sem casas decimais em todo o resto do código).
+    valor_imovel: _limparValorBR(b.valor_imovel),
+    condominio: _limparValorBR(b.condominio),
+    iptu: _limparValorBR(b.iptu),
     aceita_financiamento: b.aceita_financiamento || 'a_combinar',
     aceita_permuta: b.aceita_permuta || 'nao',
     // areas
@@ -13045,10 +13051,10 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     estado: b.estado || '',
     latitude: Number(b.latitude || 0) || null,
     longitude: Number(b.longitude || 0) || null,
-    // Arredondado pro real inteiro — ver nota equivalente em /app/imovel/cadastrar
-    valor_imovel: Math.round(Number(b.valor_imovel || 0)),
-    condominio: Math.round(Number(b.condominio || 0)),
-    iptu: Math.round(Number(b.iptu || 0)),
+    // _limparValorBR — ver nota equivalente em /app/imovel/cadastrar
+    valor_imovel: _limparValorBR(b.valor_imovel),
+    condominio: _limparValorBR(b.condominio),
+    iptu: _limparValorBR(b.iptu),
     aceita_financiamento: b.aceita_financiamento || 'a_combinar',
     aceita_permuta: b.aceita_permuta || 'nao',
     area_m2: Number(b.area_m2 || 0),

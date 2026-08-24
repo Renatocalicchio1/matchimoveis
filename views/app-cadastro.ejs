@@ -239,9 +239,9 @@
       <div class="fm-card">
         <div class="fm-title">Valores</div>
         <div class="fg3" style="margin-bottom:10px">
-          <div class="campo"><label>Valor (R$)</label><input name="valor_imovel" type="number" step="any" placeholder="500000"></div>
-          <div class="campo"><label>Condomínio (R$)</label><input name="condominio" type="number" step="any" placeholder="1200"></div>
-          <div class="campo"><label>IPTU anual (R$)</label><input name="iptu" type="number" step="any" placeholder="3600"></div>
+          <div class="campo"><label>Valor (R$)</label><input name="valor_imovel" type="text" inputmode="numeric" placeholder="500.000" oninput="fmtMoeda(this)"></div>
+          <div class="campo"><label>Condomínio (R$)</label><input name="condominio" type="text" inputmode="numeric" placeholder="1.200" oninput="fmtMoeda(this)"></div>
+          <div class="campo"><label>IPTU anual (R$)</label><input name="iptu" type="text" inputmode="numeric" placeholder="3.600" oninput="fmtMoeda(this)"></div>
         </div>
         <div class="fg2">
           <div class="campo"><label>Aceita financiamento?</label><select name="aceita_financiamento"><option value="sim">Sim</option><option value="nao">Não</option><option value="a_combinar">A combinar</option></select></div>
@@ -540,6 +540,18 @@ function fmtCEP(input) {
   input.value = v;
   if (v.replace(/\D/g,'').length===8) buscarCEP();
 }
+// Máscara de milhar pros campos de valor (R$) — só dígitos, ponto a cada 3
+// casas a partir da direita. Campo é type="text" de propósito: type="number"
+// nativo só aceita 1 ponto (decimal), então "1.300.000" (formato brasileiro
+// de milhar) quebrava o campo no 2º ponto (bug relatado ago/2026, valor
+// virava 1 ao salvar). getValorLimpo() desfaz a máscara antes de enviar.
+function fmtMoeda(input) {
+  let v = input.value.replace(/\D/g,'');
+  input.value = v ? Number(v).toLocaleString('pt-BR') : '';
+}
+function getValorLimpo(input) {
+  return input.value.replace(/\D/g,'') || '0';
+}
 function toggleCampos() {
   const tipo = document.getElementById('select-tipo').value.toLowerCase();
   const isTerreno = tipo.includes('terreno')||tipo.includes('área rural');
@@ -565,7 +577,8 @@ async function gerarDescricaoIA(){
   const cidade = document.querySelector('[name="cidade"]')?.value||'';
   const quartos = document.querySelector('[name="quartos"]')?.value||'';
   const area = document.querySelector('[name="area_m2"]')?.value||'';
-  const valor = document.querySelector('[name="valor_imovel"]')?.value||'';
+  const _valorEl = document.querySelector('[name="valor_imovel"]');
+  const valor = _valorEl ? getValorLimpo(_valorEl) : '';
   const res = await fetch('/api/gerar-descricao-imovel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo,bairro,cidade,quartos,area,valor})});
   const data = await res.json();
   const campo = document.querySelector('[name="descricao"]');

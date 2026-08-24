@@ -17443,6 +17443,38 @@ app.post('/app/lead/:id/classificar', auth, async (req, res) => {
   }
 });
 
+// ── COMENTÁRIOS DA LEAD (ago/2026) ────────────────────────────
+// Comentário livre do corretor/imobiliária sobre a lead, com data/hora —
+// blindado por conta (lerLeads já filtra pelo dono; a mesma pessoa virando
+// lead em 2 contas diferentes gera 2 registros distintos, cada um com seus
+// próprios comentários). Usado no detalhe da lead e no popover de hover da
+// planilha (/app/leads).
+app.post('/app/lead/:id/comentario', auth, async (req, res) => {
+  try {
+    const texto = String(req.body.texto || '').trim();
+    if (!texto) return res.status(400).json({ erro: 'comentário vazio' });
+    const leadsDoUsuario = lerLeads(req.session.user);
+    if (!leadsDoUsuario.find(l => String(l.id) === String(req.params.id))) {
+      return res.status(404).json({ erro: 'lead nao encontrada' });
+    }
+    const leads = (_cacheLeads || []);
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
+    if (!Array.isArray(leads[idx].comentarios)) leads[idx].comentarios = [];
+    const comentario = { texto, criadoEm: new Date().toISOString(), autor: req.session.user.nome || '' };
+    leads[idx].comentarios.push(comentario);
+    await salvarTodosLeads(leads);
+    try {
+      const { query: _qCM } = require('./services/db');
+      await _qCM('UPDATE leads SET comentarios=$1 WHERE id=$2', [JSON.stringify(leads[idx].comentarios), String(req.params.id)]);
+    } catch(_eCM){ console.error('[LEAD] erro comentario PG:', _eCM.message); }
+    console.log('[LEAD] comentário adicionado | id:', req.params.id);
+    res.json({ ok: true, comentarios: leads[idx].comentarios });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
 // ── IMÓVEL DO VENDEDOR ───────────────────────────────────────
 app.post('/app/lead/:id/imovel-vendedor', auth, async (req, res) => {
   try {
@@ -19903,7 +19935,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🏠 Imóveis</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Cadastro de imóvel</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Cadastro de imóvel</span><strong>10 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Edição de imóvel</span><strong style="color:var(--babu)">grátis</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Importação de XML</span><strong>2 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Geração de XML pra portal</span><strong>10 coins</strong></div>
@@ -19914,25 +19946,25 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">👤 Leads</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Importação de lead (planilha)</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Nova lead manual</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Match encontrado</span><strong>20 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>IA qualificou a lead</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Importação de lead (planilha)</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Nova lead manual</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Match encontrado</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>IA qualificou a lead</span><strong>15 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Lead ativa (por dia)</span><strong>5 coins</strong></div>
             </div>
           </div>
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🤖 Inteligência Artificial</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>IA respondeu pelo WhatsApp</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Follow-up automático</span><strong>25 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Visita agendada pela IA</span><strong>40 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>IA respondeu pelo WhatsApp</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Follow-up automático</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Visita agendada pela IA</span><strong>25 coins</strong></div>
             </div>
           </div>
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📲 WhatsApp</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Vitrine enviada</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Vitrine enviada</span><strong>15 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Confirmação automática</span><strong>15 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Notificação ao proprietário</span><strong>15 coins</strong></div>
             </div>
@@ -19940,15 +19972,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">✉️ E-mail</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>E-mail automático enviado pra lead (captação, vitrine, follow-up)</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>E-mail automático enviado pra lead (captação, vitrine, follow-up)</span><strong>15 coins</strong></div>
             </div>
           </div>
           <div>
             <div style="font-size:11px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📢 Divulgação e Meta Ads</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Publicação no Instagram</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Campanha Meta Ads criada</span><strong>20 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Lead recebido via Meta Ads</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Publicação no Instagram</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Campanha Meta Ads criada</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;font-size:12.5px"><span>Lead recebido via Meta Ads</span><strong>15 coins</strong></div>
             </div>
           </div>
         </div>
@@ -23158,7 +23190,7 @@ app.get('/admin/meus-links', authAdmin, async (req, res) => {
           <div>
             <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🏠 Imóveis</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Cadastro de imóvel</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Cadastro de imóvel</span><strong>10 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Edição de imóvel</span><strong style="color:#16a34a">grátis</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Importação de XML</span><strong>2 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Geração de XML pra portal</span><strong>10 coins</strong></div>
@@ -23169,25 +23201,25 @@ app.get('/admin/meus-links', authAdmin, async (req, res) => {
           <div>
             <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">👤 Leads</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Importação de lead (planilha)</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Nova lead manual</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Match encontrado</span><strong>20 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>IA qualificou a lead</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Importação de lead (planilha)</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Nova lead manual</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Match encontrado</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>IA qualificou a lead</span><strong>15 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Lead ativa (por dia)</span><strong>5 coins</strong></div>
             </div>
           </div>
           <div>
             <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">🤖 Inteligência Artificial</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>IA respondeu pelo WhatsApp</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Follow-up automático</span><strong>25 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Visita agendada pela IA</span><strong>40 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>IA respondeu pelo WhatsApp</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Follow-up automático</span><strong>20 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Visita agendada pela IA</span><strong>25 coins</strong></div>
             </div>
           </div>
           <div>
             <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📲 WhatsApp</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Vitrine enviada</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Vitrine enviada</span><strong>15 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Confirmação automática</span><strong>15 coins</strong></div>
               <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Notificação ao proprietário</span><strong>15 coins</strong></div>
             </div>
@@ -23195,15 +23227,15 @@ app.get('/admin/meus-links', authAdmin, async (req, res) => {
           <div>
             <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">✉️ E-mail</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>E-mail automático enviado pra lead (captação, vitrine, follow-up)</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>E-mail automático enviado pra lead (captação, vitrine, follow-up)</span><strong>15 coins</strong></div>
             </div>
           </div>
           <div>
             <div style="font-size:11px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">📢 Divulgação e Meta Ads</div>
             <div style="display:flex;flex-direction:column;gap:5px">
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Publicação no Instagram</span><strong>30 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Campanha Meta Ads criada</span><strong>20 coins</strong></div>
-              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Lead recebido via Meta Ads</span><strong>30 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Publicação no Instagram</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Campanha Meta Ads criada</span><strong>15 coins</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:7px 10px;background:#f9fafb;border-radius:8px;font-size:12.5px"><span>Lead recebido via Meta Ads</span><strong>15 coins</strong></div>
             </div>
           </div>
         </div>

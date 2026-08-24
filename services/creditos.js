@@ -4,28 +4,29 @@
  */
 const { lerUsuarios, salvarTodosUsuarios } = require('./salvarUsuario');
 
+// Valores ajustados conforme tabela "Como seus créditos são usados" (ago/2026)
 const CUSTO = {
-  cadastrar_imovel:       15,
+  cadastrar_imovel:       10,
   editar_imovel:           0,
   importar_xml:            2,
   gerar_xml_portal:       10,
   sync_xml_24h:            5,
-  lead_ativo_dia:        0.2,
-  ia_qualifica_lead:      30,
-  match_encontrado:       20,
-  vitrine_whatsapp:       30,
-  ia_responde_whatsapp:   30,
-  followup_auto:          25,
-  visita_agendada_ia:     40,
+  lead_ativo_dia:          5,
+  ia_qualifica_lead:      15,
+  match_encontrado:       15,
+  vitrine_whatsapp:       15,
+  ia_responde_whatsapp:   20,
+  followup_auto:          20,
+  visita_agendada_ia:     25,
   notificacao_prop:       15,
   confirmacao_auto:       15,
-  nova_lead:              30,
-  importar_lead:          30,
+  nova_lead:              15,
+  importar_lead:          15,
   imovel_divulgado:       10,
-  postar_instagram:       30,
-  campanha_meta_criada:   20,
-  lead_meta_recebido:     30,
-  email_lead:             30
+  postar_instagram:       15,
+  campanha_meta_criada:   15,
+  lead_meta_recebido:     15,
+  email_lead:             15
 };
 
 // O webhook do WhatsApp (/webhook/whatsapp) não checa saldo antes de responder —

@@ -41,6 +41,7 @@ function rowToLead(r) {
     mapaIntencao: r.mapa_intencao || null,
     comportamento: r.comportamento || null,
     intencoesOcultas: r.intencoes_ocultas || null,
+    comentarios: r.comentarios || [],
     deletadoPor: r.deletado_por || [],
     vitrineEnviada: r.vitrine_enviada,
     vitrineEnviadaEm: r.vitrine_enviada_em,
@@ -71,7 +72,7 @@ function _diferente(a, b) {
 // Converte objeto lead para colunas do banco
 function leadToRow(lead) {
   const dados = { ...lead };
-  const campos = ['id','nome','telefone','whatsapp','contato','origem','status','faseFunil','temperatura','score','userId','codigoUsuario','tipoLead','perfilIA','mensagens','matches','matchesAuto','matchesBase','historico','timeline','eventos','followUps','deletadoPor','vitrineEnviada','vitrineEnviadaEm','vitrineEmailEnviada','vitrineEmailEnviadaEm','visitaAgendada','visitaAgendadaEm','imovelVendedor','comissaoParceiro','cicloAnterior','cicloSeguinte','criadoEm','data_cadastro','mapaIntencao','comportamento','intencoesOcultas'];
+  const campos = ['id','nome','telefone','whatsapp','contato','origem','status','faseFunil','temperatura','score','userId','codigoUsuario','tipoLead','perfilIA','mensagens','matches','matchesAuto','matchesBase','historico','timeline','eventos','followUps','deletadoPor','vitrineEnviada','vitrineEnviadaEm','vitrineEmailEnviada','vitrineEmailEnviadaEm','visitaAgendada','visitaAgendadaEm','imovelVendedor','comissaoParceiro','cicloAnterior','cicloSeguinte','criadoEm','data_cadastro','mapaIntencao','comportamento','intencoesOcultas','comentarios'];
   campos.forEach(k => delete dados[k]);
   return {
     id: lead.id || String(Date.now()),
@@ -113,6 +114,7 @@ function leadToRow(lead) {
     mapa_intencao: lead.mapaIntencao ? JSON.stringify(lead.mapaIntencao) : null,
     comportamento: lead.comportamento ? JSON.stringify(lead.comportamento) : null,
     intencoes_ocultas: lead.intencoesOcultas ? JSON.stringify(lead.intencoesOcultas) : null,
+    comentarios: JSON.stringify(lead.comentarios || []),
     dados: JSON.stringify(dados)
   };
 }
@@ -159,6 +161,13 @@ async function _migrarColunaMapa() {
     // pelo caminho rápido — ago/2026).
     await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS vitrine_email_enviada BOOLEAN DEFAULT false');
     await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS vitrine_email_enviada_em TIMESTAMP');
+    // Comentários manuais do corretor/imobiliária sobre a lead (ago/2026) —
+    // array de {texto, criadoEm, autor}, mais recente por último. Cada linha
+    // de lead já pertence a uma conta só, então isolar por conta acontece de
+    // graça (não precisa filtro extra: se a mesma pessoa virar lead em 2
+    // contas diferentes, são 2 linhas/registros distintos, cada um com seus
+    // próprios comentários).
+    await _q(`ALTER TABLE leads ADD COLUMN IF NOT EXISTS comentarios JSONB DEFAULT '[]'`);
   } catch(e) {}
 }
 _migrarColunaMapa();
@@ -233,8 +242,8 @@ async function salvarLead(lead) {
       const _jaExistiaAntes = await query('SELECT 1 FROM leads WHERE id=$1', [r.id]);
       const _eraNova = !_jaExistiaAntes.rows.length;
       await query(`
-        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,vitrine_email_enviada,vitrine_email_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,comportamento,intencoes_ocultas,dados)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37)
+        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,vitrine_email_enviada,vitrine_email_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,comportamento,intencoes_ocultas,comentarios,dados)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38)
         ON CONFLICT (id) DO UPDATE SET
           nome=EXCLUDED.nome, telefone=EXCLUDED.telefone, whatsapp=EXCLUDED.whatsapp,
           contato=EXCLUDED.contato, origem=EXCLUDED.origem, status=EXCLUDED.status,
@@ -252,8 +261,9 @@ async function salvarLead(lead) {
           mapa_intencao=EXCLUDED.mapa_intencao,
           comportamento=EXCLUDED.comportamento,
           intencoes_ocultas=EXCLUDED.intencoes_ocultas,
+          comentarios=EXCLUDED.comentarios,
           dados=EXCLUDED.dados, atualizado_em=NOW()
-      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.vitrine_email_enviada,r.vitrine_email_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.comportamento,r.intencoes_ocultas,r.dados]);
+      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.vitrine_email_enviada,r.vitrine_email_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.comportamento,r.intencoes_ocultas,r.comentarios,r.dados]);
       // Email alerta nova lead individual (não lote) — vai pro corretor
       if (!lead._lote) {
         try {

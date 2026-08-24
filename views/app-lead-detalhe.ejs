@@ -418,6 +418,65 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% } %>
     </div>
 
+    <!-- Comentários -->
+    <div class="ld-card">
+      <div class="ld-title">💬 Comentários</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <textarea id="comentario-texto" rows="2" placeholder="Escreva um comentário sobre essa lead..." style="flex:1;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;font-family:inherit"></textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <button type="button" onclick="adicionarComentario()" class="acao-btn" style="background:var(--brand);color:#fff">Adicionar comentário</button>
+        <span id="comentario-status" style="font-size:12px;color:var(--text-ter)"></span>
+      </div>
+      <div id="comentarios-lista" style="display:flex;flex-direction:column;gap:10px">
+        <% const _comentarios = (lead.comentarios||[]).slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)); %>
+        <% if(_comentarios.length){ %>
+          <% _comentarios.forEach(c => { %>
+          <div class="comentario-item" style="background:var(--bg);border-radius:8px;padding:10px 12px">
+            <div style="font-size:11px;color:var(--text-ter);margin-bottom:4px"><%= c.autor||'Corretor' %> — <%= c.criadoEm ? new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '' %></div>
+            <div style="font-size:13px;color:var(--text);white-space:pre-wrap"><%= c.texto %></div>
+          </div>
+          <% }) %>
+        <% } else { %>
+          <div id="comentarios-vazio" style="font-size:12px;color:var(--text-ter);text-align:center;padding:12px">Nenhum comentário ainda.</div>
+        <% } %>
+      </div>
+    </div>
+    <script>
+    function adicionarComentario(){
+      var txt = document.getElementById('comentario-texto');
+      var texto = txt.value.trim();
+      if(!texto) return;
+      var status = document.getElementById('comentario-status');
+      status.textContent = 'Salvando...';
+      fetch('/app/lead/<%=lead.id%>/comentario', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ texto: texto })
+      }).then(function(r){ return r.json(); }).then(function(d){
+        if(!d.ok){ status.textContent = '✗ Erro'; return; }
+        status.textContent = '✓ Salvo';
+        setTimeout(function(){ status.textContent=''; }, 2000);
+        txt.value = '';
+        var vazio = document.getElementById('comentarios-vazio');
+        if(vazio) vazio.remove();
+        var lista = document.getElementById('comentarios-lista');
+        var item = document.createElement('div');
+        item.className = 'comentario-item';
+        item.style.cssText = 'background:var(--bg);border-radius:8px;padding:10px 12px';
+        var autor = document.createElement('div');
+        autor.style.cssText = 'font-size:11px;color:var(--text-ter);margin-bottom:4px';
+        autor.textContent = 'Você — ' + new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        var corpo = document.createElement('div');
+        corpo.style.cssText = 'font-size:13px;color:var(--text);white-space:pre-wrap';
+        corpo.textContent = texto;
+        item.appendChild(autor);
+        item.appendChild(corpo);
+        lista.insertBefore(item, lista.firstChild);
+      }).catch(function(){ status.textContent = '✗ Erro'; });
+    }
+    </script>
+
   </main>
 
   <!-- SIDEBAR -->

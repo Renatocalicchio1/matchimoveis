@@ -349,8 +349,21 @@ leads.forEach(item => {
       <% if(!item.tipoLead || item.tipoLead==='cliente'){ %>
       <button onclick="abrirClassificar('<%= item.id %>')" class="lb btn-classificar-flag" title="Classificar esta lead">🚩 Classificar</button>
       <% } %>
+      <%
+        const _com3 = (item.comentarios||[]).slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
+        const _comTitle = _com3.length ? _com3.map(c => (c.criadoEm ? new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '') + ': ' + (c.texto||'').slice(0,100)).join('\n\n') : 'Sem comentários — clique pra adicionar';
+      %>
+      <button type="button" onclick="event.stopPropagation();toggleComentarioBox('<%= item.id %>')" class="lb" title="<%= _comTitle %>">💬<%= (item.comentarios||[]).length ? ' '+(item.comentarios||[]).length : '' %></button>
       <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">Excluir</button>
       <a href="/app/lead/<%= item.id %>" class="lb dark">Ver detalhes →</a>
+    </div>
+    <div class="confirm-box" id="comentario-<%= item.id %>" style="display:none">
+      <div style="font-size:11px;color:#374151;margin-bottom:6px;font-weight:500">Adicionar comentário:</div>
+      <textarea id="comentario-txt-<%= item.id %>" rows="2" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;resize:vertical;font-family:inherit;margin-bottom:6px" placeholder="Escreva aqui..."></textarea>
+      <div style="display:flex;gap:5px">
+        <button onclick="salvarComentarioLead('<%= item.id %>')" class="lb prim" style="font-size:10px">Salvar</button>
+        <button onclick="document.getElementById('comentario-<%= item.id %>').style.display='none'" class="lb" style="font-size:10px">Cancelar</button>
+      </div>
     </div>
     <div class="confirm-box" id="confirm-<%= item.id %>">
       <div style="font-size:11px;color:#991b1b;margin-bottom:6px;font-weight:500">Excluir esta lead?</div>
@@ -699,6 +712,30 @@ async function excluirLead(id){const r=await fetch('/app/lead/'+id,{method:'DELE
 function abrirClassificar(id){document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');document.getElementById('classificar-'+id).style.display='block';}
 async function classificarLead(id,tipo){const r=await fetch('/app/lead/'+id+'/classificar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipoLead:tipo})});const d=await r.json();if(d.ok){ if(tipo==='corretor') window.location.href='/app/parceiros'; else location.reload(); }else alert('Erro: '+d.erro);}
 async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',{method:'POST'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
+
+function toggleComentarioBox(id){
+  const box = document.getElementById('comentario-'+id);
+  const aberto = box.style.display === 'block';
+  document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');
+  box.style.display = aberto ? 'none' : 'block';
+  if(!aberto) document.getElementById('comentario-txt-'+id).focus();
+}
+async function salvarComentarioLead(id){
+  const txt = document.getElementById('comentario-txt-'+id);
+  const texto = txt.value.trim();
+  if(!texto) return;
+  const r = await fetch('/app/lead/'+id+'/comentario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:texto})});
+  const d = await r.json();
+  if(!d.ok){ alert('Erro: '+(d.erro||'')); return; }
+  txt.value = '';
+  document.getElementById('comentario-'+id).style.display = 'none';
+  const btn = document.querySelector('[onclick*="toggleComentarioBox(\''+id+'\')"]');
+  if(btn){
+    btn.textContent = '💬 ' + d.comentarios.length;
+    const ultimos = d.comentarios.slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
+    btn.title = ultimos.map(c => (c.criadoEm?new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'') + ': ' + (c.texto||'').slice(0,100)).join('\n\n');
+  }
+}
 
 window.addEventListener('DOMContentLoaded', aplicarFiltros);
 

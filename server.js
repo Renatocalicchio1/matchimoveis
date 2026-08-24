@@ -7355,6 +7355,13 @@ app.post('/app/perfil', auth, async (req,res)=>{
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
 const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', cor_texto_rodape: '', logo_url: '', banners: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '', financiamento_url: '', financiamento_ativo: false };
 const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+// Valor que o CORRETOR aponta o CNAME dele — precisa ser um hostname proxied
+// (nuvem laranja) da nossa zona, DIFERENTE do Fallback Origin
+// (CLOUDFLARE_FALLBACK_ORIGIN, origin.matchimoveis.ia.br). Apontar CNAME de um
+// domínio externo pro hostname marcado como Fallback Origin dá "Error 1000:
+// DNS points to prohibited IP" na Cloudflare — são coisas diferentes, o
+// Fallback Origin é config interna, nunca deve ser exposto pro corretor.
+const _DOMINIO_CNAME_TARGET = process.env.CLOUDFLARE_CNAME_TARGET || 'cname.matchimoveis.ia.br';
 
 app.get('/app/meu-site', auth, async (req, res) => {
   try {
@@ -7362,10 +7369,10 @@ app.get('/app/meu-site', auth, async (req, res) => {
     const { buscarConfig } = require('./services/salvarSiteConfig');
     const configSalva = await buscarConfig(uid).catch(() => null);
     const siteConfig = configSalva || _SITE_CONFIG_PADRAO;
-    res.render('app-meu-site', { user: req.session.user, siteConfig, codigoUsuario: uid, msg: req.query.msg || null, fallbackOrigin: process.env.CLOUDFLARE_FALLBACK_ORIGIN || '' });
+    res.render('app-meu-site', { user: req.session.user, siteConfig, codigoUsuario: uid, msg: req.query.msg || null, cnameTarget: _DOMINIO_CNAME_TARGET });
   } catch(e) {
     console.error('[meu-site]', e.message);
-    res.render('app-meu-site', { user: req.session.user, siteConfig: _SITE_CONFIG_PADRAO, codigoUsuario: req.session.user.codigoUsuario || req.session.user.id, msg: null, fallbackOrigin: process.env.CLOUDFLARE_FALLBACK_ORIGIN || '' });
+    res.render('app-meu-site', { user: req.session.user, siteConfig: _SITE_CONFIG_PADRAO, codigoUsuario: req.session.user.codigoUsuario || req.session.user.id, msg: null, cnameTarget: _DOMINIO_CNAME_TARGET });
   }
 });
 

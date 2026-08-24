@@ -7076,6 +7076,8 @@ app.get('/app/afiliados', auth, async (req, res) => {
         codigo,
         nome: (u && u.nome) || codigo,
         nivel: u ? _nivelAfiliado(u) : null,
+        celular: (u && (u.celular || u.telefone)) || '',
+        online: !!u && u.whatsappStatus === 'open',
         filhos: filhos.map(f => _montarArvore(f.codigoUsuario || f.id, prof + 1)).filter(Boolean)
       };
     };
@@ -7189,6 +7191,8 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
       const filhos = ehRaizSintetica ? raizesN1 : todos.filter(f => f.indicadoPor === codigo);
       const cor = nivel === 0 ? '#111827' : nivel === 1 ? '#FF385C' : nivel === 2 ? '#00A699' : '#FC642D';
       const nomeExibido = ehRaizSintetica ? 'MatchImóveis' : (u.nome || codigo);
+      const celular = ehRaizSintetica ? '' : String((u.celular || u.telefone || '')).replace(/\D/g, '');
+      const online = !ehRaizSintetica && u.whatsappStatus === 'open';
       let html = '<li><div class="af-no" style="border-color:' + cor + '">';
       html += '<div class="af-no-badge" style="background:' + cor + '">' + (ehRaizSintetica ? '★' : 'N' + nivel) + '</div>';
       html += '<div class="af-no-nome">' + _escAf(nomeExibido) + '</div>';
@@ -7201,7 +7205,11 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
             <option value="3" ${nivel===3?'selected':''}>N3</option>
           </select>
           <button type="submit">✓</button>
-        </form>`;
+        </form>
+        <div class="af-no-pop">
+          <div class="af-no-pop-status"><span class="af-dot ${online ? 'af-dot-on' : 'af-dot-off'}"></span>${online ? 'Online agora' : 'Offline'}</div>
+          ${celular ? `<a href="https://wa.me/${celular.startsWith('55') ? celular : '55' + celular}" target="_blank" class="af-no-pop-wa">💬 Falar no WhatsApp</a>` : '<span style="font-size:9px;color:#9ca3af">sem celular</span>'}
+        </div>`;
       }
       html += '</div>';
       if (filhos.length) {
@@ -7227,7 +7235,7 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
        Caixas compactas + card sem max-width — usa toda a largura disponível
        da tela (pedido explícito, ago/2026). */
     .af-orgchart-wrap{overflow-x:auto;overflow-y:hidden;padding:8px 0}
-    .af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:13px;position:relative;list-style:none;margin:0}
+    .af-orgchart, .af-orgchart ul{display:flex;justify-content:safe center;padding-top:13px;position:relative;list-style:none;margin:0}
     .af-orgchart{padding-top:0}
     .af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:13px 3px 0}
     .af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #d1d5db;width:50%;height:13px}
@@ -7243,6 +7251,13 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
     .af-no{border:2px solid;border-radius:7px;padding:3px 5px;background:#fff;min-width:0;width:66px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
     .af-no-badge{display:inline-block;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:7px;margin-bottom:1px}
     .af-no-nome{font-size:9.5px;font-weight:700;color:#111827;white-space:normal;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+    .af-no-pop{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.15);padding:8px;z-index:30;width:120px;text-align:center}
+    .af-no:hover .af-no-pop{display:block}
+    .af-no-pop-status{font-size:9px;color:#6b7280;margin-bottom:5px;white-space:nowrap}
+    .af-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+    .af-dot-on{background:#16a34a}
+    .af-dot-off{background:#9ca3af}
+    .af-no-pop-wa{display:block;font-size:9px;font-weight:700;background:#25D366;color:#fff;padding:4px 6px;border-radius:5px;text-decoration:none}
     .af-no-codigo{font-size:8px;color:#9ca3af;margin-top:1px}
     .af-no-form{display:flex;gap:1px;justify-content:center;margin-top:3px}
     .af-no-form select{font-size:8px;padding:0 1px;border-radius:3px;border:1px solid #e5e7eb}

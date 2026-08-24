@@ -22485,10 +22485,12 @@ app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
   try {
     const _escP = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const { listarTodasSolicitacoesResgate } = require('./services/salvarIndicacao');
-    const { listarAdminContas } = require('./services/salvarAdminConta');
-    const [todas, contasAdmin] = await Promise.all([listarTodasSolicitacoesResgate(), listarAdminContas()]);
+    const todas = await listarTodasSolicitacoesResgate();
+    // Nome de quem pediu resgate: sub-admin foi descontinuado (só ficam
+    // registros históricos), então resolve pelo cadastro de corretor/afiliado
+    // (usuarios), que é a fonte real de todo pedido novo (indicador_tipo='afiliado').
     const _nomePorAdmin = {};
-    contasAdmin.forEach(c => { _nomePorAdmin[c.usuario] = c.nome || c.usuario; });
+    (_cacheUsuarios || []).forEach(u => { _nomePorAdmin[u.codigoUsuario || u.id] = u.nome || u.codigoUsuario || u.id; });
 
     // Mesma taxa base coins→R$ do painel do sub-admin (R$1 = 20 coins) —
     // é o valor de verdade que o superadmin precisa pagar por fora.

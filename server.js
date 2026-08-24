@@ -1024,15 +1024,17 @@ app.get('/admin/contas-admin', authAdmin, async (req, res) => {
         <td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${_escAdminHtml(c.cor)};vertical-align:middle;margin-right:6px"></span>${_escAdminHtml(c.cor)}</td>
         <td>${c.email ? _escAdminHtml(c.email) : '<span class="gray">não cadastrado</span>'}</td>
         <td>${c.celular ? _escAdminHtml(c.celular) : '<span class="gray">não cadastrado</span>'}</td>
+        <td>${c.codigoAfiliado ? '<span class="green">' + _escAdminHtml(c.codigoAfiliado) + '</span>' : '<span class="gray">não vinculado</span>'}</td>
         <td>${(c.permissoes || []).length ? c.permissoes.map(p => `<span class="tag">${_escAdminHtml(p)}</span>`).join(' ') : '<span class="gray">nenhuma</span>'}</td>
         <td>${c.ativo ? '<span class="green">ativo</span>' : '<span class="red">desativado</span>'}</td>
         <td>${c.ultimoLogin ? new Date(c.ultimoLogin).toLocaleString('pt-BR') : '<span class="gray">nunca</span>'}</td>
-        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}" data-cor="${_escAdminHtml(c.cor)}" data-celular="${_escAdminHtml(c.celular)}" data-email="${_escAdminHtml(c.email)}">
+        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}" data-cor="${_escAdminHtml(c.cor)}" data-celular="${_escAdminHtml(c.celular)}" data-email="${_escAdminHtml(c.email)}" data-codigo-afiliado="${_escAdminHtml(c.codigoAfiliado)}">
           ${c.ativo ? `<a href="/admin/contas-admin/${c.id}/entrar" style="background:#111;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11.5px;margin-right:4px;text-decoration:none;display:inline-block">🔓 Entrar</a>` : ''}
           <button type="button" class="btn-permissoes">✏️ Permissões</button>
           <button type="button" class="btn-cor">🎨 Cor</button>
           <button type="button" class="btn-email">📧 E-mail</button>
           <button type="button" class="btn-celular">📱 Celular</button>
+          <button type="button" class="btn-afiliado">🔗 Afiliado</button>
           <button type="button" class="btn-senha">🔑 Senha</button>
           <button type="button" class="btn-ativo">${c.ativo ? '⛔ Desativar' : '✅ Ativar'}</button>
           <button type="button" class="btn-deletar" style="color:#e8404a">🗑️</button>
@@ -1093,8 +1095,8 @@ button:hover{opacity:.85}
   <div class="card">
     <h2>👥 Contas existentes</h2>
     <table>
-      <thead><tr><th>Usuário</th><th>Nome</th><th>Cor</th><th>E-mail</th><th>Celular</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
-      <tbody>${linhas || '<tr><td colspan="9" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Cor</th><th>E-mail</th><th>Celular</th><th>Afiliado</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
+      <tbody>${linhas || '<tr><td colspan="10" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
     </table>
   </div>
 </main>
@@ -1177,6 +1179,14 @@ async function editarEmail(id, emailAtual){
   if(!d.ok){ alert(d.erro || 'Erro'); return; }
   location.reload();
 }
+async function editarAfiliado(id, codigoAtual){
+  const codigo = prompt('Código da conta de corretor vinculada a esse afiliado (ex: RAF-1234) — Nível 1 do programa de afiliados vive nessa conta:', codigoAtual || '');
+  if(codigo === null) return;
+  const r = await fetch('/admin/contas-admin/' + id + '/codigo-afiliado', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ codigo: codigo.trim() }) });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  location.reload();
+}
 async function deletarConta(id, usuario){
   if(!confirm('Excluir a conta admin "' + usuario + '"? Essa ação não pode ser desfeita.')) return;
   const r = await fetch('/admin/contas-admin/' + id + '/deletar', { method:'POST' });
@@ -1192,6 +1202,9 @@ document.querySelectorAll('td[data-id]').forEach(function(td){
   const corAtual = td.getAttribute('data-cor') || '#6b7280';
   const celularAtual = td.getAttribute('data-celular') || '';
   const emailAtual = td.getAttribute('data-email') || '';
+  const codigoAfiliadoAtual = td.getAttribute('data-codigo-afiliado') || '';
+  const btnAfil = td.querySelector('.btn-afiliado');
+  if(btnAfil) btnAfil.addEventListener('click', function(){ editarAfiliado(id, codigoAfiliadoAtual); });
   const btnP = td.querySelector('.btn-permissoes');
   if(btnP) btnP.addEventListener('click', function(){ editarPermissoes(id, permissoesAtuais); });
   const btnC = td.querySelector('.btn-cor');
@@ -1336,6 +1349,18 @@ app.post('/admin/contas-admin/:id/email', authAdmin, express.json(), async (req,
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.json({ ok: false, erro: 'E-mail inválido.' });
     const { atualizarEmailAdminConta } = require('./services/salvarAdminConta');
     await atualizarEmailAdminConta(req.params.id, email);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/contas-admin/:id/codigo-afiliado', authAdmin, express.json(), async (req, res) => {
+  try {
+    const codigo = String(req.body.codigo || '').trim();
+    if (codigo && !(_cacheUsuarios || []).some(u => (u.codigoUsuario || u.id) === codigo)) {
+      return res.json({ ok: false, erro: 'Código de corretor não encontrado' });
+    }
+    const { atualizarCodigoAfiliadoAdminConta } = require('./services/salvarAdminConta');
+    await atualizarCodigoAfiliadoAdminConta(req.params.id, codigo);
     res.json({ ok: true });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
@@ -23141,14 +23166,40 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     const _temPermCampanha = req.session.adminSuper !== false || _permsAtual.includes('campanha');
     const _temPermCaptacao = req.session.adminSuper !== false || _permsAtual.includes('captacao-campanha');
 
-    const historico = await listarBonusPorIndicador(usuarioAdmin, 'admin');
-    const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
+    // Nível 1 do programa de afiliados É o sub-admin (loga por aqui), e a
+    // comissão dele agora é só pelo mecanismo de afiliado (indicador_tipo=
+    // 'afiliado', tabela em cascata 25%/7%) — não mais o % fixo antigo por
+    // conta (pct_primeira/pct_recorrencia). Só cai de volta no comportamento
+    // antigo se essa conta ainda não tiver o "código de afiliado" vinculado
+    // (ver /admin/contas-admin, botão 🔗 Afiliado).
+    const _ehAfiliado = !!conta.codigoAfiliado;
+    const _codigoComissao = _ehAfiliado ? conta.codigoAfiliado : usuarioAdmin;
+    const _tipoComissao = _ehAfiliado ? 'afiliado' : 'admin';
+    const historico = await listarBonusPorIndicador(_codigoComissao, _tipoComissao);
+    const disponivel = await totalDisponivelPorIndicador(_codigoComissao, _tipoComissao);
     // Conversão coins→R$ pro sub-admin ver de cara quanto vai receber —
     // mesma taxa base da recarga avulsa do corretor (R$1 = 20 coins, ver
     // /pagamento/processar e o webhook MP), não a taxa promocional dos
     // combos (que tem bônus embutido e varia por plano).
     const disponivelReais = (disponivel / 20).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const meusLeads = _temPermCampanha ? await listarContatosPorRefAdmin(usuarioAdmin) : [];
+
+    // Árvore + volume do afiliado (mesma lógica de /app/afiliados) — só
+    // calculada quando a conta já tem código de afiliado vinculado.
+    let _afilArvore = null, _afilVolume = 0, _afilFalta = 0, _afilIndicados = [];
+    if (_ehAfiliado) {
+      const _montarArvoreSub = (codigo, prof) => {
+        if (prof > 8) return null;
+        const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+        const filhos = (_cacheUsuarios || []).filter(x => x.indicadoPor === codigo);
+        return { codigo, nome: (u && u.nome) || codigo, nivel: u ? _nivelAfiliado(u) : null, filhos: filhos.map(f => _montarArvoreSub(f.codigoUsuario || f.id, prof + 1)).filter(Boolean) };
+      };
+      _afilArvore = _montarArvoreSub(conta.codigoAfiliado, 0);
+      _afilVolume = await _volumeVendasAfiliado(conta.codigoAfiliado, 1).catch(() => 0);
+      _afilIndicados = (_cacheUsuarios || [])
+        .filter(u => u.indicadoPor === conta.codigoAfiliado)
+        .map(u => ({ nome: u.nome || '-', codigo: u.codigoUsuario || u.id, nivel: _nivelAfiliado(u), criadoEm: u.criadoEm }));
+    }
 
     // Corretores/imobiliárias que JÁ SE CADASTRARAM na plataforma atribuídos
     // a esse sub-admin (dados->>'atendidoPorAdmin', mesmo campo mostrado na
@@ -23354,7 +23405,51 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     <div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req), req)}
       <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
+        ${_ehAfiliado ? `
+        <p style="color:#6b7280;font-size:13px;margin-bottom:4px">Você é <strong style="color:#FF385C">Nível 1</strong> do Programa de Afiliados (conta vinculada: <strong>${_escC(conta.codigoAfiliado)}</strong>) — ganha 25% na primeira compra e 7% na recorrência de quem indicar direto, mais uma parte de quem seus indicados de Nível 2/3 indicarem (override).</p>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Volume de vendas acumulado (própria + de toda a sua rede): <strong>R$ ${_afilVolume.toLocaleString('pt-BR')}</strong></p>
+        ` : `
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de ${conta.pctPrimeira}% na primeira compra de cada corretor que entrar pelo seu link, e ${conta.pctRecorrencia}% nas recargas seguintes dele (recorrência).</p>
+        `}
+
+        ${!_ehAfiliado ? '' : `
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 10px;font-size:14px">👥 Meus afiliados — indicados (${_afilIndicados.length})</h3>
+          ${!_afilIndicados.length ? '<p style="color:#9ca3af;font-size:12px">Você ainda não indicou ninguém pelo seu link.</p>' : `
+          <table style="width:100%">
+            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nível</th><th style="padding:8px;font-size:11px;color:#9ca3af">Cadastro</th></tr></thead>
+            <tbody>${_afilIndicados.map(i => `
+              <tr style="border-bottom:1px solid #f3f4f6">
+                <td style="padding:8px;font-size:12px;font-weight:600">${_escC(i.nome)}</td>
+                <td style="padding:8px;font-size:12px">N${i.nivel}</td>
+                <td style="padding:8px;font-size:12px">${i.criadoEm ? new Date(i.criadoEm).toLocaleDateString('pt-BR') : '-'}</td>
+              </tr>`).join('')}</tbody>
+          </table>`}
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 10px;font-size:14px">🌳 Sua árvore</h3>
+          ${(function _afRenderArvoreSub(no, prof){
+            if (!no) return '<p style="color:#9ca3af;font-size:12px">Sem rede ainda.</p>';
+            const cor = no.nivel === 1 ? '#FF385C' : no.nivel === 2 ? '#00A699' : '#FC642D';
+            let html = `<div style="margin-left:${(prof||0)*22}px;padding:4px 0;display:flex;align-items:center;gap:8px">
+              <span style="background:${cor};color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">N${no.nivel || '-'}</span>
+              <strong style="font-size:13px">${_escC(no.nome)}</strong></div>`;
+            (no.filhos || []).forEach(f => { html += _afRenderArvoreSub(f, (prof||0) + 1); });
+            return html;
+          })(_afilArvore, 0)}
+        </div>
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 10px;font-size:14px">📖 Como funciona</h3>
+          <table style="width:100%;font-size:12.5px">
+            <thead><tr style="text-align:left"><th style="padding:6px 8px;color:#9ca3af">Quem indicou direto</th><th style="padding:6px 8px;color:#9ca3af">1ª compra</th><th style="padding:6px 8px;color:#9ca3af">Recorrência</th></tr></thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px 8px">Nível 1 (você)</td><td style="padding:6px 8px">25%</td><td style="padding:6px 8px">7,0%</td></tr>
+              <tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px 8px">Nível 2</td><td style="padding:6px 8px">19,7% + você 5,3%</td><td style="padding:6px 8px">5,5% + você 1,5%</td></tr>
+              <tr><td style="padding:6px 8px">Nível 3</td><td style="padding:6px 8px">16,3% + N2 4,3% + você 4,3%</td><td style="padding:6px 8px">4,6% + N2 1,2% + você 1,2%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        `}
 
         ${!_temPermCampanha ? '' : `
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
@@ -23695,15 +23790,26 @@ app.post('/admin/minhas-comissoes/resgatar', authAdmin, express.json(), async (r
     const conta = await buscarAdminConta(usuarioAdmin);
     if (!conta) return res.json({ ok: false, erro: 'Conta de sub-admin não encontrada' });
 
-    const resultado = await solicitarResgate({ ids, indicadorCodigo: usuarioAdmin, modo });
+    // Nível 1 (afiliado-sub-admin, ver /admin/contas-admin) resgata pelo
+    // ledger de afiliado, na própria conta de corretor vinculada — sub-admin
+    // ainda não vinculado continua no fluxo antigo (saldo interno revendável).
+    const _ehAfiliado = !!conta.codigoAfiliado;
+    const resultado = await solicitarResgate({
+      ids, modo,
+      indicadorCodigo: _ehAfiliado ? conta.codigoAfiliado : usuarioAdmin,
+      indicadorTipo: _ehAfiliado ? 'afiliado' : 'admin',
+      creditoDestinoCodigo: _ehAfiliado && modo === 'credito' ? conta.codigoAfiliado : null
+    });
     if (!resultado.atualizados) return res.json({ ok: false, erro: 'Nenhuma comissão disponível encontrada nessa seleção' });
 
-    // Crédito não envolve dinheiro saindo da empresa — é só mover o próprio
-    // coin da plataforma pro saldo do sub-admin, então libera na hora, sem
-    // depender do superadmin aprovar (diferente do modo dinheiro).
+    // Crédito: afiliado credita direto na própria conta de corretor (nunca
+    // em saldo interno pra revenda — regra do programa de afiliados); o
+    // sub-admin antigo (não vinculado) continua indo pro saldo interno,
+    // liberado na hora por não envolver dinheiro saindo da empresa.
     if (modo === 'credito') {
       await marcarResgatePago(ids);
-      await ajustarSaldoCoins(conta.id, resultado.totalCoins);
+      if (_ehAfiliado) await adicionarCreditos(conta.codigoAfiliado, resultado.totalCoins, 'resgate_afiliado_credito');
+      else await ajustarSaldoCoins(conta.id, resultado.totalCoins);
     }
 
     res.json({ ok: true, atualizados: resultado.atualizados, totalCoins: resultado.totalCoins });

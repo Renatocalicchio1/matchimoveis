@@ -52,6 +52,14 @@ async function _garantirTabela() {
   await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS pct_primeira INTEGER`);
   await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS pct_recorrencia INTEGER`);
   await query(`UPDATE admin_contas SET pct_primeira=30, pct_recorrencia=15 WHERE pct_primeira IS NULL`);
+  // codigo_usuario da conta de CORRETOR vinculada a esse sub-admin — é essa
+  // conta que carrega o Nível 1 do programa de afiliados (afiliadoNivel=1
+  // em usuarios) e recebe a comissão em cascata (indicacoes_bonus,
+  // indicador_tipo='afiliado'), já que Nível 1 é "afiliado-sub-admin": loga
+  // por aqui (/admin/login) mas ganha só pelo mecanismo de afiliado agora
+  // (ver /admin/minhas-comissoes em server.js). Setado manualmente pelo
+  // superadmin em /admin/contas-admin.
+  await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS codigo_afiliado TEXT`);
   _tabelaPronta = true;
 }
 
@@ -79,6 +87,7 @@ function _rowToConta(r) {
     email: r.email || '',
     pctPrimeira: r.pct_primeira != null ? r.pct_primeira : 30,
     pctRecorrencia: r.pct_recorrencia != null ? r.pct_recorrencia : 15,
+    codigoAfiliado: r.codigo_afiliado || '',
     criadoPor: r.criado_por || '',
     criadoEm: r.criado_em,
     ultimoLogin: r.ultimo_login
@@ -152,6 +161,11 @@ async function atualizarEmailAdminConta(id, email) {
   await query('UPDATE admin_contas SET email=$1 WHERE id=$2', [email || null, id]);
 }
 
+async function atualizarCodigoAfiliadoAdminConta(id, codigo) {
+  await _garantirTabela();
+  await query('UPDATE admin_contas SET codigo_afiliado=$1 WHERE id=$2', [codigo || null, id]);
+}
+
 // Soma (delta positivo) ou desconta (delta negativo) do saldo de coins do
 // sub-admin. Update atômico direto no banco — não lê-modifica-escreve em
 // JS, pra não perder incremento se duas requisições baterem juntas (ex:
@@ -174,5 +188,6 @@ module.exports = {
   listarAdminContas, buscarAdminConta, buscarAdminContaPorId, criarAdminConta,
   atualizarPermissoesAdminConta, atualizarSenhaAdminConta, atualizarAtivoAdminConta,
   atualizarCorAdminConta, atualizarUltimoLoginAdminConta, deletarAdminConta,
-  ajustarSaldoCoins, atualizarCelularAdminConta, atualizarEmailAdminConta
+  ajustarSaldoCoins, atualizarCelularAdminConta, atualizarEmailAdminConta,
+  atualizarCodigoAfiliadoAdminConta
 };

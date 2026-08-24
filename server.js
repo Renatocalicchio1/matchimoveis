@@ -7168,6 +7168,14 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
   try {
     const _escAf = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const todos = _cacheUsuarios || [];
+    // Backfill único (ago/2026, pedido explícito): toda conta Nível 2 sem
+    // indicador registrado (a base antiga, de antes do programa de
+    // afiliados existir) ainda fica "solta" na árvore — não pendurada em
+    // nenhum Nível 1. Card abaixo distribui essas contas em round-robin
+    // entre os Nível 1 já existentes; dali pra frente segue o fluxo normal
+    // (promoção, indicação por link etc). Não mexe em quem já tem
+    // indicadoPor (evita sobrescrever genealogia real).
+    const _orfaosN2 = todos.filter(u => _nivelAfiliado(u) === 2 && !u.indicadoPor).length;
     // Árvore geral: raiz sintética "Superadmin" no topo, com todo Nível 1
     // pendurado embaixo (raiz de verdade, não depende de já ter rede) — desce
     // Nível 2/3 normal por indicadoPor. Formato organograma (padrão de rede
@@ -7243,6 +7251,7 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
     <body>
     <div class="admin-app">${_adminSidebarHtml('afiliados-admin', true, req)}
     <main class="admin-content" style="max-width:none">
+    ${req.query.distribuidoN2 ? `<div class="card" style="background:#f0fdf4;border:1px solid #bbf7d0"><p style="color:#15803d;font-size:13px;margin:0;font-weight:600">✅ ${_escAf(req.query.distribuidoN2)} conta(s) Nível 2 distribuídas entre os Nível 1.</p></div>` : ''}
     <div class="card">
       <h1>🔎 Definir nível de qualquer conta</h1>
       <p style="color:#6b7280;font-size:13px;margin-bottom:14px">Busca por nome ou código pra marcar/trocar o nível de qualquer conta diretamente, sem precisar achar ela na árvore.</p>
@@ -7262,6 +7271,15 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
         </form>
       </div>
     </div>
+    ${_orfaosN2 ? `
+    <div class="card" style="background:#fffbeb;border:1px solid #fde68a">
+      <h1>🔀 Distribuir Nível 2 sem indicador pros Nível 1</h1>
+      <p style="color:#92400e;font-size:13px;margin-bottom:14px"><strong>${_orfaosN2} conta(s) Nível 2</strong> ainda estão soltas na árvore (base antiga, de antes do programa existir — sem indicador registrado). Isso distribui elas em rodízio entre os Nível 1 já marcados, uma vez só. Não mexe em quem já tem indicador.</p>
+      <form method="post" action="/admin/afiliados/distribuir-n2-para-n1" onsubmit="return confirm('Distribuir ${_orfaosN2} conta(s) Nível 2 entre os Nível 1 existentes? Essa ação não pode ser desfeita facilmente.')">
+        <button type="submit" style="font-size:13px;padding:8px 16px;border-radius:8px;border:none;background:#92400e;color:#fff;cursor:pointer;font-weight:600">Distribuir agora</button>
+      </form>
+    </div>
+    ` : ''}
     <div class="card">
       <h1>🌳 Árvore geral da rede</h1>
       <p style="color:#6b7280;font-size:13px;margin-bottom:8px">Do topo (MatchImóveis) descendo por Nível 1 → 2 → 3. Nenhuma conta nasce Nível 1, só chega lá manualmente (aqui) ou por promoção automática (Nível 2 ao bater R$${_PROMOCAO_AFILIADO.paraNivel2.toLocaleString('pt-BR')} em vendas próprias, Nível 1 ao bater R$${_PROMOCAO_AFILIADO.paraNivel1.toLocaleString('pt-BR')}).</p>
@@ -7325,6 +7343,32 @@ app.post('/admin/afiliados/definir-nivel', authAdmin, async (req, res) => {
     const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
     if (u) u.afiliadoNivel = nivel;
     res.redirect('/admin/afiliados');
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+// Backfill único: pendura toda conta Nível 2 sem indicador nos Nível 1
+// existentes, em rodízio — ver comentário em GET /admin/afiliados. Não
+// mexe em quem já tem indicadoPor (não sobrescreve genealogia real).
+app.post('/admin/afiliados/distribuir-n2-para-n1', authAdmin, async (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).send('Acesso restrito ao administrador principal.');
+  try {
+    const n1s = _afiliadosNivel1();
+    if (!n1s.length) return res.status(400).send('Nenhuma conta Nível 1 marcada ainda — marque pelo menos uma em /admin/afiliados antes de distribuir. <a href="/admin/afiliados">Voltar</a>');
+    const orfaosN2 = (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 2 && !u.indicadoPor);
+    const { query: _qDistribN2 } = require('./services/db');
+    let i = 0;
+    for (const u of orfaosN2) {
+      const codigo = u.codigoUsuario || u.id;
+      const n1 = n1s[i % n1s.length];
+      i++;
+      await _qDistribN2(
+        `UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'::jsonb), '{indicadoPor}', to_jsonb($1::text)) WHERE codigo_usuario=$2 OR id=$2`,
+        [n1, codigo]
+      );
+      u.indicadoPor = n1;
+    }
+    console.log('[afiliados] distribuiu', orfaosN2.length, 'conta(s) Nível 2 entre', n1s.length, 'Nível 1');
+    res.redirect('/admin/afiliados?distribuidoN2=' + orfaosN2.length);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 

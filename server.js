@@ -7226,11 +7226,11 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
        borda em ::before/::after), estilo genealogia de rede multinível.
        Caixas compactas + card sem max-width — usa toda a largura disponível
        da tela (pedido explícito, ago/2026). */
-    .af-orgchart-wrap{overflow-x:auto;padding:8px 0}
-    .af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:18px;position:relative;list-style:none;margin:0}
+    .af-orgchart-wrap{overflow-x:auto;overflow-y:hidden;padding:8px 0}
+    .af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:13px;position:relative;list-style:none;margin:0}
     .af-orgchart{padding-top:0}
-    .af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:18px 6px 0}
-    .af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #d1d5db;width:50%;height:18px}
+    .af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:13px 3px 0}
+    .af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #d1d5db;width:50%;height:13px}
     .af-orgchart li::after{right:auto;left:50%;border-left:2px solid #d1d5db}
     .af-orgchart li:only-child{padding-top:0}
     .af-orgchart li:only-child::before, .af-orgchart li:only-child::after{display:none}
@@ -7239,14 +7239,14 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
     .af-orgchart li:first-child::before, .af-orgchart li:last-child::after{border:0 none}
     .af-orgchart li:last-child::before{border-right:2px solid #d1d5db;border-radius:0 6px 0 0}
     .af-orgchart li:first-child::after{border-radius:6px 0 0 0}
-    .af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #d1d5db;width:0;height:18px}
-    .af-no{border:2px solid;border-radius:8px;padding:5px 8px;background:#fff;min-width:84px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
-    .af-no-badge{display:inline-block;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-bottom:2px}
-    .af-no-nome{font-size:11px;font-weight:700;color:#111827;white-space:nowrap}
-    .af-no-codigo{font-size:9.5px;color:#9ca3af;margin-top:1px}
-    .af-no-form{display:flex;gap:2px;justify-content:center;margin-top:4px}
-    .af-no-form select{font-size:9.5px;padding:1px 2px;border-radius:4px;border:1px solid #e5e7eb}
-    .af-no-form button{font-size:9.5px;padding:1px 5px;border-radius:4px;border:none;background:#111827;color:#fff;cursor:pointer}
+    .af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #d1d5db;width:0;height:13px}
+    .af-no{border:2px solid;border-radius:7px;padding:3px 5px;background:#fff;min-width:0;width:66px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
+    .af-no-badge{display:inline-block;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:7px;margin-bottom:1px}
+    .af-no-nome{font-size:9.5px;font-weight:700;color:#111827;white-space:normal;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+    .af-no-codigo{font-size:8px;color:#9ca3af;margin-top:1px}
+    .af-no-form{display:flex;gap:1px;justify-content:center;margin-top:3px}
+    .af-no-form select{font-size:8px;padding:0 1px;border-radius:3px;border:1px solid #e5e7eb}
+    .af-no-form button{font-size:8px;padding:0 4px;border-radius:3px;border:none;background:#111827;color:#fff;cursor:pointer}
     </style></head>
     <body>
     <div class="admin-app">${_adminSidebarHtml('afiliados-admin', true, req)}

@@ -15,11 +15,11 @@
 .af-table td{padding:8px;border-bottom:1px solid #f3f4f6}
 /* Organograma — padrão clássico de árvore em CSS puro (conectores via borda
    em ::before/::after), estilo genealogia de rede multinível. */
-.af-orgchart-wrap{overflow-x:auto;padding:10px 0}
-.af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:24px;position:relative;list-style:none;margin:0}
+.af-orgchart-wrap{overflow-x:auto;overflow-y:hidden;padding:8px 0}
+.af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:13px;position:relative;list-style:none;margin:0}
 .af-orgchart{padding-top:0}
-.af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:24px 10px 0}
-.af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #e5e7eb;width:50%;height:24px}
+.af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:13px 3px 0}
+.af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #e5e7eb;width:50%;height:13px}
 .af-orgchart li::after{right:auto;left:50%;border-left:2px solid #e5e7eb}
 .af-orgchart li:only-child{padding-top:0}
 .af-orgchart li:only-child::before, .af-orgchart li:only-child::after{display:none}
@@ -28,10 +28,10 @@
 .af-orgchart li:first-child::before, .af-orgchart li:last-child::after{border:0 none}
 .af-orgchart li:last-child::before{border-right:2px solid #e5e7eb;border-radius:0 6px 0 0}
 .af-orgchart li:first-child::after{border-radius:6px 0 0 0}
-.af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #e5e7eb;width:0;height:24px}
-.af-no{border:2px solid;border-radius:10px;padding:8px 12px;background:#fff;min-width:110px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.af-no-badge{display:inline-block;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:4px}
-.af-no-nome{font-size:12.5px;font-weight:700;color:#111827;white-space:nowrap}
+.af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #e5e7eb;width:0;height:13px}
+.af-no{border:2px solid;border-radius:7px;padding:3px 5px;background:#fff;min-width:0;width:66px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.af-no-badge{display:inline-block;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:7px;margin-bottom:1px}
+.af-no-nome{font-size:9.5px;font-weight:700;color:#111827;white-space:normal;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .af-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
 .af-tab-btn{padding:8px 16px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#374151}
 .af-tab-btn.active{background:#111827;color:#fff;border-color:#111827}

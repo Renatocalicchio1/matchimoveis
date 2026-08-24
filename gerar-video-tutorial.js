@@ -3,8 +3,11 @@
 // grava a tela e converte pra mp4 com ffmpeg. Sem narração ainda — só a
 // navegação (a voz entra depois, quando decidir o provedor de TTS).
 //
-// Uso: node gerar-video-tutorial.js
-// Credenciais via env: TUTORIAL_LOGIN=telefone TUTORIAL_SENHA=senha node gerar-video-tutorial.js
+// Simula um uso real de ~1 minuto: filtra por cidade/bairro/valor, limpa os
+// filtros, busca por ID, rola a lista, seleciona um card, abre um imóvel pra
+// editar e volta — pausas longas entre cada ação pra não passar rápido demais.
+//
+// Uso: TUTORIAL_LOGIN=telefone TUTORIAL_SENHA=senha node gerar-video-tutorial.js
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
@@ -29,6 +32,42 @@ fs.mkdirSync(RAW_DIR, { recursive: true });
 
 async function pausa(ms) { await new Promise(r => setTimeout(r, ms)); }
 
+// Preenche um campo simulando digitação letra a letra (mais natural no vídeo
+// do que .fill() instantâneo), só executa se o elemento existir na tela.
+async function digitar(page, seletor, texto, { esperaAntes = 800, esperaDepois = 2000 } = {}) {
+  const loc = page.locator(seletor).first();
+  if (!(await loc.count())) return false;
+  await loc.scrollIntoViewIfNeeded().catch(() => {});
+  await pausa(esperaAntes);
+  await loc.click({ timeout: 5000 }).catch(() => {});
+  await loc.fill('').catch(() => {});
+  await loc.pressSequentially(texto, { delay: 90 }).catch(() => {});
+  await pausa(esperaDepois);
+  return true;
+}
+
+async function limparCampo(page, seletor) {
+  const loc = page.locator(seletor).first();
+  if (await loc.count()) await loc.fill('').catch(() => {});
+}
+
+async function clicarSeExistir(page, seletor, { esperaAntes = 800, esperaDepois = 1500 } = {}) {
+  const loc = page.locator(seletor).first();
+  if (!(await loc.count())) return false;
+  await loc.scrollIntoViewIfNeeded().catch(() => {});
+  await pausa(esperaAntes);
+  await loc.click({ timeout: 5000 }).catch(() => {});
+  await pausa(esperaDepois);
+  return true;
+}
+
+async function rolarSuave(page, passos = 3, distancia = 500, pausaEntre = 1400) {
+  for (let i = 0; i < passos; i++) {
+    await page.mouse.wheel(0, distancia);
+    await pausa(pausaEntre);
+  }
+}
+
 (async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext({
@@ -48,31 +87,66 @@ async function pausa(ms) { await new Promise(r => setTimeout(r, ms)); }
 
   console.log('[nav] abrindo Meus Imóveis...');
   await page.goto(BASE_URL + '/app/imoveis', { waitUntil: 'networkidle', timeout: 30000 });
-  await pausa(2500);
+  await pausa(3000);
 
-  // Mostra os filtros (rolar até eles, se existirem)
-  const filtroCidade = page.locator('#f-cidade');
-  if (await filtroCidade.count()) {
-    await filtroCidade.scrollIntoViewIfNeeded().catch(() => {});
-    await pausa(1200);
-  }
+  // Filtro por cidade
+  console.log('[nav] filtrando por cidade...');
+  await digitar(page, '#f-cidade', 'São Paulo');
+  await limparCampo(page, '#f-cidade');
+  await pausa(500);
 
-  // Usa a busca por ID/texto
-  const busca = page.locator('#busca');
-  if (await busca.count()) {
-    await busca.scrollIntoViewIfNeeded().catch(() => {});
-    await pausa(800);
-  }
+  // Filtro por bairro
+  console.log('[nav] filtrando por bairro...');
+  await digitar(page, '#f-bairro', 'Moema');
+  await limparCampo(page, '#f-bairro');
+  await pausa(500);
 
-  // Abre o primeiro card de imóvel, se existir
+  // Faixa de valor
+  console.log('[nav] ajustando faixa de valor...');
+  await digitar(page, '#f-valor-min', '300000', { esperaDepois: 1000 });
+  await digitar(page, '#f-valor-max', '900000', { esperaDepois: 2000 });
+
+  // Limpa os filtros
+  console.log('[nav] limpando filtros...');
+  await clicarSeExistir(page, 'button:has-text("Limpar filtros")', { esperaDepois: 2000 });
+
+  // Busca por ID/texto
+  console.log('[nav] buscando por ID/texto...');
+  const primeiraDataId = await page.locator('.im-card').first().getAttribute('data-id').catch(() => null);
+  await digitar(page, '#busca', primeiraDataId || '123', { esperaDepois: 2000 });
+  await limparCampo(page, '#busca');
+  await pausa(1000);
+
+  // Rola a lista de imóveis devagar
+  console.log('[nav] rolando a lista...');
+  await rolarSuave(page, 3, 450, 1600);
+  await page.mouse.wheel(0, -1400);
+  await pausa(1500);
+
+  // Seleciona um card (clique simples = toggle de seleção)
+  console.log('[nav] selecionando um card...');
   const primeiroCard = page.locator('.im-card').first();
   if (await primeiroCard.count()) {
     await primeiroCard.scrollIntoViewIfNeeded().catch(() => {});
     await pausa(1000);
-    await primeiroCard.click({ timeout: 5000 }).catch(e => console.log('[nav] não conseguiu clicar no card:', e.message));
-    await pausa(2500);
+    await primeiroCard.click({ timeout: 5000 }).catch(() => {});
+    await pausa(2000);
+    await primeiroCard.click({ timeout: 5000 }).catch(() => {}); // desmarca de volta
+    await pausa(1000);
+  }
+
+  // Abre um imóvel pra editar
+  console.log('[nav] abrindo um imóvel pra editar...');
+  const linkEditar = page.locator('.im-card a.im-btn.edit').first();
+  if (await linkEditar.count()) {
+    await linkEditar.scrollIntoViewIfNeeded().catch(() => {});
+    await pausa(1000);
+    await linkEditar.click({ timeout: 5000 }).catch(e => console.log('[nav] não abriu edição:', e.message));
+    await pausa(3500);
+    await page.goBack({ waitUntil: 'networkidle', timeout: 15000 }).catch(() => {});
+    await pausa(2000);
   } else {
-    console.log('[nav] nenhum imóvel encontrado na conta — vídeo só mostra a tela vazia.');
+    console.log('[nav] nenhum imóvel com botão Editar (não é dono) — pulando.');
   }
 
   await pausa(1500);

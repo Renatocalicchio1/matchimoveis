@@ -7207,20 +7207,22 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
 
     const corpo = '<ul class="af-orgchart">' + _noOrg(null, true) + '</ul>';
 
-    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Afiliados — Admin</title>
-    <style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f9fafb;margin:0;padding:24px}
-    .card{background:#fff;border-radius:12px;padding:20px;max-width:900px;margin:0 auto 16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-    h1{font-size:20px;margin:0 0 4px}
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Afiliados — Admin</title>
+    <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}
+    .card{background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    h1{font-size:18px;margin:0 0 4px}
     #af-busca-resultado{position:relative}
     .af-busca-item{padding:8px 10px;border:1px solid #e5e7eb;border-top:none;background:#fff;cursor:pointer;font-size:13px}
     .af-busca-item:hover{background:#f3f4f6}
     /* Organograma — padrão clássico de árvore em CSS puro (conectores via
-       borda em ::before/::after), estilo genealogia de rede multinível. */
-    .af-orgchart-wrap{overflow-x:auto;padding:10px 0}
-    .af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:24px;position:relative;list-style:none;margin:0}
+       borda em ::before/::after), estilo genealogia de rede multinível.
+       Caixas compactas + card sem max-width — usa toda a largura disponível
+       da tela (pedido explícito, ago/2026). */
+    .af-orgchart-wrap{overflow-x:auto;padding:8px 0}
+    .af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:18px;position:relative;list-style:none;margin:0}
     .af-orgchart{padding-top:0}
-    .af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:24px 10px 0}
-    .af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #d1d5db;width:50%;height:24px}
+    .af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:18px 6px 0}
+    .af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #d1d5db;width:50%;height:18px}
     .af-orgchart li::after{right:auto;left:50%;border-left:2px solid #d1d5db}
     .af-orgchart li:only-child{padding-top:0}
     .af-orgchart li:only-child::before, .af-orgchart li:only-child::after{display:none}
@@ -7229,15 +7231,18 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
     .af-orgchart li:first-child::before, .af-orgchart li:last-child::after{border:0 none}
     .af-orgchart li:last-child::before{border-right:2px solid #d1d5db;border-radius:0 6px 0 0}
     .af-orgchart li:first-child::after{border-radius:6px 0 0 0}
-    .af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #d1d5db;width:0;height:24px}
-    .af-no{border:2px solid;border-radius:10px;padding:8px 12px;background:#fff;min-width:110px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
-    .af-no-badge{display:inline-block;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:4px}
-    .af-no-nome{font-size:12.5px;font-weight:700;color:#111827;white-space:nowrap}
-    .af-no-codigo{font-size:10.5px;color:#9ca3af;margin-top:1px}
-    .af-no-form{display:flex;gap:3px;justify-content:center;margin-top:6px}
-    .af-no-form select{font-size:10.5px;padding:1px 2px;border-radius:5px;border:1px solid #e5e7eb}
-    .af-no-form button{font-size:10.5px;padding:1px 6px;border-radius:5px;border:none;background:#111827;color:#fff;cursor:pointer}
-    </style></head><body>
+    .af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #d1d5db;width:0;height:18px}
+    .af-no{border:2px solid;border-radius:8px;padding:5px 8px;background:#fff;min-width:84px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
+    .af-no-badge{display:inline-block;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;margin-bottom:2px}
+    .af-no-nome{font-size:11px;font-weight:700;color:#111827;white-space:nowrap}
+    .af-no-codigo{font-size:9.5px;color:#9ca3af;margin-top:1px}
+    .af-no-form{display:flex;gap:2px;justify-content:center;margin-top:4px}
+    .af-no-form select{font-size:9.5px;padding:1px 2px;border-radius:4px;border:1px solid #e5e7eb}
+    .af-no-form button{font-size:9.5px;padding:1px 5px;border-radius:4px;border:none;background:#111827;color:#fff;cursor:pointer}
+    </style></head>
+    <body>
+    <div class="admin-app">${_adminSidebarHtml('afiliados-admin', true, req)}
+    <main class="admin-content" style="max-width:none">
     <div class="card">
       <h1>🔎 Definir nível de qualquer conta</h1>
       <p style="color:#6b7280;font-size:13px;margin-bottom:14px">Busca por nome ou código pra marcar/trocar o nível de qualquer conta diretamente, sem precisar achar ela na árvore.</p>
@@ -7261,6 +7266,8 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
       <h1>🌳 Árvore geral da rede</h1>
       <p style="color:#6b7280;font-size:13px;margin-bottom:8px">Do topo (MatchImóveis) descendo por Nível 1 → 2 → 3. Nenhuma conta nasce Nível 1, só chega lá manualmente (aqui) ou por promoção automática (Nível 2 ao bater R$${_PROMOCAO_AFILIADO.paraNivel2.toLocaleString('pt-BR')} em vendas próprias, Nível 1 ao bater R$${_PROMOCAO_AFILIADO.paraNivel1.toLocaleString('pt-BR')}).</p>
       <div class="af-orgchart-wrap">${corpo}</div>
+    </div>
+    </main>
     </div>
     <script>
     let afBuscaTimer = null;

@@ -13,7 +13,25 @@
 .af-table{width:100%;border-collapse:collapse;font-size:13px}
 .af-table th{text-align:left;color:#6b7280;font-weight:600;padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px}
 .af-table td{padding:8px;border-bottom:1px solid #f3f4f6}
-.af-arvore-no{margin-left:20px;padding:6px 0 6px 12px;border-left:2px solid #e5e7eb}
+/* Organograma — padrão clássico de árvore em CSS puro (conectores via borda
+   em ::before/::after), estilo genealogia de rede multinível. */
+.af-orgchart-wrap{overflow-x:auto;padding:10px 0}
+.af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:24px;position:relative;list-style:none;margin:0}
+.af-orgchart{padding-top:0}
+.af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:24px 10px 0}
+.af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #e5e7eb;width:50%;height:24px}
+.af-orgchart li::after{right:auto;left:50%;border-left:2px solid #e5e7eb}
+.af-orgchart li:only-child{padding-top:0}
+.af-orgchart li:only-child::before, .af-orgchart li:only-child::after{display:none}
+.af-orgchart > li{padding-top:0}
+.af-orgchart > li::before, .af-orgchart > li::after{display:none}
+.af-orgchart li:first-child::before, .af-orgchart li:last-child::after{border:0 none}
+.af-orgchart li:last-child::before{border-right:2px solid #e5e7eb;border-radius:0 6px 0 0}
+.af-orgchart li:first-child::after{border-radius:6px 0 0 0}
+.af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #e5e7eb;width:0;height:24px}
+.af-no{border:2px solid;border-radius:10px;padding:8px 12px;background:#fff;min-width:110px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.af-no-badge{display:inline-block;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:4px}
+.af-no-nome{font-size:12.5px;font-weight:700;color:#111827;white-space:nowrap}
 .af-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
 .af-tab-btn{padding:8px 16px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#374151}
 .af-tab-btn.active{background:#111827;color:#fff;border-color:#111827}
@@ -198,18 +216,20 @@ async function afAceitarContrato(){
   <p style="color:#6b7280;font-size:13px;margin-bottom:16px">De você (topo) descendo — quando alguém do Nível 3 indica outro, o novo entra do lado (mesma camada), a árvore não desce além do Nível 3.</p>
   <%
     function afRenderNo(no) {
-      let html = '<div style="display:flex;align-items:center;gap:8px;margin:6px 0">';
-      html += '<span class="af-nivel-badge af-nivel-' + (no.nivel || 3) + '" style="font-size:11px;padding:2px 8px">N' + (no.nivel || '-') + '</span>';
-      html += '<strong style="font-size:13px">' + no.nome + '</strong></div>';
+      const cor = no.nivel===1?'#FF385C':no.nivel===2?'#00A699':'#FC642D';
+      let html = '<li><div class="af-no" style="border-color:' + cor + '">';
+      html += '<div class="af-no-badge" style="background:' + cor + '">N' + (no.nivel || '-') + '</div>';
+      html += '<div class="af-no-nome">' + no.nome + '</div></div>';
       if (no.filhos && no.filhos.length) {
-        html += '<div class="af-arvore-no">';
+        html += '<ul>';
         no.filhos.forEach(function(f){ html += afRenderNo(f); });
-        html += '</div>';
+        html += '</ul>';
       }
+      html += '</li>';
       return html;
     }
   %>
-  <%- afRenderNo(dados.arvore) %>
+  <div class="af-orgchart-wrap"><ul class="af-orgchart"><%- afRenderNo(dados.arvore) %></ul></div>
 </div>
 
 <div id="af-pane-niveis" class="af-tab-pane card">

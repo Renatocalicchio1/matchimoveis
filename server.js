@@ -7046,7 +7046,7 @@ app.get('/app/indicacoes', auth, (req, res) => res.redirect('/app/afiliados'));
 // ── AFILIADOS (programa de afiliados, ago/2026) ────────────────────────────────
 app.get('/app/afiliados', auth, async (req, res) => {
   const uid = req.session.user.codigoUsuario || req.session.user.id;
-  if (!_CONTAS_AFILIADO_PILOTO.includes(uid)) return res.redirect('/app-home');
+  if (!_ehAfiliadoLiberado(uid)) return res.redirect('/app-home');
   try {
     const meUser = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === uid) || req.session.user;
     const nivel = _nivelAfiliado(meUser);
@@ -7120,7 +7120,7 @@ app.get('/app/afiliados', auth, async (req, res) => {
 app.post('/app/afiliados/aceitar-contrato', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
-    if (!_CONTAS_AFILIADO_PILOTO.includes(uid)) return res.status(403).json({ ok: false, erro: 'não liberado' });
+    if (!_ehAfiliadoLiberado(uid)) return res.status(403).json({ ok: false, erro: 'não liberado' });
     const { atualizarUsuario: _auContrato } = require('./services/salvarUsuario');
     const _stamp = new Date().toISOString();
     await _auContrato(uid, { afiliadoContratoAceitoEm: _stamp });
@@ -7133,7 +7133,7 @@ app.post('/app/afiliados/aceitar-contrato', auth, async (req, res) => {
 app.post('/app/afiliados/resgate', auth, express.json(), async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
-    if (!_CONTAS_AFILIADO_PILOTO.includes(uid)) return res.status(403).json({ ok: false, erro: 'não liberado' });
+    if (!_ehAfiliadoLiberado(uid)) return res.status(403).json({ ok: false, erro: 'não liberado' });
     const { ids, modo } = req.body;
     if (!Array.isArray(ids) || !ids.length) return res.json({ ok: false, erro: 'Selecione ao menos uma comissão' });
     if (modo !== 'dinheiro' && modo !== 'credito') return res.json({ ok: false, erro: 'Modo inválido' });
@@ -7165,37 +7165,44 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
   try {
     const _escAf = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const todos = _cacheUsuarios || [];
-    const _temFilho = new Set(todos.filter(u => u.indicadoPor).map(u => u.indicadoPor));
-    const raizes = todos.filter(u => {
-      const codigo = u.codigoUsuario || u.id;
-      return _nivelAfiliado(u) === 1 || (!u.indicadoPor && _temFilho.has(codigo));
-    });
+    // Árvore geral: raiz sintética "Superadmin" no topo, com todo Nível 1
+    // pendurado embaixo (raiz de verdade, não depende de já ter rede) — desce
+    // Nível 2/3 normal por indicadoPor. Formato organograma (padrão de rede
+    // de marketing multinível — pedido explícito ago/2026): caixa por pessoa,
+    // linhas conectando quem indicou a quem, gerações lado a lado.
+    const raizesN1 = todos.filter(u => _nivelAfiliado(u) === 1);
 
-    const _linhaNo = (u, prof) => {
-      const codigo = u.codigoUsuario || u.id;
-      const nivel = _nivelAfiliado(u);
-      const filhos = todos.filter(f => f.indicadoPor === codigo);
-      const cor = nivel === 1 ? '#FF385C' : nivel === 2 ? '#00A699' : '#FC642D';
-      let html = `<div style="margin-left:${prof * 24}px;padding:6px 10px;border-left:2px solid ${cor};margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="background:${cor};color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px">N${nivel}</span>
-        <strong>${_escAf(u.nome || codigo)}</strong>
-        <span style="color:#9ca3af;font-size:12px">${_escAf(codigo)}</span>
-        <form method="post" action="/admin/afiliados/${encodeURIComponent(codigo)}/nivel" style="display:inline-flex;gap:4px;align-items:center;margin:0">
-          <select name="nivel" style="font-size:12px;padding:2px 4px;border-radius:6px;border:1px solid #e5e7eb">
-            <option value="1" ${nivel===1?'selected':''}>Nível 1</option>
-            <option value="2" ${nivel===2?'selected':''}>Nível 2</option>
-            <option value="3" ${nivel===3?'selected':''}>Nível 3</option>
+    const _noOrg = (u, ehRaizSintetica) => {
+      const codigo = ehRaizSintetica ? null : (u.codigoUsuario || u.id);
+      const nivel = ehRaizSintetica ? 0 : _nivelAfiliado(u);
+      const filhos = ehRaizSintetica ? raizesN1 : todos.filter(f => f.indicadoPor === codigo);
+      const cor = nivel === 0 ? '#111827' : nivel === 1 ? '#FF385C' : nivel === 2 ? '#00A699' : '#FC642D';
+      const nomeExibido = ehRaizSintetica ? 'MatchImóveis' : (u.nome || codigo);
+      let html = '<li><div class="af-no" style="border-color:' + cor + '">';
+      html += '<div class="af-no-badge" style="background:' + cor + '">' + (ehRaizSintetica ? '★' : 'N' + nivel) + '</div>';
+      html += '<div class="af-no-nome">' + _escAf(nomeExibido) + '</div>';
+      if (!ehRaizSintetica) {
+        html += '<div class="af-no-codigo">' + _escAf(codigo) + '</div>';
+        html += `<form method="post" action="/admin/afiliados/${encodeURIComponent(codigo)}/nivel" class="af-no-form">
+          <select name="nivel">
+            <option value="1" ${nivel===1?'selected':''}>N1</option>
+            <option value="2" ${nivel===2?'selected':''}>N2</option>
+            <option value="3" ${nivel===3?'selected':''}>N3</option>
           </select>
-          <button type="submit" style="font-size:11px;padding:3px 8px;border-radius:6px;border:none;background:#111827;color:#fff;cursor:pointer">Salvar</button>
-        </form>
-      </div>`;
-      filhos.forEach(f => { html += _linhaNo(f, prof + 1); });
+          <button type="submit">✓</button>
+        </form>`;
+      }
+      html += '</div>';
+      if (filhos.length) {
+        html += '<ul>';
+        filhos.forEach(f => { html += _noOrg(f, false); });
+        html += '</ul>';
+      }
+      html += '</li>';
       return html;
     };
 
-    const corpo = raizes.length
-      ? raizes.map(r => _linhaNo(r, 0)).join('')
-      : '<p style="color:#6b7280">Nenhum afiliado com rede ainda.</p>';
+    const corpo = '<ul class="af-orgchart">' + _noOrg(null, true) + '</ul>';
 
     res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Afiliados — Admin</title>
     <style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f9fafb;margin:0;padding:24px}
@@ -7204,10 +7211,33 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
     #af-busca-resultado{position:relative}
     .af-busca-item{padding:8px 10px;border:1px solid #e5e7eb;border-top:none;background:#fff;cursor:pointer;font-size:13px}
     .af-busca-item:hover{background:#f3f4f6}
+    /* Organograma — padrão clássico de árvore em CSS puro (conectores via
+       borda em ::before/::after), estilo genealogia de rede multinível. */
+    .af-orgchart-wrap{overflow-x:auto;padding:10px 0}
+    .af-orgchart, .af-orgchart ul{display:flex;justify-content:center;padding-top:24px;position:relative;list-style:none;margin:0}
+    .af-orgchart{padding-top:0}
+    .af-orgchart li{display:flex;flex-direction:column;align-items:center;position:relative;padding:24px 10px 0}
+    .af-orgchart li::before, .af-orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #d1d5db;width:50%;height:24px}
+    .af-orgchart li::after{right:auto;left:50%;border-left:2px solid #d1d5db}
+    .af-orgchart li:only-child{padding-top:0}
+    .af-orgchart li:only-child::before, .af-orgchart li:only-child::after{display:none}
+    .af-orgchart > li{padding-top:0}
+    .af-orgchart > li::before, .af-orgchart > li::after{display:none}
+    .af-orgchart li:first-child::before, .af-orgchart li:last-child::after{border:0 none}
+    .af-orgchart li:last-child::before{border-right:2px solid #d1d5db;border-radius:0 6px 0 0}
+    .af-orgchart li:first-child::after{border-radius:6px 0 0 0}
+    .af-orgchart ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #d1d5db;width:0;height:24px}
+    .af-no{border:2px solid;border-radius:10px;padding:8px 12px;background:#fff;min-width:110px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative}
+    .af-no-badge{display:inline-block;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:4px}
+    .af-no-nome{font-size:12.5px;font-weight:700;color:#111827;white-space:nowrap}
+    .af-no-codigo{font-size:10.5px;color:#9ca3af;margin-top:1px}
+    .af-no-form{display:flex;gap:3px;justify-content:center;margin-top:6px}
+    .af-no-form select{font-size:10.5px;padding:1px 2px;border-radius:5px;border:1px solid #e5e7eb}
+    .af-no-form button{font-size:10.5px;padding:1px 6px;border-radius:5px;border:none;background:#111827;color:#fff;cursor:pointer}
     </style></head><body>
     <div class="card">
       <h1>🔎 Definir nível de qualquer conta</h1>
-      <p style="color:#6b7280;font-size:13px;margin-bottom:14px">A árvore abaixo só mostra quem já tem rede (indicou alguém). Pra marcar uma conta que ainda não tem downline — como os 6 fixos de Nível 1 antes de indicarem qualquer um — busque por nome ou código aqui.</p>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:14px">Busca por nome ou código pra marcar/trocar o nível de qualquer conta diretamente, sem precisar achar ela na árvore.</p>
       <input id="af-busca-input" placeholder="Nome ou código (ex: Rafael, REN-G9K6)" style="width:100%;max-width:360px;padding:10px 12px;border-radius:8px;border:1px solid #e5e7eb;font-size:13px" autocomplete="off">
       <div id="af-busca-resultado"></div>
       <div id="af-busca-selecionado" style="display:none;margin-top:12px;padding:12px;background:#f9fafb;border-radius:8px;align-items:center;gap:10px;flex-wrap:wrap">
@@ -7225,9 +7255,9 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
       </div>
     </div>
     <div class="card">
-      <h1>🌳 Árvore geral de afiliados</h1>
-      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Nível 1 é um conjunto fechado — nenhuma conta nasce Nível 1, só chega lá manualmente (aqui) ou por promoção automática (Nível 2 ao bater R$${_PROMOCAO_AFILIADO.paraNivel2.toLocaleString('pt-BR')} em vendas próprias, Nível 1 ao bater R$${_PROMOCAO_AFILIADO.paraNivel1.toLocaleString('pt-BR')}).</p>
-      ${corpo}
+      <h1>🌳 Árvore geral da rede</h1>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:8px">Do topo (MatchImóveis) descendo por Nível 1 → 2 → 3. Nenhuma conta nasce Nível 1, só chega lá manualmente (aqui) ou por promoção automática (Nível 2 ao bater R$${_PROMOCAO_AFILIADO.paraNivel2.toLocaleString('pt-BR')} em vendas próprias, Nível 1 ao bater R$${_PROMOCAO_AFILIADO.paraNivel1.toLocaleString('pt-BR')}).</p>
+      <div class="af-orgchart-wrap">${corpo}</div>
     </div>
     <script>
     let afBuscaTimer = null;
@@ -13959,8 +13989,18 @@ const _COMISSAO_AFILIADO = {
 // R$200.000 (conversão coins->R$ na mesma taxa base da recarga avulsa,
 // R$1 = 20 coins — ver /admin/minhas-comissoes).
 const _PROMOCAO_AFILIADO = { paraNivel2: 10000, paraNivel1: 200000 };
-// Piloto: só essa(s) conta(s) veem o menu/tela de afiliado por enquanto.
-const _CONTAS_AFILIADO_PILOTO = ['REN-G9K6'];
+// Liberação do programa de afiliados (ago/2026): por enquanto só quem é
+// Nível 1 (as contas fixas + quem for promovido) tem acesso ao menu/tela —
+// Nível 2/3 ainda não foram liberados. _ehAfiliadoLiberado/_afiliadosNivel1
+// substituem a lista fixa antiga (_CONTAS_AFILIADO_PILOTO); quando abrir
+// geral pra Nível 2/3, é só trocar o `=== 1` aqui.
+function _ehAfiliadoLiberado(codigo) {
+  const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+  return !!u && _nivelAfiliado(u) === 1;
+}
+function _afiliadosNivel1() {
+  return (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 1).map(u => u.codigoUsuario || u.id);
+}
 
 function _nivelAfiliado(u) {
   return (u && u.afiliadoNivel) ? u.afiliadoNivel : 2;
@@ -21961,8 +22001,8 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
     const campanhas = await listarCampanhas().catch(()=>[]);
     // Sub-admin foi descontinuado (ago/2026) — o round-robin de campanha por
     // e-mail agora distribui entre afiliados com acesso liberado
-    // (_CONTAS_AFILIADO_PILOTO), não mais entre contas de admin_contas.
-    const _subAdminsOpts = _CONTAS_AFILIADO_PILOTO
+    // (_afiliadosNivel1), não mais entre contas de admin_contas.
+    const _subAdminsOpts = _afiliadosNivel1()
       .map(codigo => {
         const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
         return `<label style="display:flex;align-items:center;gap:6px;font-weight:400;margin:4px 0">
@@ -22077,7 +22117,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         <option value="1234898449710364">+55 11 95665-5428 — Captação de proprietários</option>
       </select>
       <label>Afiliados que entram no round-robin</label>
-      ${_subAdminsOpts || '<p class="red">Nenhum afiliado com acesso liberado (_CONTAS_AFILIADO_PILOTO).</p>'}
+      ${_subAdminsOpts || '<p class="red">Nenhum afiliado com acesso liberado (afiliados Nível 1).</p>'}
       <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:10px">
         <input type="checkbox" id="emailRestringirHorario" checked style="width:auto">
         Só enviar entre 12h-13h e 20h-21h (horário de Brasília)
@@ -22439,8 +22479,8 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
 
     // Sub-admin foi descontinuado (ago/2026) — distribuição agora é só entre
     // afiliados (Nível 1, 2 e 3, sem distinção) com acesso liberado (hoje só
-    // _CONTAS_AFILIADO_PILOTO), dividido por igual entre todos.
-    let contasAtivas = [..._CONTAS_AFILIADO_PILOTO];
+    // _afiliadosNivel1()), dividido por igual entre todos.
+    let contasAtivas = _afiliadosNivel1();
     // subAdmins: nome do parâmetro ficou (compatibilidade com o front que já
     // chama essa rota) — mas agora restringe entre os afiliados do rodízio.
     if (Array.isArray(subAdmins) && subAdmins.length) {

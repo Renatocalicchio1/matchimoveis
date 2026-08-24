@@ -13989,14 +13989,15 @@ const _COMISSAO_AFILIADO = {
 // R$200.000 (conversão coins->R$ na mesma taxa base da recarga avulsa,
 // R$1 = 20 coins — ver /admin/minhas-comissoes).
 const _PROMOCAO_AFILIADO = { paraNivel2: 10000, paraNivel1: 200000 };
-// Liberação do programa de afiliados (ago/2026): por enquanto só quem é
-// Nível 1 (as contas fixas + quem for promovido) tem acesso ao menu/tela —
-// Nível 2/3 ainda não foram liberados. _ehAfiliadoLiberado/_afiliadosNivel1
-// substituem a lista fixa antiga (_CONTAS_AFILIADO_PILOTO); quando abrir
-// geral pra Nível 2/3, é só trocar o `=== 1` aqui.
+// Liberação do programa de afiliados (ago/2026): geral pra toda conta
+// existente e toda conta nova daqui pra frente — todo corretor já é
+// afiliado (Nível 2 por padrão, Nível 3 se veio por indicação, Nível 1 só
+// manual/promoção). Só o acesso ao MENU/TELA é geral; _afiliadosNivel1()
+// (rodízio da campanha de e-mail que convida novos usuários) continua
+// restrito a Nível 1 por enquanto — é uma decisão separada de quem faz
+// prospecção ativa, não de quem pode ver a própria área de afiliado.
 function _ehAfiliadoLiberado(codigo) {
-  const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
-  return !!u && _nivelAfiliado(u) === 1;
+  return true;
 }
 function _afiliadosNivel1() {
   return (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 1).map(u => u.codigoUsuario || u.id);

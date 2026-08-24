@@ -7091,7 +7091,10 @@ app.get('/app/afiliados', auth, async (req, res) => {
     // convite automático por WhatsApp já sai com o link de indicação dele
     // embutido (?ref=<codigo>), então quem se cadastrar entra na rede dele.
     const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
-    const meusContatosCampanha = await listarContatosPorRefAdmin(uid).catch(() => []);
+    // Quem já converteu (virou conta) some da lista — não é mais prospecto,
+    // já apareceria em "Meus afiliados" se o cadastro foi pelo link dele.
+    const meusContatosCampanha = (await listarContatosPorRefAdmin(uid).catch(() => []))
+      .filter(c => c.status !== 'convertido');
 
     res.render('app-afiliados', {
       user: req.session.user,
@@ -22478,17 +22481,47 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
 
-    // Sub-admin foi descontinuado (ago/2026) — distribuição agora é só entre
-    // afiliados (Nível 1, 2 e 3, sem distinção) com acesso liberado (hoje só
-    // _afiliadosNivel1()), dividido por igual entre todos.
-    let contasAtivas = _afiliadosNivel1();
+    // Sub-admin foi descontinuado (ago/2026) — distribuição agora é entre
+    // afiliados com contrato aceito (participação real no programa, não só
+    // todo corretor por padrão), ponderada por nível: Nível 1 recebe 35% dos
+    // contatos, Nível 2 35%, Nível 3 30% — dentro de cada nível, round-robin
+    // normal entre as contas daquele nível. _construirOrdemPonderada monta a
+    // sequência de níveis proporcional já intercalada (mesmo algoritmo de
+    // "smooth weighted round-robin" usado em load balancer), pra não mandar
+    // primeiro só pro Nível 1 e depois só pro 2/3.
+    const _PESOS_NIVEL_CAMPANHA = { 1: 0.35, 2: 0.35, 3: 0.30 };
+    const _porNivelComContrato = nivel => (_cacheUsuarios || [])
+      .filter(u => _nivelAfiliado(u) === nivel && u.afiliadoContratoAceitoEm)
+      .map(u => u.codigoUsuario || u.id);
+    let pools = { 1: _porNivelComContrato(1), 2: _porNivelComContrato(2), 3: _porNivelComContrato(3) };
     // subAdmins: nome do parâmetro ficou (compatibilidade com o front que já
-    // chama essa rota) — mas agora restringe entre os afiliados do rodízio.
+    // chama essa rota) — restringe as contas elegíveis dentro de cada nível.
     if (Array.isArray(subAdmins) && subAdmins.length) {
       const _permitidos = new Set(subAdmins.map(s => String(s).trim().toLowerCase()));
-      contasAtivas = contasAtivas.filter(codigo => _permitidos.has(codigo.toLowerCase()));
+      pools = { 1: pools[1].filter(c => _permitidos.has(c.toLowerCase())), 2: pools[2].filter(c => _permitidos.has(c.toLowerCase())), 3: pools[3].filter(c => _permitidos.has(c.toLowerCase())) };
     }
-    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum afiliado ativo encontrado pra distribuir os contatos' });
+    // Nível sem ninguém elegível não recebe nada — reparte o peso dele entre
+    // os níveis que sobraram, senão perderia contato à toa.
+    const _niveisComConta = [1, 2, 3].filter(n => pools[n].length);
+    if (!_niveisComConta.length) return res.json({ ok: false, erro: 'Nenhum afiliado com contrato aceito encontrado pra distribuir os contatos' });
+    const _pesoTotalAtivo = _niveisComConta.reduce((s, n) => s + _PESOS_NIVEL_CAMPANHA[n], 0);
+    const _pesos = {};
+    _niveisComConta.forEach(n => { _pesos[n] = _PESOS_NIVEL_CAMPANHA[n] / _pesoTotalAtivo; });
+
+    function _construirOrdemPonderada(total, pesos, niveis) {
+      const acumulado = {}; niveis.forEach(n => { acumulado[n] = 0; });
+      const ordem = [];
+      for (let k = 0; k < total; k++) {
+        let melhor = niveis[0], melhorScore = -Infinity;
+        niveis.forEach(n => {
+          acumulado[n] += pesos[n];
+          if (acumulado[n] > melhorScore) { melhorScore = acumulado[n]; melhor = n; }
+        });
+        acumulado[melhor] -= 1;
+        ordem.push(melhor);
+      }
+      return ordem;
+    }
 
     const { _normalizarTelefone, _telefoneValido } = require('./services/metaWhatsapp');
     const { rows: linhas } = await require('./services/db').query(`
@@ -22497,16 +22530,26 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
         AND celular IS NOT NULL AND celular != ''
     `);
 
-    const contatosMap = new Map();
-    let i = 0;
+    // Deduplica primeiro (mesmo telefone pode aparecer >1x na planilha) pra
+    // só então saber o total real e montar a ordem ponderada certinha.
+    const _telsUnicos = [];
+    const _vistos = new Set();
     linhas.forEach(l => {
       const telefone = _normalizarTelefone(l.celular);
-      if (!_telefoneValido(telefone) || contatosMap.has(telefone)) return;
-      const refAdmin = contasAtivas[i % contasAtivas.length];
-      i++;
-      contatosMap.set(telefone, { nome: l.nome || '', telefone, variaveis: { nome: l.nome || '', refAdmin } });
+      if (!_telefoneValido(telefone) || _vistos.has(telefone)) return;
+      _vistos.add(telefone);
+      _telsUnicos.push({ nome: l.nome || '', telefone });
     });
-    const contatos = [...contatosMap.values()];
+
+    const _ordemNiveis = _construirOrdemPonderada(_telsUnicos.length, _pesos, _niveisComConta);
+    const _cursorNivel = { 1: 0, 2: 0, 3: 0 };
+    const contatos = _telsUnicos.map((c, idx) => {
+      const nivel = _ordemNiveis[idx];
+      const poolNivel = pools[nivel];
+      const refAdmin = poolNivel[_cursorNivel[nivel] % poolNivel.length];
+      _cursorNivel[nivel]++;
+      return { nome: c.nome, telefone: c.telefone, variaveis: { nome: c.nome, refAdmin } };
+    });
     if (!contatos.length) return res.json({ ok: false, erro: 'Nenhum contato de campanha (aberto + corretor + celular) encontrado' });
 
     // Mesma checagem de "já é usuário" que /admin/disparos/criar já faz —

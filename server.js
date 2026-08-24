@@ -5230,6 +5230,10 @@ app.post('/login', async (req,res)=>{
       areaAtuacaoCidades: _areaCidadesCadastro,
       areaAtuacaoBairros: _areaBairrosCadastro,
       indicadoPor: _indicador ? (_indicador.codigoUsuario || _indicador.id) : '',
+      // Programa de afiliados: todo cadastro que veio por link de indicação de
+      // um corretor/afiliado já entra direto como Nível 3 — independente do
+      // nível de quem indicou (ver bloco PROGRAMA DE AFILIADOS acima).
+      ...(_indicador ? { afiliadoNivel: 3 } : {}),
       atendidoPorAdmin: _adminIndicador?.usuario || '',
       atendidoPorAdminNome: _adminIndicador?.nome || '',
       atendidoPorAdminCor: _adminIndicador?.cor || ''
@@ -7485,25 +7489,182 @@ app.post('/app/meu-site/dominio/remover', auth, async (req, res) => {
 // (rota /app/meu-site/logo fica registrada mais abaixo, junto de uploadImoveis)
 // ── FIM MEU SITE ────────────────────────────────────────────────────────────
 
-// ── INDICAÇÕES (programa de indicação de parceiros) ───────────────────────────
-app.get('/app/indicacoes', auth, async (req, res) => {
-  const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+// ── INDICAÇÕES (antigo programa de indicação corretor-a-corretor) ─────────────
+// Removido — virou o Programa de Afiliados (ver bloco acima e rotas
+// /app/afiliados abaixo). Mantido como redirect só pra não quebrar link
+// antigo salvo em favorito/atalho de alguém.
+app.get('/app/indicacoes', auth, (req, res) => res.redirect('/app/afiliados'));
+// ── FIM INDICAÇÕES (redirect) ─────────────────────────────────────────────────
+
+// ── AFILIADOS (programa de afiliados, ago/2026) ────────────────────────────────
+app.get('/app/afiliados', auth, async (req, res) => {
+  const uid = req.session.user.codigoUsuario || req.session.user.id;
+  if (!_CONTAS_AFILIADO_PILOTO.includes(uid)) return res.redirect('/app-home');
   try {
+    const meUser = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === uid) || req.session.user;
+    const nivel = _nivelAfiliado(meUser);
+
+    if (!meUser.afiliadoContratoAceitoEm) {
+      return res.render('app-afiliados', { user: req.session.user, aceitouContrato: false, nivel, dados: null });
+    }
+
+    const { listarBonusPorIndicador, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
+    const historico = await listarBonusPorIndicador(uid, 'afiliado').catch(() => []);
+    const disponivelCoins = await totalDisponivelPorIndicador(uid, 'afiliado').catch(() => 0);
     const indicados = (_cacheUsuarios || [])
       .filter(u => u.indicadoPor === uid)
-      .map(u => ({ nome: u.nome || '-', telefone: u.celular || u.telefone || '', criadoEm: u.criadoEm, ativo: u.ativo !== false }))
+      .map(u => ({ nome: u.nome || '-', codigo: u.codigoUsuario || u.id, nivel: _nivelAfiliado(u), criadoEm: u.criadoEm, ativo: u.ativo !== false, online: u.whatsappStatus === 'open' }))
       .sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
-    const { listarBonusPorIndicador, totalBonusPorIndicador, contarIndicadosComBonus } = require('./services/salvarIndicacao');
-    const bonusHistorico = await listarBonusPorIndicador(uid).catch(() => []);
-    const totalGanho = await totalBonusPorIndicador(uid).catch(() => 0);
-    const indicadosComBonus = await contarIndicadosComBonus(uid, 'corretor').catch(() => 0);
-    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados, bonusHistorico, totalGanho, indicadosComBonus, marcosIndicacao: _MARCOS_INDICACAO });
+
+    // Árvore: do próprio nó pra baixo, seguindo indicadoPor — profundidade
+    // limitada só como proteção (a árvore de níveis para em 3, mas a cadeia
+    // de indicações em si pode ser mais funda que isso).
+    const _montarArvore = (codigo, prof) => {
+      if (prof > 8) return null;
+      const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+      const filhos = (_cacheUsuarios || []).filter(x => x.indicadoPor === codigo);
+      return {
+        codigo,
+        nome: (u && u.nome) || codigo,
+        nivel: u ? _nivelAfiliado(u) : null,
+        filhos: filhos.map(f => _montarArvore(f.codigoUsuario || f.id, prof + 1)).filter(Boolean)
+      };
+    };
+    const arvore = _montarArvore(uid, 0);
+
+    const volumeAtual = await _volumeVendasAfiliado(uid).catch(() => 0);
+    const faltaProximoNivel = nivel === 3 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel2 - volumeAtual)
+      : nivel === 2 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel1 - volumeAtual) : 0;
+
+    res.render('app-afiliados', {
+      user: req.session.user,
+      aceitouContrato: true,
+      nivel,
+      dados: {
+        linkIndicacao: 'https://www.matchimoveis.ia.br/?ref=' + uid,
+        historico,
+        disponivelCoins,
+        disponivelReais: (disponivelCoins / 20).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        indicados,
+        arvore,
+        volumeAtual,
+        faltaProximoNivel,
+        comissaoTabela: _COMISSAO_AFILIADO,
+        promocao: _PROMOCAO_AFILIADO
+      }
+    });
   } catch(e) {
-    console.error('[indicacoes]', e.message);
-    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados: [], bonusHistorico: [], totalGanho: 0, indicadosComBonus: 0, marcosIndicacao: _MARCOS_INDICACAO });
+    console.error('[afiliados]', e.message);
+    res.status(500).send('Erro ao carregar área de afiliados: ' + e.message);
   }
 });
-// ── FIM INDICAÇÕES ─────────────────────────────────────────────────────────────
+
+app.post('/app/afiliados/aceitar-contrato', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_CONTAS_AFILIADO_PILOTO.includes(uid)) return res.status(403).json({ ok: false, erro: 'não liberado' });
+    const { atualizarUsuario: _auContrato } = require('./services/salvarUsuario');
+    const _stamp = new Date().toISOString();
+    await _auContrato(uid, { afiliadoContratoAceitoEm: _stamp });
+    const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === uid);
+    if (u) u.afiliadoContratoAceitoEm = _stamp;
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ ok: false, erro: e.message }); }
+});
+
+app.post('/app/afiliados/resgate', auth, express.json(), async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_CONTAS_AFILIADO_PILOTO.includes(uid)) return res.status(403).json({ ok: false, erro: 'não liberado' });
+    const { ids, modo } = req.body;
+    if (!Array.isArray(ids) || !ids.length) return res.json({ ok: false, erro: 'Selecione ao menos uma comissão' });
+    if (modo !== 'dinheiro' && modo !== 'credito') return res.json({ ok: false, erro: 'Modo inválido' });
+
+    const { solicitarResgate, marcarResgatePago } = require('./services/salvarIndicacao');
+    // credito_destino é sempre a própria conta — o afiliado nunca pode
+    // repassar/revender crédito pra outra conta (regra do programa, não só
+    // técnica — ver contrato de adesão).
+    const resultado = await solicitarResgate({ ids, indicadorCodigo: uid, modo, creditoDestinoCodigo: modo === 'credito' ? uid : null, indicadorTipo: 'afiliado' });
+    if (!resultado.atualizados) return res.json({ ok: false, erro: 'Nenhuma comissão disponível encontrada nessa seleção' });
+
+    if (modo === 'credito') {
+      await marcarResgatePago(ids);
+      await adicionarCreditos(uid, resultado.totalCoins, 'resgate_afiliado_credito');
+    }
+    // modo 'dinheiro' fica 'solicitado' — entra no fechamento mensal (dia 25,
+    // pago em até 3 dias úteis), confirmado manualmente pelo superadmin em
+    // /admin/comissoes-pendentes (mesma fila do sub-admin, agora com os dois
+    // tipos juntos — ver listarTodasSolicitacoesResgate).
+    res.json({ ok: true, atualizados: resultado.atualizados, totalCoins: resultado.totalCoins });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Admin: árvore geral de todos os afiliados + edição manual de nível — só o
+// superadmin principal (é aqui que o Renato marca as 6 contas fixas + os
+// sub-admins existentes como Nível 1, já que nenhuma conta nasce Nível 1).
+app.get('/admin/afiliados', authAdmin, async (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).send('Acesso restrito ao administrador principal.');
+  try {
+    const _escAf = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const todos = _cacheUsuarios || [];
+    const _temFilho = new Set(todos.filter(u => u.indicadoPor).map(u => u.indicadoPor));
+    const raizes = todos.filter(u => {
+      const codigo = u.codigoUsuario || u.id;
+      return _nivelAfiliado(u) === 1 || (!u.indicadoPor && _temFilho.has(codigo));
+    });
+
+    const _linhaNo = (u, prof) => {
+      const codigo = u.codigoUsuario || u.id;
+      const nivel = _nivelAfiliado(u);
+      const filhos = todos.filter(f => f.indicadoPor === codigo);
+      const cor = nivel === 1 ? '#FF385C' : nivel === 2 ? '#00A699' : '#FC642D';
+      let html = `<div style="margin-left:${prof * 24}px;padding:6px 10px;border-left:2px solid ${cor};margin-bottom:4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="background:${cor};color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px">N${nivel}</span>
+        <strong>${_escAf(u.nome || codigo)}</strong>
+        <span style="color:#9ca3af;font-size:12px">${_escAf(codigo)}</span>
+        <form method="post" action="/admin/afiliados/${encodeURIComponent(codigo)}/nivel" style="display:inline-flex;gap:4px;align-items:center;margin:0">
+          <select name="nivel" style="font-size:12px;padding:2px 4px;border-radius:6px;border:1px solid #e5e7eb">
+            <option value="1" ${nivel===1?'selected':''}>Nível 1</option>
+            <option value="2" ${nivel===2?'selected':''}>Nível 2</option>
+            <option value="3" ${nivel===3?'selected':''}>Nível 3</option>
+          </select>
+          <button type="submit" style="font-size:11px;padding:3px 8px;border-radius:6px;border:none;background:#111827;color:#fff;cursor:pointer">Salvar</button>
+        </form>
+      </div>`;
+      filhos.forEach(f => { html += _linhaNo(f, prof + 1); });
+      return html;
+    };
+
+    const corpo = raizes.length
+      ? raizes.map(r => _linhaNo(r, 0)).join('')
+      : '<p style="color:#6b7280">Nenhum afiliado com rede ainda.</p>';
+
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Afiliados — Admin</title>
+    <style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f9fafb;margin:0;padding:24px}
+    .card{background:#fff;border-radius:12px;padding:20px;max-width:900px;margin:0 auto;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    h1{font-size:20px;margin:0 0 4px}</style></head><body>
+    <div class="card">
+      <h1>🌳 Árvore geral de afiliados</h1>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Nível 1 é um conjunto fechado — nenhuma conta nasce Nível 1, só chega lá manualmente (aqui) ou por promoção automática (Nível 2 ao bater R$${_PROMOCAO_AFILIADO.paraNivel2.toLocaleString('pt-BR')} em vendas próprias, Nível 1 ao bater R$${_PROMOCAO_AFILIADO.paraNivel1.toLocaleString('pt-BR')}).</p>
+      ${corpo}
+    </div>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/admin/afiliados/:codigo/nivel', authAdmin, async (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).send('Acesso restrito ao administrador principal.');
+  try {
+    const nivel = parseInt(req.body.nivel, 10);
+    if (![1, 2, 3].includes(nivel)) return res.status(400).send('Nível inválido');
+    const { atualizarUsuario: _auNivelAdmin } = require('./services/salvarUsuario');
+    await _auNivelAdmin(req.params.codigo, { afiliadoNivel: nivel });
+    const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === req.params.codigo);
+    if (u) u.afiliadoNivel = nivel;
+    res.redirect('/admin/afiliados');
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+// ── FIM AFILIADOS ──────────────────────────────────────────────────────────────
 
 app.post('/app/perfil/vitrine', auth, async (req,res)=>{
   const { atualizarUsuario: _auVitrine } = require('./services/salvarUsuario');
@@ -14204,50 +14365,150 @@ app.get('/pagamento/sucesso', auth, async (req, res) => {
   res.redirect('/app/coins?sucesso=1');
 });
 
-// Gamificação do referral: quantos indicados (com pelo menos 1 recarga de
-// verdade) o corretor precisa acumular pra ganhar um bônus extra, de quebra
-// do 10% que já ganha por recarga — motivo pra chamar mais gente, não só
-// esperar quem já chamou recarregar. Só pra indicador_tipo='corretor' (não
-// se aplica à comissão de sub-admin, que já é % e resgatada à parte).
-const _MARCOS_INDICACAO = { 3: 1000, 10: 5000, 25: 20000 };
-async function _checarMarcoIndicacao(indicadorCodigo) {
+// ── PROGRAMA DE AFILIADOS (ago/2026) ──────────────────────────────────────
+// Substitui o antigo bônus fixo de 10% corretor-indica-corretor. Todo
+// corretor já é afiliado (não é algo que se ativa): Nível 2 por padrão
+// (grandfather de quem já estava na base), Nível 3 pra todo cadastro novo
+// que entrar por link de indicação de qualquer afiliado (independente do
+// nível de quem indicou — "todo link cria nível 3"), e Nível 1 só pras
+// contas fixas de cabeça de rede + sub-admins já existentes, setadas
+// manualmente no admin (ver POST /admin/afiliados/:codigo/nivel) — nenhuma
+// conta começa como Nível 1, só chega lá por promoção (ver
+// _PROMOCAO_AFILIADO). Reaproveita o mesmo ledger/fluxo de resgate do
+// sub-admin (indicacoes_bonus, services/salvarIndicacao.js), com
+// indicador_tipo='afiliado'.
+const _COMISSAO_AFILIADO = {
+  primeira: {
+    1: { propria: 0.25 },
+    2: { propria: 0.197, n1: 0.053 },
+    3: { propria: 0.163, n2: 0.043, n1: 0.043 }
+  },
+  recorrencia: {
+    1: { propria: 0.07 },
+    2: { propria: 0.055, n1: 0.015 },
+    3: { propria: 0.046, n2: 0.012, n1: 0.012 }
+  }
+};
+// Volume de vendas PRÓPRIAS (não conta override) acumulado pra promoção
+// automática: nível 3 -> 2 ao bater R$10.000, nível 2 -> 1 ao bater
+// R$200.000 (conversão coins->R$ na mesma taxa base da recarga avulsa,
+// R$1 = 20 coins — ver /admin/minhas-comissoes).
+const _PROMOCAO_AFILIADO = { paraNivel2: 10000, paraNivel1: 200000 };
+// Piloto: só essa(s) conta(s) veem o menu/tela de afiliado por enquanto.
+const _CONTAS_AFILIADO_PILOTO = ['REN-G9K6'];
+
+function _nivelAfiliado(u) {
+  return (u && u.afiliadoNivel) ? u.afiliadoNivel : 2;
+}
+
+// Sobe a cadeia de indicadoPor (pai direto de cada um) procurando o primeiro
+// ancestral com o nível pedido — necessário porque nível 3 pode indicar
+// outro nível 3 (a árvore desce até nível 3 e dali só alarga pro lado), então
+// o override de nível 2/1 nem sempre é o indicador direto do comprador.
+function _buscarAncestralNivel(codigoInicial, nivelAlvo, _profundidade) {
+  _profundidade = _profundidade || 0;
+  if (!codigoInicial || _profundidade > 25) return null;
+  const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigoInicial);
+  if (!u) return null;
+  if (_nivelAfiliado(u) === nivelAlvo) return codigoInicial;
+  if (!u.indicadoPor) return null;
+  return _buscarAncestralNivel(u.indicadoPor, nivelAlvo, _profundidade + 1);
+}
+
+async function _volumeVendasAfiliado(codigo) {
   try {
-    const { contarIndicadosComBonus } = require('./services/salvarIndicacao');
-    const total = await contarIndicadosComBonus(indicadorCodigo, 'corretor');
-    const indicador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === indicadorCodigo);
-    const _jaGanhos = (indicador && Array.isArray(indicador.indicacaoMarcosGanhos)) ? indicador.indicacaoMarcosGanhos : [];
-    const _novosMarcos = Object.keys(_MARCOS_INDICACAO).map(Number).filter(m => total >= m && !_jaGanhos.includes(m)).sort((a,b)=>a-b);
-    if (!_novosMarcos.length) return;
-    const { atualizarUsuario: _auMarco } = require('./services/salvarUsuario');
-    for (const marco of _novosMarcos) {
-      const valorMarco = _MARCOS_INDICACAO[marco];
-      await adicionarCreditos(indicadorCodigo, valorMarco, 'bonus_indicacao_marco_' + marco);
+    const { query: _qVolAfil } = require('./services/db');
+    const { rows } = await _qVolAfil(
+      `SELECT COALESCE(SUM(valor_compra_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo='afiliado' AND papel='propria'`,
+      [codigo]
+    );
+    return parseInt(rows[0]?.total || 0) / 20;
+  } catch(e) { console.error('[afiliado-volume]', e.message); return 0; }
+}
+
+async function _checarPromocaoAfiliado(codigo) {
+  try {
+    const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+    if (!u) return;
+    const nivelAtual = _nivelAfiliado(u);
+    if (nivelAtual === 1) return;
+    const volume = await _volumeVendasAfiliado(codigo);
+    let novoNivel = nivelAtual;
+    if (novoNivel === 3 && volume >= _PROMOCAO_AFILIADO.paraNivel2) novoNivel = 2;
+    if (novoNivel === 2 && volume >= _PROMOCAO_AFILIADO.paraNivel1) novoNivel = 1;
+    if (novoNivel === nivelAtual) return;
+    const { atualizarUsuario: _auProm } = require('./services/salvarUsuario');
+    await _auProm(codigo, { afiliadoNivel: novoNivel });
+    u.afiliadoNivel = novoNivel;
+    criarNotificacaoService({
+      id: Date.now().toString() + '_promafiliado',
+      tipo: 'afiliado_promocao',
+      titulo: '🚀 Você subiu de nível no programa de afiliados!',
+      mensagem: 'Parabéns! Você agora é Nível ' + novoNivel + ' no programa de afiliados.',
+      usuarioId: codigo,
+      lida: false,
+      criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+    });
+  } catch(e) { console.error('[afiliado-promocao]', e.message); }
+}
+
+// Comissão em cascata do programa de afiliados. Só gera lançamento no ledger
+// (indicacoes_bonus, indicador_tipo='afiliado') — nunca credita match_coins
+// direto: o afiliado escolhe depois, no resgate (POST /app/afiliados/resgate),
+// entre saque em dinheiro ou crédito na própria conta (nunca em conta de
+// terceiro — é regra do programa, não só técnica).
+async function _processarComissaoAfiliado(userId, creditosComprados, eraPrimeiraCompra) {
+  try {
+    const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
+    if (!comprador || !comprador.indicadoPor) return;
+    const direto = comprador.indicadoPor;
+    const uDireto = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === direto);
+    if (!uDireto) return;
+    const nivelDireto = _nivelAfiliado(uDireto);
+    const tabela = _COMISSAO_AFILIADO[eraPrimeiraCompra ? 'primeira' : 'recorrencia'][nivelDireto];
+    if (!tabela) return;
+
+    const { registrarBonus } = require('./services/salvarIndicacao');
+    const _lancar = async (codigoGanhador, fracao, papel) => {
+      if (!codigoGanhador || !fracao) return;
+      const valor = Math.floor(creditosComprados * fracao);
+      if (valor <= 0) return;
+      await registrarBonus({ indicadorCodigo: codigoGanhador, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: valor, indicadorTipo: 'afiliado', papel });
       criarNotificacaoService({
-        id: Date.now().toString() + '_marco' + marco,
-        tipo: 'indicacao_bonus',
-        titulo: '🏆 Meta de indicação batida!',
-        mensagem: 'Você já tem ' + total + ' indicado(s) ativo(s) — ganhou ' + valorMarco.toLocaleString('pt-BR') + ' créditos de bônus por bater a meta de ' + marco + '!',
-        usuarioId: indicadorCodigo,
+        id: Date.now().toString() + '_afil_' + papel,
+        tipo: 'afiliado_comissao',
+        titulo: '💰 Comissão de afiliado!',
+        mensagem: (comprador.nome || 'Seu indicado') + ' comprou créditos — você ganhou ' + valor + ' coins em comissão de afiliado.',
+        usuarioId: codigoGanhador,
         lida: false,
         criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
       });
-    }
-    const _marcosAtualizados = [..._jaGanhos, ..._novosMarcos];
-    await _auMarco(indicadorCodigo, { indicacaoMarcosGanhos: _marcosAtualizados });
-    if (indicador) indicador.indicacaoMarcosGanhos = _marcosAtualizados;
-  } catch(e) { console.error('[marco-indicacao]', e.message); }
-}
+    };
 
-// Bônus de indicação: 10% dos créditos comprados vão pro indicador (corretor
-// que indicou outro corretor), sempre que o indicado recarrega. Além disso,
-// se essa conta foi criada por uma campanha de WhatsApp com sub-admin
-// responsável (atendidoPorAdmin), o sub-admin ganha um % na primeira compra
-// desse indicado e outro % nas recargas seguintes (recorrência) — taxa é por
-// conta (admin_contas.pct_primeira/pct_recorrencia, ver services/salvarAdminConta.js):
-// contas antigas ficam na taxa histórica 30%/15%, sub-admins criados a partir
-// de ago/2026 usam 20%/10%. Fica só no ledger (indicacoes_bonus,
-// indicador_tipo='admin'), nunca em usuarios.match_coins, porque sub-admin
-// não é corretor.
+    await _lancar(direto, tabela.propria, 'propria');
+    let _n2Codigo = null;
+    if (tabela.n2) {
+      _n2Codigo = _buscarAncestralNivel(direto, 2);
+      await _lancar(_n2Codigo, tabela.n2, 'override_n2');
+    }
+    if (tabela.n1) {
+      const _n1Codigo = _buscarAncestralNivel(_n2Codigo || direto, 1);
+      await _lancar(_n1Codigo, tabela.n1, 'override_n1');
+    }
+
+    await _checarPromocaoAfiliado(direto);
+  } catch(e) { console.error('[comissao-afiliado]', e.message); }
+}
+// ── FIM PROGRAMA DE AFILIADOS (comissão) ──────────────────────────────────
+
+// Bônus de indicação: se essa conta foi criada por uma campanha de WhatsApp
+// com sub-admin responsável (atendidoPorAdmin), o sub-admin ganha um % na
+// primeira compra desse indicado e outro % nas recargas seguintes
+// (recorrência) — taxa é por conta (admin_contas.pct_primeira/pct_recorrencia,
+// ver services/salvarAdminConta.js): contas antigas ficam na taxa histórica
+// 30%/15%, sub-admins criados a partir de ago/2026 usam 20%/10%. Fica só no
+// ledger (indicacoes_bonus, indicador_tipo='admin'), nunca em
+// usuarios.match_coins, porque sub-admin não é corretor.
 async function _processarBonusIndicacao(userId, creditosComprados) {
   try {
     const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
@@ -14255,8 +14516,9 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
 
     // Primeira compra — marca pra statsPorTemplate() conseguir medir conversão
     // até "comprou", não só até "cadastrou" — e também decide a faixa de
-    // comissão do sub-admin (pct_primeira x pct_recorrencia da conta). Só
-    // grava na 1ª vez (evita reescrever a cada recarga seguinte).
+    // comissão do sub-admin (pct_primeira x pct_recorrencia da conta) e do
+    // afiliado (tabela 1ª compra x recorrência). Só grava na 1ª vez (evita
+    // reescrever a cada recarga seguinte).
     const _eraPrimeiraCompra = !comprador.comprouEm;
     if (_eraPrimeiraCompra) {
       const { atualizarUsuario: _auComprouEm } = require('./services/salvarUsuario');
@@ -14265,28 +14527,7 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
       comprador.comprouEm = _comprouEmStamp;
     }
 
-    if (comprador.indicadoPor) {
-      const indicadorCodigo = comprador.indicadoPor;
-      const indicador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === indicadorCodigo);
-      if (indicador) {
-        const bonus = Math.floor(creditosComprados * 0.10);
-        if (bonus > 0) {
-          await adicionarCreditos(indicadorCodigo, bonus, 'bonus_indicacao');
-          const { registrarBonus } = require('./services/salvarIndicacao');
-          await registrarBonus({ indicadorCodigo, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonus, indicadorTipo: 'corretor' });
-          criarNotificacaoService({
-            id: Date.now().toString(),
-            tipo: 'indicacao_bonus',
-            titulo: '🎁 Bônus de indicação!',
-            mensagem: (comprador.nome || 'Seu indicado') + ' comprou ' + creditosComprados + ' créditos — você ganhou ' + bonus + ' de bônus!',
-            usuarioId: indicadorCodigo,
-            lida: false,
-            criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
-          });
-          await _checarMarcoIndicacao(indicadorCodigo);
-        }
-      }
-    }
+    await _processarComissaoAfiliado(userId, creditosComprados, _eraPrimeiraCompra);
 
     if (comprador.atendidoPorAdmin) {
       const { buscarAdminConta } = require('./services/salvarAdminConta');
@@ -21266,8 +21507,9 @@ app.get('/admin/indicacoes', authAdmin, async (req, res) => {
     <body>
     <div class="admin-app">${_adminSidebarHtml('indicacoes-admin', true, req)}
       <main class="admin-content" style="max-width:760px">
-        <h1 style="font-size:22px;margin-bottom:4px">🔗 Indicações</h1>
-        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Cada corretor tem um link próprio (<code>/?ref=&lt;codigo&gt;</code>) — quando alguém se cadastra por ele e recarrega créditos, o indicador ganha 10% em bônus. Tela em <code>/app/indicacoes</code>, menu "Indicar Parceiro".</p>
+        <h1 style="font-size:22px;margin-bottom:4px">🔗 Indicações (histórico)</h1>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:6px">⚠️ Esse bônus fixo de 10% foi <strong>substituído pelo Programa de Afiliados</strong> (ago/2026) — os números abaixo são só o histórico de quando esse mecanismo ainda rodava. Área nova em <a href="/admin/afiliados">/admin/afiliados</a>.</p>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Cada corretor tinha um link próprio (<code>/?ref=&lt;codigo&gt;</code>) — quando alguém se cadastrava por ele e recarregava créditos, o indicador ganhava 10% em bônus.</p>
         <div style="display:flex;gap:14px;margin-bottom:24px">
           <div class="stat"><div>Corretores que já indicaram</div><div>${stats.indicadores || 0}</div></div>
           <div class="stat"><div>Corretores indicados (com bônus)</div><div>${stats.indicados || 0}</div></div>

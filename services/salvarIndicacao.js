@@ -30,13 +30,19 @@ async function _inicializar() {
   await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS solicitado_em TIMESTAMP`);
   await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS pago_em TIMESTAMP`);
   await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS credito_destino_codigo TEXT`);
+  // papel distingue, dentro do programa de afiliados (indicador_tipo='afiliado'),
+  // se a linha é a comissão "propria" (quem indicou direto o comprador) ou um
+  // "override_n2"/"override_n1" (nível acima recebendo a diferença) — usado
+  // pro cálculo de volume de venda própria que dispara promoção automática
+  // de nível (ver _volumeVendasAfiliado/_checarPromocaoAfiliado em server.js).
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS papel TEXT`);
 }
 
-async function registrarBonus({ indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo }) {
+async function registrarBonus({ indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo, papel }) {
   await _inicializar();
   await query(
-    `INSERT INTO indicacoes_bonus (id, indicador_codigo, indicado_codigo, valor_compra_coins, bonus_coins, indicador_tipo) VALUES ($1,$2,$3,$4,$5,$6)`,
-    [uuidv4(), indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo || 'corretor']
+    `INSERT INTO indicacoes_bonus (id, indicador_codigo, indicado_codigo, valor_compra_coins, bonus_coins, indicador_tipo, papel) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+    [uuidv4(), indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo || 'corretor', papel || null]
   );
 }
 
@@ -72,27 +78,30 @@ async function totalBonusPorIndicador(indicadorCodigo, indicadorTipo) {
 }
 
 // Só soma o que ainda não foi pedido em resgate — é o número que o painel
-// do sub-admin mostra como "disponível pra resgatar".
-async function totalDisponivelPorIndicador(indicadorCodigo) {
+// do sub-admin (ou, desde ago/2026, do afiliado) mostra como "disponível
+// pra resgatar". indicadorTipo default 'admin' mantém compatível com quem
+// já chamava essa função sem passar o tipo.
+async function totalDisponivelPorIndicador(indicadorCodigo, indicadorTipo) {
   await _inicializar();
   const { rows } = await query(
-    `SELECT COALESCE(SUM(bonus_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo='admin' AND status='disponivel'`,
-    [indicadorCodigo]
+    `SELECT COALESCE(SUM(bonus_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo=$2 AND status='disponivel'`,
+    [indicadorCodigo, indicadorTipo || 'admin']
   );
   return parseInt(rows[0]?.total || 0);
 }
 
-// Sub-admin escolhe um lote de comissões "disponivel" e pede resgate — fica
-// 'solicitado' até o superadmin cumprir por fora (dinheiro) ou creditar
-// coins pro corretor escolhido (credito) e marcar como pago.
-async function solicitarResgate({ ids, indicadorCodigo, modo, creditoDestinoCodigo }) {
+// Sub-admin (ou afiliado) escolhe um lote de comissões "disponivel" e pede
+// resgate — fica 'solicitado' até o superadmin cumprir por fora (dinheiro)
+// ou creditar coins pro destino escolhido (credito) e marcar como pago.
+// indicadorTipo default 'admin' mantém compatível com o fluxo de sub-admin.
+async function solicitarResgate({ ids, indicadorCodigo, modo, creditoDestinoCodigo, indicadorTipo }) {
   await _inicializar();
   if (!ids || !ids.length) return { atualizados: 0 };
   const { rows } = await query(
     `UPDATE indicacoes_bonus SET status='solicitado', modo_resgate=$1, solicitado_em=NOW(), credito_destino_codigo=$2
-     WHERE id = ANY($3) AND indicador_codigo=$4 AND indicador_tipo='admin' AND status='disponivel'
+     WHERE id = ANY($3) AND indicador_codigo=$4 AND indicador_tipo=$5 AND status='disponivel'
      RETURNING id, bonus_coins`,
-    [modo, creditoDestinoCodigo || null, ids, indicadorCodigo]
+    [modo, creditoDestinoCodigo || null, ids, indicadorCodigo, indicadorTipo || 'admin']
   );
   return { atualizados: rows.length, totalCoins: rows.reduce((s, r) => s + r.bonus_coins, 0) };
 }
@@ -105,8 +114,11 @@ async function solicitarResgate({ ids, indicadorCodigo, modo, creditoDestinoCodi
 // diferenciado por status na própria linha (cor no HTML).
 async function listarTodasSolicitacoesResgate() {
   await _inicializar();
+  // Inclui 'afiliado' desde ago/2026 (programa de afiliados reaproveita esse
+  // mesmo ledger/fila de resgate em dinheiro do sub-admin) além do 'admin'
+  // histórico — o superadmin confere e paga os dois tipos na mesma tela.
   const { rows } = await query(
-    `SELECT * FROM indicacoes_bonus WHERE indicador_tipo='admin' AND status IN ('solicitado','pago')
+    `SELECT * FROM indicacoes_bonus WHERE indicador_tipo IN ('admin','afiliado') AND status IN ('solicitado','pago')
      ORDER BY COALESCE(pago_em, solicitado_em) DESC`
   );
   return rows;

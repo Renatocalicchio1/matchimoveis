@@ -1,0 +1,228 @@
+<%- include("partials/app-shell",{active:"afiliados",user:user,title:"Afiliados"}) %>
+
+<style>
+.af-nivel-badge{display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;color:#fff}
+.af-nivel-1{background:#FF385C}
+.af-nivel-2{background:#00A699}
+.af-nivel-3{background:#FC642D}
+.af-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:800px){.af-grid{grid-template-columns:1fr}}
+.af-stat-num{font-size:26px;font-weight:800;color:#111827}
+.af-stat-label{font-size:12px;color:#6b7280;margin-top:2px}
+.af-link-box{display:flex;gap:8px;align-items:center;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-size:13px;font-family:monospace;overflow-x:auto}
+.af-table{width:100%;border-collapse:collapse;font-size:13px}
+.af-table th{text-align:left;color:#6b7280;font-weight:600;padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px}
+.af-table td{padding:8px;border-bottom:1px solid #f3f4f6}
+.af-arvore-no{margin-left:20px;padding:6px 0 6px 12px;border-left:2px solid #e5e7eb}
+.af-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.af-tab-btn{padding:8px 16px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#374151}
+.af-tab-btn.active{background:#111827;color:#fff;border-color:#111827}
+.af-tab-pane{display:none}
+.af-tab-pane.active{display:block}
+.af-contrato-box{max-height:420px;overflow-y:auto;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:13px;line-height:1.6;color:#374151}
+.af-contrato-box h3{font-size:14px;margin:14px 0 6px}
+.af-contrato-box h3:first-child{margin-top:0}
+</style>
+
+<% if (!aceitouContrato) { %>
+<div class="card">
+  <h2 style="margin:0 0 4px">🤝 Programa de Afiliados MatchImóveis</h2>
+  <p style="margin:0 0 16px;color:#6b7280;font-size:13px">Antes de acessar sua área de afiliado, leia e aceite o termo de adesão abaixo.</p>
+  <div class="af-contrato-box">
+    <h3>1. Natureza da relação</h3>
+    <p>Ao aderir ao Programa de Afiliados, você passa a atuar como <strong>afiliado/representante comercial autônomo</strong> da MatchImóveis, exclusivamente para fins de indicação e divulgação da plataforma a terceiros. Esta adesão <strong>não cria vínculo empregatício, societário, de parceria, consórcio ou associação</strong> com a MatchImóveis. Você não é sócio, não tem participação no capital, gestão ou resultados da empresa — sua remuneração se limita às comissões previstas neste termo. Não há subordinação, horário, meta obrigatória ou exclusividade impostos pela MatchImóveis.</p>
+    <h3>2. Objeto</h3>
+    <p>Divulgação da plataforma por meio de link de indicação próprio e material fornecido pela empresa, buscando novos usuários (corretores/imobiliárias).</p>
+    <h3>3. Estrutura de níveis e comissionamento</h3>
+    <p>Você é enquadrado em um dos níveis do programa (1, 2 ou 3), conforme critérios de volume definidos pela MatchImóveis. A comissão incide sobre o valor pago pelo indicado, conforme tabela de percentuais vigente. A MatchImóveis pode alterar, a qualquer tempo, os percentuais e critérios de nível, mediante comunicação prévia na plataforma.</p>
+    <h3>4. Pagamento</h3>
+    <p>As comissões ficam disponíveis na sua área de afiliado. Você pode solicitar <strong>saque em dinheiro</strong> (fechamento no dia 25 de cada mês, pagamento em até 3 dias úteis) ou <strong>converter o saldo em créditos</strong> na sua própria conta de corretor/imobiliária. <strong>É vedada a revenda, cessão ou transferência dos créditos/comissões a terceiros ou a outra conta.</strong> Tributos incidentes sobre a comissão são de responsabilidade exclusiva do afiliado.</p>
+    <h3>5. Rede de indicados</h3>
+    <p>A rede de indicados gerada é um dado operacional da plataforma, não constituindo ativo cedível, vendável ou transferível.</p>
+    <h3>6. Uso de marca e conduta</h3>
+    <p>Uso da marca/materiais só na forma disponibilizada pela empresa. Indicações fraudulentas autorizam suspensão imediata e cancelamento de comissões pendentes relacionadas.</p>
+    <h3>7. Vigência e rescisão</h3>
+    <p>Prazo indeterminado, rescindível a qualquer momento por qualquer das partes, sem aviso prévio e sem multa. Encerrada a relação, cessa o direito a comissões futuras, preservadas as já geradas e não pagas até a data.</p>
+    <h3>8. Disposições gerais</h3>
+    <p>Sem exclusividade em favor do afiliado. Foro da comarca da sede da MatchImóveis.</p>
+  </div>
+  <label style="display:flex;align-items:center;gap:8px;margin:16px 0;font-size:13px;color:#374151;cursor:pointer">
+    <input type="checkbox" id="af-check-li"> Li e concordo com o Termo de Adesão ao Programa de Afiliados
+  </label>
+  <button id="af-btn-aceitar" disabled style="opacity:.5;background:#111827;color:#fff;border:none;padding:12px 24px;border-radius:10px;font-weight:700;cursor:not-allowed" onclick="afAceitarContrato()">Aceitar e entrar</button>
+  <span id="af-aceitar-status" style="margin-left:10px;font-size:13px;color:#6b7280"></span>
+</div>
+<script>
+document.getElementById('af-check-li').addEventListener('change', function(){
+  const btn = document.getElementById('af-btn-aceitar');
+  btn.disabled = !this.checked;
+  btn.style.opacity = this.checked ? '1' : '.5';
+  btn.style.cursor = this.checked ? 'pointer' : 'not-allowed';
+});
+async function afAceitarContrato(){
+  const status = document.getElementById('af-aceitar-status');
+  status.textContent = 'Salvando...';
+  try{
+    const r = await fetch('/app/afiliados/aceitar-contrato', { method:'POST' });
+    const j = await r.json();
+    if(j.ok) location.reload(); else status.textContent = 'Erro: ' + (j.erro||'tente novamente');
+  }catch(e){ status.textContent = 'Erro de conexão'; }
+}
+</script>
+
+<% } else { %>
+
+<div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+  <div>
+    <span class="af-nivel-badge af-nivel-<%= nivel %>">Nível <%= nivel %></span>
+    <% if (dados.faltaProximoNivel > 0) { %>
+      <span style="margin-left:10px;font-size:12px;color:#6b7280">Faltam <strong>R$ <%= dados.faltaProximoNivel.toLocaleString('pt-BR') %></strong> em vendas próprias pra subir de nível</span>
+    <% } else if (nivel === 1) { %>
+      <span style="margin-left:10px;font-size:12px;color:#6b7280">Nível máximo do programa</span>
+    <% } %>
+  </div>
+  <div class="af-link-box">
+    <span id="af-link"><%= dados.linkIndicacao %></span>
+    <button onclick="navigator.clipboard.writeText('<%= dados.linkIndicacao %>');this.textContent='✓ copiado'" style="border:none;background:#111827;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;white-space:nowrap">Copiar link</button>
+  </div>
+</div>
+
+<div class="af-grid">
+  <div class="card"><div class="af-stat-num"><%= dados.disponivelCoins.toLocaleString('pt-BR') %></div><div class="af-stat-label">coins disponíveis pra resgate (R$ <%= dados.disponivelReais %>)</div></div>
+  <div class="card"><div class="af-stat-num"><%= dados.indicados.length %></div><div class="af-stat-label">afiliados indicados por você</div></div>
+  <div class="card"><div class="af-stat-num">R$ <%= dados.volumeAtual.toLocaleString('pt-BR') %></div><div class="af-stat-label">volume de vendas próprias acumulado</div></div>
+</div>
+
+<div class="af-tabs">
+  <button class="af-tab-btn active" onclick="afTab('comissoes',this)">💰 Minhas comissões</button>
+  <button class="af-tab-btn" onclick="afTab('indicados',this)">👥 Meus afiliados</button>
+  <button class="af-tab-btn" onclick="afTab('arvore',this)">🌳 Árvore</button>
+  <button class="af-tab-btn" onclick="afTab('niveis',this)">📖 Como funciona</button>
+</div>
+
+<div id="af-pane-comissoes" class="af-tab-pane active card">
+  <h3 style="margin-top:0">Histórico de comissões</h3>
+  <% if (!dados.historico.length) { %>
+    <p style="color:#6b7280;font-size:13px">Nenhuma comissão registrada ainda.</p>
+  <% } else { %>
+  <form id="af-resgate-form">
+    <div style="overflow-x:auto">
+    <table class="af-table">
+      <thead><tr><th></th><th>Data</th><th>Papel</th><th>Coins</th><th>Status</th></tr></thead>
+      <tbody>
+        <% dados.historico.forEach(function(h){ %>
+        <tr>
+          <td><% if (h.status === 'disponivel') { %><input type="checkbox" class="af-check-linha" value="<%= h.id %>"><% } %></td>
+          <td><%= new Date(h.criado_em).toLocaleDateString('pt-BR') %></td>
+          <td><%= h.papel === 'propria' ? 'Própria venda' : h.papel === 'override_n2' ? 'Override N2' : h.papel === 'override_n1' ? 'Override N1' : '-' %></td>
+          <td><%= h.bonus_coins %></td>
+          <td>
+            <% if (h.status === 'disponivel') { %><span style="color:#00A699;font-weight:600">Disponível</span>
+            <% } else if (h.status === 'solicitado') { %><span style="color:#FC642D;font-weight:600">Solicitado</span>
+            <% } else { %><span style="color:#6b7280">Pago</span><% } %>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <label style="font-size:13px"><input type="radio" name="af-modo" value="credito" checked> Creditar na minha conta</label>
+      <label style="font-size:13px"><input type="radio" name="af-modo" value="dinheiro"> Sacar em dinheiro (fecha dia 25, paga em até 3 dias)</label>
+      <button type="button" onclick="afResgatar()" style="background:#111827;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer">Resgatar selecionadas</button>
+      <span id="af-resgate-status" style="font-size:13px;color:#6b7280"></span>
+    </div>
+  </form>
+  <% } %>
+</div>
+
+<div id="af-pane-indicados" class="af-tab-pane card">
+  <h3 style="margin-top:0">Meus afiliados — indicados</h3>
+  <% if (!dados.indicados.length) { %>
+    <p style="color:#6b7280;font-size:13px">Você ainda não indicou ninguém. Compartilhe seu link acima.</p>
+  <% } else { %>
+  <div style="overflow-x:auto">
+  <table class="af-table">
+    <thead><tr><th>Nome</th><th>Nível</th><th>Cadastro</th><th>WhatsApp</th></tr></thead>
+    <tbody>
+      <% dados.indicados.forEach(function(i){ %>
+      <tr>
+        <td><%= i.nome %></td>
+        <td><span class="af-nivel-badge af-nivel-<%= i.nivel %>" style="font-size:11px;padding:2px 8px"><%= i.nivel %></span></td>
+        <td><%= i.criadoEm ? new Date(i.criadoEm).toLocaleDateString('pt-BR') : '-' %></td>
+        <td><%= i.online ? '🟢 conectado' : '⚪ desconectado' %></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</div>
+
+<div id="af-pane-arvore" class="af-tab-pane card">
+  <h3 style="margin-top:0">Sua árvore</h3>
+  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">De você (topo) descendo — quando alguém do Nível 3 indica outro, o novo entra do lado (mesma camada), a árvore não desce além do Nível 3.</p>
+  <%
+    function afRenderNo(no) {
+      let html = '<div style="display:flex;align-items:center;gap:8px;margin:6px 0">';
+      html += '<span class="af-nivel-badge af-nivel-' + (no.nivel || 3) + '" style="font-size:11px;padding:2px 8px">N' + (no.nivel || '-') + '</span>';
+      html += '<strong style="font-size:13px">' + no.nome + '</strong></div>';
+      if (no.filhos && no.filhos.length) {
+        html += '<div class="af-arvore-no">';
+        no.filhos.forEach(function(f){ html += afRenderNo(f); });
+        html += '</div>';
+      }
+      return html;
+    }
+  %>
+  <%- afRenderNo(dados.arvore) %>
+</div>
+
+<div id="af-pane-niveis" class="af-tab-pane card">
+  <h3 style="margin-top:0">Como funciona o programa</h3>
+  <p style="font-size:13px;color:#374151">Todo corretor já é afiliado. Nível 3 é quem acabou de entrar por indicação; Nível 2 e Nível 1 sobem por volume de vendas próprias geradas (R$<%= dados.promocao.paraNivel2.toLocaleString('pt-BR') %> pra Nível 2, R$<%= dados.promocao.paraNivel1.toLocaleString('pt-BR') %> pra Nível 1).</p>
+  <h4 style="font-size:13px;margin:16px 0 8px">1ª compra do indicado (teto 25%)</h4>
+  <table class="af-table">
+    <thead><tr><th>Quem indicou direto</th><th>Própria</th><th>Override N2</th><th>Override N1</th></tr></thead>
+    <tbody>
+      <tr><td>Nível 1</td><td>25%</td><td>-</td><td>-</td></tr>
+      <tr><td>Nível 2</td><td>19,7%</td><td>-</td><td>5,3%</td></tr>
+      <tr><td>Nível 3</td><td>16,3%</td><td>4,3%</td><td>4,3%</td></tr>
+    </tbody>
+  </table>
+  <h4 style="font-size:13px;margin:16px 0 8px">Recorrência do indicado (teto 7%)</h4>
+  <table class="af-table">
+    <thead><tr><th>Quem indicou direto</th><th>Própria</th><th>Override N2</th><th>Override N1</th></tr></thead>
+    <tbody>
+      <tr><td>Nível 1</td><td>7,0%</td><td>-</td><td>-</td></tr>
+      <tr><td>Nível 2</td><td>5,5%</td><td>-</td><td>1,5%</td></tr>
+      <tr><td>Nível 3</td><td>4,6%</td><td>1,2%</td><td>1,2%</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+function afTab(nome, btn){
+  document.querySelectorAll('.af-tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.af-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('af-pane-' + nome).classList.add('active');
+  btn.classList.add('active');
+}
+async function afResgatar(){
+  const ids = Array.from(document.querySelectorAll('.af-check-linha:checked')).map(function(c){ return c.value; });
+  const status = document.getElementById('af-resgate-status');
+  if (!ids.length) { status.textContent = 'Selecione ao menos uma comissão'; return; }
+  const modo = document.querySelector('input[name="af-modo"]:checked').value;
+  status.textContent = 'Enviando...';
+  try{
+    const r = await fetch('/app/afiliados/resgate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ids, modo }) });
+    const j = await r.json();
+    if (j.ok) { status.textContent = 'Ok! ' + j.totalCoins + ' coins ' + (modo==='credito' ? 'creditados na sua conta.' : 'em processo de saque.'); setTimeout(function(){ location.reload(); }, 1500); }
+    else status.textContent = 'Erro: ' + (j.erro||'tente novamente');
+  }catch(e){ status.textContent = 'Erro de conexão'; }
+}
+</script>
+
+<% } %>
+
+<%- include('partials/app-end') %>

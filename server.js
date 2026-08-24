@@ -7641,14 +7641,92 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
 
     res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Afiliados — Admin</title>
     <style>body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f9fafb;margin:0;padding:24px}
-    .card{background:#fff;border-radius:12px;padding:20px;max-width:900px;margin:0 auto;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-    h1{font-size:20px;margin:0 0 4px}</style></head><body>
+    .card{background:#fff;border-radius:12px;padding:20px;max-width:900px;margin:0 auto 16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    h1{font-size:20px;margin:0 0 4px}
+    #af-busca-resultado{position:relative}
+    .af-busca-item{padding:8px 10px;border:1px solid #e5e7eb;border-top:none;background:#fff;cursor:pointer;font-size:13px}
+    .af-busca-item:hover{background:#f3f4f6}
+    </style></head><body>
+    <div class="card">
+      <h1>🔎 Definir nível de qualquer conta</h1>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:14px">A árvore abaixo só mostra quem já tem rede (indicou alguém). Pra marcar uma conta que ainda não tem downline — como os 6 fixos de Nível 1 antes de indicarem qualquer um — busque por nome ou código aqui.</p>
+      <input id="af-busca-input" placeholder="Nome ou código (ex: Rafael, REN-G9K6)" style="width:100%;max-width:360px;padding:10px 12px;border-radius:8px;border:1px solid #e5e7eb;font-size:13px" autocomplete="off">
+      <div id="af-busca-resultado"></div>
+      <div id="af-busca-selecionado" style="display:none;margin-top:12px;padding:12px;background:#f9fafb;border-radius:8px;align-items:center;gap:10px;flex-wrap:wrap">
+        <form method="post" action="/admin/afiliados/definir-nivel" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0">
+          <strong id="af-busca-nome"></strong>
+          <span id="af-busca-codigo-label" style="color:#9ca3af;font-size:12px"></span>
+          <input type="hidden" name="codigo" id="af-busca-codigo">
+          <select name="nivel" style="font-size:13px;padding:4px 6px;border-radius:6px;border:1px solid #e5e7eb">
+            <option value="1">Nível 1</option>
+            <option value="2" selected>Nível 2</option>
+            <option value="3">Nível 3</option>
+          </select>
+          <button type="submit" style="font-size:12px;padding:6px 14px;border-radius:6px;border:none;background:#111827;color:#fff;cursor:pointer">Salvar</button>
+        </form>
+      </div>
+    </div>
     <div class="card">
       <h1>🌳 Árvore geral de afiliados</h1>
       <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Nível 1 é um conjunto fechado — nenhuma conta nasce Nível 1, só chega lá manualmente (aqui) ou por promoção automática (Nível 2 ao bater R$${_PROMOCAO_AFILIADO.paraNivel2.toLocaleString('pt-BR')} em vendas próprias, Nível 1 ao bater R$${_PROMOCAO_AFILIADO.paraNivel1.toLocaleString('pt-BR')}).</p>
       ${corpo}
     </div>
+    <script>
+    let afBuscaTimer = null;
+    document.getElementById('af-busca-input').addEventListener('input', function(){
+      const q = this.value.trim();
+      clearTimeout(afBuscaTimer);
+      const resultDiv = document.getElementById('af-busca-resultado');
+      if (q.length < 2) { resultDiv.innerHTML = ''; return; }
+      afBuscaTimer = setTimeout(async () => {
+        try {
+          const r = await fetch('/admin/afiliados/buscar?q=' + encodeURIComponent(q));
+          const lista = await r.json();
+          resultDiv.innerHTML = lista.map(u =>
+            '<div class="af-busca-item" onclick="afSelecionar(\\'' + u.codigo.replace(/'/g,"\\\\'") + '\\',\\'' + u.nome.replace(/'/g,"\\\\'").replace(/</g,'') + '\\')">' +
+            u.nome + ' <span style="color:#9ca3af">' + u.codigo + ' · N' + u.nivel + '</span></div>'
+          ).join('');
+        } catch(e) {}
+      }, 250);
+    });
+    function afSelecionar(codigo, nome){
+      document.getElementById('af-busca-resultado').innerHTML = '';
+      document.getElementById('af-busca-input').value = nome;
+      document.getElementById('af-busca-codigo').value = codigo;
+      document.getElementById('af-busca-codigo-label').textContent = codigo;
+      document.getElementById('af-busca-nome').textContent = nome;
+      document.getElementById('af-busca-selecionado').style.display = 'flex';
+    }
+    </script>
     </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.get('/admin/afiliados/buscar', authAdmin, (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).json([]);
+  const q = String(req.query.q || '').trim().toLowerCase();
+  if (q.length < 2) return res.json([]);
+  const lista = (_cacheUsuarios || [])
+    .filter(u => {
+      const codigo = (u.codigoUsuario || u.id || '').toLowerCase();
+      return (u.nome || '').toLowerCase().includes(q) || codigo.includes(q);
+    })
+    .slice(0, 10)
+    .map(u => ({ codigo: u.codigoUsuario || u.id, nome: u.nome || (u.codigoUsuario || u.id), nivel: _nivelAfiliado(u) }));
+  res.json(lista);
+});
+
+app.post('/admin/afiliados/definir-nivel', authAdmin, async (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).send('Acesso restrito ao administrador principal.');
+  try {
+    const codigo = String(req.body.codigo || '').trim();
+    const nivel = parseInt(req.body.nivel, 10);
+    if (!codigo || ![1, 2, 3].includes(nivel)) return res.status(400).send('Dados inválidos');
+    const { atualizarUsuario: _auNivelAdmin2 } = require('./services/salvarUsuario');
+    await _auNivelAdmin2(codigo, { afiliadoNivel: nivel });
+    const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+    if (u) u.afiliadoNivel = nivel;
+    res.redirect('/admin/afiliados');
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 

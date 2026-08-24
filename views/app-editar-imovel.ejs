@@ -356,6 +356,15 @@ const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); retu
       </div>
     </div>
 
+    <!-- CAPTADOR -->
+    <div class="fm-card">
+      <div class="fm-title">Captador</div>
+      <div class="fg2">
+        <div class="campo"><label>Nome do captador</label><input name="captador_nome" value="<%= (imovel.captador&&typeof imovel.captador==='object') ? (imovel.captador.nome||'') : '' %>" placeholder="Quem captou esse imóvel"></div>
+        <div class="campo"><label>Celular / WhatsApp</label><input name="captador_celular" value="<%= (imovel.captador&&typeof imovel.captador==='object') ? (imovel.captador.celular||'') : '' %>" placeholder="(11) 99999-9999"></div>
+      </div>
+    </div>
+
     <!-- DESCRIÇÃO -->
     <div class="fm-card">
       <div class="fm-title">Descrição</div>
@@ -418,8 +427,8 @@ const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); retu
     </div>
     <% } %>
     <form method="POST" action="/app/imovel/<%= _pidUrl %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;margin-top:8px">
-      <input type="file" name="foto" accept="image/*" required style="flex:1;min-width:180px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px">
-      <button type="submit" class="btn btn-primary">Subir foto</button>
+      <input type="file" name="fotos" accept="image/*" multiple required style="flex:1;min-width:180px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px">
+      <button type="submit" class="btn btn-primary">Subir foto(s)</button>
     </form>
   </div>
 

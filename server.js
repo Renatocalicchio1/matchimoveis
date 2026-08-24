@@ -305,7 +305,13 @@ app.use(helmet({
 // ── SEGURANÇA: RATE LIMIT GERAL ──────────────────────────────────────────────
 const limiterGeral = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 300, // máx 300 requisições por IP
+  // 300 era baixo demais pro uso real do app: telas com polling em segundo
+  // plano (status de import a cada 2s, notificações, presença online) somam
+  // isso sozinhas em poucos minutos com só 1 aba aberta — e um IP
+  // compartilhado (rede de escritório, várias contas no mesmo Wi-Fi) soma
+  // ainda mais rápido. Subido pra 3000 (ago/2026) — ainda barra abuso de
+  // verdade (scraping, bot), sem travar uso normal.
+  max: 3000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { erro: 'Muitas requisições. Tente novamente em 15 minutos.' }
@@ -11527,6 +11533,12 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
       cpf: b.proprietario_cpf || '',
       status: 'vinculado'
     } : {},
+    // captador — quem trouxe/captou esse imóvel pro corretor, separado do
+    // proprietário (pedido explícito, ago/2026).
+    captador: (b.captador_nome || b.captador_celular) ? {
+      nome: b.captador_nome || '',
+      celular: b.captador_celular || ''
+    } : {},
     // descrição e mídia
     descricao: b.descricao || '',
     fotos: (req.files || []).map(f => '/data-uploads/' + f.filename),
@@ -11573,7 +11585,9 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
   await _salvarImovelNovo(novo);
   if(_cacheImoveis) _cacheImoveis.push(novo);
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{}); // 15 créditos por imóvel novo
-  res.redirect('/app/imovel/' + idInterno + '/editar?salvo=1');
+  // Vai direto pra listagem depois de salvar — não passa mais pela tela de
+  // editar (pedido explícito: sem passo intermediário, sem delay percebido).
+  res.redirect('/app/imoveis?cadastrado=1');
   setTimeout(() => regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-cadastro]', e.message)), 1000);
 });
 
@@ -13011,6 +13025,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     cpf: b.proprietario_cpf || '',
     status: (b.proprietario || b.proprietario_celular) ? 'vinculado' : ''
   };
+  const captador = { nome: b.captador_nome || '', celular: b.captador_celular || '' };
 
   imoveis[idx] = {
     ...imoveis[idx],
@@ -13054,6 +13069,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     vagas: Number(b.vagas || 0),
     salas: Number(b.salas || 0),
     proprietario: proprietario,
+    captador: captador,
     descricao: b.descricao || '',
     descricao_editada: true,
     descricaoEditada: true,
@@ -13074,11 +13090,13 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
 });
 
 
-// Upload de foto
-app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), async (req,res)=>{
+// Upload de foto — aceita várias de uma vez (campo "fotos", até 20), mantendo
+// compatibilidade com o campo antigo "foto" (singular) caso algo ainda mande só 1.
+app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.fields([{ name: 'fotos', maxCount: 20 }, { name: 'foto', maxCount: 1 }]), async (req,res)=>{
   try {
     const pid = req.params.id;
-    if(!req.file) return res.redirect('/app/imovel/' + pid + '/editar?erro=foto');
+    const arquivos = [...(req.files?.fotos || []), ...(req.files?.foto || [])];
+    if(!arquivos.length) return res.redirect('/app/imovel/' + pid + '/editar?erro=foto');
     const imoveis = (_cacheImoveis || []);
     const idx = imoveis.findIndex(i => String(i.idExterno)===pid || String(i.idInterno)===pid || String(i.codigoImovel)===pid || String(i.id)===pid);
     if(idx >= 0 && !_ehDonoDoImovel(imoveis[idx], req.session.user) && req.session.user.tipo !== 'admin'){
@@ -13087,9 +13105,9 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
     if(idx >= 0){
       // Cache só guarda as 20 primeiras fotos — busca a lista completa antes de adicionar
       const _completoUp = await _buscarImovelCompleto(imoveis[idx].id);
-      const url = '/data-uploads/' + req.file.filename;
+      const urls = arquivos.map(f => '/data-uploads/' + f.filename);
       const _imovelCompletoUp = { ...imoveis[idx], fotos: (_completoUp?.fotos || imoveis[idx].fotos || []) };
-      _imovelCompletoUp.fotos = [..._imovelCompletoUp.fotos, url];
+      _imovelCompletoUp.fotos = [..._imovelCompletoUp.fotos, ...urls];
       await salvarImovel(_imovelCompletoUp);
       if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = _capFotosCache({ ..._imovelCompletoUp }); }
     }

@@ -5065,15 +5065,22 @@ app.get('/entrar/:contatoId', async (req, res) => {
     const users = await _luEntrar();
     let user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
 
-    // Sub-admin dono do contato — vem do "?ref=" que o próprio botão do
-    // WhatsApp já embute na URL (valor definido na hora de montar o disparo,
-    // ver enviarComRetry em workers/disparoWhatsappWorker.js). Só aceita se
-    // bater com uma conta de sub-admin ativa de verdade.
+    // Dono do contato — vem do "?ref=" que o próprio botão do WhatsApp já
+    // embute na URL (valor definido na hora de montar o disparo, ver
+    // enviarComRetry em workers/disparoWhatsappWorker.js). Pode ser um
+    // sub-admin (admin_contas, comissão de 30%/15%) OU, desde ago/2026, um
+    // afiliado Nível 2/3 (conta de corretor comum, ver POST /admin/disparos/
+    // criar-de-campanha-email — mesmo round-robin dividido entre os dois).
     let _adminAtendente = null;
+    let _afiliadoAtendente = null;
     if (req.query.ref) {
-      const { buscarAdminConta } = require('./services/salvarAdminConta');
-      const _conta = await buscarAdminConta(String(req.query.ref).trim());
-      if (_conta && _conta.ativo) _adminAtendente = _conta;
+      const _refEntrar = String(req.query.ref).trim();
+      _afiliadoAtendente = users.find(u => (u.codigoUsuario || u.id) === _refEntrar) || null;
+      if (!_afiliadoAtendente) {
+        const { buscarAdminConta } = require('./services/salvarAdminConta');
+        const _conta = await buscarAdminConta(_refEntrar);
+        if (_conta && _conta.ativo) _adminAtendente = _conta;
+      }
     }
 
     if (!user) {
@@ -5109,11 +5116,16 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // 1ª compra e 15% nas seguintes (ver _processarBonusIndicacao).
         atendidoPorAdmin: _adminAtendente?.usuario || '',
         atendidoPorAdminNome: _adminAtendente?.nome || '',
-        atendidoPorAdminCor: _adminAtendente?.cor || ''
+        atendidoPorAdminCor: _adminAtendente?.cor || '',
+        // Afiliado (Nível 2/3) dono desse contato — mesmo mecanismo do
+        // programa de afiliados via link (?ref=), só que chegando pela
+        // campanha de e-mail em vez do cadastro manual. Entra direto como
+        // Nível 3 (ver bloco PROGRAMA DE AFILIADOS).
+        ...(_afiliadoAtendente ? { indicadoPor: _afiliadoAtendente.codigoUsuario || _afiliadoAtendente.id, afiliadoNivel: 3 } : {})
       };
       await _salvarEntrar(user);
       req.session.senhaInicialTemp = senhaGerada;
-      console.log('[ENTRAR] conta criada via', user.origemCadastro, ':', codigo, '| tel:', telefone, '| atendente:', _adminAtendente?.usuario || '(nenhum)');
+      console.log('[ENTRAR] conta criada via', user.origemCadastro, ':', codigo, '| tel:', telefone, '| atendente:', _adminAtendente?.usuario || _afiliadoAtendente?.codigoUsuario || '(nenhum)');
       (async () => {
         try {
           const _linhaAtendente = _adminAtendente ? `\n🙋 *Atendente:* ${_adminAtendente.nome || _adminAtendente.usuario}` : '';
@@ -7503,6 +7515,9 @@ app.get('/app/afiliados', auth, async (req, res) => {
   try {
     const meUser = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === uid) || req.session.user;
     const nivel = _nivelAfiliado(meUser);
+    // Nível 1 é afiliado-sub-admin — acessa pelo /admin/login, não por aqui
+    // (essa tela é só pra Nível 2 e 3, que usam a própria conta de corretor).
+    if (nivel === 1) return res.redirect('/admin/login');
 
     if (!meUser.afiliadoContratoAceitoEm) {
       return res.render('app-afiliados', { user: req.session.user, aceitouContrato: false, nivel, dados: null });
@@ -7536,6 +7551,14 @@ app.get('/app/afiliados', auth, async (req, res) => {
     const faltaProximoNivel = nivel === 3 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel2 - volumeAtual)
       : nivel === 2 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel1 - volumeAtual) : 0;
 
+    // Contatos da campanha de e-mail (quem já abriu o e-mail de aquisição)
+    // atribuídos a esse afiliado pelo mesmo round-robin que já divide entre
+    // os sub-admins (ver POST /admin/disparos/criar-de-campanha-email) — o
+    // convite automático por WhatsApp já sai com o link de indicação dele
+    // embutido (?ref=<codigo>), então quem se cadastrar entra na rede dele.
+    const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
+    const meusContatosCampanha = await listarContatosPorRefAdmin(uid).catch(() => []);
+
     res.render('app-afiliados', {
       user: req.session.user,
       aceitouContrato: true,
@@ -7550,7 +7573,8 @@ app.get('/app/afiliados', auth, async (req, res) => {
         volumeAtual,
         faltaProximoNivel,
         comissaoTabela: _COMISSAO_AFILIADO,
-        promocao: _PROMOCAO_AFILIADO
+        promocao: _PROMOCAO_AFILIADO,
+        contatosCampanha: meusContatosCampanha
       }
     });
   } catch(e) {
@@ -23020,15 +23044,24 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
 
     const { listarAdminContas } = require('./services/salvarAdminConta');
-    let contasAtivas = (await listarAdminContas()).filter(c => c.ativo);
+    let contasAtivas = (await listarAdminContas()).filter(c => c.ativo).map(c => c.usuario);
     // subAdmins: lista opcional de usuarios (login) — restringe o round-robin
     // a só esses, mesmo que existam outras contas ativas no sistema. Sem
     // isso, entra todo mundo que está ativo em admin_contas.
     if (Array.isArray(subAdmins) && subAdmins.length) {
       const _permitidos = new Set(subAdmins.map(s => String(s).trim().toLowerCase()));
-      contasAtivas = contasAtivas.filter(c => _permitidos.has(c.usuario.toLowerCase()));
+      contasAtivas = contasAtivas.filter(u => _permitidos.has(u.toLowerCase()));
     }
-    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo encontrado pra distribuir os contatos (confira os usuários informados em subAdmins)' });
+    // Afiliados Nível 2/3 com acesso liberado (hoje só _CONTAS_AFILIADO_PILOTO)
+    // entram no MESMO round-robin, divididos por igual com os sub-admins —
+    // Nível 1 fica de fora aqui porque Nível 1 É sub-admin (login próprio em
+    // /admin/login, já contado acima via admin_contas).
+    const _afiliadosNoRodizio = _CONTAS_AFILIADO_PILOTO.filter(codigo => {
+      const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+      return u && _nivelAfiliado(u) !== 1;
+    });
+    contasAtivas = [...contasAtivas, ..._afiliadosNoRodizio];
+    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin/afiliado ativo encontrado pra distribuir os contatos (confira os usuários informados em subAdmins)' });
 
     const { _normalizarTelefone, _telefoneValido } = require('./services/metaWhatsapp');
     const { rows: linhas } = await require('./services/db').query(`
@@ -23042,7 +23075,7 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
     linhas.forEach(l => {
       const telefone = _normalizarTelefone(l.celular);
       if (!_telefoneValido(telefone) || contatosMap.has(telefone)) return;
-      const refAdmin = contasAtivas[i % contasAtivas.length].usuario;
+      const refAdmin = contasAtivas[i % contasAtivas.length];
       i++;
       contatosMap.set(telefone, { nome: l.nome || '', telefone, variaveis: { nome: l.nome || '', refAdmin } });
     });

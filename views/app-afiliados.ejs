@@ -96,6 +96,7 @@ async function afAceitarContrato(){
 <div class="af-tabs">
   <button class="af-tab-btn active" onclick="afTab('comissoes',this)">💰 Minhas comissões</button>
   <button class="af-tab-btn" onclick="afTab('indicados',this)">👥 Meus afiliados</button>
+  <button class="af-tab-btn" onclick="afTab('campanha',this)">📧 Convidar novos</button>
   <button class="af-tab-btn" onclick="afTab('arvore',this)">🌳 Árvore</button>
   <button class="af-tab-btn" onclick="afTab('niveis',this)">📖 Como funciona</button>
 </div>
@@ -151,6 +152,39 @@ async function afAceitarContrato(){
         <td><span class="af-nivel-badge af-nivel-<%= i.nivel %>" style="font-size:11px;padding:2px 8px"><%= i.nivel %></span></td>
         <td><%= i.criadoEm ? new Date(i.criadoEm).toLocaleDateString('pt-BR') : '-' %></td>
         <td><%= i.online ? '🟢 conectado' : '⚪ desconectado' %></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</div>
+
+<div id="af-pane-campanha" class="af-tab-pane card">
+  <h3 style="margin-top:0">Convidar novos usuários</h3>
+  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contatos que já abriram o e-mail de divulgação da MatchImóveis e foram distribuídos pra você — o convite por WhatsApp já sai automático com o <strong>seu link de indicação</strong>, então quem se cadastrar entra na sua rede. Use a coluna WhatsApp pra dar uma força pessoalmente em quem ainda não respondeu.</p>
+  <% if (!dados.contatosCampanha.length) { %>
+    <p style="color:#6b7280;font-size:13px">Nenhum contato distribuído pra você ainda.</p>
+  <% } else { %>
+  <div style="overflow-x:auto">
+  <table class="af-table">
+    <thead><tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Status</th></tr></thead>
+    <tbody>
+      <% dados.contatosCampanha.forEach(function(c){
+        const tel = String(c.telefone||'').replace(/\D/g,'');
+        const msg = encodeURIComponent('Oi! Vi que você tem interesse na MatchImóveis, plataforma de match imobiliário com IA. Posso te ajudar a começar?');
+      %>
+      <tr>
+        <td><%= new Date(c.criado_em).toLocaleDateString('pt-BR') %></td>
+        <td><%= c.nome || '(sem nome)' %></td>
+        <td><% if (tel) { %><a href="https://wa.me/<%= tel %>?text=<%= msg %>" target="_blank" style="color:#00A699;text-decoration:none"><%= c.telefone %></a><% } else { %>-<% } %></td>
+        <td>
+          <% if (c.status === 'convertido') { %><span style="color:#16a34a;font-weight:700">✅ Cadastrou</span>
+          <% } else if (c.status === 'enviado' && c.auto_respondido_em) { %><span style="color:#2563eb;font-weight:700">💬 Respondeu</span>
+          <% } else if (c.status === 'enviado') { %><span style="color:#9ca3af">📤 Enviado, aguardando</span>
+          <% } else if (c.status === 'optout') { %><span style="color:#9ca3af">🚫 Descadastrou</span>
+          <% } else { %><span style="color:#9ca3af"><%= c.status %></span><% } %>
+        </td>
       </tr>
       <% }); %>
     </tbody>

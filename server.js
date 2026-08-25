@@ -6030,6 +6030,22 @@ app.get('/app/notificacoes', auth, async (req,res)=>{
 // true — mesmo flag setado em GET /app/lead/:id na 1ª abertura). visitas:
 // aguardando resposta do corretor (status 'solicitada'). notificacoes: !lida,
 // igual já era calculado em /app-home.
+// Popup "conheça o menu de afiliados" (ago/2026, pedido explícito): toda
+// vez que o usuário entra na plataforma (1x por sessão de navegador, ver
+// sessionStorage no app-shell.ejs), até ele assinar o contrato de afiliado
+// — depois disso nunca mais aparece. Lê de _cacheUsuarios (em memória, já
+// atualizado na hora que o contrato é aceito), não de req.session.user, que
+// fica desatualizado até o próximo login (POST /app/afiliados/aceitar-
+// contrato só atualiza o cache, não a sessão).
+app.get('/api/afiliados/popup-status', auth, (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_ehAfiliadoLiberado(uid)) return res.json({ mostrar: false });
+    const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === uid);
+    res.json({ mostrar: !!u && !u.afiliadoContratoAceitoEm });
+  } catch(e) { res.json({ mostrar: false }); }
+});
+
 app.get('/api/menu/badges', auth, async (req, res) => {
   try {
     const user = req.session.user;
@@ -7142,16 +7158,21 @@ app.get('/app/afiliados', auth, async (req, res) => {
         ), ',', 1) AS celular,
         aberto_em, clicado_em, wa_manual_enviado_em, atendido_em,
         (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
-        COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
+        COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou,
+        -- campanha_tracking grava 1 linha POR clique de verdade (não é
+        -- COALESCE-só-1x como clicado_em) — dá pra contar quantas vezes a
+        -- pessoa voltou a clicar em qualquer e-mail (principal + follow-ups).
+        -- Pedido explícito do Renato: quem clicou 2-3 vezes sem se cadastrar
+        -- ainda é o lead mais quente de todos, tem que aparecer na frente.
+        (SELECT COUNT(*)::int FROM campanha_tracking WHERE contato_id = campanha_contatos.id AND tipo = 'clique') AS cliques
       FROM campanha_contatos
       WHERE atendido_por = $1
-      -- Prioriza quem mostrou sinal real de interesse (clicou > só abriu >
-      -- nada) antes de quem ainda não foi tratado — pedido explícito do
-      -- Renato (ago/2026): "vai pra aquelas que tá clicando, que tá
-      -- entrando no email, sempre isso". Continua sem excluir ninguém, só
-      -- reordena quem aparece primeiro pro afiliado chamar.
+      -- Prioriza sinal de interesse mais forte primeiro: quem clicou mais
+      -- vezes > quem clicou > quem só abriu > nada — antes de quem ainda
+      -- não foi tratado. Continua sem excluir ninguém, só reordena quem
+      -- aparece primeiro pro afiliado chamar.
       ORDER BY (wa_manual_enviado_em IS NULL) DESC,
-        (clicado_em IS NOT NULL) DESC,
+        (SELECT COUNT(*)::int FROM campanha_tracking WHERE contato_id = campanha_contatos.id AND tipo = 'clique') DESC,
         (aberto_em IS NOT NULL) DESC,
         atendido_em DESC
     `, [uid]);
@@ -12718,6 +12739,29 @@ app.get('/admin/emails', authAdmin, async (req, res) => {
     console.error('[admin/emails]', e.message);
     res.render('admin-emails', { linhas: [], totalEnviados: 0, totalAbertos: 0, totalClicados: 0, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('emails', _sidebarPerm(req), req) });
   }
+});
+
+// Preview de qualquer linha de /admin/emails (ago/2026, pedido: "quero
+// poder clicar em todos os emails pra ver os emails"). Só os tipos com um
+// modelo reaproveitável (campanha geral + convite_indicacao) têm preview
+// de verdade — os outros ~15 tipos rastreados em email_envios (boas-vindas,
+// recarga, etc) são montados ad-hoc em vários pontos do código, sem função
+// única pra regenerar; preview retorna indisponível pra esses, sem fingir.
+app.get('/admin/emails/preview', authAdmin, async (req, res) => {
+  try {
+    const { tipo, assunto } = req.query;
+    if (!tipo || !assunto) return res.json({ ok: false, erro: 'Parâmetros faltando' });
+    let resultado = null;
+    if (['pagina', 'demanda', 'afiliado', 'followup1', 'followup2', 'followup3'].includes(tipo)) {
+      const { gerarPreviewPorAssunto } = require('./services/campanha');
+      resultado = gerarPreviewPorAssunto(tipo, assunto);
+    } else if (tipo === 'convite_indicacao') {
+      const { gerarPreviewPorAssunto } = require('./services/emailIndicacao');
+      resultado = gerarPreviewPorAssunto(assunto);
+    }
+    if (!resultado) return res.json({ ok: false, erro: 'Esse tipo de e-mail é montado direto no código do envio, sem modelo salvo pra reconstruir preview.' });
+    res.json({ ok: true, assunto: resultado.assunto, html: resultado.html });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 // ── FIM ADMIN MODELOS DE EMAIL ──────────────────────────────────────────────
 
@@ -21078,6 +21122,14 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
   }
   ` : ''}
   </script>
+  ${isAdmin ? '' : `<section style="background:#fff;padding:48px 24px;text-align:center;border-top:1px solid #f0f0ee;margin-top:32px">
+    <div style="max-width:600px;margin:0 auto">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--arches);margin-bottom:10px">💰 Programa de afiliados</div>
+      <h2 style="font-size:21px;font-weight:800;color:#111;margin-bottom:10px;line-height:1.3">Não precisa ser corretor pra ganhar aqui</h2>
+      <p style="font-size:14px;color:#6b7280;line-height:1.6;margin-bottom:20px">Cada corretor ou imobiliária que você conhece pode virar comissão contínua pra você — em dinheiro ou crédito, você escolhe. Enquanto você não cria sua conta, essa renda simplesmente não existe.</p>
+      <button onclick="abrirModalCadastroInicial()" style="display:inline-block;background:var(--rausch);color:#fff;border:none;cursor:pointer;font-weight:700;font-size:13.5px;padding:12px 26px;border-radius:10px">Quero ser afiliado →</button>
+    </div>
+  </section>`}
   ${bodyClose}</body></html>`;
 }
 

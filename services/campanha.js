@@ -1107,6 +1107,23 @@ function gerarHTML(mensagem, contato, tipo) {
   </div>`;
 }
 
+// Preview sob demanda pra /admin/emails (ago/2026, pedido: "quero poder
+// clicar em todos os emails pra ver os emails") — reconstrói o HTML de
+// verdade a partir do próprio MODELOS, com dado de exemplo (contato
+// fictício id=0) no lugar do contato real. Não é uma cópia salva de um
+// envio específico, é literalmente rodar o mesmo gerarHTML() que qualquer
+// envio real desse tipo/assunto usaria.
+function gerarPreviewPorAssunto(tipo, assunto) {
+  const lista = MODELOS[tipo];
+  if (!lista) return null;
+  const variante = lista.find(v => v.assunto === assunto);
+  if (!variante) return null;
+  const contatoExemplo = { id: 0, nome: 'Roberto' };
+  const corpoPersonalizado = variante.corpo.replace(/\{nome\}/g, _nomeOuFallback(contatoExemplo.nome));
+  const html = gerarHTML(corpoPersonalizado, contatoExemplo, tipo);
+  return { assunto: variante.assunto, html };
+}
+
 // ── Follow-ups automáticos ──────────────────────────────────────────────
 // Cada função abaixo acha 1 contato elegível pra aquele estágio — 24h desde
 // o gatilho (envio original / abertura / cadastro), e que ainda não recebeu
@@ -1410,5 +1427,6 @@ module.exports = {
   validarProximoLote, listarEnvios, distribuirAtendimentosAbertos,
   marcarWhatsappManualEnviado, listarContatosAbertosSemDono,
   listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado, classificarNome,
-  statsPorModeloEmail, estagioContatoCampanha, ESTAGIOS_CONTATO_CAMPANHA
+  statsPorModeloEmail, estagioContatoCampanha, ESTAGIOS_CONTATO_CAMPANHA,
+  gerarPreviewPorAssunto
 };

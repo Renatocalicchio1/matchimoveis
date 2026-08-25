@@ -210,6 +210,7 @@ async function afAceitarContrato(){
         <td>
           <% if (c.estagio === 'cliente') { %><span style="color:#16a34a;font-weight:700">💰 Cliente</span>
           <% } else if (c.estagio === 'convertido') { %><span style="color:#16a34a;font-weight:700">✅ Convertido</span>
+          <% } else if (c.cliques >= 2) { %><span style="color:#dc2626;font-weight:700">🔥 Clicou <%= c.cliques %>x — chama agora</span>
           <% } else if (c.wa_manual_enviado_em) { %><span style="color:#2563eb;font-weight:700">💬 Você já chamou</span>
           <% } else if (c.estagio === 'engajado') { %><span style="color:#2563eb;font-weight:700">🖱️ Engajado (clicou)</span>
           <% } else { %><span style="color:#9ca3af">📧 Interessado (abriu)</span><% } %>

@@ -93,6 +93,18 @@ function _montarHtml(nome, v, link, linkWa, codigo) {
   </div>`;
 }
 
+// Preview sob demanda pra /admin/emails (mesmo padrão de
+// gerarPreviewPorAssunto em services/campanha.js) — dado de exemplo no
+// lugar do usuário/link reais.
+function gerarPreviewPorAssunto(assunto) {
+  const v = VARIANTES.find(x => x.assunto === assunto);
+  if (!v) return null;
+  const linkExemplo = `${BASE_URL}/?ref=EXEMPLO`;
+  const linkWaExemplo = 'https://wa.me/?text=' + encodeURIComponent('Você é meu convidado para conhecer a MatchImóveis! 🏠\n\n' + linkExemplo);
+  const html = _montarHtml('Roberto', v, linkExemplo, linkWaExemplo, 'EXEMPLO');
+  return { assunto: v.assunto, html };
+}
+
 async function enviarEmailIndicacao() {
   try {
     const { rows: usuarios } = await query(
@@ -127,4 +139,4 @@ async function enviarEmailIndicacao() {
   } catch(e) { console.error('[EMAIL INDICACAO] erro geral:', e.message); }
 }
 
-module.exports = { enviarEmailIndicacao };
+module.exports = { enviarEmailIndicacao, gerarPreviewPorAssunto };

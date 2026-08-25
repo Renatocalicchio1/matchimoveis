@@ -1131,6 +1131,56 @@ async function distribuirAtendimentosAbertos(contasAtivas) {
   return { distribuidos };
 }
 
+// Pool pro programa de afiliados (ago/2026): quem já abriu o e-mail de
+// aquisição, parece corretor, tem celular, ainda não é usuário cadastrado e
+// ninguém pegou ainda — mesma base de dados de /admin/campanha/contatos,
+// só que aqui é o job automático (server.js) que distribui, não precisa de
+// nenhum disparo de WhatsApp oficial ser criado antes (ver
+// _rodarDistribuicaoContatosAfiliado). Prioriza quem clicou (interesse
+// mais forte) antes de quem só abriu.
+async function listarContatosAbertosSemDono() {
+  await _garantirColunas();
+  const { rows } = await query(`
+    SELECT id, nome, email, celular, aberto_em, clicado_em, criado_em
+    FROM campanha_contatos
+    WHERE aberto_em IS NOT NULL AND parece_corretor = true
+      AND celular IS NOT NULL AND celular != ''
+      AND (atendido_por IS NULL OR atendido_por = '')
+      AND LOWER(email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+    ORDER BY (clicado_em IS NULL), aberto_em ASC
+  `);
+  return rows;
+}
+
+// Contatos já atribuídos a um afiliado que passaram 24h sem ele clicar em
+// "Falar no WhatsApp" (wa_manual_enviado_em) — elegíveis pra reatribuição
+// automática (mesmo motivo do rebalanceamento de disparos_contatos: contato
+// parado alguém puxa, e afiliado novo que acabou de assinar contrato
+// também precisa começar a receber).
+async function listarContatosAfiliadoParaReatribuir() {
+  await _garantirColunas();
+  const { rows } = await query(`
+    SELECT id, nome, email, celular, atendido_por, atendido_em
+    FROM campanha_contatos
+    WHERE atendido_por IS NOT NULL AND atendido_por != ''
+      AND wa_manual_enviado_em IS NULL
+      AND atendido_em < NOW() - INTERVAL '24 hours'
+      AND LOWER(email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+  `);
+  return rows;
+}
+
+// Atribuição/reatribuição pro programa de afiliados — diferente de
+// marcarAtendido (que não sobrescreve se já tiver dono), aqui sempre
+// sobrescreve porque quem chama já decidiu que é pra mudar de dono.
+async function atribuirContatoAfiliado(id, codigo, nome, cor) {
+  await _garantirColunas();
+  await query(
+    `UPDATE campanha_contatos SET atendido_por=$1, atendido_por_nome=$2, atendido_por_cor=$3, atendido_em=NOW() WHERE id=$4`,
+    [codigo, nome, cor, id]
+  );
+}
+
 // Número pode ter sido reciclado pra outra pessoa (ou o lead simplesmente
 // não quer mais mensagem) — só apaga o celular, mantém nome/email/histórico
 // intactos (e-mail é o identificador estável, nunca muda).
@@ -1265,5 +1315,6 @@ module.exports = {
   proximoLote, enviarTeste, enviarProximo, marcarAtendido, excluirCelularContato,
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
   validarProximoLote, listarEnvios, distribuirAtendimentosAbertos,
-  marcarWhatsappManualEnviado
+  marcarWhatsappManualEnviado, listarContatosAbertosSemDono,
+  listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado
 };

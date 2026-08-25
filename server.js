@@ -7087,16 +7087,26 @@ app.get('/app/afiliados', auth, async (req, res) => {
     const faltaProximoNivel = nivel === 3 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel2 - volumeAtual)
       : nivel === 2 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel1 - volumeAtual) : 0;
 
-    // Contatos da campanha de e-mail (quem já abriu o e-mail de aquisição)
-    // atribuídos a esse afiliado pelo mesmo round-robin que já divide entre
-    // os sub-admins (ver POST /admin/disparos/criar-de-campanha-email) — o
-    // convite automático por WhatsApp já sai com o link de indicação dele
-    // embutido (?ref=<codigo>), então quem se cadastrar entra na rede dele.
-    const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
-    // Quem já converteu (virou conta) some da lista — não é mais prospecto,
-    // já apareceria em "Meus afiliados" se o cadastro foi pelo link dele.
-    const meusContatosCampanha = (await listarContatosPorRefAdmin(uid).catch(() => []))
-      .filter(c => c.status !== 'convertido');
+    // Contatos da campanha de e-mail (quem já abriu o e-mail de aquisição,
+    // mesma base de /admin/campanha/contatos) atribuídos a esse afiliado
+    // pelo job automático (JOB_DISTRIBUICAO_ABERTOS_AFILIADO) — não depende
+    // de nenhum disparo de WhatsApp oficial ser criado antes; assim que o
+    // afiliado assina o contrato, já começa a receber contato pra convidar
+    // (o link que ele manda manualmente já é o dele, ?ref=<codigo>, então
+    // quem se cadastrar entra na rede dele). Quem já converteu (virou conta)
+    // some sozinho da lista, filtrado direto na query.
+    const { rows: meusContatosCampanha } = await require('./services/db').query(`
+      SELECT id, nome, email,
+        COALESCE(
+          (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
+          campanha_contatos.celular
+        ) AS celular,
+        aberto_em, clicado_em, wa_manual_enviado_em, atendido_em
+      FROM campanha_contatos
+      WHERE atendido_por = $1
+        AND LOWER(email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+      ORDER BY (wa_manual_enviado_em IS NULL) DESC, atendido_em DESC
+    `, [uid]);
 
     res.render('app-afiliados', {
       user: req.session.user,
@@ -7163,21 +7173,21 @@ app.post('/app/afiliados/resgate', auth, express.json(), async (req, res) => {
 });
 
 // Botão "Falar no WhatsApp" da aba Convidar novos passa por aqui em vez de
-// linkar direto pro wa.me — marca contato_afiliado_em (congela o contato
-// nessa conta, tira ele do rebalanceamento automático, ver
-// _rodarReequilibrioContatosAfiliado) e só depois manda pro WhatsApp de
-// verdade. Só marca se o contato realmente é desse afiliado (evita marcar
-// clique de outro por engano/URL adivinhada).
+// linkar direto pro wa.me — marca wa_manual_enviado_em em campanha_contatos
+// (congela o contato nessa conta, tira ele da reatribuição automática de
+// 24h, ver JOB_DISTRIBUICAO_ABERTOS_AFILIADO) e só depois manda pro
+// WhatsApp de verdade. Só marca se o contato realmente é desse afiliado
+// (evita marcar clique de outro por engano/URL adivinhada).
 app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
     const telefone = String(req.query.tel || '').replace(/\D/g, '');
     const msg = encodeURIComponent('Oi! Vi que você tem interesse na MatchImóveis, plataforma de match imobiliário com IA. Posso te ajudar a começar?');
     const destino = telefone ? `https://wa.me/${telefone}?text=${msg}` : 'https://wa.me/';
-    const { buscarContato, marcarContatoAfiliadoClicado } = require('./services/salvarDisparo');
-    const contato = await buscarContato(req.params.id).catch(() => null);
-    if (contato && contato.variaveis && contato.variaveis.refAdmin === uid) {
-      await marcarContatoAfiliadoClicado(req.params.id);
+    const { rows } = await require('./services/db').query('SELECT atendido_por FROM campanha_contatos WHERE id=$1', [req.params.id]);
+    if (rows[0] && rows[0].atendido_por === uid) {
+      const { marcarWhatsappManualEnviado } = require('./services/campanha');
+      await marcarWhatsappManualEnviado(req.params.id);
     }
     res.redirect(destino);
   } catch(e) {
@@ -7374,9 +7384,9 @@ app.post('/admin/afiliados/definir-nivel', authAdmin, async (req, res) => {
     const nivel = parseInt(req.body.nivel, 10);
     if (!codigo || ![1, 2, 3].includes(nivel)) return res.status(400).send('Dados inválidos');
     const { atualizarUsuario: _auNivelAdmin2 } = require('./services/salvarUsuario');
-    await _auNivelAdmin2(codigo, { afiliadoNivel: nivel });
+    await _auNivelAdmin2(codigo, _camposNivelAfiliado(nivel));
     const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
-    if (u) u.afiliadoNivel = nivel;
+    if (u) { u.afiliadoNivel = nivel; if (nivel === 1) u.indicadoPor = null; }
     res.redirect('/admin/afiliados');
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
@@ -7413,9 +7423,9 @@ app.post('/admin/afiliados/:codigo/nivel', authAdmin, async (req, res) => {
     const nivel = parseInt(req.body.nivel, 10);
     if (![1, 2, 3].includes(nivel)) return res.status(400).send('Nível inválido');
     const { atualizarUsuario: _auNivelAdmin } = require('./services/salvarUsuario');
-    await _auNivelAdmin(req.params.codigo, { afiliadoNivel: nivel });
+    await _auNivelAdmin(req.params.codigo, _camposNivelAfiliado(nivel));
     const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === req.params.codigo);
-    if (u) u.afiliadoNivel = nivel;
+    if (u) { u.afiliadoNivel = nivel; if (nivel === 1) u.indicadoPor = null; }
     res.redirect('/admin/afiliados');
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
@@ -14078,6 +14088,13 @@ const _COMISSAO_AFILIADO = {
 // R$200.000 (conversão coins->R$ na mesma taxa base da recarga avulsa,
 // R$1 = 20 coins — ver /admin/minhas-comissoes).
 const _PROMOCAO_AFILIADO = { paraNivel2: 10000, paraNivel1: 200000 };
+// Nível 1 é o topo da rede (a raiz sintética "MatchImóveis" é o único nó
+// acima dele) — ninguém fica "debaixo" de outro Nível 1. Então toda vez que
+// alguém vira Nível 1 (promoção automática ou definição manual pelo admin)
+// ele se desvincula do indicador atual e passa a ser raiz própria na árvore.
+function _camposNivelAfiliado(novoNivel) {
+  return novoNivel === 1 ? { afiliadoNivel: novoNivel, indicadoPor: null } : { afiliadoNivel: novoNivel };
+}
 // Liberação do programa de afiliados (ago/2026): geral pra toda conta
 // existente e toda conta nova daqui pra frente — todo corretor já é
 // afiliado (Nível 2 por padrão, Nível 3 se veio por indicação, Nível 1 só
@@ -14157,6 +14174,84 @@ setTimeout(_rodarReequilibrioContatosAfiliado, 30000);
 setInterval(_rodarReequilibrioContatosAfiliado, 30 * 60 * 1000);
 // ── FIM JOB_REATRIBUICAO_CONTATOS_AFILIADO ─────────────────────────────────
 
+// ── JOB_DISTRIBUICAO_ABERTOS_AFILIADO — pool de "quem já abriu o e-mail da
+// campanha" (campanha_contatos, mesma base da planilha /admin/campanha/contatos)
+// distribuído automaticamente pros afiliados com contrato aceito, sem
+// precisar de nenhum disparo de WhatsApp oficial criado antes (ago/2026,
+// pedido: "quem ja abriu o email deve aparecer pra ser convidado, quem ja
+// assinou contrato ja deve ver os contatos, exatamente como é a planilha no
+// admin"). Reaproveita atendido_por — mesma coluna que a tela admin usa pra
+// "quem tá tratando esse contato" — então um contato distribuído aqui já
+// aparece automaticamente filtrado por afiliado em /admin/campanha/contatos.
+const _CORES_AFILIADO = ['#FF385C', '#00A699', '#FC642D', '#6366f1', '#0ea5e9', '#f59e0b'];
+function _corAfiliado(codigo) {
+  let h = 0; for (let i = 0; i < codigo.length; i++) h = (h * 31 + codigo.charCodeAt(i)) >>> 0;
+  return _CORES_AFILIADO[h % _CORES_AFILIADO.length];
+}
+async function _rodarDistribuicaoContatosAfiliado() {
+  try {
+    const { listarContatosAbertosSemDono, listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado } = require('./services/campanha');
+    const _PESOS_NIVEL_AFILIADO = { 1: 0.35, 2: 0.35, 3: 0.30 };
+    const pools = {
+      1: (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 1 && u.afiliadoContratoAceitoEm).map(u => u.codigoUsuario || u.id),
+      2: (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 2 && u.afiliadoContratoAceitoEm).map(u => u.codigoUsuario || u.id),
+      3: (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 3 && u.afiliadoContratoAceitoEm).map(u => u.codigoUsuario || u.id)
+    };
+    const niveis = [1, 2, 3].filter(n => pools[n].length);
+    if (!niveis.length) return; // ninguém assinou contrato ainda
+
+    // Contagem atual por dono — escolhe sempre quem tá com menos, tanto pra
+    // decidir o nível (mantém a proporção 35/35/30 ao longo do tempo) quanto
+    // a conta dentro do nível ("todo mundo tem que ter lead pra chamar",
+    // vale desde o primeiro contato de um afiliado recém-assinado).
+    const { rows: contagemRows } = await require('./services/db').query(
+      `SELECT atendido_por, COUNT(*) as n FROM campanha_contatos WHERE atendido_por IS NOT NULL AND atendido_por != '' GROUP BY atendido_por`
+    );
+    const contagem = {};
+    contagemRows.forEach(r => { contagem[r.atendido_por] = parseInt(r.n, 10); });
+    const contagemNivel = { 1: 0, 2: 0, 3: 0 };
+    niveis.forEach(n => { pools[n].forEach(c => { contagemNivel[n] += (contagem[c] || 0); }); });
+
+    function _proximoDono() {
+      let melhorNivel = niveis[0], melhorScore = Infinity;
+      niveis.forEach(n => { const score = contagemNivel[n] / _PESOS_NIVEL_AFILIADO[n]; if (score < melhorScore) { melhorScore = score; melhorNivel = n; } });
+      let melhorConta = pools[melhorNivel][0], melhorContagem = Infinity;
+      pools[melhorNivel].forEach(c => { const n = contagem[c] || 0; if (n < melhorContagem) { melhorContagem = n; melhorConta = c; } });
+      contagem[melhorConta] = (contagem[melhorConta] || 0) + 1;
+      contagemNivel[melhorNivel]++;
+      return melhorConta;
+    }
+
+    let distribuidos = 0;
+    const abertosSemDono = await listarContatosAbertosSemDono();
+    for (const c of abertosSemDono) {
+      const codigo = _proximoDono();
+      const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+      await atribuirContatoAfiliado(c.id, codigo, (u && u.nome) || codigo, _corAfiliado(codigo));
+      distribuidos++;
+    }
+
+    // 24h sem o afiliado clicar em "Falar no WhatsApp" — pega de novo quem
+    // tá com menos contato (pode acabar voltando pro mesmo dono, se ele
+    // ainda for o menos carregado; normalmente vai pra outro, inclusive um
+    // afiliado que acabou de assinar o contrato).
+    let reatribuidos = 0;
+    const paraReatribuir = await listarContatosAfiliadoParaReatribuir();
+    for (const c of paraReatribuir) {
+      const codigo = _proximoDono();
+      if (codigo === c.atendido_por) continue;
+      const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
+      await atribuirContatoAfiliado(c.id, codigo, (u && u.nome) || codigo, _corAfiliado(codigo));
+      reatribuidos++;
+    }
+
+    if (distribuidos || reatribuidos) console.log('[distribuicao-afiliado] ' + distribuidos + ' novo(s), ' + reatribuidos + ' reatribuído(s)');
+  } catch(e) { console.error('[distribuicao-afiliado]', e.message); }
+}
+setTimeout(_rodarDistribuicaoContatosAfiliado, 45000);
+setInterval(_rodarDistribuicaoContatosAfiliado, 10 * 60 * 1000);
+// ── FIM JOB_DISTRIBUICAO_ABERTOS_AFILIADO ──────────────────────────────────
+
 function _nivelAfiliado(u) {
   return (u && u.afiliadoNivel) ? u.afiliadoNivel : 2;
 }
@@ -14216,8 +14311,9 @@ async function _checarPromocaoAfiliado(codigo) {
     }
     if (novoNivel === nivelOriginal) return;
     const { atualizarUsuario: _auProm } = require('./services/salvarUsuario');
-    await _auProm(codigo, { afiliadoNivel: novoNivel });
+    await _auProm(codigo, _camposNivelAfiliado(novoNivel));
     u.afiliadoNivel = novoNivel;
+    if (novoNivel === 1) u.indicadoPor = null;
     criarNotificacaoService({
       id: Date.now().toString() + '_promafiliado',
       tipo: 'afiliado_promocao',

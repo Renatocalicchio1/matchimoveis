@@ -423,12 +423,15 @@ app.post('/api/presenca/heartbeat', (req, res) => {
 
 // ── SEGURANÇA: BLOQUEIA TUDO QUANDO SALDO ZERADO ────────────────────────────
 // Antes só bloqueava POST (ações que mudam estado); leitura (GET) continuava
-// livre com saldo zerado. Agora bloqueia navegação inteira sob /app — a única
-// rota que continua acessível é /app/coins (senão a pessoa fica sem como
-// comprar mais créditos). Login/logout não são afetados por não estarem sob
-// /app. Isso vale pra QUALQUER usuário que zere o saldo, não só quem entrou
-// pela campanha de leads garantidos.
-const _rotasLivresSaldo = ['/app/coins'];
+// livre com saldo zerado. Agora bloqueia navegação inteira sob /app — as
+// únicas rotas que continuam acessíveis são /app/coins (senão a pessoa fica
+// sem como comprar mais créditos) e /app/afiliados (ago/2026, pedido
+// explícito do Renato — mesmo sem saldo de plataforma, o afiliado precisa
+// continuar acessando pra ver/resgatar comissão, que é uma forma de
+// justamente conseguir mais crédito). Login/logout não são afetados por não
+// estarem sob /app. Isso vale pra QUALQUER usuário que zere o saldo, não só
+// quem entrou pela campanha de leads garantidos.
+const _rotasLivresSaldo = ['/app/coins', '/app/afiliados'];
 app.use('/app', async (req, res, next) => {
   if (!req.session || !req.session.user) return next();
   const _rota = req.path;
@@ -4705,7 +4708,7 @@ app.post('/login', async (req,res)=>{
       if(existeEmail) return res.redirect('/?erro=email_existente');
     }
 
-    const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : 'usr';
+    const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : req.body.tipoConta === 'agencia_marketing' ? 'agm' : 'usr';
     const uid = prefixo + '_' + Math.random().toString(36).substring(2,8) + Date.now().toString(36).slice(-4);
     const _codigoNovo = gerarCodigoUsuario(req.body.nome);
 
@@ -12584,7 +12587,17 @@ app.post('/admin/site-global/banner/excluir', authAdmin, async (req, res) => {
 app.get('/admin/emails', authAdmin, async (req, res) => {
   try {
     const { statsEmailEnvios } = require('./services/email');
-    const linhas = await statsEmailEnvios().catch(() => []);
+    // Junta os e-mails rastreados via email_envios (indicação, portal global
+    // etc — todo enviarEmail() com `tipo` preenchido) com os da campanha de
+    // aquisição corretor/imobiliária (pagina/demanda/followup), que é
+    // rastreada à parte em campanha_contatos e nunca aparecia aqui (ver
+    // statsPorModeloEmail em services/campanha.js).
+    const { statsPorModeloEmail } = require('./services/campanha');
+    const [linhasEmail, linhasCampanha] = await Promise.all([
+      statsEmailEnvios().catch(() => []),
+      statsPorModeloEmail().catch(() => [])
+    ]);
+    const linhas = [...linhasEmail, ...linhasCampanha].sort((a, b) => (a.tipo || '').localeCompare(b.tipo || '') || b.enviados - a.enviados);
     const totalEnviados = linhas.reduce((s, l) => s + l.enviados, 0);
     const totalAbertos = linhas.reduce((s, l) => s + l.abertos, 0);
     const totalClicados = linhas.reduce((s, l) => s + l.clicados, 0);
@@ -20012,6 +20025,12 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
           <input type="email" id="suEmail" placeholder="voce@email.com">
           <label>Celular (WhatsApp)</label>
           <input type="text" id="suCelular" placeholder="47999999999">
+          <label>Tipo de conta</label>
+          <select id="suTipoConta">
+            <option value="corretor">Corretor</option>
+            <option value="imobiliaria">Imobiliária</option>
+            <option value="agencia_marketing">Agência de Marketing</option>
+          </select>
           <label>Estado de atuação</label>
           <select id="suAreaEstadoInput"><option value="">Selecione...</option></select>
           <label>Cidades de atuação (escolha quantas quiser)</label>
@@ -20721,6 +20740,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     const nome = document.getElementById('suNome').value.trim();
     const email = document.getElementById('suEmail').value.trim();
     const celular = document.getElementById('suCelular').value.trim();
+    const tipoConta = document.getElementById('suTipoConta').value;
     const senha = document.getElementById('suSenha').value;
     const statusEl = document.getElementById('signup-status');
     statusEl.innerHTML = '';
@@ -20729,7 +20749,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     try {
       const r = await fetch('/demanda/cadastrar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({ nome, email, celular, senha, criterios: _ultimaBusca, ref: _refDemanda }, _suLerAreaAtuacao()))
+        body: JSON.stringify(Object.assign({ nome, email, celular, tipoConta, senha, criterios: _ultimaBusca, ref: _refDemanda }, _suLerAreaAtuacao()))
       });
       const d = await r.json();
       if(!d.ok){ statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -20745,6 +20765,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     const nome = document.getElementById('suNome').value.trim();
     const email = document.getElementById('suEmail').value.trim();
     const celular = document.getElementById('suCelular').value.trim();
+    const tipoConta = document.getElementById('suTipoConta').value;
     const cpf = document.getElementById('suCpf').value.trim();
     const senha = document.getElementById('suSenha').value;
     const statusEl = document.getElementById('signup-status');
@@ -20754,7 +20775,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     try {
       const r = await fetch('/demanda/comprar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({ nome, email, celular, cpf, senha, plano: _comboEscolhido, criterios: _ultimaBusca, ref: _refDemanda }, _suLerAreaAtuacao()))
+        body: JSON.stringify(Object.assign({ nome, email, celular, tipoConta, cpf, senha, plano: _comboEscolhido, criterios: _ultimaBusca, ref: _refDemanda }, _suLerAreaAtuacao()))
       });
       const d = await r.json();
       if(!d.ok){ btn.disabled = false; statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -21129,7 +21150,7 @@ function _areaAtuacaoDeCriterios(criterios) {
 // pra quem pulou o cadastro antecipado e foi direto no combo). Guarda a
 // região buscada no perfil e manda o email de boas-vindas — não menciona
 // combo nenhum porque nesse ponto pode não ter sido escolhido ainda.
-async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros }) {
+async function _criarContaDemanda({ nome, email, celular, tipoConta, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros }) {
   const nomeVal = (nome || '').trim();
   if (!nomeVal || nomeVal.length < 3) return { ok: false, erro: 'Nome inválido. Digite seu nome completo.' };
   const telefone = String(celular || '').replace(/\D/g, '');
@@ -21190,7 +21211,7 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios,
     : _areaAtuacaoDeCriterios(criterios);
   const novo = {
     id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal, cpf: cpfVal,
-    tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
+    tipo: ['corretor', 'imobiliaria', 'agencia_marketing'].includes(tipoConta) ? tipoConta : 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
     matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
     regiaoInteresse: _regiaoInteresseDeCriterios(criterios),
     areaAtuacaoEstado: _areaAtDemanda.estado,
@@ -21241,8 +21262,8 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios,
 // essa conta foi criada por esse fluxo específico (ver uso em /demanda/comprar).
 app.post('/demanda/cadastrar', express.json(), async (req, res) => {
   try {
-    const { nome, email, celular, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros } = req.body;
-    const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros });
+    const { nome, email, celular, tipoConta, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros } = req.body;
+    const resultado = await _criarContaDemanda({ nome, email, celular, tipoConta, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros });
     if (!resultado.ok) return res.json(resultado);
     req.session.user = resultado.user;
     req.session.contaDemandaId = resultado.user.codigoUsuario;
@@ -21292,8 +21313,8 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         req.session.user.cpf = cpfLimpo;
       } catch (eCpfSalvar) { console.error('[demanda/comprar] erro ao salvar cpf:', eCpfSalvar.message); }
     } else {
-      const { nome, email, celular, senha, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros } = req.body;
-      const resultado = await _criarContaDemanda({ nome, email, celular, cpf: cpfLimpo, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros });
+      const { nome, email, celular, tipoConta, senha, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros } = req.body;
+      const resultado = await _criarContaDemanda({ nome, email, celular, tipoConta, cpf: cpfLimpo, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidades, areaAtuacaoBairros });
       if (!resultado.ok) return res.json(resultado);
       req.session.user = resultado.user;
       req.session.contaDemandaId = resultado.user.codigoUsuario;

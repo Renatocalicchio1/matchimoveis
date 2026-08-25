@@ -899,6 +899,31 @@ async function statsTracking() {
   });
 }
 
+// Desempenho por modelo/assunto da campanha de aquisição (corretor e
+// imobiliária, pagina/demanda/followup1/2/3) — mesmo formato de
+// statsEmailEnvios() (services/email.js), pra dar pra juntar as duas listas
+// numa só em /admin/emails. Faltava (ago/2026, achado pelo Renato): essa
+// campanha nunca passa `tipo` pro enviarEmail() — _enviarDaFilaPrincipal e
+// _enviarFollowup chamam sem esse parâmetro, então nunca gravava em
+// email_envios (só grava se `tipo` vier preenchido, ver services/email.js) —
+// a campanha inteira ficava invisível na tela "Modelos de Email", mesmo
+// enviando de verdade e sendo rastreada à parte em campanha_contatos.
+async function statsPorModeloEmail() {
+  await _garantirColunas();
+  const { rows } = await query(`
+    SELECT modelo_usado as tipo, titulo_usado as assunto,
+      COUNT(*)::int as enviados,
+      COUNT(aberto_em)::int as abertos,
+      COUNT(clicado_em)::int as clicados,
+      MAX(enviado_em) as ultimo_envio
+    FROM campanha_contatos
+    WHERE status = 'enviado' AND modelo_usado IS NOT NULL
+    GROUP BY modelo_usado, titulo_usado
+    ORDER BY modelo_usado, enviados DESC
+  `);
+  return rows.map(r => ({ ...r, variante: null, botao_texto: CTA_POR_TIPO[r.tipo] || null }));
+}
+
 async function statsCadastrados() {
   return _comCache('cadastrados', async () => {
     const { rows } = await query(`
@@ -1316,5 +1341,6 @@ module.exports = {
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
   validarProximoLote, listarEnvios, distribuirAtendimentosAbertos,
   marcarWhatsappManualEnviado, listarContatosAbertosSemDono,
-  listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado
+  listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado,
+  statsPorModeloEmail
 };

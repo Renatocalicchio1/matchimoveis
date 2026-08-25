@@ -184,7 +184,7 @@ async function afAceitarContrato(){
 
 <div id="af-pane-campanha" class="af-tab-pane card">
   <h3 style="margin-top:0">Convidar novos usuários</h3>
-  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contatos que já abriram o e-mail de divulgação da MatchImóveis e foram distribuídos pra você — o convite por WhatsApp já sai automático com o <strong>seu link de indicação</strong>, então quem se cadastrar entra na sua rede. Use a coluna WhatsApp pra dar uma força pessoalmente em quem ainda não respondeu.</p>
+  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contatos que já abriram o e-mail de divulgação da MatchImóveis e foram distribuídos pra você — o convite por WhatsApp já sai automático com o <strong>seu link de indicação</strong>, então quem se cadastrar entra na sua rede. <strong>Clique no número verde 💬 na coluna WhatsApp pra chamar a lead direto</strong> — a mensagem já vem pronta com seu link, é só mandar.</p>
   <% if (!dados.contatosCampanha.length) { %>
     <p style="color:#6b7280;font-size:13px">Nenhum contato distribuído pra você ainda.</p>
   <% } else { %>
@@ -199,7 +199,14 @@ async function afAceitarContrato(){
         <td><%= c.aberto_em ? new Date(c.aberto_em).toLocaleDateString('pt-BR') : '-' %></td>
         <td><%= c.nome || '(sem nome)' %></td>
         <td><%= c.email || '-' %></td>
-        <td><% if (tel) { %><a href="/app/afiliados/contato/<%= c.id %>/whatsapp?tel=<%= tel %>" target="_blank" style="color:#00A699;text-decoration:none"><%= c.celular %></a><% } else { %>-<% } %></td>
+        <td>
+          <% if (tel) { %>
+          <a href="/app/afiliados/contato/<%= c.id %>/whatsapp?tel=<%= tel %>" target="_blank" title="Clique para chamar essa lead no WhatsApp" style="display:inline-flex;align-items:center;gap:6px;color:#111827;text-decoration:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#25D366;color:#fff;font-size:11px;flex-shrink:0">💬</span>
+            <%= c.celular %>
+          </a>
+          <% } else { %>-<% } %>
+        </td>
         <td>
           <% if (c.comprou) { %><span style="color:#16a34a;font-weight:700">💰 Comprou</span>
           <% } else if (c.cadastrou) { %><span style="color:#16a34a;font-weight:700">✅ Cadastrou</span>

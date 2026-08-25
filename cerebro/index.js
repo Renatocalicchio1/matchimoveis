@@ -28,10 +28,28 @@ function ehSaudacao(msg) {
   return /^(oi|olá|ola|hey|eai|e ai|bom dia|boa tarde|boa noite|hello|hi|tudo bem|tudo bom|como vai)[\s!?.,]*$/i.test(msg.trim());
 }
 
+// Empurrão pro próximo passo do funil de conta (ago/2026, pedido explícito
+// do Renato: assistente sempre puxando o corretor pra frente no funil,
+// junto com WhatsApp e e-mail). Só nos 2 estágios que ainda precisam andar
+// — "cliente" já comprou de verdade, não precisa de empurrão aqui (já
+// recebe o popup de afiliados e o convite de indicação por e-mail; enfileirar
+// um 3º canal pedindo a mesma coisa vira saco). d.estagioConta vem calculado
+// em server.js (_estagioConta), mesma lógica usada em /admin/funil.
+function _empurraoFunil(d) {
+  if (d.estagioConta === 'convertido') {
+    return '🚀 Sua conta ainda tá vazia — cadastra teu primeiro imóvel (ou importa o XML do teu site) que eu já te mostro os primeiros leads compatíveis.<br><br>';
+  }
+  if (d.estagioConta === 'ativado') {
+    return '💳 Sua carteira já tá pronta pra receber lead de verdade — falta só ativar créditos. Quer ver os combos?<br><br>';
+  }
+  return '';
+}
+
 function responderSaudacao(user, d, finalizar) {
   const hora = new Date().getHours();
   const saud = hora<12 ? 'Bom dia' : hora<18 ? 'Boa tarde' : 'Boa noite';
   let r = saud + ', <strong>' + (user.nome||'corretor') + '</strong>! 👋<br><br>';
+  r += _empurraoFunil(d);
   if (d.pendentes > 0) r += '⚠️ <strong>' + d.pendentes + ' visita(s) pendente(s)</strong><br>';
   if (d.semMatch > 0) r += '📋 <strong>' + d.semMatch + ' lead(s) sem match</strong><br>';
   r += '<br>Como posso te ajudar?<br><br>';

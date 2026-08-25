@@ -1298,6 +1298,24 @@ async function excluirCelularContato(id) {
   await _garantirColunas();
   await query('UPDATE campanha_contatos SET celular=$1 WHERE id=$2', ['', id]);
 }
+// Reaproveita MODELOS/_sortearVariante/gerarHTML pra quem NÃO tem linha em
+// campanha_contatos — corretor que já tem conta mas nunca passou pela
+// campanha fria de aquisição (cadastro orgânico, indicação, criado pelo
+// admin). Usado pelo job de e-mail por estágio de conta (server.js,
+// _estagioConta) pra mandar o mesmo followup3 ("ativado mas não comprou")
+// pra QUALQUER conta nesse estágio, não só quem veio da campanha. Contato
+// fictício id:0 (mesmo padrão do preview em /admin/emails) — o CTA ainda
+// funciona certo (o redirect de clique já lê ?estagio= da URL, não depende
+// de achar uma linha real), só a métrica de abertura/clique desse envio
+// específico não fica atribuída a ninguém (perda aceitável: é uma conta
+// que não estava sendo medida por essa campanha de qualquer jeito).
+async function gerarEmailPorTipo(tipo, nome) {
+  const variacao = await _sortearVariante(tipo);
+  const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, _nomeOuFallback(nome));
+  const html = gerarHTML(corpoPersonalizado, { id: 0, nome }, tipo);
+  return { assunto: variacao.assunto, html };
+}
+
 async function _enviarFollowup(contato, tipo, numero) {
   const variacao = await _sortearVariante(tipo);
   const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, _nomeOuFallback(contato.nome));
@@ -1428,5 +1446,5 @@ module.exports = {
   marcarWhatsappManualEnviado, listarContatosAbertosSemDono,
   listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado, classificarNome,
   statsPorModeloEmail, estagioContatoCampanha, ESTAGIOS_CONTATO_CAMPANHA,
-  gerarPreviewPorAssunto
+  gerarPreviewPorAssunto, gerarEmailPorTipo
 };

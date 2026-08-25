@@ -132,6 +132,26 @@ function _celularWA(raw) {
   return '';
 }
 
+// Resposta do assistente (cerebroApp) vem em HTML — <br>, <strong>, botões
+// (<a>/<button> gerados por btn()/chip() em cerebro/index.js) — feito pro
+// chat web, que renderiza. WhatsApp não interpreta HTML nenhum: mandar cru
+// mostraria as tags literalmente pro corretor. Usado só no webhook do
+// WhatsApp Cloud API (ago/2026, resposta automática via IA pra corretor já
+// cadastrado, dentro da janela de 24h — ver /webhook/whatsapp-cloud).
+function _htmlParaWhatsapp(html) {
+  return String(html || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div)>/gi, '\n')
+    .replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+    .replace(/<b>(.*?)<\/b>/gi, '*$1*')
+    .replace(/<a\b[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '$2: $1')
+    .replace(/<button\b[^>]*>.*?<\/button>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // JSON.stringify() não escapa "</script>" — se um valor (ex: nome de lead
 // vindo de webhook público) contiver isso, quebra a tag <script> e injeta JS
 // arbitrário na página (stored XSS). Usar sempre que for injetar JSON direto
@@ -14444,6 +14464,76 @@ function _estagioConta(usuario, imoveisCount, leadsCount) {
 }
 const _ESTAGIOS_CONTA_LABEL = { convertido: 'Convertido', ativado: 'Ativado', cliente: 'Cliente' };
 
+// Monta o mesmo contexto (imoveis/leads/visitas filtrados + objeto `d` com
+// as estatísticas que o assistente usa) que /app/assistente/chat já
+// montava inline — extraído pra função reaproveitável (ago/2026) porque o
+// webhook do WhatsApp Cloud API passou a usar o mesmíssimo assistente pra
+// responder corretor já cadastrado que manda mensagem pro número oficial
+// dentro da janela de 24h (ver /webhook/whatsapp-cloud). Duplicar esse
+// bloco de ~50 linhas nos dois lugares seria o tipo de coisa que desalinha
+// sozinha na próxima mudança.
+function _montarContextoAssistente(user) {
+  const imoveis = filtrarPorUsuario(_cacheImoveis || [], user);
+  const leads   = filtrarPorUsuario(_cacheLeads || [], user);
+  const visitas = (_cacheVisitas || []).filter(v =>
+    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || v.userId || '') === String(user.id || '') ||
+    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
+  );
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const d = {
+    ativos:      imoveis.filter(i=>i.status!=='inativo').length,
+    inativos:    imoveis.filter(i=>i.status==='inativo').length,
+    bairros:     [...new Set(imoveis.map(i=>i.bairro).filter(Boolean))],
+    tipos:       [...new Set(imoveis.map(i=>i.tipo).filter(Boolean))],
+    leads:       leads.length,
+    organicas:   leads.filter(l=>l.extractionStatus==='ok').length,
+    importadas:  leads.filter(l=>l.extractionStatus!=='ok').length,
+    comMatch:    leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length,
+    semMatch:    leads.filter(l=>!l.matchesBase||l.matchesBase.length===0).length,
+    quentes:     leads.filter(l=>l.temperatura==='quente').length,
+    mornos:      leads.filter(l=>l.temperatura==='morno').length,
+    comPerfilIA: leads.filter(l=>l.perfilIA&&Object.keys(l.perfilIA).length>0).length,
+    comMensagensWA: leads.filter(l=>l.mensagens&&l.mensagens.length>0).length,
+    leadsQuentes: leads.filter(l=>l.temperatura==='quente').slice(0,5).map(l=>({nome:l.nome||l.contato, temperatura:l.temperatura, faseFunil:l.faseFunil, ultimaMensagem:l.ultimaMensagem})),
+    visitas:     visitas.length,
+    hoje:        visitas.filter(v=>v.dataVisita===hoje).length,
+    pendentes:   visitas.filter(v=>v.status==='solicitada').length,
+    confirmadas:    visitas.filter(v=>v.status==='confirmada'||v.status==='lead_confirmou').length,
+    realizadas:     visitas.filter(v=>v.status==='realizada').length,
+    canceladas:     visitas.filter(v=>v.status==='cancelada').length,
+    superQuentes:   leads.filter(l=>l.temperatura==='super_quente').length,
+    frias:          leads.filter(l=>!l.temperatura||l.temperatura==='frio').length,
+    comVisita:      leads.filter(l=>l.faseFunil==='visita').length,
+    comProposta:    leads.filter(l=>l.faseFunil==='proposta').length,
+    fechadas:       leads.filter(l=>l.faseFunil==='fechado').length,
+    semProprietario: imoveis.filter(i=>i.status!=='inativo'&&(!i.proprietario||(!i.proprietario.nome&&!i.proprietario.telefone))).length,
+    semFoto:        imoveis.filter(i=>i.status!=='inativo'&&(!i.fotos||i.fotos.length===0)).length,
+    semCep:         imoveis.filter(i=>i.status!=='inativo'&&!i.cep).length,
+    topBairrosDemanda: (() => {
+      const bairroCount = {};
+      leads.forEach(l=>{ if(l.bairro) bairroCount[l.bairro]=(bairroCount[l.bairro]||0)+1; });
+      return Object.entries(bairroCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([b,n])=>({bairro:b,total:n}));
+    })(),
+    topTiposDemanda: (() => {
+      const tipoCount = {};
+      leads.forEach(l=>{ if(l.tipo) tipoCount[l.tipo]=(tipoCount[l.tipo]||0)+1; });
+      return Object.entries(tipoCount).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t,n])=>({tipo:t,total:n}));
+    })(),
+    leadsRecentes:  leads.slice().sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0)).slice(0,5).map(l=>({nome:l.nome||l.contato||'Lead',bairro:l.bairro,tipo:l.tipo,temperatura:l.temperatura})),
+    visitasHoje:    visitas.filter(v=>{
+      if(!v.dataVisita) return false;
+      const dv = new Date(v.dataVisita);
+      const hoje2 = new Date();
+      return dv.toDateString()===hoje2.toDateString();
+    }).length,
+    whatsappConectado: !!(user && user.whatsappStatus==='connected'),
+    temPerfil:      !!(user && user.celular && user.nome),
+    vitrinesEnviadas: leads.filter(l=>l.vitrineEnviada).length,
+    estagioConta: _estagioConta(user, imoveis.length, leads.length),
+  };
+  return { imoveis, leads, visitas, d };
+}
+
 // ── JOB_REATRIBUICAO_CONTATOS_AFILIADO — reequilibra os contatos de campanha
 // que "Convidar novos" mostra pra cada afiliado (ago/2026, pedido explícito).
 // Duas situações fazem um contato mudar de dono, sempre dentro do MESMO
@@ -15207,6 +15297,33 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
                 await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'saida', tipo: 'texto', texto: _msgAuto }).catch(()=>{});
                 await marcarAutoRespondido(contatoCampanha.id);
               } catch(e) { console.error('[whatsapp-cloud] erro auto-resposta campanha:', e.message); }
+            })();
+            // Corretor JÁ CADASTRADO mandando mensagem pro número oficial —
+            // responde com o MESMO assistente do chat interno (cerebroApp),
+            // com o contexto real da conta dele (imóveis/leads/visitas,
+            // estágio do funil). Só funciona dentro da janela de 24h aberta
+            // por essa mensagem (texto livre, sem template) — pedido
+            // explícito do Renato (ago/2026): "a janela de 24h responde com
+            // IA?". Resposta do assistente vem em HTML (mesmo formato do
+            // chat web) — convertida pra texto simples antes de mandar,
+            // WhatsApp não renderiza tag nenhuma.
+            (async () => {
+              try {
+                const telWebhook55 = _celularWA(telefone);
+                const usuarioMatch = (_cacheUsuarios || []).find(u => telWebhook55 && _celularWA(u.celular || u.telefone) === telWebhook55);
+                if (!usuarioMatch) return;
+                const textoMsg = (msg.text?.body || '').trim();
+                if (!textoMsg) return;
+                const { imoveis, leads, visitas, d } = _montarContextoAssistente(usuarioMatch);
+                const _respRaw = cerebroApp.responder(textoMsg, d, usuarioMatch, imoveis, leads, visitas, {});
+                const respostaHtml = (_respRaw && typeof _respRaw.then === 'function') ? await _respRaw : _respRaw;
+                if (!respostaHtml) return;
+                const respostaTexto = _htmlParaWhatsapp(respostaHtml);
+                if (!respostaTexto) return;
+                const { enviarTexto } = require('./services/metaWhatsapp');
+                await enviarTexto({ telefone, texto: respostaTexto, phoneNumberId });
+                await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'saida', tipo: 'texto', texto: respostaTexto }).catch(()=>{});
+              } catch(e) { console.error('[whatsapp-cloud] erro resposta IA corretor cadastrado:', e.message); }
             })();
           } else if (msg.type === 'button') {
             await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'botao', texto: msg.button?.text || '', messageId: msg.id }).catch(()=>{});
@@ -15991,65 +16108,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   const uid  = req.session.user.id || req.session.user.userId;
   const user = req.session.user;
 
-  const imoveis = filtrarPorUsuario(_cacheImoveis || [], user);
-  const leads   = filtrarPorUsuario(_cacheLeads || [], user);
-  const visitas = (_cacheVisitas || []).filter(v =>
-    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || v.userId || '') === String(user.id || '') ||
-    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
-  );
-
-  const hoje = new Date().toLocaleDateString('pt-BR');
-  const d = {
-    ativos:      imoveis.filter(i=>i.status!=='inativo').length,
-    inativos:    imoveis.filter(i=>i.status==='inativo').length,
-    bairros:     [...new Set(imoveis.map(i=>i.bairro).filter(Boolean))],
-    tipos:       [...new Set(imoveis.map(i=>i.tipo).filter(Boolean))],
-    leads:       leads.length,
-    organicas:   leads.filter(l=>l.extractionStatus==='ok').length,
-    importadas:  leads.filter(l=>l.extractionStatus!=='ok').length,
-    comMatch:    leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length,
-    semMatch:    leads.filter(l=>!l.matchesBase||l.matchesBase.length===0).length,
-    quentes:     leads.filter(l=>l.temperatura==='quente').length,
-    mornos:      leads.filter(l=>l.temperatura==='morno').length,
-    comPerfilIA: leads.filter(l=>l.perfilIA&&Object.keys(l.perfilIA).length>0).length,
-    comMensagensWA: leads.filter(l=>l.mensagens&&l.mensagens.length>0).length,
-    leadsQuentes: leads.filter(l=>l.temperatura==='quente').slice(0,5).map(l=>({nome:l.nome||l.contato, temperatura:l.temperatura, faseFunil:l.faseFunil, ultimaMensagem:l.ultimaMensagem})),
-    visitas:     visitas.length,
-    hoje:        visitas.filter(v=>v.dataVisita===hoje).length,
-    pendentes:   visitas.filter(v=>v.status==='solicitada').length,
-    confirmadas:    visitas.filter(v=>v.status==='confirmada'||v.status==='lead_confirmou').length,
-    realizadas:     visitas.filter(v=>v.status==='realizada').length,
-    canceladas:     visitas.filter(v=>v.status==='cancelada').length,
-    // Leads detalhes
-    superQuentes:   leads.filter(l=>l.temperatura==='super_quente').length,
-    frias:          leads.filter(l=>!l.temperatura||l.temperatura==='frio').length,
-    comVisita:      leads.filter(l=>l.faseFunil==='visita').length,
-    comProposta:    leads.filter(l=>l.faseFunil==='proposta').length,
-    fechadas:       leads.filter(l=>l.faseFunil==='fechado').length,
-    semProprietario: imoveis.filter(i=>i.status!=='inativo'&&(!i.proprietario||(!i.proprietario.nome&&!i.proprietario.telefone))).length,
-    semFoto:        imoveis.filter(i=>i.status!=='inativo'&&(!i.fotos||i.fotos.length===0)).length,
-    semCep:         imoveis.filter(i=>i.status!=='inativo'&&!i.cep).length,
-    topBairrosDemanda: (() => {
-      const bairroCount = {};
-      leads.forEach(l=>{ if(l.bairro) bairroCount[l.bairro]=(bairroCount[l.bairro]||0)+1; });
-      return Object.entries(bairroCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([b,n])=>({bairro:b,total:n}));
-    })(),
-    topTiposDemanda: (() => {
-      const tipoCount = {};
-      leads.forEach(l=>{ if(l.tipo) tipoCount[l.tipo]=(tipoCount[l.tipo]||0)+1; });
-      return Object.entries(tipoCount).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t,n])=>({tipo:t,total:n}));
-    })(),
-    leadsRecentes:  leads.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0)).slice(0,5).map(l=>({nome:l.nome||l.contato||'Lead',bairro:l.bairro,tipo:l.tipo,temperatura:l.temperatura})),
-    visitasHoje:    visitas.filter(v=>{
-      if(!v.dataVisita) return false;
-      const d = new Date(v.dataVisita);
-      const hoje2 = new Date();
-      return d.toDateString()===hoje2.toDateString();
-    }).length,
-    whatsappConectado: !!(user && user.whatsappStatus==='connected'),
-    temPerfil:      !!(user && user.celular && user.nome),
-    vitrinesEnviadas: leads.filter(l=>l.vitrineEnviada).length,
-  };
+  const { imoveis, leads, visitas, d } = _montarContextoAssistente(user);
 
   const memoriaPath = path.join(__dirname,'assistente-memoria.json');
   let memoria = fs.existsSync(memoriaPath)
@@ -23672,6 +23731,33 @@ const _agendarEmailIndicacao = () => {
 };
 _agendarEmailIndicacao();
 // ── FIM JOB_EMAIL_INDICACAO ───────────────────────────────────────────────────
+
+// ── JOB_EMAIL_FUNIL_CONTA — nudge por estágio de conta a cada 3 dias, de
+// madrugada (ago/2026, pedido explícito: "continuar recebendo os emails
+// conforme sua etapa de funil", pra QUALQUER corretor já cadastrado, não só
+// quem veio da campanha de aquisição). Ver services/emailFunilConta.js.
+const _agendarEmailFunilConta = () => {
+  const agora = new Date();
+  const proximo = new Date(agora);
+  proximo.setHours(4, 40, 0, 0);
+  if (proximo <= agora) proximo.setDate(proximo.getDate() + 3);
+  const msAte = proximo - agora;
+  setTimeout(async () => {
+    try {
+      const { enviarEmailFunilConta } = require('./services/emailFunilConta');
+      await enviarEmailFunilConta();
+    } catch(e) { console.error('[JOB EMAIL FUNIL CONTA]', e.message); }
+    setInterval(async () => {
+      try {
+        const { enviarEmailFunilConta } = require('./services/emailFunilConta');
+        await enviarEmailFunilConta();
+      } catch(e) { console.error('[JOB EMAIL FUNIL CONTA]', e.message); }
+    }, 3 * 24 * 3600 * 1000);
+  }, msAte);
+  console.log('[JOB EMAIL FUNIL CONTA] agendado para:', proximo.toLocaleString('pt-BR'));
+};
+_agendarEmailFunilConta();
+// ── FIM JOB_EMAIL_FUNIL_CONTA ─────────────────────────────────────────────────
 
 // ── CAPTAÇÃO ─────────────────────────────────────────────────────────────────
 app.get('/app/captacao', auth, async (req, res) => {

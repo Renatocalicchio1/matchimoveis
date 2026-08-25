@@ -14345,12 +14345,16 @@ app.get('/pagamento/sucesso', auth, async (req, res) => {
 // recorrência — a diferença não vai pra ninguém, fica de margem.
 const _COMISSAO_AFILIADO = {
   primeira: {
-    1: { propria: 0.15 },
+    // Nível 1 é o topo da rede — venda própria dele não tem override pra
+    // pagar pra ninguém acima, então fica com o pool de 30% inteiro (ajuste
+    // ago/2026: antes ficava artificialmente em 15%, os outros 15% do pool
+    // não iam pra lugar nenhum).
+    1: { propria: 0.30 },
     2: { propria: 0.20, n1: 0.10 },
     3: { propria: 0.25, n2: 0.025, n1: 0.025 }
   },
   recorrencia: {
-    1: { propria: 0.075 },
+    1: { propria: 0.15 },
     2: { propria: 0.10, n1: 0.05 },
     3: { propria: 0.125, n2: 0.0125, n1: 0.0125 }
   }

@@ -261,6 +261,152 @@ Não é sorte: quem vê o lead primeiro e responde rápido tem muito mais chance
 — Equipe Match Imóveis`
     }
   ],
+  // ── Programa de afiliados (ago/2026) — 10 variações, foco duplo pedido
+  // pelo Renato: ganhar indicando a plataforma (comissão contínua, dinheiro
+  // ou crédito) E continuar vendendo mais rápido com o cruzamento
+  // automático de leads. Mesmo framework das outras (PAS leve, 1 CTA só,
+  // sem gatilho de spam), CTA próprio (CTA_POR_TIPO.afiliado).
+  afiliado: [
+    {
+      assunto: 'Ganhe dinheiro só por indicar a Match Imóveis pra outros corretores',
+      corpo: `Olá {nome},
+
+Você não precisa só vender imóvel pra ganhar com a Match Imóveis — também pode ganhar comissão real toda vez que indicar a plataforma pra outro corretor, imobiliária ou agência de marketing.
+
+• Cada indicação vira comissão em toda recarga que a pessoa fizer, não só na primeira
+• Você escolhe: resgatar em dinheiro ou reverter em créditos na sua própria conta
+• E você continua vendendo mais rápido com o cruzamento automático de leads e imóveis
+
+Criar conta é grátis e já libera 1.000 créditos pra testar tudo na hora.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Você pode ganhar como corretor E como afiliado, ao mesmo tempo',
+      corpo: `Olá {nome},
+
+A Match Imóveis paga de dois jeitos: você vende mais rápido usando o cruzamento automático de leads e imóveis, e ainda ganha comissão indicando a plataforma pra quem você conhece do mercado.
+
+• Vender fica mais fácil: a IA cruza cada lead com o imóvel certo, sozinha
+• Indicar vira renda: comissão contínua sobre o que seus indicados usarem
+• Sem mensalidade fixa — você só cresce, nunca paga pra ficar parado
+
+Comece agora, de graça, e veja os dois lados funcionando juntos.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Conhece outro corretor? Isso pode virar renda extra todo mês',
+      corpo: `Olá {nome},
+
+Você provavelmente conhece dezenas de corretores, imobiliárias e agências de marketing no seu dia a dia. Cada um deles que entrar na Match Imóveis pelo seu link gera comissão contínua pra você — todo mês, não só uma vez.
+
+• Comissão em toda recarga que a pessoa indicada fizer
+• Escolha entre receber em dinheiro ou virar crédito na sua conta
+• E sua própria carteira de imóveis continua vendendo mais rápido com a IA
+
+Criar conta é grátis e o link de indicação já vem pronto assim que você entra.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Vender imóvel mais rápido e ganhar indicando: os dois ao mesmo tempo',
+      corpo: `Olá {nome},
+
+A maioria dos corretores só pensa em fechar a próxima venda. Mas dá pra fazer duas coisas ao mesmo tempo na Match Imóveis:
+
+• Fechar mais rápido: a plataforma cruza automaticamente cada lead com o imóvel certo da sua carteira
+• Ganhar indicando: toda vez que outro corretor ou imobiliária se cadastra pelo seu link e usa a plataforma, você ganha comissão
+
+Não é escolher um ou outro — os dois rendem ao mesmo tempo, sem custo nenhum pra começar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'O corretor que te ensinou o ofício também pode virar sua renda extra',
+      corpo: `Olá {nome},
+
+Pensa em quem te ajudou a começar no mercado imobiliário, ou nos corretores que você troca ideia todo dia. Cada um deles que entrar na Match Imóveis pelo seu link vira comissão de verdade pra você — sem precisar fazer nada além de mandar o link.
+
+• Comissão contínua, toda recarga que a pessoa fizer
+• Dinheiro ou crédito, você escolhe como resgatar
+• De quebra, você mesmo já sai na frente vendendo mais rápido com a IA cruzando seus leads
+
+Comece hoje, é grátis.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Imobiliária ou agência de marketing também ganham aqui, não só corretor autônomo',
+      corpo: `Olá {nome},
+
+A Match Imóveis não é só pra corretor autônomo: imobiliária inteira e até agência de marketing que trabalha com imóvel podem entrar e usar. E cada uma que você indicar pelo seu link vira comissão contínua na sua conta.
+
+• Sem limite de quantas indicações você pode fazer
+• Comissão em toda recarga, não só na primeira compra
+• E sua própria carteira de imóveis continua rendendo mais com o cruzamento automático de leads
+
+Manda o link pra quem você conhece — o cadastro é grátis pra todo mundo.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Enquanto você dorme, dá pra estar ganhando dos dois jeitos',
+      corpo: `Olá {nome},
+
+De um lado, a Match Imóveis cruza seus leads com os imóveis certos 24 horas por dia, mesmo enquanto você não está online. Do outro, cada corretor que você já indicou continua gerando comissão pra você todo mês, sem esforço extra.
+
+• Leads cruzados automaticamente com sua carteira
+• Comissão contínua de quem você já indicou
+• Nenhum dos dois exige mensalidade
+
+Criar conta é grátis e ainda vem com 1.000 créditos de bônus pra testar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Sua rede de contatos no mercado imobiliário vale dinheiro aqui',
+      corpo: `Olá {nome},
+
+Anos de mercado imobiliário significam uma rede grande de contatos — outros corretores, imobiliárias, gente de marketing imobiliário. Na Match Imóveis, essa rede pode virar renda de verdade: cada indicação que se cadastra e usa a plataforma gera comissão contínua pra você.
+
+• Você indica, a pessoa usa, você ganha — todo mês
+• Escolha entre dinheiro ou crédito na hora de resgatar
+• E sua própria venda de imóvel continua andando mais rápido com a IA da plataforma
+
+Comece de graça agora.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Não é só sobre vender imóvel — também é sobre construir renda',
+      corpo: `Olá {nome},
+
+Vender imóvel continua sendo o centro do seu trabalho, e a Match Imóveis ajuda nisso cruzando automaticamente cada lead com o imóvel certo. Mas o programa de afiliados da plataforma abre outra porta: construir uma renda extra só indicando a plataforma pra quem você já conhece do mercado.
+
+• Comissão contínua, sem precisar vender nada você mesmo
+• Quem você indicar também pode indicar outros — e você ganha parte disso também
+• Tudo dentro da mesma conta, sem processo separado
+
+Cadastro grátis, sem cartão de crédito.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Duas formas de ganhar com o mesmo cadastro',
+      corpo: `Olá {nome},
+
+Um cadastro só na Match Imóveis abre duas frentes de ganho: você vende mais rápido com o cruzamento automático de leads e imóveis, e ainda ganha comissão contínua indicando a plataforma pra outros corretores, imobiliárias ou agências de marketing.
+
+• Sem mensalidade fixa em nenhuma das duas
+• Comissão escolhida por você: dinheiro ou crédito
+• Créditos de boas-vindas já liberados assim que você cria a conta
+
+Vale a pena conferir os dois ao mesmo tempo.
+
+— Equipe Match Imóveis`
+    }
+  ],
   // ── Follow-ups automáticos (jul/2026) ──────────────────────────────────
   // 3 estágios do funil dessa campanha, cada um dispara 24h depois do
   // gatilho correspondente, 1 vez só por contato (ver followup1/2/3_enviado_em
@@ -722,8 +868,12 @@ Se tiver qualquer dúvida sobre os combos, é só responder esse e-mail.
 };
 
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+// afiliado com peso maior (40%) — pedido explícito do Renato (ago/2026) pra
+// focar a reativação da campanha geral no ganhar-indicando, sem tirar
+// pagina/demanda de circulação (30% cada).
 function _sortearModelo() {
-  const tipo = Math.random() < 0.5 ? 'pagina' : 'demanda';
+  const r = Math.random();
+  const tipo = r < 0.4 ? 'afiliado' : r < 0.7 ? 'pagina' : 'demanda';
   return { tipo, ...(_sorteia(MODELOS[tipo])) };
 }
 
@@ -992,6 +1142,7 @@ async function marcarEnviado(id, erro, extra = {}) {
 const CTA_POR_TIPO = {
   pagina: 'Testar grátis agora →',
   demanda: 'Ver demanda da minha região →',
+  afiliado: 'Quero ganhar como afiliado →',
   followup1: 'Testar grátis agora →',
   followup2: 'Criar minha conta grátis →',
   // followup3 é o único cujo CTA leva pro login (não pra landing page) —

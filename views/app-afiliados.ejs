@@ -190,7 +190,7 @@ async function afAceitarContrato(){
   <% } else { %>
   <div style="overflow-x:auto">
   <table class="af-table">
-    <thead><tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Status</th></tr></thead>
+    <thead><tr><th>Data</th><th>Nome</th><th>Email</th><th>WhatsApp</th><th>Status</th></tr></thead>
     <tbody>
       <% dados.contatosCampanha.forEach(function(c){
         const tel = String(c.celular||'').replace(/\D/g,'');
@@ -198,6 +198,7 @@ async function afAceitarContrato(){
       <tr>
         <td><%= c.aberto_em ? new Date(c.aberto_em).toLocaleDateString('pt-BR') : '-' %></td>
         <td><%= c.nome || '(sem nome)' %></td>
+        <td><%= c.email || '-' %></td>
         <td><% if (tel) { %><a href="/app/afiliados/contato/<%= c.id %>/whatsapp?tel=<%= tel %>" target="_blank" style="color:#00A699;text-decoration:none"><%= c.celular %></a><% } else { %>-<% } %></td>
         <td>
           <% if (c.wa_manual_enviado_em) { %><span style="color:#16a34a;font-weight:700">💬 Você já chamou</span>

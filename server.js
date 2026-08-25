@@ -2816,10 +2816,10 @@ setInterval(async () => {
 // de captação logo acima (a cadeia recursiva morreu silenciosamente em
 // produção, ago/2026, deixando 100k+ contatos parados sem erro nenhum no
 // log; setInterval não tem esse ponto de falha).
-let _proximoEnvioCampanhaGeral = Date.now() + (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
+let _proximoEnvioCampanhaGeral = Date.now() + (30 + Math.random() * 330) * 1000; // 30s a 6min (ago/2026, era 30s-5min)
 setInterval(async () => {
   if (Date.now() < _proximoEnvioCampanhaGeral) return;
-  _proximoEnvioCampanhaGeral = Date.now() + (30 + Math.random() * 270) * 1000;
+  _proximoEnvioCampanhaGeral = Date.now() + (30 + Math.random() * 330) * 1000;
   try {
     const { enviarProximo } = require('./services/campanha');
     await enviarProximo();
@@ -7102,10 +7102,14 @@ app.get('/app/afiliados', auth, async (req, res) => {
     // some sozinho da lista, filtrado direto na query.
     const { rows: meusContatosCampanha } = await require('./services/db').query(`
       SELECT id, nome, email,
-        COALESCE(
+        -- algumas linhas da planilha importada têm mais de um celular
+        -- separado por vírgula no mesmo campo — split_part pega só o
+        -- primeiro, senão o link do WhatsApp sai quebrado (números
+        -- concatenados viram um número inválido).
+        split_part(COALESCE(
           (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
           campanha_contatos.celular
-        ) AS celular,
+        ), ',', 1) AS celular,
         aberto_em, clicado_em, wa_manual_enviado_em, atendido_em
       FROM campanha_contatos
       WHERE atendido_por = $1
@@ -7187,13 +7191,26 @@ app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
     const telefone = String(req.query.tel || '').replace(/\D/g, '');
-    const msg = encodeURIComponent('Oi! Vi que você tem interesse na MatchImóveis, plataforma de match imobiliário com IA. Posso te ajudar a começar?');
-    const destino = telefone ? `https://wa.me/${telefone}?text=${msg}` : 'https://wa.me/';
-    const { rows } = await require('./services/db').query('SELECT atendido_por FROM campanha_contatos WHERE id=$1', [req.params.id]);
-    if (rows[0] && rows[0].atendido_por === uid) {
+    const { rows } = await require('./services/db').query('SELECT nome, atendido_por FROM campanha_contatos WHERE id=$1', [req.params.id]);
+    const contato = rows[0];
+    const ehDono = contato && contato.atendido_por === uid;
+    if (ehDono) {
       const { marcarWhatsappManualEnviado } = require('./services/campanha');
       await marcarWhatsappManualEnviado(req.params.id);
     }
+    // Mensagem explica os dois jeitos de ganhar (vender/alugar imóvel com a
+    // plataforma + comissão indicando o sistema como afiliado) e já leva o
+    // link de indicação do próprio afiliado embutido — antes não linkava
+    // pra nada, só puxava assunto (Renato reportou, ago/2026). Opt-out de
+    // 1 clique igual ao que a planilha admin já manda (mesmo token/rota).
+    const nomeContato = ehDono && contato.nome ? String(contato.nome).trim() : '';
+    const saudacao = nomeContato ? ('Oi ' + nomeContato + '! ') : 'Oi! ';
+    const linkAfiliado = 'https://www.matchimoveis.ia.br/?ref=' + encodeURIComponent(uid);
+    const linkOptOut = 'https://www.matchimoveis.ia.br/wa-optout/campanha/' + encodeURIComponent(req.params.id) + '?t=' + _waOptOutToken('campanha', req.params.id);
+    const textoMsg = saudacao + 'Você conhece a MatchImóveis? É uma plataforma que ajuda a vender e alugar imóvel mais rápido com IA, e você também pode ganhar dinheiro indicando o sistema como afiliado. Dá uma olhada e crie sua conta grátis: ' + linkAfiliado
+      + '\n\n(Se esse número não é seu ou você não quer mais receber mensagens, clique aqui: ' + linkOptOut + ')';
+    const msg = encodeURIComponent(textoMsg);
+    const destino = telefone ? `https://wa.me/${telefone}?text=${msg}` : 'https://wa.me/';
     res.redirect(destino);
   } catch(e) {
     res.redirect('https://wa.me/');

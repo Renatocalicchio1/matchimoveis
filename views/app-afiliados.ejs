@@ -201,7 +201,9 @@ async function afAceitarContrato(){
         <td><%= c.email || '-' %></td>
         <td><% if (tel) { %><a href="/app/afiliados/contato/<%= c.id %>/whatsapp?tel=<%= tel %>" target="_blank" style="color:#00A699;text-decoration:none"><%= c.celular %></a><% } else { %>-<% } %></td>
         <td>
-          <% if (c.wa_manual_enviado_em) { %><span style="color:#16a34a;font-weight:700">💬 Você já chamou</span>
+          <% if (c.comprou) { %><span style="color:#16a34a;font-weight:700">💰 Comprou</span>
+          <% } else if (c.cadastrou) { %><span style="color:#16a34a;font-weight:700">✅ Cadastrou</span>
+          <% } else if (c.wa_manual_enviado_em) { %><span style="color:#2563eb;font-weight:700">💬 Você já chamou</span>
           <% } else if (c.clicado_em) { %><span style="color:#2563eb;font-weight:700">🖱️ Clicou no e-mail</span>
           <% } else { %><span style="color:#9ca3af">📧 Abriu o e-mail</span><% } %>
         </td>

@@ -7098,8 +7098,12 @@ app.get('/app/afiliados', auth, async (req, res) => {
     // de nenhum disparo de WhatsApp oficial ser criado antes; assim que o
     // afiliado assina o contrato, já começa a receber contato pra convidar
     // (o link que ele manda manualmente já é o dele, ?ref=<codigo>, então
-    // quem se cadastrar entra na rede dele). Quem já converteu (virou conta)
-    // some sozinho da lista, filtrado direto na query.
+    // quem se cadastrar entra na rede dele). Colunas/lógica de cadastrou e
+    // comprou espelham exatamente /admin/campanha/contatos (pedido: "a
+    // planilha do convidar tem que ser similar a da campanha do admin") —
+    // antes quem convertia simplesmente sumia da lista; agora fica visível
+    // com o status "Cadastrou"/"Comprou", igual a tela do admin já mostra,
+    // prova social de que o link tá funcionando.
     const { rows: meusContatosCampanha } = await require('./services/db').query(`
       SELECT id, nome, email,
         -- algumas linhas da planilha importada têm mais de um celular
@@ -7110,10 +7114,11 @@ app.get('/app/afiliados', auth, async (req, res) => {
           (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
           campanha_contatos.celular
         ), ',', 1) AS celular,
-        aberto_em, clicado_em, wa_manual_enviado_em, atendido_em
+        aberto_em, clicado_em, wa_manual_enviado_em, atendido_em,
+        (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
+        COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos
       WHERE atendido_por = $1
-        AND LOWER(email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
       ORDER BY (wa_manual_enviado_em IS NULL) DESC, atendido_em DESC
     `, [uid]);
 

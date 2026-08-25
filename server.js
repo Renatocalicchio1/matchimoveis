@@ -114,6 +114,24 @@ function _waOptOutToken(tipo, id) {
   return crypto.createHmac('sha256', segredo).update(tipo + ':' + id).digest('hex').slice(0, 16);
 }
 
+// Normaliza celular pra montar link wa.me — mesma lógica já validada no
+// script client-side do admin (_celularWA em /admin/campanha), agora
+// reaproveitada server-side (ago/2026: número saindo sem "55" em parte dos
+// convites de afiliado, outra parte com, inconsistente — relatado pelo
+// Renato). Trata célula com mais de 1 número junto (planilha importada às
+// vezes tem "fixo, celular" na mesma célula) e sempre devolve com "55" na
+// frente (sem "+", que o wa.me não usa) ou '' se não achar candidato válido.
+function _celularWA(raw) {
+  const candidatos = String(raw || '').split(/[,/;]+/)
+    .map(p => p.replace(/\D/g, '').replace(/^55/, ''))
+    .filter(Boolean);
+  const movel = candidatos.find(d => d.length === 11);
+  if (movel) return '55' + movel;
+  const fixo = candidatos.find(d => d.length === 10);
+  if (fixo) return '55' + fixo;
+  return '';
+}
+
 // JSON.stringify() não escapa "</script>" — se um valor (ex: nome de lead
 // vindo de webhook público) contiver isso, quebra a tag <script> e injeta JS
 // arbitrário na página (stored XSS). Usar sempre que for injetar JSON direto
@@ -7256,7 +7274,7 @@ app.post('/app/afiliados/resgate', auth, express.json(), async (req, res) => {
 app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
-    const telefone = String(req.query.tel || '').replace(/\D/g, '');
+    const telefone = _celularWA(req.query.tel || '');
     const { rows } = await require('./services/db').query('SELECT nome, atendido_por FROM campanha_contatos WHERE id=$1', [req.params.id]);
     const contato = rows[0];
     const ehDono = contato && contato.atendido_por === uid;

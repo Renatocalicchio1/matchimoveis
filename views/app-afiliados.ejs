@@ -192,8 +192,22 @@ async function afAceitarContrato(){
   <table class="af-table">
     <thead><tr><th>Data</th><th>Nome</th><th>Email</th><th>WhatsApp</th><th>Status</th></tr></thead>
     <tbody>
+      <%
+        // Mesma normalização usada no servidor (_celularWA em server.js) — célula
+        // importada pode ter mais de 1 número junto ("fixo, celular") e vir com ou
+        // sem "55" na frente; sempre devolve com "55" (sem "+") ou '' se inválido.
+        // Corrige convite saindo sem DDI pra parte dos contatos (ago/2026).
+        function _afCelularWA(raw){
+          const candidatos = String(raw||'').split(/[,/;]+/).map(p=>p.replace(/\D/g,'').replace(/^55/,'')).filter(Boolean);
+          const movel = candidatos.find(d=>d.length===11);
+          if(movel) return '55'+movel;
+          const fixo = candidatos.find(d=>d.length===10);
+          if(fixo) return '55'+fixo;
+          return '';
+        }
+      %>
       <% dados.contatosCampanha.forEach(function(c){
-        const tel = String(c.celular||'').replace(/\D/g,'');
+        const tel = _afCelularWA(c.celular);
       %>
       <tr>
         <td><%= c.aberto_em ? new Date(c.aberto_em).toLocaleDateString('pt-BR') : '-' %></td>

@@ -7071,7 +7071,9 @@ app.get('/app/afiliados', auth, async (req, res) => {
     const _montarArvore = (codigo, prof) => {
       if (prof > 8) return null;
       const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === codigo);
-      const filhos = (_cacheUsuarios || []).filter(x => x.indicadoPor === codigo);
+      // Mesmo guard da árvore admin: Nível 1 nunca aparece como filho de
+      // outro nó, mesmo que algum dado antigo ainda tenha indicadoPor preenchido.
+      const filhos = (_cacheUsuarios || []).filter(x => x.indicadoPor === codigo && _nivelAfiliado(x) !== 1);
       return {
         codigo,
         nome: (u && u.nome) || codigo,
@@ -7221,7 +7223,10 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
     const _noOrg = (u, ehRaizSintetica) => {
       const codigo = ehRaizSintetica ? null : (u.codigoUsuario || u.id);
       const nivel = ehRaizSintetica ? 0 : _nivelAfiliado(u);
-      const filhos = ehRaizSintetica ? raizesN1 : todos.filter(f => f.indicadoPor === codigo);
+      // Nível 1 nunca aparece pendurado embaixo de outro nó (só embaixo da
+      // raiz sintética, já coberto pelo raizesN1 acima) — mesmo que algum
+      // dado antigo ainda tenha indicadoPor preenchido, filtra na exibição.
+      const filhos = ehRaizSintetica ? raizesN1 : todos.filter(f => f.indicadoPor === codigo && _nivelAfiliado(f) !== 1);
       const cor = nivel === 0 ? '#111827' : nivel === 1 ? '#FF385C' : nivel === 2 ? '#00A699' : '#FC642D';
       const nomeExibido = ehRaizSintetica ? 'MatchImóveis' : (u.nome || codigo);
       const celular = ehRaizSintetica ? '' : String((u.celular || u.telefone || '')).replace(/\D/g, '');
@@ -14095,6 +14100,30 @@ const _PROMOCAO_AFILIADO = { paraNivel2: 10000, paraNivel1: 200000 };
 function _camposNivelAfiliado(novoNivel) {
   return novoNivel === 1 ? { afiliadoNivel: novoNivel, indicadoPor: null } : { afiliadoNivel: novoNivel };
 }
+
+// ── FIX_N1_SEM_INDICADOR — corrige dado antigo: qualquer conta que já virou
+// Nível 1 antes dessa regra existir (ex: promovida ou marcada manualmente
+// num momento em que a desvinculação ainda não rodava) pode ter ficado com
+// indicadoPor apontando pra outro Nível 1 — igual ao caso do Mauricio preso
+// debaixo do Rafael (ago/2026). Roda uma vez no boot, idempotente (só mexe
+// em quem realmente é N1 e ainda tem indicadoPor preenchido); a árvore em si
+// já tem um guard de exibição pra isso, mas aqui corrige a coluna de
+// verdade — importante pra não confundir a cascata de comissão override,
+// que sobe a cadeia via indicadoPor (ver _buscarAncestralNivel).
+async function _corrigirN1ComIndicador() {
+  try {
+    const presos = (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 1 && u.indicadoPor);
+    if (!presos.length) return;
+    const { atualizarUsuario: _auFixN1 } = require('./services/salvarUsuario');
+    for (const u of presos) {
+      const codigo = u.codigoUsuario || u.id;
+      await _auFixN1(codigo, { indicadoPor: null });
+      u.indicadoPor = null;
+    }
+    console.log('[fix-n1] desvinculou ' + presos.length + ' conta(s) Nível 1 que estavam presas debaixo de outro Nível 1');
+  } catch(e) { console.error('[fix-n1]', e.message); }
+}
+setTimeout(_corrigirN1ComIndicador, 20000);
 // Liberação do programa de afiliados (ago/2026): geral pra toda conta
 // existente e toda conta nova daqui pra frente — todo corretor já é
 // afiliado (Nível 2 por padrão, Nível 3 se veio por indicação, Nível 1 só

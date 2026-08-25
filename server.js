@@ -7130,8 +7130,8 @@ app.get('/app/afiliados', auth, async (req, res) => {
     // antes quem convertia simplesmente sumia da lista; agora fica visível
     // com o status "Cadastrou"/"Comprou", igual a tela do admin já mostra,
     // prova social de que o link tá funcionando.
-    const { rows: meusContatosCampanha } = await require('./services/db').query(`
-      SELECT id, nome, email,
+    const { rows: _meusContatosCampanhaRaw } = await require('./services/db').query(`
+      SELECT id, nome, email, status,
         -- algumas linhas da planilha importada têm mais de um celular
         -- separado por vírgula no mesmo campo — split_part pega só o
         -- primeiro, senão o link do WhatsApp sai quebrado (números
@@ -7145,8 +7145,21 @@ app.get('/app/afiliados', auth, async (req, res) => {
         COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos
       WHERE atendido_por = $1
-      ORDER BY (wa_manual_enviado_em IS NULL) DESC, atendido_em DESC
+      -- Prioriza quem mostrou sinal real de interesse (clicou > só abriu >
+      -- nada) antes de quem ainda não foi tratado — pedido explícito do
+      -- Renato (ago/2026): "vai pra aquelas que tá clicando, que tá
+      -- entrando no email, sempre isso". Continua sem excluir ninguém, só
+      -- reordena quem aparece primeiro pro afiliado chamar.
+      ORDER BY (wa_manual_enviado_em IS NULL) DESC,
+        (clicado_em IS NOT NULL) DESC,
+        (aberto_em IS NOT NULL) DESC,
+        atendido_em DESC
     `, [uid]);
+    // Estágio único (Importado/Contatado/Interessado/Engajado/Convertido/
+    // Cliente/Descartado) — services/campanha.js: estagioContatoCampanha(),
+    // mesma fonte que vai alimentar qualquer painel/BI futuro em cima disso.
+    const { estagioContatoCampanha: _estagioCC } = require('./services/campanha');
+    const meusContatosCampanha = _meusContatosCampanhaRaw.map(c => ({ ...c, estagio: _estagioCC(c) }));
 
     res.render('app-afiliados', {
       user: req.session.user,
@@ -7230,17 +7243,64 @@ app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
       const { marcarWhatsappManualEnviado } = require('./services/campanha');
       await marcarWhatsappManualEnviado(req.params.id);
     }
-    // Mensagem explica os dois jeitos de ganhar (vender/alugar imóvel com a
-    // plataforma + comissão indicando o sistema como afiliado) e já leva o
-    // link de indicação do próprio afiliado embutido — antes não linkava
-    // pra nada, só puxava assunto (Renato reportou, ago/2026). Opt-out de
-    // 1 clique igual ao que a planilha admin já manda (mesmo token/rota).
+    // Mesma linguagem dos e-mails (aversão à perda + curiosidade), adaptada
+    // pro tom de WhatsApp — pedido explícito do Renato (ago/2026): usar
+    // emoji (natural no WhatsApp, evitado no e-mail por gatilho de spam),
+    // gerar curiosidade em vez de já entregar tudo, e nunca soar como
+    // "comprar algo"/obrigação — é convite, é estar entre os primeiros, não
+    // é oferta comercial. Link de indicação do próprio afiliado embutido, e
+    // opt-out de 1 clique igual ao que a planilha admin já manda (mesmo
+    // token/rota). 8 variações sorteadas a cada clique — mesmo motivo de
+    // qualquer rotação de texto no sistema: mandar sempre a mesma frase do
+    // mesmo número pra várias pessoas é caminho curto pro WhatsApp marcar
+    // como spam.
+    // Nome vindo da planilha importada pode ser lixo (sigla tipo "JV", tag
+    // de status tipo "Potencial") em vez de nome de verdade — achado real
+    // do Renato lendo mensagens de WhatsApp saindo quebradas ("Oi JV!").
+    // classificarNome() decide a abordagem: humano chama pelo nome, empresa
+    // menciona o nome mas nunca como se fosse gente, lixo/vazio cai pro
+    // genérico sem nome nenhum.
+    const { classificarNome } = require('./services/campanha');
     const nomeContato = ehDono && contato.nome ? String(contato.nome).trim() : '';
-    const saudacao = nomeContato ? ('Oi ' + nomeContato + '! ') : 'Oi! ';
+    const tipoNome = nomeContato ? classificarNome(nomeContato) : 'vazio';
     const linkAfiliado = 'https://www.matchimoveis.ia.br/?ref=' + encodeURIComponent(uid);
     const linkOptOut = 'https://www.matchimoveis.ia.br/wa-optout/campanha/' + encodeURIComponent(req.params.id) + '?t=' + _waOptOutToken('campanha', req.params.id);
-    const textoMsg = saudacao + 'Você conhece a MatchImóveis? É uma plataforma que ajuda a vender e alugar imóvel mais rápido com IA, e você também pode ganhar dinheiro indicando o sistema como afiliado. Dá uma olhada e crie sua conta grátis: ' + linkAfiliado
-      + '\n\n(Se esse número não é seu ou você não quer mais receber mensagens, clique aqui: ' + linkOptOut + ')';
+
+    let textoMsg;
+    if (tipoNome === 'empresa') {
+      // Aborda a empresa, nunca "Oi Silva Imóveis!" como se fosse pessoa —
+      // o nome entra dentro da frase, não como saudação.
+      const _waVariacoesEmpresa = [
+        'Oi! Vi que a ' + nomeContato + ' atua com imóveis e queria compartilhar uma novidade 📈 Entramos numa plataforma com IA que ajuda a vender/alugar mais rápido — e ainda paga comissão por indicação. Dá uma olhada: ' + linkAfiliado,
+        'Oi! Conheço o trabalho da ' + nomeContato + ' na região e acho que isso pode interessar 🏢 Plataforma nova de imóveis com IA, com programa de indicação pago. Vale a pena ver: ' + linkAfiliado,
+        'Separei um convite pra ' + nomeContato + ' 👀 Plataforma nova de match imobiliário com IA — ajuda a vender mais rápido e ainda paga quem indica. 2 minutos: ' + linkAfiliado,
+        'Oi! Queria apresentar uma ferramenta que pode ajudar a ' + nomeContato + ' a vender mais rápido — cruzamento automático de lead com imóvel via IA, e comissão pra quem indica outras empresas do setor: ' + linkAfiliado
+      ];
+      textoMsg = _waVariacoesEmpresa[Math.floor(Math.random() * _waVariacoesEmpresa.length)];
+    } else {
+      // Mesma linguagem dos e-mails (aversão à perda + curiosidade), adaptada
+      // pro tom de WhatsApp — pedido explícito do Renato (ago/2026): usar
+      // emoji (natural no WhatsApp, evitado no e-mail por gatilho de spam),
+      // gerar curiosidade em vez de já entregar tudo, e nunca soar como
+      // "comprar algo"/obrigação — é convite, é estar entre os primeiros, não
+      // é oferta comercial. 8 variações sorteadas a cada clique — mandar
+      // sempre a mesma frase do mesmo número pra várias pessoas é caminho
+      // curto pro WhatsApp marcar como spam.
+      const saudacao = tipoNome === 'humano' ? ('Oi ' + nomeContato + '! ') : 'Oi! ';
+      const _waVariacoesAfiliado = [
+        '👋 Vi seu perfil e lembrei de você — separei algo que só tô mostrando pra quem realmente entende do mercado imobiliário. Topa dar uma olhada? ' + linkAfiliado + ' 🚀',
+        'Posso te contar uma coisa rápida? 😏 Entrei numa plataforma nova de imóveis com IA, e quem entra primeiro sai na frente de todo mundo. Dá uma olhada aqui: ' + linkAfiliado,
+        'Separei um convite bem específico pra você — poucas pessoas tão vendo isso ainda 👀 É uma forma nova de vender/alugar imóvel (e ainda ganhar por indicação 💰). Vale 2 minutos: ' + linkAfiliado,
+        'Isso ainda tá bem no começo e você é uma das primeiras pessoas que pensei em chamar 🙂 É a MatchImóveis — imóvel + IA + comissão de indicação. Dá uma espiada: ' + linkAfiliado,
+        '🔥 Não é venda, é convite mesmo: entrei numa plataforma que tá bombando entre corretor esperto, e queria que você conhecesse antes de virar comum. ' + linkAfiliado,
+        'Bora? 👀 Achei que ia gostar disso — uma IA que ajuda a vender/alugar imóvel mais rápido, e ainda paga quem indica. Dá uma olhada rapidinho: ' + linkAfiliado,
+        'Separei esse link só pra você 🎯 Não é sobre comprar nada — é sobre estar dentro antes da maioria. MatchImóveis: ' + linkAfiliado,
+        'Posso te chamar pra uma coisa? 😄 Tô usando uma plataforma nova (imóvel + IA + comissão), e queria que você fosse um dos primeiros a ver como funciona: ' + linkAfiliado
+      ];
+      const corpoVariante = _waVariacoesAfiliado[Math.floor(Math.random() * _waVariacoesAfiliado.length)];
+      textoMsg = saudacao + corpoVariante;
+    }
+    textoMsg += '\n\n(Se esse número não é seu ou você não quer mais receber mensagens, clique aqui: ' + linkOptOut + ')';
     const msg = encodeURIComponent(textoMsg);
     const destino = telefone ? `https://wa.me/${telefone}?text=${msg}` : 'https://wa.me/';
     res.redirect(destino);
@@ -19420,11 +19480,22 @@ app.get('/admin/executar-cruzar-alex', authAdmin, async (req,res)=>{
 
 // ── CAMPANHA EMAIL ────────────────────────────────────────────────────────────
 // Tracking abertura
+// _COLUNA_ABERTO_POR_ESTAGIO/_COLUNA_CLICADO_POR_ESTAGIO: mapa fixo (nunca
+// vem de input externo — ?estagio= só é validado contra essas chaves antes
+// de entrar numa query), usado tanto no pixel de abertura quanto no clique
+// pra gravar na coluna certa por estágio de follow-up (ver gerarHTML em
+// services/campanha.js, que é quem gera o ?estagio= na URL).
+const _COLUNA_ABERTO_POR_ESTAGIO = { followup1: 'followup1_aberto_em', followup2: 'followup2_aberto_em', followup3: 'followup3_aberto_em' };
+const _COLUNA_CLICADO_POR_ESTAGIO = { followup1: 'followup1_clicado_em', followup2: 'followup2_clicado_em', followup3: 'followup3_clicado_em' };
 app.get('/campanha/track/open/:id', async (req, res) => {
   try {
     const { query: _qOpen } = require('./services/db');
     await _qOpen("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'abertura' FROM campanha_contatos WHERE id=$1", [req.params.id]);
     await _qOpen("UPDATE campanha_contatos SET aberto_em=COALESCE(aberto_em, NOW()) WHERE id=$1", [req.params.id]);
+    const _colEstagioAberto = _COLUNA_ABERTO_POR_ESTAGIO[req.query.estagio];
+    if (_colEstagioAberto) {
+      await _qOpen(`UPDATE campanha_contatos SET ${_colEstagioAberto}=COALESCE(${_colEstagioAberto}, NOW()) WHERE id=$1`, [req.params.id]);
+    }
   } catch(e){}
   const pixel = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7','base64');
   res.set({'Content-Type':'image/gif','Content-Length':pixel.length,'Cache-Control':'no-cache'});
@@ -19441,14 +19512,24 @@ app.get('/campanha/track/click/:id', async (req, res) => {
       const { query: _qClick } = require('./services/db');
       await _qClick("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]);
       await _qClick("UPDATE campanha_contatos SET aberto_em=COALESCE(aberto_em, NOW()), clicado_em=COALESCE(clicado_em, NOW()) WHERE id=$1", [req.params.id]);
+      const _colEstagioClicado = _COLUNA_CLICADO_POR_ESTAGIO[req.query.estagio];
+      if (_colEstagioClicado) {
+        await _qClick(`UPDATE campanha_contatos SET ${_colEstagioClicado}=COALESCE(${_colEstagioClicado}, NOW()) WHERE id=$1`, [req.params.id]);
+      }
       const { rows } = await _qClick("SELECT modelo_usado, atendido_por, atendido_por_nome, atendido_por_cor FROM campanha_contatos WHERE id=$1", [req.params.id]);
       const contatoClick = rows[0];
+      // ?estagio= (gerarHTML gera isso pros follow-ups) é a fonte confiável
+      // de "qual e-mail foi esse" — modelo_usado é só do 1º envio e nunca é
+      // atualizado pelos follow-ups (marcarFollowupEnviado grava nas
+      // colunas próprias followupN_*), então "modeloClick==='followup3'"
+      // sozinho nunca disparava — bug antigo, corrigido junto (ago/2026).
+      const estagioClick = req.query.estagio;
       const modeloClick = contatoClick && contatoClick.modelo_usado;
-      if (modeloClick === 'demanda') destino = 'https://www.matchimoveis.ia.br/demanda';
+      if (!estagioClick && modeloClick === 'demanda') destino = 'https://www.matchimoveis.ia.br/demanda';
       // followup3 é o único e-mail mandado pra quem JÁ tem conta (cadastrou
       // mas não comprou combo) — não faz sentido linkar pra landing page de
       // novo, manda direto pro login.
-      else if (modeloClick === 'followup3') destino = 'https://www.matchimoveis.ia.br/entrar';
+      else if (estagioClick === 'followup3') destino = 'https://www.matchimoveis.ia.br/entrar';
 
       // Clicou = sinal de interesse de verdade — não espera o botão manual
       // "Distribuir agora" pra ter dono; atribui na hora (round-robin) se

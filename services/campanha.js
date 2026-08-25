@@ -600,13 +600,92 @@ Reforçando: sua conta já está criada. Enquanto decide sobre o combo, cada cor
 };
 
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+
+// ── Seleção de variação por desempenho real (ago/2026, pedido explícito do
+// Renato: "não foca esforço na que não tá dando resultado, prioriza a que
+// tá clicando — mas não exclui, só amortiza"). Antes _sorteia() escolhia
+// puramente ao acaso dentro do tipo — 8 variações de "pagina" tinham a
+// MESMA chance de sair mesmo se uma converte 5x mais que a outra. Agora o
+// peso de cada variação vem de abertura+clique reais (campanha_contatos,
+// agrupado por modelo_usado+titulo_usado — mesma base de statsPorModeloEmail).
+// Só pesa quem já tem amostra (≥20 envios) — abaixo disso continua neutro,
+// pra dar tempo de qualquer variação nova coletar dado antes de ser julgada.
+// Nunca zera peso nenhum (floor 0.15): a pior variação ainda sai de vez em
+// quando — "amortiza", não exclui — tanto porque desempenho pode mudar
+// quanto porque zerar de vez voltaria a mandar sempre as mesmas 1-2
+// variações repetidas, o que é sinal de spam pro provedor de e-mail.
+// Vale pros 6 tipos (pagina/demanda/afiliado + followup1/2/3) — cada
+// follow-up agora grava a própria variação e o próprio aberto/clicado em
+// colunas dedicadas (followupN_titulo_usado etc, ver _garantirColunas),
+// então dá pra medir e pesar cada estágio de forma independente.
+const _AMOSTRA_MINIMA_PESO = 20;
+const _COLUNAS_STATS_POR_TIPO = {
+  pagina: { titulo: 'titulo_usado', aberto: 'aberto_em', clicado: 'clicado_em', filtroModelo: true },
+  demanda: { titulo: 'titulo_usado', aberto: 'aberto_em', clicado: 'clicado_em', filtroModelo: true },
+  afiliado: { titulo: 'titulo_usado', aberto: 'aberto_em', clicado: 'clicado_em', filtroModelo: true },
+  followup1: { titulo: 'followup1_titulo_usado', aberto: 'followup1_aberto_em', clicado: 'followup1_clicado_em', filtroModelo: false },
+  followup2: { titulo: 'followup2_titulo_usado', aberto: 'followup2_aberto_em', clicado: 'followup2_clicado_em', filtroModelo: false },
+  followup3: { titulo: 'followup3_titulo_usado', aberto: 'followup3_aberto_em', clicado: 'followup3_clicado_em', filtroModelo: false }
+};
+async function _statsPorTitulo(tipo) {
+  return _comCache('titulos_' + tipo, async () => {
+    await _garantirColunas();
+    const cols = _COLUNAS_STATS_POR_TIPO[tipo];
+    if (!cols) return {};
+    // Nomes de coluna vêm só do mapa fixo acima (nunca de input externo) —
+    // seguro interpolar direto na query.
+    const whereModelo = cols.filtroModelo ? `modelo_usado = $1 AND ` : '';
+    const params = cols.filtroModelo ? [tipo] : [];
+    const { rows } = await query(`
+      SELECT ${cols.titulo} as titulo_usado,
+        COUNT(*)::int as enviados,
+        COUNT(${cols.aberto})::int as abertos,
+        COUNT(${cols.clicado})::int as clicados
+      FROM campanha_contatos
+      WHERE ${whereModelo}${cols.titulo} IS NOT NULL
+      GROUP BY ${cols.titulo}
+    `, params);
+    const porTitulo = {};
+    rows.forEach(r => { porTitulo[r.titulo_usado] = r; });
+    return porTitulo;
+  });
+}
+function _taxaEngajamento(stat) {
+  // clique vale 3x mais que abertura simples — é o sinal mais forte de
+  // interesse real (leu, decidiu, agiu), abertura sozinha só mostra que o
+  // assunto funcionou.
+  return (stat.clicados * 3 + stat.abertos) / stat.enviados;
+}
+async function _sortearVariante(tipo) {
+  const lista = MODELOS[tipo];
+  const statsPorTitulo = await _statsPorTitulo(tipo).catch(() => ({}));
+  const comAmostra = lista
+    .map(v => statsPorTitulo[v.assunto])
+    .filter(s => s && s.enviados >= _AMOSTRA_MINIMA_PESO);
+  if (!comAmostra.length) return _sorteia(lista); // ninguém com amostra suficiente ainda — puro acaso, como sempre foi
+
+  const mediaGeral = comAmostra.reduce((soma, s) => soma + _taxaEngajamento(s), 0) / comAmostra.length;
+  const pesos = lista.map(v => {
+    const stat = statsPorTitulo[v.assunto];
+    if (!stat || stat.enviados < _AMOSTRA_MINIMA_PESO || !mediaGeral) return 1; // amostra pequena — peso neutro
+    return Math.max(0.15, Math.min(3, _taxaEngajamento(stat) / mediaGeral));
+  });
+  const total = pesos.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < lista.length; i++) {
+    r -= pesos[i];
+    if (r <= 0) return lista[i];
+  }
+  return lista[lista.length - 1];
+}
+
 // afiliado com peso maior (40%) — pedido explícito do Renato (ago/2026) pra
 // focar a reativação da campanha geral no ganhar-indicando, sem tirar
 // pagina/demanda de circulação (30% cada).
-function _sortearModelo() {
+async function _sortearModelo() {
   const r = Math.random();
   const tipo = r < 0.4 ? 'afiliado' : r < 0.7 ? 'pagina' : 'demanda';
-  return { tipo, ...(_sorteia(MODELOS[tipo])) };
+  return { tipo, ...(await _sortearVariante(tipo)) };
 }
 
 // ── DDD por região (prioridade de envio) ────────────────────────────────────
@@ -630,6 +709,67 @@ function _pareceCorretor(nome, email) {
   return /corretor|corretora|imobiliari|broker/.test(t);
 }
 
+// Classifica o campo "nome" da planilha importada (ago/2026, achado pelo
+// Renato ao ler mensagens de WhatsApp reais: várias linhas têm sigla tipo
+// "JV" ou uma tag de status tipo "Potencial" em vez de nome de verdade na
+// coluna nome — chamar "Oi JV!" ou "Oi Potencial!" soa robótico/quebrado).
+// 3 categorias, cada uma com abordagem própria: 'humano' (chama pelo
+// primeiro nome, tom pessoal), 'empresa' (menciona o nome da empresa, mas
+// nunca como se fosse gente), 'lixo' (sigla/tag/vazio — nunca usa,
+// cai pro genérico "Oi!").
+const _TERMOS_EMPRESA = /imobili[aá]ri|im[oó]veis|corretora|construtora|incorporadora|empreendimentos|neg[oó]cios(?!\s)|realty|homes|grupo|group|assessoria|consultoria|\bltda\b|\beireli\b|\bcia\b|\bsa\b|&/i;
+const _PALAVRAS_LIXO = new Set(['potencial', 'lead', 'contato', 'cliente', 'interessado', 'prospect', 'desconhecido', 'sem nome', 'n/a', 'na', 'teste', 'corretor', 'corretora']);
+function classificarNome(nomeRaw) {
+  const nome = String(nomeRaw || '').trim();
+  if (!nome) return 'vazio';
+  const nomeLower = nome.toLowerCase();
+  if (_PALAVRAS_LIXO.has(nomeLower)) return 'lixo';
+  if (_TERMOS_EMPRESA.test(nome)) return 'empresa';
+  const palavras = nome.split(/\s+/).filter(Boolean);
+  // sigla/abreviação: todas as "palavras" com 2 letras ou menos (ex: "JV",
+  // "M A") — nome humano de verdade sempre tem pelo menos uma palavra maior.
+  const todasCurtas = palavras.every(p => p.replace(/[.\-]/g, '').length <= 2);
+  if (todasCurtas) return 'lixo';
+  const pareceHumano = palavras.some(p => /^[A-Za-zÀ-ÿ]{3,}$/.test(p));
+  return pareceHumano ? 'humano' : 'lixo';
+}
+// Fallback pro "Olá {nome}," dos e-mails: nome humano ou de empresa usa o
+// valor de verdade, sigla/lixo/vazio cai pro genérico "Corretor" (era só
+// `contato.nome || 'Corretor'` antes — não protegia contra sigla/lixo
+// preenchido, só contra campo vazio).
+function _nomeOuFallback(nomeRaw) {
+  const tipo = classificarNome(nomeRaw);
+  return (tipo === 'humano' || tipo === 'empresa') ? String(nomeRaw).trim() : 'Corretor';
+}
+
+// Estágio único do prospect de aquisição (ago/2026, pedido: "crie estágios
+// por onde percorre a lead... desta forma saberemos o momento de atender e
+// vender"). Antes cada tela recalculava a mesma coisa do jeito dela (admin,
+// lista do afiliado, elegibilidade de follow-up) — vira fonte única de
+// verdade, reaproveitável em qualquer lugar que precise saber "onde esse
+// contato está" (inclusive um BI futuro). Recebe um objeto com os campos de
+// campanha_contatos que o chamador já tiver disponível — nem toda query
+// carrega todos os campos, então cada checagem lida com undefined também.
+const ESTAGIOS_CONTATO_CAMPANHA = {
+  importado: 'Importado',
+  contatado: 'Contatado',
+  interessado: 'Interessado',
+  engajado: 'Engajado',
+  convertido: 'Convertido',
+  cliente: 'Cliente',
+  descartado: 'Descartado'
+};
+function estagioContatoCampanha(c) {
+  if (!c) return 'importado';
+  if (c.status === 'erro') return 'descartado';
+  if (c.comprou) return 'cliente';
+  if (c.cadastrou) return 'convertido';
+  if (c.clicado_em || c.followup1_clicado_em || c.followup2_clicado_em || c.followup3_clicado_em) return 'engajado';
+  if (c.aberto_em || c.followup1_aberto_em || c.followup2_aberto_em || c.followup3_aberto_em) return 'interessado';
+  if (c.status === 'enviado') return 'contatado';
+  return 'importado';
+}
+
 let _colunasProntas = false;
 async function _garantirColunas() {
   if (_colunasProntas) return;
@@ -644,6 +784,24 @@ async function _garantirColunas() {
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_enviado_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_enviado_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_enviado_em TIMESTAMP`);
+  // Rastreio por estágio de follow-up (ago/2026) — antes só existia
+  // titulo_usado/aberto_em/clicado_em GENÉRICOS (1 valor só por contato),
+  // que nunca eram atualizados pelos follow-ups (marcarFollowupEnviado só
+  // carimbava a data) — na prática ficavam sempre com o valor do 1º e-mail
+  // (pagina/demanda/afiliado), então não dava pra medir qual das 10
+  // variações de cada follow-up performa melhor, nem saber se quem abriu
+  // depois do follow-up 3 abriu POR CAUSA dele. Colunas próprias por
+  // estágio resolvem isso — ver gerarHTML() (?estagio= na URL de tracking)
+  // e /campanha/track/open|click/:id em server.js.
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_titulo_usado TEXT`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_aberto_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_clicado_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_titulo_usado TEXT`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_aberto_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_clicado_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_titulo_usado TEXT`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_aberto_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_clicado_em TIMESTAMP`);
   // "Atender" manualmente pelo WhatsApp (jul/2026) — quem clicou (admin ou
   // conta admin secundária), pra colorir a linha e evitar 2 pessoas
   // chamando o mesmo lead. Cor guardada junto (não via join) porque é a cor
@@ -801,7 +959,28 @@ async function statsPorModeloEmail() {
     FROM campanha_contatos
     WHERE status = 'enviado' AND modelo_usado IS NOT NULL
     GROUP BY modelo_usado, titulo_usado
-    ORDER BY modelo_usado, enviados DESC
+    UNION ALL
+    SELECT 'followup1' as tipo, followup1_titulo_usado as assunto,
+      COUNT(*)::int, COUNT(followup1_aberto_em)::int, COUNT(followup1_clicado_em)::int,
+      MAX(followup1_enviado_em)
+    FROM campanha_contatos
+    WHERE followup1_enviado_em IS NOT NULL AND followup1_titulo_usado IS NOT NULL
+    GROUP BY followup1_titulo_usado
+    UNION ALL
+    SELECT 'followup2' as tipo, followup2_titulo_usado as assunto,
+      COUNT(*)::int, COUNT(followup2_aberto_em)::int, COUNT(followup2_clicado_em)::int,
+      MAX(followup2_enviado_em)
+    FROM campanha_contatos
+    WHERE followup2_enviado_em IS NOT NULL AND followup2_titulo_usado IS NOT NULL
+    GROUP BY followup2_titulo_usado
+    UNION ALL
+    SELECT 'followup3' as tipo, followup3_titulo_usado as assunto,
+      COUNT(*)::int, COUNT(followup3_aberto_em)::int, COUNT(followup3_clicado_em)::int,
+      MAX(followup3_enviado_em)
+    FROM campanha_contatos
+    WHERE followup3_enviado_em IS NOT NULL AND followup3_titulo_usado IS NOT NULL
+    GROUP BY followup3_titulo_usado
+    ORDER BY tipo, enviados DESC
   `);
   return rows.map(r => ({ ...r, variante: null, botao_texto: CTA_POR_TIPO[r.tipo] || null }));
 }
@@ -884,9 +1063,13 @@ const CTA_POR_TIPO = {
 };
 
 function gerarHTML(mensagem, contato, tipo) {
-  const trackPixel = `${BASE_URL}/campanha/track/open/${contato.id || 0}`;
-  const trackLink = `${BASE_URL}/campanha/track/click/${contato.id || 0}`;
-  const msg = mensagem.replace(/{nome}/g, contato.nome || 'Corretor');
+  // ?estagio= só nos follow-ups — é o que permite /campanha/track/open|click
+  // (server.js) gravar na coluna certa (followupN_aberto_em/clicado_em) em
+  // vez de só na genérica, que já foi carimbada pelo 1º e-mail.
+  const _estagioQS = (tipo && tipo.startsWith('followup')) ? ('?estagio=' + tipo) : '';
+  const trackPixel = `${BASE_URL}/campanha/track/open/${contato.id || 0}${_estagioQS}`;
+  const trackLink = `${BASE_URL}/campanha/track/click/${contato.id || 0}${_estagioQS}`;
+  const msg = mensagem.replace(/{nome}/g, _nomeOuFallback(contato.nome));
 
   // Blocos separados por linha em branco. Bloco em que TODA linha começa
   // com "• " vira lista de tópicos; senão vira parágrafo normal.
@@ -975,10 +1158,12 @@ async function proximoFollowup3() {
   return rows[0] || null;
 }
 const _FOLLOWUP_COLUNA = { 1: 'followup1_enviado_em', 2: 'followup2_enviado_em', 3: 'followup3_enviado_em' };
-async function marcarFollowupEnviado(id, numero) {
+const _FOLLOWUP_COLUNA_TITULO = { 1: 'followup1_titulo_usado', 2: 'followup2_titulo_usado', 3: 'followup3_titulo_usado' };
+async function marcarFollowupEnviado(id, numero, titulo) {
   const coluna = _FOLLOWUP_COLUNA[numero];
   if (!coluna) throw new Error('número de follow-up inválido: ' + numero);
-  await query(`UPDATE campanha_contatos SET ${coluna}=NOW() WHERE id=$1`, [id]);
+  const colunaTitulo = _FOLLOWUP_COLUNA_TITULO[numero];
+  await query(`UPDATE campanha_contatos SET ${coluna}=NOW(), ${colunaTitulo}=$1 WHERE id=$2`, [titulo || null, id]);
 }
 
 // Registra quem (admin ou conta admin secundária) clicou pra falar com esse
@@ -1097,12 +1282,12 @@ async function excluirCelularContato(id) {
   await query('UPDATE campanha_contatos SET celular=$1 WHERE id=$2', ['', id]);
 }
 async function _enviarFollowup(contato, tipo, numero) {
-  const variacao = _sorteia(MODELOS[tipo]);
-  const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
+  const variacao = await _sortearVariante(tipo);
+  const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, _nomeOuFallback(contato.nome));
   const html = gerarHTML(corpoPersonalizado, contato, tipo);
   try {
     await enviarEmail({ para: contato.email, assunto: variacao.assunto, html, texto: variacao.assunto });
-    await marcarFollowupEnviado(contato.id, numero);
+    await marcarFollowupEnviado(contato.id, numero, variacao.assunto);
     return { enviado: true, email: contato.email, modelo: tipo, titulo: variacao.assunto };
   } catch (e) {
     // não marca followupN_enviado_em em caso de erro — tenta de novo no próximo ciclo
@@ -1113,8 +1298,8 @@ async function _enviarFollowup(contato, tipo, numero) {
 async function _enviarDaFilaPrincipal() {
   const [contato] = await proximoLote(1);
   if (!contato) return null;
-  const modelo = _sortearModelo();
-  const corpoPersonalizado = modelo.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
+  const modelo = await _sortearModelo();
+  const corpoPersonalizado = modelo.corpo.replace(/\{nome\}/g, _nomeOuFallback(contato.nome));
   const html = gerarHTML(corpoPersonalizado, contato, modelo.tipo);
   try {
     await enviarEmail({ para: contato.email, assunto: modelo.assunto, html, texto: modelo.assunto });
@@ -1224,6 +1409,6 @@ module.exports = {
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
   validarProximoLote, listarEnvios, distribuirAtendimentosAbertos,
   marcarWhatsappManualEnviado, listarContatosAbertosSemDono,
-  listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado,
-  statsPorModeloEmail
+  listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado, classificarNome,
+  statsPorModeloEmail, estagioContatoCampanha, ESTAGIOS_CONTATO_CAMPANHA
 };

@@ -86,11 +86,20 @@ function _cabecalhoEmpresa() {
   };
 }
 
+// Marca d'água discreta da marca (ago/2026, pedido do Renato: "só um
+// detalhezinho bem pequenininho... uma araucária, de canto, disfarçadinho,
+// porque ela cresce pra cima") — SVG embutido como data URI (não depende de
+// hospedar arquivo em lugar nenhum), cor cinza-esverdeada bem sutil, 20px,
+// flutuando no canto do rodapé de todo e-mail que passa por enviarEmail().
+const _ARAUCARIA_MARK_SRC = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiNCN0M3QzQiIHN0cm9rZS13aWR0aD0iMS40IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPGxpbmUgeDE9IjEyIiB5MT0iMjIiIHgyPSIxMiIgeTI9IjkiLz4KICAgIDxwYXRoIGQ9Ik0xMiAxOCBDOSAxNy41IDYuNSAxOC41IDUgMjAuNSBNMTIgMTggQzE1IDE3LjUgMTcuNSAxOC41IDE5IDIwLjUiLz4KICAgIDxwYXRoIGQ9Ik0xMiAxNC41IEM5LjUgMTQgNy41IDE0LjggNi4zIDE2LjUgTTEyIDE0LjUgQzE0LjUgMTQgMTYuNSAxNC44IDE3LjcgMTYuNSIvPgogICAgPHBhdGggZD0iTTEyIDExLjMgQzEwLjIgMTEgOC44IDExLjYgOCAxMi44IE0xMiAxMS4zIEMxMy44IDExIDE1LjIgMTEuNiAxNiAxMi44Ii8+CiAgICA8Y2lyY2xlIGN4PSIxMiIgY3k9IjcuNSIgcj0iMS42IiBmaWxsPSIjQjdDN0M0IiBzdHJva2U9Im5vbmUiLz4KICA8L2c+Cjwvc3ZnPg==';
+
 function _rodapeDescadastro(email) {
   const link = BASE_URL + '/email/descadastrar?email=' + encodeURIComponent(email);
   const identificacao = _sortearIdentificacao();
   return {
-    html: '<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-family:Arial,sans-serif;font-size:11px;color:#9ca3af">' + identificacao + '<br><br>Você recebeu este email da MatchImóveis. <a href="' + link + '" style="color:#9ca3af;text-decoration:underline">Não quero mais receber email desta empresa</a></div>',
+    html: '<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-family:Arial,sans-serif;font-size:11px;color:#9ca3af">'
+      + '<img src="' + _ARAUCARIA_MARK_SRC + '" width="20" height="20" alt="" style="float:right;margin-left:10px;opacity:.8">'
+      + identificacao + '<br><br>Você recebeu este email da MatchImóveis. <a href="' + link + '" style="color:#9ca3af;text-decoration:underline">Não quero mais receber email desta empresa</a></div>',
     texto: '\n\n---\n' + identificacao + '\nVocê recebeu este email da MatchImóveis. Não quer mais receber? ' + link
   };
 }

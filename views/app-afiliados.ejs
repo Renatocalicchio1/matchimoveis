@@ -208,11 +208,11 @@ async function afAceitarContrato(){
           <% } else { %>-<% } %>
         </td>
         <td>
-          <% if (c.comprou) { %><span style="color:#16a34a;font-weight:700">💰 Comprou</span>
-          <% } else if (c.cadastrou) { %><span style="color:#16a34a;font-weight:700">✅ Cadastrou</span>
+          <% if (c.estagio === 'cliente') { %><span style="color:#16a34a;font-weight:700">💰 Cliente</span>
+          <% } else if (c.estagio === 'convertido') { %><span style="color:#16a34a;font-weight:700">✅ Convertido</span>
           <% } else if (c.wa_manual_enviado_em) { %><span style="color:#2563eb;font-weight:700">💬 Você já chamou</span>
-          <% } else if (c.clicado_em) { %><span style="color:#2563eb;font-weight:700">🖱️ Clicou no e-mail</span>
-          <% } else { %><span style="color:#9ca3af">📧 Abriu o e-mail</span><% } %>
+          <% } else if (c.estagio === 'engajado') { %><span style="color:#2563eb;font-weight:700">🖱️ Engajado (clicou)</span>
+          <% } else { %><span style="color:#9ca3af">📧 Interessado (abriu)</span><% } %>
         </td>
       </tr>
       <% }); %>

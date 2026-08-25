@@ -217,19 +217,21 @@ async function afAceitarContrato(){
 
 <div id="af-pane-arvore" class="af-tab-pane card">
   <h3 style="margin-top:0">Sua árvore</h3>
-  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">De você (topo) descendo — quando alguém do Nível 3 indica outro, o novo entra do lado (mesma camada), a árvore não desce além do Nível 3.</p>
+  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Do topo da sua linha (quem te indicou, e quem indicou essa pessoa) até você — marcado como "Você" — e sua rede abaixo. Quando alguém do Nível 3 indica outro, o novo entra do lado (mesma camada), a árvore não desce além do Nível 3.</p>
   <%
     // Mensagem já se identifica (nome + nível de quem tá vendo a árvore) —
-    // a árvore pessoal só mostra o próprio afiliado e quem está abaixo dele
-    // na rede, então esse botão nunca fala com quem não é da própria linha.
+    // funciona tanto pra falar com quem está abaixo quanto com quem está
+    // acima na própria linha.
     const _afMsgArvore = encodeURIComponent('Olá! Sou ' + (user.nome || 'seu indicador') + ', Nível ' + nivel + ' na MatchImóveis. Tudo bem?');
+    const _afMeuCodigo = user.codigoUsuario || user.id;
     function afRenderNo(no) {
       const cor = no.nivel===1?'#FF385C':no.nivel===2?'#00A699':'#FC642D';
       const celular = String(no.celular || '').replace(/\D/g, '');
-      let html = '<li><div class="af-no" style="border-color:' + cor + '">';
+      const _souEu = no.codigo === _afMeuCodigo;
+      let html = '<li><div class="af-no" style="border-color:' + cor + (_souEu ? ';box-shadow:0 0 0 3px rgba(255,56,92,.25)' : '') + '">';
       html += '<span class="af-no-dot ' + (no.online ? 'af-no-dot-on' : 'af-no-dot-off') + '" title="' + (no.online ? 'Online agora' : 'Offline') + '"></span>';
       html += '<div class="af-no-badge" style="background:' + cor + '">N' + (no.nivel || '-') + '</div>';
-      html += '<div class="af-no-nome">' + no.nome + '</div>';
+      html += '<div class="af-no-nome">' + (_souEu ? 'Você' : no.nome) + '</div>';
       if (celular) html += '<a href="https://wa.me/' + (celular.startsWith('55') ? celular : '55' + celular) + '?text=' + _afMsgArvore + '" target="_blank" class="af-no-wa-btn" title="Falar no WhatsApp">💬</a>';
       html += '</div>';
       if (no.filhos && no.filhos.length) {
@@ -240,8 +242,20 @@ async function afAceitarContrato(){
       html += '</li>';
       return html;
     }
+    // Encadeia a cadeia de cima (uplineChain, do topo pro mais próximo) na
+    // frente da própria árvore descendente — reduceRight monta de dentro
+    // pra fora: o indicador mais próximo vira pai direto de dados.arvore, e
+    // assim sucessivamente até o topo. Pedido explícito: "na árvore tem que
+    // mostrar quem está acima e quem está abaixo" (antes só mostrava a
+    // própria rede pra baixo).
+    let _afArvoreCompleta = dados.arvore;
+    if (dados.uplineChain && dados.uplineChain.length) {
+      _afArvoreCompleta = dados.uplineChain.reduceRight(function(filho, no){
+        return Object.assign({}, no, { filhos: [filho] });
+      }, dados.arvore);
+    }
   %>
-  <div class="af-orgchart-wrap"><ul class="af-orgchart"><%- afRenderNo(dados.arvore) %></ul></div>
+  <div class="af-orgchart-wrap"><ul class="af-orgchart"><%- afRenderNo(_afArvoreCompleta) %></ul></div>
 </div>
 
 <div id="af-pane-niveis" class="af-tab-pane card">

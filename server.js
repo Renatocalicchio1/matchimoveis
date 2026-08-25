@@ -7088,6 +7088,32 @@ app.get('/app/afiliados', auth, async (req, res) => {
     };
     const arvore = _montarArvore(uid, 0);
 
+    // Cadeia de quem está ACIMA (upline) — sobe por indicadoPor até não ter
+    // mais ninguém. Pedido explícito: "na árvore tem que mostrar quem tá
+    // acima e quem tá abaixo" — antes só mostrava a própria rede pra baixo,
+    // sem contexto de quem indicou o próprio usuário. Ordenado do topo pro
+    // indicador mais próximo, pra encaixar como uma cadeia contínua antes
+    // do próprio nó na renderização (ver app-afiliados.ejs).
+    const uplineChain = [];
+    {
+      let cursor = meUser.indicadoPor;
+      let profUpline = 0;
+      while (cursor && profUpline < 8) {
+        const uAcima = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === cursor);
+        if (!uAcima) break;
+        uplineChain.push({
+          codigo: cursor,
+          nome: uAcima.nome || cursor,
+          nivel: _nivelAfiliado(uAcima),
+          celular: uAcima.celular || uAcima.telefone || '',
+          online: uAcima.whatsappStatus === 'open'
+        });
+        cursor = uAcima.indicadoPor;
+        profUpline++;
+      }
+      uplineChain.reverse();
+    }
+
     const volumeAtual = await _volumeVendasAfiliado(uid, nivel).catch(() => 0);
     const faltaProximoNivel = nivel === 3 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel2 - volumeAtual)
       : nivel === 2 ? Math.max(0, _PROMOCAO_AFILIADO.paraNivel1 - volumeAtual) : 0;
@@ -7133,6 +7159,7 @@ app.get('/app/afiliados', auth, async (req, res) => {
         disponivelReais: (disponivelCoins / 20).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         indicados,
         arvore,
+        uplineChain,
         volumeAtual,
         faltaProximoNivel,
         comissaoTabela: _COMISSAO_AFILIADO,

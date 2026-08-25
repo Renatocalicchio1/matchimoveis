@@ -184,7 +184,7 @@ async function afAceitarContrato(){
 
 <div id="af-pane-campanha" class="af-tab-pane card">
   <h3 style="margin-top:0">Convidar novos usuários</h3>
-  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contatos que já abriram o e-mail de divulgação da MatchImóveis e foram distribuídos pra você — o convite por WhatsApp já sai automático com o <strong>seu link de indicação</strong>, então quem se cadastrar entra na sua rede. <strong>Clique no número verde 💬 na coluna WhatsApp pra chamar a lead direto</strong> — a mensagem já vem pronta com seu link, é só mandar.</p>
+  <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contatos que já abriram o e-mail de divulgação da MatchImóveis e foram distribuídos pra você — o convite por WhatsApp já sai automático com o <strong>seu link de indicação</strong>, então quem se cadastrar entra na sua rede. <strong>Clique no número verde 💬 na coluna WhatsApp pra chamar a lead direto</strong> — a mensagem já vem pronta com seu link, é só mandar. Assim que você clica, o botão fica cinza ✓ e a linha desce pro final da lista, pra você sempre ver primeiro quem ainda não foi chamado.</p>
   <% if (!dados.contatosCampanha.length) { %>
     <p style="color:#6b7280;font-size:13px">Nenhum contato distribuído pra você ainda.</p>
   <% } else { %>
@@ -208,20 +208,21 @@ async function afAceitarContrato(){
       %>
       <% dados.contatosCampanha.forEach(function(c){
         const tel = _afCelularWA(c.celular);
+        const jaEnviado = !!c.wa_manual_enviado_em;
       %>
-      <tr>
+      <tr id="af-camp-row-<%= c.id %>">
         <td><%= c.aberto_em ? new Date(c.aberto_em).toLocaleDateString('pt-BR') : '-' %></td>
         <td><%= c.nome || '(sem nome)' %></td>
         <td><%= c.email || '-' %></td>
         <td>
           <% if (tel) { %>
-          <a href="/app/afiliados/contato/<%= c.id %>/whatsapp?tel=<%= tel %>" target="_blank" title="Clique para chamar essa lead no WhatsApp" style="display:inline-flex;align-items:center;gap:6px;color:#111827;text-decoration:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600">
-            <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#25D366;color:#fff;font-size:11px;flex-shrink:0">💬</span>
+          <a href="/app/afiliados/contato/<%= c.id %>/whatsapp?tel=<%= tel %>" target="_blank" onclick="afMarcarConviteEnviado(<%= c.id %>)" title="<%= jaEnviado ? 'Você já chamou essa lead — clique pra reenviar' : 'Clique para chamar essa lead no WhatsApp' %>" style="display:inline-flex;align-items:center;gap:6px;color:<%= jaEnviado ? '#374151' : '#111827' %>;text-decoration:none;background:<%= jaEnviado ? '#f3f4f6' : '#f0fdf4' %>;border:1px solid <%= jaEnviado ? '#e5e7eb' : '#bbf7d0' %>;border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:<%= jaEnviado ? '#9ca3af' : '#25D366' %>;color:#fff;font-size:11px;flex-shrink:0"><%= jaEnviado ? '✓' : '💬' %></span>
             <%= c.celular %>
           </a>
           <% } else { %>-<% } %>
         </td>
-        <td>
+        <td id="af-camp-status-<%= c.id %>">
           <% if (c.estagio === 'cliente') { %><span style="color:#16a34a;font-weight:700">💰 Cliente</span>
           <% } else if (c.estagio === 'convertido') { %><span style="color:#16a34a;font-weight:700">✅ Convertido</span>
           <% } else if (c.cliques >= 2) { %><span style="color:#dc2626;font-weight:700">🔥 Clicou <%= c.cliques %>x — chama agora</span>
@@ -234,6 +235,30 @@ async function afAceitarContrato(){
     </tbody>
   </table>
   </div>
+  <script>
+  // Clique no botão de WhatsApp já marca visualmente na hora (sem esperar
+  // recarregar a página) e manda a linha pro final da lista — pra quem ainda
+  // não foi chamado ficar sempre no topo e não correr o risco de clicar 2x
+  // na mesma pessoa (pedido explícito do Renato, ago/2026). A marcação real
+  // (wa_manual_enviado_em) já acontece no servidor, em /app/afiliados/
+  // contato/:id/whatsapp — isso aqui só antecipa o resultado na tela.
+  function afMarcarConviteEnviado(id){
+    var row = document.getElementById('af-camp-row-' + id);
+    if(!row) return;
+    var link = row.querySelector('td:nth-child(4) a');
+    if(link){
+      link.style.color = '#374151';
+      link.style.background = '#f3f4f6';
+      link.style.border = '1px solid #e5e7eb';
+      link.title = 'Você já chamou essa lead — clique pra reenviar';
+      var dot = link.querySelector('span');
+      if(dot){ dot.style.background = '#9ca3af'; dot.textContent = '✓'; }
+    }
+    var statusCell = document.getElementById('af-camp-status-' + id);
+    if(statusCell) statusCell.innerHTML = '<span style="color:#2563eb;font-weight:700">💬 Você já chamou</span>';
+    if(row.parentElement) row.parentElement.appendChild(row);
+  }
+  </script>
   <% } %>
 </div>
 

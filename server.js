@@ -7317,10 +7317,15 @@ app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
     if (tipoNome === 'empresa') {
       // Aborda a empresa, nunca "Oi Silva Imóveis!" como se fosse pessoa —
       // o nome entra dentro da frase, não como saudação.
+      // A comissão é por PESSOA/EMPRESA indicada pra plataforma (que se
+      // cadastra e usa créditos) — nunca por venda/aluguel de imóvel. Preso
+      // ao lado de "vender mais rápido" isso soava como se a IA vendendo
+      // imóvel gerasse a comissão; agora sempre nomeado explicitamente
+      // "quem indica outro corretor/empresa" (pedido explícito, ago/2026).
       const _waVariacoesEmpresa = [
-        'Oi! Vi que a ' + nomeContato + ' atua com imóveis e queria compartilhar uma novidade 📈 Entramos numa plataforma com IA que ajuda a vender/alugar mais rápido — e ainda paga comissão por indicação. Dá uma olhada: ' + linkAfiliado,
-        'Oi! Conheço o trabalho da ' + nomeContato + ' na região e acho que isso pode interessar 🏢 Plataforma nova de imóveis com IA, com programa de indicação pago. Vale a pena ver: ' + linkAfiliado,
-        'Separei um convite pra ' + nomeContato + ' 👀 Plataforma nova de match imobiliário com IA — ajuda a vender mais rápido e ainda paga quem indica. 2 minutos: ' + linkAfiliado,
+        'Oi! Vi que a ' + nomeContato + ' atua com imóveis e queria compartilhar uma novidade 📈 Entramos numa plataforma com IA que ajuda a vender/alugar mais rápido — e, separado disso, paga comissão em dinheiro ou crédito pra quem indicar outro corretor ou imobiliária pra conhecer. Dá uma olhada: ' + linkAfiliado,
+        'Oi! Conheço o trabalho da ' + nomeContato + ' na região e acho que isso pode interessar 🏢 Plataforma nova de imóveis com IA, com programa de indicação pago — comissão por cada corretor ou imobiliária que entrar pelo link, não por venda de imóvel. Vale a pena ver: ' + linkAfiliado,
+        'Separei um convite pra ' + nomeContato + ' 👀 Plataforma nova de match imobiliário com IA — ajuda a vender mais rápido, e à parte disso paga quem trouxer outras empresas do setor pra conhecer. 2 minutos: ' + linkAfiliado,
         'Oi! Queria apresentar uma ferramenta que pode ajudar a ' + nomeContato + ' a vender mais rápido — cruzamento automático de lead com imóvel via IA, e comissão pra quem indica outras empresas do setor: ' + linkAfiliado
       ];
       textoMsg = _waVariacoesEmpresa[Math.floor(Math.random() * _waVariacoesEmpresa.length)];
@@ -7334,15 +7339,20 @@ app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
       // sempre a mesma frase do mesmo número pra várias pessoas é caminho
       // curto pro WhatsApp marcar como spam.
       const saudacao = tipoNome === 'humano' ? ('Oi ' + nomeContato + '! ') : 'Oi! ';
+      // Mesmo cuidado do bloco empresa acima: a comissão é por PESSOA
+      // indicada pra plataforma, não por venda/aluguel de imóvel — nomeada
+      // explicitamente em toda variação que menciona ganho (pedido
+      // explícito do Renato, ago/2026: "ele não pode achar que ganha
+      // indicação na comissão da venda de um imóvel").
       const _waVariacoesAfiliado = [
         '👋 Vi seu perfil e lembrei de você — separei algo que só tô mostrando pra quem realmente entende do mercado imobiliário. Topa dar uma olhada? ' + linkAfiliado + ' 🚀',
         'Posso te contar uma coisa rápida? 😏 Entrei numa plataforma nova de imóveis com IA, e quem entra primeiro sai na frente de todo mundo. Dá uma olhada aqui: ' + linkAfiliado,
-        'Separei um convite bem específico pra você — poucas pessoas tão vendo isso ainda 👀 É uma forma nova de vender/alugar imóvel (e ainda ganhar por indicação 💰). Vale 2 minutos: ' + linkAfiliado,
-        'Isso ainda tá bem no começo e você é uma das primeiras pessoas que pensei em chamar 🙂 É a MatchImóveis — imóvel + IA + comissão de indicação. Dá uma espiada: ' + linkAfiliado,
+        'Separei um convite bem específico pra você — poucas pessoas tão vendo isso ainda 👀 É uma plataforma nova de imóveis com IA, e também tem um jeito de ganhar dinheiro ou crédito só por indicar outras pessoas pra conhecer (nada a ver com venda de imóvel) 💰. Vale 2 minutos: ' + linkAfiliado,
+        'Isso ainda tá bem no começo e você é uma das primeiras pessoas que pensei em chamar 🙂 É a MatchImóveis — imóvel + IA, e comissão em dinheiro ou crédito pra quem indica outras pessoas pra plataforma. Dá uma espiada: ' + linkAfiliado,
         '🔥 Não é venda, é convite mesmo: entrei numa plataforma que tá bombando entre corretor esperto, e queria que você conhecesse antes de virar comum. ' + linkAfiliado,
-        'Bora? 👀 Achei que ia gostar disso — uma IA que ajuda a vender/alugar imóvel mais rápido, e ainda paga quem indica. Dá uma olhada rapidinho: ' + linkAfiliado,
+        'Bora? 👀 Achei que ia gostar disso — uma IA que ajuda a vender/alugar imóvel mais rápido, e à parte disso paga quem trouxer outras pessoas pra plataforma (comissão de indicação, não de venda). Dá uma olhada rapidinho: ' + linkAfiliado,
         'Separei esse link só pra você 🎯 Não é sobre comprar nada — é sobre estar dentro antes da maioria. MatchImóveis: ' + linkAfiliado,
-        'Posso te chamar pra uma coisa? 😄 Tô usando uma plataforma nova (imóvel + IA + comissão), e queria que você fosse um dos primeiros a ver como funciona: ' + linkAfiliado
+        'Posso te chamar pra uma coisa? 😄 Tô usando uma plataforma nova de imóveis com IA, que também paga comissão pra quem indica outras pessoas pra conhecer — queria que você fosse um dos primeiros a ver como funciona: ' + linkAfiliado
       ];
       const corpoVariante = _waVariacoesAfiliado[Math.floor(Math.random() * _waVariacoesAfiliado.length)];
       textoMsg = saudacao + corpoVariante;

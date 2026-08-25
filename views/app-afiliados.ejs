@@ -244,22 +244,28 @@ async function afAceitarContrato(){
 <div id="af-pane-niveis" class="af-tab-pane card">
   <h3 style="margin-top:0">Como funciona o programa</h3>
   <p style="font-size:13px;color:#374151">Todo corretor já é afiliado. Nível 3 é quem acabou de entrar por indicação; Nível 2 e Nível 1 sobem por volume de vendas próprias geradas (R$<%= dados.promocao.paraNivel2.toLocaleString('pt-BR') %> pra Nível 2, R$<%= dados.promocao.paraNivel1.toLocaleString('pt-BR') %> pra Nível 1).</p>
-  <h4 style="font-size:13px;margin:16px 0 8px">1ª compra do indicado (teto 25%)</h4>
+  <%
+    const _afPct = v => v ? (v*100).toLocaleString('pt-BR',{maximumFractionDigits:2}) + '%' : '-';
+    const _afPool = t => Math.round(((t.propria||0)+(t.n2||0)+(t.n1||0))*1000)/10;
+    const _tPrimeira3 = dados.comissaoTabela.primeira[3];
+    const _tRecorrencia3 = dados.comissaoTabela.recorrencia[3];
+  %>
+  <h4 style="font-size:13px;margin:16px 0 8px">1ª compra do indicado (pool de <%= _afPool(_tPrimeira3) %>%)</h4>
   <table class="af-table">
     <thead><tr><th>Quem indicou direto</th><th>Própria</th><th>Override N2</th><th>Override N1</th></tr></thead>
     <tbody>
-      <tr><td>Nível 1</td><td>25%</td><td>-</td><td>-</td></tr>
-      <tr><td>Nível 2</td><td>19,7%</td><td>-</td><td>5,3%</td></tr>
-      <tr><td>Nível 3</td><td>16,3%</td><td>4,3%</td><td>4,3%</td></tr>
+      <% [1,2,3].forEach(function(n){ const t = dados.comissaoTabela.primeira[n]; %>
+      <tr><td>Nível <%= n %></td><td><%= _afPct(t.propria) %></td><td><%= _afPct(t.n2) %></td><td><%= _afPct(t.n1) %></td></tr>
+      <% }); %>
     </tbody>
   </table>
-  <h4 style="font-size:13px;margin:16px 0 8px">Recorrência do indicado (teto 7%)</h4>
+  <h4 style="font-size:13px;margin:16px 0 8px">Recorrência do indicado (pool de <%= _afPool(_tRecorrencia3) %>%)</h4>
   <table class="af-table">
     <thead><tr><th>Quem indicou direto</th><th>Própria</th><th>Override N2</th><th>Override N1</th></tr></thead>
     <tbody>
-      <tr><td>Nível 1</td><td>7,0%</td><td>-</td><td>-</td></tr>
-      <tr><td>Nível 2</td><td>5,5%</td><td>-</td><td>1,5%</td></tr>
-      <tr><td>Nível 3</td><td>4,6%</td><td>1,2%</td><td>1,2%</td></tr>
+      <% [1,2,3].forEach(function(n){ const t = dados.comissaoTabela.recorrencia[n]; %>
+      <tr><td>Nível <%= n %></td><td><%= _afPct(t.propria) %></td><td><%= _afPct(t.n2) %></td><td><%= _afPct(t.n1) %></td></tr>
+      <% }); %>
     </tbody>
   </table>
 
@@ -269,7 +275,7 @@ async function afAceitarContrato(){
     <p><strong>2. Quem participa.</strong> Só afiliados que já aceitaram este contrato (você, ao clicar em "Aceitar" na primeira vez que entrou aqui). Quem tem conta mas nunca aceitou não recebe contato nenhum.</p>
     <p><strong>3. Como a divisão acontece.</strong> Do total de contatos disponíveis: <strong>35% vão pro Nível 1</strong>, <strong>35% pro Nível 2</strong> e <strong>30% pro Nível 3</strong>. Dentro de cada nível, os contatos se dividem em rodízio, igualmente, entre todo mundo daquele nível que já aceitou o contrato.</p>
     <p><strong>4. O convite em si.</strong> A MatchImóveis manda a mensagem de WhatsApp oficial pra cada contato, com um botão que já leva pro cadastro na plataforma — e esse link já carrega escondido o <strong>seu código de afiliado</strong>, sem você precisar fazer nada.</p>
-    <p><strong>5. Se a pessoa se cadastrar.</strong> A conta nova entra automaticamente na sua rede como Nível 3 — vira comissão de verdade dali pra frente (25% na primeira compra, 7% na recorrência). O contato some da sua lista "Convidar novos" (deixou de ser prospecto, já é afiliado seu).</p>
+    <p><strong>5. Se a pessoa se cadastrar.</strong> A conta nova entra automaticamente na sua rede como Nível 3 — vira comissão de verdade dali pra frente (<%= _afPct(_tPrimeira3.propria) %> na primeira compra, <%= _afPct(_tRecorrencia3.propria) %> na recorrência, mais o override de quem tiver acima na sua rede). O contato some da sua lista "Convidar novos" (deixou de ser prospecto, já é afiliado seu).</p>
     <p><strong>6. O que você faz.</strong> Acompanha os contatos que caíram pra você na aba "Convidar novos" — cada linha tem um link de WhatsApp pra você puxar conversa manualmente com quem ainda não respondeu ao convite automático.</p>
     <p><strong>7. Se você não clicar em até 24h.</strong> O contato passa pra outro afiliado do seu mesmo nível — não fica parado esperando. Assim que você clica em "Falar no WhatsApp" (mesmo que ele não responda ainda), o contato fica travado com você. Sempre que um afiliado novo assina o contrato, o sistema também redistribui um pouco dos contatos já em aberto pra ele — todo mundo com contrato assinado sempre tem gente pra chamar.</p>
   </div>

@@ -14089,16 +14089,29 @@ app.get('/pagamento/sucesso', auth, async (req, res) => {
 // _PROMOCAO_AFILIADO). Reaproveita o mesmo ledger/fluxo de resgate do
 // sub-admin (indicacoes_bonus, services/salvarIndicacao.js), com
 // indicador_tipo='afiliado'.
+// Redesenhado (ago/2026, pedido explícito do Renato): antes o Nível 1 tinha
+// sempre a maior taxa própria (era quem "ganhava mais por venda direta"),
+// mas isso ignorava que N1/N2 já ganham em escala via override de toda a
+// rede abaixo — N3 não tem rede pra tirar override, só a venda própria dele
+// mesmo. Novo desenho inverte: N3 > N2 > N1 na taxa própria (compensa quem
+// não constrói rede), mas o total ainda fica maior pra quem tem downline
+// grande por causa do override empilhado (ver exemplos discutidos com o
+// Renato — cadeia N1→N2→N3 vendendo R$10k cada dá N1 R$2.750 > N3 R$2.500 >
+// N2 R$2.250, mesmo N3 tendo a maior % própria). Pool total por venda: 30%
+// na 1ª compra (era 25%), 15% na recorrência (metade da 1ª compra, pedido
+// explícito — era 7%). N1 vendendo direto (sem upline pra dividir) fica
+// deliberadamente abaixo do pool cheio, tanto na 1ª compra quanto na
+// recorrência — a diferença não vai pra ninguém, fica de margem.
 const _COMISSAO_AFILIADO = {
   primeira: {
-    1: { propria: 0.25 },
-    2: { propria: 0.197, n1: 0.053 },
-    3: { propria: 0.163, n2: 0.043, n1: 0.043 }
+    1: { propria: 0.15 },
+    2: { propria: 0.20, n1: 0.10 },
+    3: { propria: 0.25, n2: 0.025, n1: 0.025 }
   },
   recorrencia: {
-    1: { propria: 0.07 },
-    2: { propria: 0.055, n1: 0.015 },
-    3: { propria: 0.046, n2: 0.012, n1: 0.012 }
+    1: { propria: 0.075 },
+    2: { propria: 0.10, n1: 0.05 },
+    3: { propria: 0.125, n2: 0.0125, n1: 0.0125 }
   }
 };
 // Volume de vendas PRÓPRIAS (não conta override) acumulado pra promoção

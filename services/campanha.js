@@ -11,398 +11,308 @@ const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : 'http:/
 // dois modelos na mesma fila em vez de mandar tudo de um tipo só, e nunca
 // repete o mesmo texto/assunto sempre igual (padrão robótico = spam).
 const MODELOS = {
-  // Framework PAS (Problema → Agitação → Solução) em todas as variações:
-  // nomeia uma dor real do corretor, mostra o custo de não resolver, e só
-  // então apresenta a Match Imóveis como solução — com 1 único CTA por
-  // email. Assuntos sem emoji de alarme/caps (gatilho de spam), sem
-  // promessa não verificável (ex: prazo garantido de venda).
-  // Fecho de cada corpo (ago/2026): "1.000 créditos grátis" trocado por uma
-  // frase concreta do que dá pra fazer com esse crédito na hora (qualificar
-  // lead, mandar vitrine) — "créditos" é jargão que quem nunca usou o
-  // sistema não entende ainda; e 3 das 8 variações tinham literalmente o
-  // mesmo fecho ("Comece agora com 1.000 créditos grátis, sem
-  // compromisso."), o que ia contra o próprio princípio de nunca repetir
-  // texto (padrão robótico = sinal de spam).
+  // Framework reescrito (ago/2026, pedido explícito do Renato): antes era
+  // PAS clássico (Problema → Agitação → Solução), focado em listar
+  // benefício. Agora o eixo principal é AVERSÃO À PERDA — ciência de
+  // persuasão (Kahneman/Tversky: perda pesa mais que ganho equivalente na
+  // decisão humana; Cialdini, "As Armas da Persuasão": escassez/urgência
+  // como um dos 6 gatilhos centrais) — cada e-mail abre com uma cena
+  // concreta e específica (não abstrata) do que o corretor JÁ ESTÁ perdendo
+  // agora, não do que ele ganharia. Um dado real dá autoridade: pesquisa do
+  // setor mostra que a conversão de lead cai de 35% pra 15% quando não há
+  // retorno no primeiro minuto (fonte: imobilead.me). Assunto sempre com
+  // gancho de curiosidade (loop aberto, só fecha no clique) — sem emoji de
+  // alarme/caps (gatilho de spam), sem promessa não verificável. 1 único
+  // CTA por email, corpo termina sem link solto (o botão já vem embutido
+  // por CTA_POR_TIPO, ver gerarHTML). Nunca repete a mesma cena/fecho entre
+  // variações — texto repetido é o principal sinal de spam pro provedor.
   pagina: [
     {
-      assunto: 'Você está perdendo leads pra quem responde primeiro',
+      assunto: 'Enquanto você lê isso, um lead seu pode estar esfriando',
       corpo: `Olá {nome},
 
-Todo dia, alguém procura um imóvel na sua região — e quem responde primeiro, com o imóvel certo, é quem fecha negócio.
+São 23h47 de uma terça. Alguém entra buscando um apartamento de R$400 mil, pede informação. Espera resposta.
 
-A maioria dos corretores descobre o lead horas depois: mensagem perdida no WhatsApp, imóvel certo esquecido na planilha, visita nunca agendada.
+A cada minuto sem retorno, a chance de fechar despenca — pesquisa do setor mostra que a conversão cai de 35% pra 15% quando o lead não recebe resposta no primeiro minuto.
 
-A Match Imóveis resolve isso sozinha, 24 horas por dia:
+Você não está online às 23h47. Ninguém fica.
 
-• Cruza cada lead com os imóveis certos da sua carteira e da rede
-• Monta a vitrine e envia pro cliente automaticamente
-• Agenda a visita sem você precisar lembrar
-
-Sem mensalidade fixa e sem comissão sobre venda — só criar a conta já libera crédito suficiente pra qualificar e mandar vitrine pra dezenas de leads, sem gastar nada agora.
+Só que dá pra ter algo trabalhando enquanto você dorme: cruzando o lead com o imóvel certo da sua carteira, montando a vitrine, deixando tudo pronto pra quando ele acordar — e você responder primeiro, mesmo tendo dormido a noite inteira.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'O corretor que usa IA fecha mais rápido que você',
+      assunto: 'O corretor que fechou ontem não foi mais rápido que você',
       corpo: `Olá {nome},
 
-Enquanto você responde um cliente no WhatsApp, um corretor que usa IA já está atendendo três — sem perder qualidade e sem esquecer ninguém.
+Foi mais preparado. Ele não madrugou, não checou o celular de hora em hora — só tinha algo cruzando os leads dele com os imóveis certos automaticamente, o dia inteiro, enquanto fazia outra coisa.
 
-A Match Imóveis faz por você:
+Você já perdeu negócio pra alguém que respondeu primeiro. Não porque ele trabalhou mais. Porque a ferramenta dele trabalhou por ele.
 
-• Cruza automaticamente cada lead com os imóveis certos
-• Monta a vitrine e agenda a visita sozinha
-• Funciona 24 horas por dia, mesmo fora do seu horário
-
-Criar a conta é grátis e libera crédito na hora — dá pra testar o cruzamento automático com seus primeiros leads sem pagar nada.
+A Match Imóveis faz esse cruzamento sozinha, 24 horas por dia, e já libera crédito suficiente pra você testar com os primeiros leads sem gastar nada.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Sua carteira de imóveis pode estar rendendo mais',
+      assunto: 'Sua planilha de leads não avisa quando um deles esfria',
       corpo: `Olá {nome},
 
-Todo imóvel parado na carteira é uma venda que não está acontecendo. Na maioria das vezes o problema não é o imóvel — é não cruzar ele com o lead certo, na hora certa.
+Tem um lead parado na sua planilha agora. Você não sabe quanto tempo faz que ele não recebe retorno, nem se já está sendo atendido por outro corretor.
 
-A Match Imóveis faz esse cruzamento sozinha, o dia inteiro:
+Enquanto isso, ele continua procurando — só que agora com outra pessoa.
 
-• Recebe cada novo lead automaticamente
-• Encontra os imóveis compatíveis na sua carteira e na rede
-• Envia a vitrine sem você precisar lembrar
-
-Sem cartão de crédito: você cria a conta, já recebe crédito grátis, e testa o sistema com leads de verdade antes de decidir se vale continuar.
+A Match Imóveis cruza cada lead com o imóvel certo assim que ele chega, sem esperar você abrir a planilha. É a diferença entre reagir e já estar na frente.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Enquanto você dorme, seus leads continuam chegando',
+      assunto: 'O que separa quem fecha do que quase fechou: 1 minuto',
       corpo: `Olá {nome},
 
-Lead não escolhe horário: chega de madrugada, no fim de semana, no meio de uma visita com outro cliente. Quem demora a responder, perde pro corretor que responde primeiro.
+Pesquisa do setor mostra: quando o lead recebe resposta em menos de 1 minuto, a conversão passa de 35%. Depois disso, despenca pra 15%.
 
-A Match Imóveis trabalha por você 24 horas por dia:
+1 minuto. É o tempo que você levou pra ler até aqui.
 
-• Recebe o lead assim que ele chega
-• Encontra o imóvel certo automaticamente
-• Envia a vitrine sem depender da sua disponibilidade
-
-Comece agora — a conta já nasce com crédito suficiente pra rodar o cruzamento automático nos primeiros leads, de graça.
+Ninguém consegue vigiar o celular o dia inteiro — mas dá pra ter algo que cruza automaticamente cada lead com o imóvel certo e já prepara a resposta, assim que ele chega.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Sua planilha de leads não te avisa quando esfria',
+      assunto: 'Imagina perder uma venda por 40 segundos',
       corpo: `Olá {nome},
 
-Lead numa planilha não muda de cor sozinho quando esfria. Enquanto ninguém percebe, ele já fechou com outro corretor que respondeu primeiro.
+Não é hipotético. É a diferença real entre o corretor que abre o WhatsApp na hora e o que abre 20 minutos depois — mesmo que os dois sejam igualmente bons.
 
-A Match Imóveis cuida disso por você:
+A Match Imóveis elimina essa diferença: cruza o lead com o imóvel certo da sua carteira no instante em que ele chega, sem depender de você estar de olho no celular.
 
-• Cruza cada lead com o imóvel certo assim que ele chega
-• Manda a vitrine sem você precisar lembrar de ninguém
-• Avisa quando um lead esquenta, pra você não perder o timing
-
-Sem mensalidade fixa. A conta abre com crédito grátis pra você testar de verdade, não só olhar a tela.
+Comece agora, é grátis pra testar.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Cada dia sem resposta é um lead a menos fechando com você',
+      assunto: 'Você não perde vendas por falta de talento',
       corpo: `Olá {nome},
 
-Um lead que espera 1 dia de resposta já procurou outro corretor. Não é falta de interesse — é falta de velocidade, e isso custa venda todo mês.
+Perde por timing. Por não ver o lead a tempo, por responder depois de outro corretor já ter respondido, por um imóvel certo ficar esquecido na carteira enquanto o cliente certo procurava exatamente ele.
 
-A Match Imóveis responde por você, na hora:
+Nada disso é sobre esforço. É sobre ter algo cruzando isso automaticamente, o tempo todo, mesmo quando você não está olhando.
 
-• Recebe o lead e já cruza com os imóveis compatíveis
-• Monta e envia a vitrine automaticamente
-• Não depende de você estar online pra funcionar
-
-Cadastro rápido e sem custo — o crédito inicial já dá pra qualificar leads e mandar vitrine, sem tirar nada do bolso.
+Teste agora, sem custo.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Imagine ter um assistente que nunca esquece um lead',
+      assunto: 'Enquanto você atende um cliente, outro está esfriando',
       corpo: `Olá {nome},
 
-A maioria dos corretores perde venda não por falta de imóvel bom, mas por esquecer de responder um lead no momento certo.
+Não tem como estar em dois lugares ao mesmo tempo. Enquanto você fecha uma visita, outro lead está esperando resposta — e quem demora, perde pro corretor que não demorou.
 
-A Match Imóveis é esse assistente que nunca falha:
-
-• Cruza automaticamente cada lead com sua carteira e a rede
-• Envia a vitrine certa, pro lead certo, na hora certa
-• Trabalha sozinha, 24 horas por dia
-
-Teste com leads de verdade: a conta já vem com crédito grátis, suficiente pra ver o sistema funcionando antes de decidir continuar.
+A Match Imóveis resolve isso sem você precisar se dividir: cruza automaticamente cada lead novo com o imóvel certo, mesmo enquanto você está ocupado com outra coisa.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Você não precisa só da sua carteira pra fechar negócio',
+      assunto: 'Todo dia sem isso é um lead que você nunca vai saber que perdeu',
       corpo: `Olá {nome},
 
-Quando o imóvel certo não está na sua carteira, a venda para ali — a não ser que você tenha acesso ao que outros corretores parceiros também têm.
+O pior lead perdido não é aquele que você viu escapar. É o que nem chegou a aparecer no seu radar a tempo — porque demorou pra ser cruzado com o imóvel certo, ou porque você só olhou a planilha depois que ele já tinha esfriado.
 
-Na Match Imóveis:
-
-• Cada lead é cruzado com a sua carteira E com a rede de parceiros
-• Mais opções pro cliente, mais chance de fechar pra você
-• Tudo automático, sem precisar ligar pra ninguém
-
-Sem compromisso: crie a conta, use o crédito grátis que já vem com ela, e veja funcionando antes de pensar em pagar qualquer coisa.
+A Match Imóveis cruza tudo automaticamente, assim que o lead chega. Sem depender de você estar olhando.
 
 — Equipe Match Imóveis`
     }
   ],
   demanda: [
     {
-      assunto: 'Quantas pessoas buscam imóvel na sua região agora',
+      assunto: 'Você sabe quantas pessoas procuram imóvel na sua região agora?',
       corpo: `Olá {nome},
 
-Agora mesmo, tem gente procurando imóvel na sua cidade e no seu bairro — não é estimativa, é dado real, minerado pela nossa IA todos os dias.
+Nós sabemos. E enquanto você não consulta, outro corretor da sua região já está de olho nesse número — e agindo em cima dele.
 
-Em segundos você descobre:
+Não é sobre ter sorte de cair num lead bom. É sobre saber, com dado real, onde a demanda está concentrada agora, antes de gastar tempo no lugar errado.
 
-• Quantos interessados reais existem na sua região
-• Em quais bairros a demanda está maior
-• Sem custo pra consultar, sem compromisso
-
-E não é só ver o número: ao criar sua conta, esses leads já entram nela — você abre o painel e já tem gente pra atender hoje mesmo, não precisa esperar chegar cliente do zero.
-
-Quem chega primeiro, atende primeiro.
+Consulta grátis, sem compromisso.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Tem lead esperando por um corretor na sua região',
+      assunto: 'Tem gente procurando imóvel no seu bairro agora — só não com você',
       corpo: `Olá {nome},
 
-Não são leads genéricos de cadastro — são pessoas reais buscando imóvel na sua cidade agora, identificadas em tempo real pela nossa IA.
+Enquanto você foca na sua carteira de sempre, existe demanda real acontecendo do lado, sem que nenhum corretor da região saiba com precisão onde.
 
-• Veja quantos existem na sua região agora mesmo
-• Sem custo pra consultar
-• Sua conta já nasce com esses leads dentro — comece a atender hoje, não amanhã
+Quem descobre primeiro, chega primeiro.
+
+Veja agora, de graça, quantas pessoas procuram imóvel na sua região neste momento.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Sua região tem demanda — você só não viu o número ainda',
+      assunto: 'O bairro que você não olha pode ser o que mais rende',
       corpo: `Olá {nome},
 
-Descubra agora, de graça, quantas pessoas estão buscando imóvel no seu bairro e na sua cidade neste momento.
+A maioria dos corretores trabalha só a região que já conhece — e deixa passar demanda real em bairros vizinhos, só por falta de dado.
 
-• Consulta gratuita, sem cadastro
-• Sem mensalidade e sem comissão
-• Leve esses leads pra sua conta e comece a atender no mesmo dia — ela já abre com eles dentro
+Sem esse número, é decisão no escuro. Com ele, é decisão informada.
+
+Confira gratuitamente onde a demanda da sua cidade está concentrada agora.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Alguém pode estar procurando imóvel perto de você agora',
+      assunto: 'Enquanto você lê isso, alguém decide qual corretor vai ligar',
       corpo: `Olá {nome},
 
-Enquanto você lê este email, pode ter alguém buscando exatamente um imóvel na sua região — e a gente já sabe quem é.
+Não é o corretor mais experiente que fecha primeiro — é o que sabia, antes dos outros, onde a demanda estava.
 
-• Veja o número real da sua região
-• Grátis e sem cadastro
-• Sua conta já entra com essas leads pra você atender — nada de começar do zero
-
-Leva menos de 1 minuto pra consultar.
+Esse dado existe, atualizado, pra sua região. A pergunta é se você vai olhar antes ou depois de outro corretor já ter agido em cima dele.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Outros corretores da sua região já viram esse número',
+      assunto: 'Sua região tem mais demanda do que você imagina — ou menos',
       corpo: `Olá {nome},
 
-Enquanto você não consulta, outros corretores da sua cidade já estão vendo quantos interessados existem por região — e chegando primeiro nesses leads.
+Os dois cenários custam caro se você não souber qual é o seu: focar energia numa região fraca, ou ignorar uma região forte por achar que não vale a pena.
 
-• Descubra a demanda real da sua região agora
-• Consulta gratuita, sem compromisso
-• Sua conta já nasce com esses leads dentro, pronta pra atender
+O único jeito de não errar é ver o número de verdade. E isso é gratuito.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Qual bairro da sua cidade tem mais gente procurando imóvel?',
+      assunto: 'Antes de fechar a agenda de hoje, veja esse número',
       corpo: `Olá {nome},
 
-A gente já sabe: alguns bairros têm muito mais gente procurando imóvel do que outros — e isso muda toda semana.
+Leva menos de 1 minuto e pode mudar onde você foca amanhã: quantas pessoas estão buscando imóvel, agora, na sua região.
 
-• Veja o comparativo de demanda por bairro na sua cidade
-• Sem custo pra consultar, sem letra miúda
-• Comece a atender esses leads no mesmo dia — sua conta já abre com eles
+Sem esse dado, cada decisão de onde investir tempo é um chute. Com ele, deixa de ser.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Antes de decidir qualquer coisa, veja esse número',
+      assunto: 'O corretor que soube primeiro, chegou primeiro',
       corpo: `Olá {nome},
 
-Sem compromisso nenhum: dá pra ver, de graça, quantas pessoas estão buscando imóvel na sua região agora — e decidir depois se vale a pena continuar.
+Não existe atalho pra fechar mais — mas existe vantagem em saber, antes dos outros, onde a demanda real está. É isso que separa quem espera o lead aparecer de quem já estava esperando o lead.
 
-• Consulta 100% gratuita, sem cartão, sem cadastro obrigatório
-• Números reais, atualizados pela nossa IA todos os dias
-• Se decidir continuar, sua conta já entra com esses leads dentro
+Veja gratuitamente a demanda da sua região agora.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'O primeiro corretor a ver o lead costuma ser o que fecha',
+      assunto: 'Quantos leads passaram pela sua região sem você saber?',
       corpo: `Olá {nome},
 
-Não é sorte: quem vê o lead primeiro e responde rápido tem muito mais chance de fechar. E o primeiro passo é saber quantos leads existem na sua região.
+Não dá pra medir o que você nunca viu. Mas dá pra parar de perder esse dado a partir de agora: veja, de graça, quantas pessoas procuram imóvel na sua região neste exato momento.
 
-• Consulte agora, de graça, a demanda da sua região
-• Sem compromisso
-• Sua conta já abre com esses leads prontos pra atender
+Sem compromisso, sem cadastro obrigatório pra consultar.
 
 — Equipe Match Imóveis`
     }
   ],
-  // ── Programa de afiliados (ago/2026) — 10 variações, foco duplo pedido
-  // pelo Renato: ganhar indicando a plataforma (comissão contínua, dinheiro
-  // ou crédito) E continuar vendendo mais rápido com o cruzamento
-  // automático de leads. Mesmo framework das outras (PAS leve, 1 CTA só,
-  // sem gatilho de spam), CTA próprio (CTA_POR_TIPO.afiliado).
+  // ── Programa de afiliados (ago/2026) — 10 variações, mesmo eixo de
+  // aversão à perda: cada e-mail mostra o que o corretor JÁ ESTÁ perdendo
+  // por não ter o link ativo (comissão que "some" a cada indicação sem
+  // link), não uma promessa genérica de ganho futuro. CTA próprio
+  // (CTA_POR_TIPO.afiliado).
   afiliado: [
     {
-      assunto: 'Ganhe dinheiro só por indicar a Match Imóveis pra outros corretores',
+      assunto: 'Cada corretor que você não indicou é uma comissão que já era',
       corpo: `Olá {nome},
 
-Você não precisa só vender imóvel pra ganhar com a Match Imóveis — também pode ganhar comissão real toda vez que indicar a plataforma pra outro corretor, imobiliária ou agência de marketing.
+Você conhece outros corretores. Troca ideia com eles, indica cliente, divide plantão. Só que até agora, essas conversas nunca viraram renda pra você.
 
-• Cada indicação vira comissão em toda recarga que a pessoa fizer, não só na primeira
-• Você escolhe: resgatar em dinheiro ou reverter em créditos na sua própria conta
-• E você continua vendendo mais rápido com o cruzamento automático de leads e imóveis
-
-Criar conta é grátis e já libera 1.000 créditos pra testar tudo na hora.
+Cada um deles que se cadastra na Match Imóveis pelo seu link gera comissão contínua na sua conta — todo mês, não só uma vez. Enquanto você não manda o link, essa renda simplesmente não existe.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Você pode ganhar como corretor E como afiliado, ao mesmo tempo',
+      assunto: 'Enquanto você pensa se vale a pena, outro afiliado já está ganhando',
       corpo: `Olá {nome},
 
-A Match Imóveis paga de dois jeitos: você vende mais rápido usando o cruzamento automático de leads e imóveis, e ainda ganha comissão indicando a plataforma pra quem você conhece do mercado.
+O programa de afiliados da Match Imóveis já está pagando comissão pra quem indicou primeiro. Cada corretor, imobiliária ou agência que entrou por indicação virou renda contínua pra quem mandou o link — sem vender nada, só apresentando a ferramenta certa.
 
-• Vender fica mais fácil: a IA cruza cada lead com o imóvel certo, sozinha
-• Indicar vira renda: comissão contínua sobre o que seus indicados usarem
-• Sem mensalidade fixa — você só cresce, nunca paga pra ficar parado
-
-Comece agora, de graça, e veja os dois lados funcionando juntos.
+Você já tem contatos suficientes pra começar hoje. A única coisa que falta é o primeiro link enviado.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Conhece outro corretor? Isso pode virar renda extra todo mês',
+      assunto: 'Você trabalha de graça toda vez que indica sem esse link',
       corpo: `Olá {nome},
 
-Você provavelmente conhece dezenas de corretores, imobiliárias e agências de marketing no seu dia a dia. Cada um deles que entrar na Match Imóveis pelo seu link gera comissão contínua pra você — todo mês, não só uma vez.
+Indicar alguém pra Match Imóveis sem usar seu link pessoal é abrir mão de uma comissão que já poderia ser sua, todo mês, sem nenhum esforço extra.
 
-• Comissão em toda recarga que a pessoa indicada fizer
-• Escolha entre receber em dinheiro ou virar crédito na sua conta
-• E sua própria carteira de imóveis continua vendendo mais rápido com a IA
-
-Criar conta é grátis e o link de indicação já vem pronto assim que você entra.
+Não é sobre vender — é sobre não perder o que a indicação já vale sozinha.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Vender imóvel mais rápido e ganhar indicando: os dois ao mesmo tempo',
+      assunto: 'A renda que você já poderia estar recebendo (e não está)',
       corpo: `Olá {nome},
 
-A maioria dos corretores só pensa em fechar a próxima venda. Mas dá pra fazer duas coisas ao mesmo tempo na Match Imóveis:
+Enquanto sua conta fica parada sem link ativo, outros afiliados já estão recebendo comissão de corretores e imobiliárias que eles conhecem — o mesmo tipo de contato que você também tem.
 
-• Fechar mais rápido: a plataforma cruza automaticamente cada lead com o imóvel certo da sua carteira
-• Ganhar indicando: toda vez que outro corretor ou imobiliária se cadastra pelo seu link e usa a plataforma, você ganha comissão
-
-Não é escolher um ou outro — os dois rendem ao mesmo tempo, sem custo nenhum pra começar.
+A diferença entre ganhar e não ganhar aqui não é habilidade. É ter mandado o link ou não.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'O corretor que te ensinou o ofício também pode virar sua renda extra',
+      assunto: 'Seu círculo de contatos vale mais do que você imagina — se você usar',
       corpo: `Olá {nome},
 
-Pensa em quem te ajudou a começar no mercado imobiliário, ou nos corretores que você troca ideia todo dia. Cada um deles que entrar na Match Imóveis pelo seu link vira comissão de verdade pra você — sem precisar fazer nada além de mandar o link.
+Anos de mercado imobiliário te deram uma rede de contatos que a maioria nunca monetizou. Cada corretor, imobiliária ou agência de marketing que você conhece pode virar comissão contínua — mas só se entrar pelo seu link.
 
-• Comissão contínua, toda recarga que a pessoa fizer
-• Dinheiro ou crédito, você escolhe como resgatar
-• De quebra, você mesmo já sai na frente vendendo mais rápido com a IA cruzando seus leads
-
-Comece hoje, é grátis.
+Sem o link, essa rede continua só sendo contato. Com ele, vira renda.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Imobiliária ou agência de marketing também ganham aqui, não só corretor autônomo',
+      assunto: 'O que você perde por não ser afiliado ainda',
       corpo: `Olá {nome},
 
-A Match Imóveis não é só pra corretor autônomo: imobiliária inteira e até agência de marketing que trabalha com imóvel podem entrar e usar. E cada uma que você indicar pelo seu link vira comissão contínua na sua conta.
+Não é sobre o que você ganharia — é sobre o que já está deixando na mesa: toda indicação que você faz sem o link pessoal é comissão que simplesmente não existe.
 
-• Sem limite de quantas indicações você pode fazer
-• Comissão em toda recarga, não só na primeira compra
-• E sua própria carteira de imóveis continua rendendo mais com o cruzamento automático de leads
-
-Manda o link pra quem você conhece — o cadastro é grátis pra todo mundo.
+Ativar leva menos de 1 minuto, e sua conta já sai com o link pronto.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Enquanto você dorme, dá pra estar ganhando dos dois jeitos',
+      assunto: 'Enquanto essa mensagem chega até você, alguém está sendo indicado sem link',
       corpo: `Olá {nome},
 
-De um lado, a Match Imóveis cruza seus leads com os imóveis certos 24 horas por dia, mesmo enquanto você não está online. Do outro, cada corretor que você já indicou continua gerando comissão pra você todo mês, sem esforço extra.
+Toda vez que um corretor indica outro sem usar o link de afiliado, uma comissão que poderia existir simplesmente desaparece — pra sempre, porque essa indicação não volta.
 
-• Leads cruzados automaticamente com sua carteira
-• Comissão contínua de quem você já indicou
-• Nenhum dos dois exige mensalidade
-
-Criar conta é grátis e ainda vem com 1.000 créditos de bônus pra testar.
+Não deixa a próxima passar assim. Seu link já está pronto na sua conta.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Sua rede de contatos no mercado imobiliário vale dinheiro aqui',
+      assunto: 'Você não precisa vender imóvel pra essa renda existir',
       corpo: `Olá {nome},
 
-Anos de mercado imobiliário significam uma rede grande de contatos — outros corretores, imobiliárias, gente de marketing imobiliário. Na Match Imóveis, essa rede pode virar renda de verdade: cada indicação que se cadastra e usa a plataforma gera comissão contínua pra você.
+A maior parte dos corretores nunca considera essa fonte de renda porque acha que precisa vender algo. Não precisa. Precisa só indicar — e parar de indicar de graça o que já poderia gerar comissão.
 
-• Você indica, a pessoa usa, você ganha — todo mês
-• Escolha entre dinheiro ou crédito na hora de resgatar
-• E sua própria venda de imóvel continua andando mais rápido com a IA da plataforma
-
-Comece de graça agora.
+Cada corretor ou imobiliária que você conhece é uma oportunidade que só existe enquanto você não usa o link.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Não é só sobre vender imóvel — também é sobre construir renda',
+      assunto: 'A comissão que já era sua, só não foi resgatada ainda',
       corpo: `Olá {nome},
 
-Vender imóvel continua sendo o centro do seu trabalho, e a Match Imóveis ajuda nisso cruzando automaticamente cada lead com o imóvel certo. Mas o programa de afiliados da plataforma abre outra porta: construir uma renda extra só indicando a plataforma pra quem você já conhece do mercado.
+Programa de afiliados não é promessa — é comissão de verdade, em dinheiro ou crédito, por cada corretor ou imobiliária que entra pelo seu link. A única forma de não ganhar isso é não ter o link ativo.
 
-• Comissão contínua, sem precisar vender nada você mesmo
-• Quem você indicar também pode indicar outros — e você ganha parte disso também
-• Tudo dentro da mesma conta, sem processo separado
-
-Cadastro grátis, sem cartão de crédito.
+Ativar é grátis e leva menos tempo que ler esse e-mail.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Duas formas de ganhar com o mesmo cadastro',
+      assunto: 'Todo mês que passa sem seu link ativo é comissão que não volta',
       corpo: `Olá {nome},
 
-Um cadastro só na Match Imóveis abre duas frentes de ganho: você vende mais rápido com o cruzamento automático de leads e imóveis, e ainda ganha comissão contínua indicando a plataforma pra outros corretores, imobiliárias ou agências de marketing.
+Diferente de outras oportunidades, essa não some por falta de sorte — some por falta de 1 clique. Cada corretor que você poderia ter indicado esse mês, e não indicou pelo link certo, é renda que não vai mais existir.
 
-• Sem mensalidade fixa em nenhuma das duas
-• Comissão escolhida por você: dinheiro ou crédito
-• Créditos de boas-vindas já liberados assim que você cria a conta
-
-Vale a pena conferir os dois ao mesmo tempo.
+Ative agora e comece a partir da próxima indicação.
 
 — Equipe Match Imóveis`
     }
@@ -1110,9 +1020,9 @@ async function marcarEnviado(id, erro, extra = {}) {
 // tipo de modelo — "pagina" convida a testar a plataforma, "demanda" convida
 // a consultar a demanda da região.
 const CTA_POR_TIPO = {
-  pagina: 'Testar grátis agora →',
-  demanda: 'Ver demanda da minha região →',
-  afiliado: 'Quero ganhar como afiliado →',
+  pagina: 'Não perder o próximo lead →',
+  demanda: 'Ver a demanda agora →',
+  afiliado: 'Ativar meu link agora →',
   followup1: 'Testar grátis agora →',
   followup2: 'Criar minha conta grátis →',
   // followup3 é o único cujo CTA leva pro login (não pra landing page) —

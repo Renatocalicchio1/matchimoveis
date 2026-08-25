@@ -645,6 +645,7 @@ const _ADMIN_NAV = [
     { key: 'site-global', href: '/admin/site-global', icon: '🌍', label: 'Site Global' }
   ]},
   { sec: 'Administração', items: [
+    { key: 'funil', href: '/admin/funil', icon: '🧭', label: 'Funil de Vendas' },
     { key: 'afiliados-admin', href: '/admin/afiliados', icon: '🌳', label: 'Afiliados' },
     { key: 'comissoes-pendentes', href: '/admin/comissoes-pendentes', icon: '💸', label: 'Comissões Pendentes' },
     { key: 'pagamentos', href: '/admin/pagamentos', icon: '💳', label: 'Pagamentos e Tentativas' }
@@ -7537,6 +7538,57 @@ app.get('/admin/afiliados', authAdmin, async (req, res) => {
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
+// ── FUNIL DE VENDAS — visão única pro super admin (ago/2026, pedido
+// explícito): junta o funil de CONTA (corretor/imobiliária/agência —
+// Convertido/Ativado/Cliente, ver _estagioConta acima) com o funil de LEAD
+// (cliente de cada corretor — Novo até Fechado/Perdido, cerebro/funil.js,
+// que existia pronto mas nunca tinha sido ligado a nada — corrigido nessa
+// mesma leva pra ler o campo certo de desfecho de visita, pipelineStatus).
+app.get('/admin/funil', authAdmin, async (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).send('Acesso restrito ao administrador principal.');
+  try {
+    const todos = (_cacheUsuarios || []).filter(u => u.tipo !== 'admin' && u.ativo !== false);
+    const imoveisIdx = _indexarContagemPorUsuario(_cacheImoveis);
+    const leadsIdx = _indexarContagemPorUsuario(_cacheLeads);
+    const indicadosIdx = {};
+    todos.forEach(u => { if (u.indicadoPor) indicadosIdx[u.indicadoPor] = (indicadosIdx[u.indicadoPor] || 0) + 1; });
+
+    const contasFunil = todos.map(u => {
+      const codigo = u.codigoUsuario || u.id;
+      const imoveisCount = imoveisIdx[codigo] || 0;
+      const leadsCount = leadsIdx[codigo] || 0;
+      return {
+        codigo, nome: u.nome || '(sem nome)', tipo: u.tipo || 'corretor',
+        estagio: _estagioConta(u, imoveisCount, leadsCount),
+        imoveisCount, leadsCount,
+        matchCoinsTotal: Number(u.matchCoinsTotal || u.match_coins_total || 0),
+        indicados: indicadosIdx[codigo] || 0,
+        criadoEm: u.criadoEm || u.criado_em || null
+      };
+    });
+
+    const contagemConta = { convertido: 0, ativado: 0, cliente: 0 };
+    contasFunil.forEach(c => { contagemConta[c.estagio] = (contagemConta[c.estagio] || 0) + 1; });
+    const totalIndicadores = contasFunil.filter(c => c.indicados > 0).length;
+
+    const _ordemEstagioConta = { cliente: 0, ativado: 1, convertido: 2 };
+    contasFunil.sort((a, b) => (_ordemEstagioConta[a.estagio] - _ordemEstagioConta[b.estagio]) || a.nome.localeCompare(b.nome));
+
+    const { resumoFunil, ETAPAS } = require('./cerebro/funil');
+    const resumoLeads = resumoFunil(_cacheLeads || [], _cacheVisitas || []);
+    const totalLeads = (_cacheLeads || []).length;
+
+    res.render('admin-funil', {
+      contasFunil, contagemConta, totalContas: contasFunil.length, totalIndicadores,
+      resumoLeads, ETAPAS, totalLeads, estagiosContaLabel: _ESTAGIOS_CONTA_LABEL,
+      adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('funil', _sidebarPerm(req), req)
+    });
+  } catch (e) {
+    console.error('[admin/funil]', e.message);
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
+
 app.get('/admin/afiliados/buscar', authAdmin, (req, res) => {
   if (req.session.adminSuper === false) return res.status(403).json([]);
   const q = String(req.query.q || '').trim().toLowerCase();
@@ -14352,6 +14404,41 @@ function _ehAfiliadoLiberado(codigo) {
 function _afiliadosNivel1() {
   return (_cacheUsuarios || []).filter(u => _nivelAfiliado(u) === 1).map(u => u.codigoUsuario || u.id);
 }
+
+// ── FUNIL DE CONTA (ago/2026) — estágio pós-cadastro de qualquer conta já
+// existente (corretor autônomo, imobiliária ou agência — mesmo funil pros
+// 3, só muda o campo `tipo`), complementando estagioContatoCampanha()
+// (que só cobre quem ainda não tem conta). 3 estágios, nessa ordem de
+// prioridade:
+//   cliente   — já comprou de verdade (match_coins_total > 1000, passou do
+//               bônus de boas-vindas)
+//   ativado   — tem conta e já usou o produto de verdade (XML importado,
+//               1º imóvel cadastrado ou 1ª lead manual) mas ainda não
+//               comprou — sinal de "product-qualified", mesmos campos que
+//               o checklist de Primeiros Passos (/api/onboarding/status)
+//               já calcula, só que agregado aqui pra visão do admin
+//   convertido — tem conta, ainda não fez nada disso
+// "Indicador" não é um estágio (é ortogonal — dá pra ser Cliente E
+// Indicador ao mesmo tempo) — contado à parte via indicadoPor.
+// Não modela "Recorrente" (2ª compra): não existe hoje nenhum registro de
+// compras individuais por conta (só o total acumulado em
+// match_coins_total), então não dá pra saber se uma conta com saldo alto
+// comprou 1 vez grande ou várias vezes pequenas — precisaria de um
+// ledger de pagamentos por usuário que ainda não existe.
+function _indexarContagemPorUsuario(lista) {
+  const mapa = {};
+  for (const item of (lista || [])) {
+    const chaves = new Set([item.userId, item.usuarioId, item.codigoUsuario, item.corretorId].filter(Boolean).map(String));
+    for (const k of chaves) mapa[k] = (mapa[k] || 0) + 1;
+  }
+  return mapa;
+}
+function _estagioConta(usuario, imoveisCount, leadsCount) {
+  if (Number(usuario.matchCoinsTotal || usuario.match_coins_total || 0) > 1000) return 'cliente';
+  const ativado = !!(usuario.xmlUrl || usuario.xml_url) || (imoveisCount > 0) || (leadsCount > 0);
+  return ativado ? 'ativado' : 'convertido';
+}
+const _ESTAGIOS_CONTA_LABEL = { convertido: 'Convertido', ativado: 'Ativado', cliente: 'Cliente' };
 
 // ── JOB_REATRIBUICAO_CONTATOS_AFILIADO — reequilibra os contatos de campanha
 // que "Convidar novos" mostra pra cada afiliado (ago/2026, pedido explícito).

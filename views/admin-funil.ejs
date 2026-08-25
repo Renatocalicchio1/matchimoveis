@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Funil de Vendas · Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
+<%- adminShellCss %>
+.admin-content{max-width:1500px}
+h1{font-size:18px;font-weight:700;margin-bottom:4px}
+.lede{color:#888;font-size:12.5px;margin-bottom:22px;max-width:74ch;line-height:1.6}
+h2.secao{font-size:15px;font-weight:700;margin:36px 0 4px;color:#111}
+.secao-sub{font-size:12px;color:#888;margin-bottom:16px}
+
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:14px 16px}
+.kpi.on-convertido{border-left:3px solid #9ca3af}
+.kpi.on-ativado{border-left:3px solid #FC642D}
+.kpi.on-cliente{border-left:3px solid #00A699}
+.kpi.on-indicador{border-left:3px solid #FF385C}
+.kpi .n{font-size:22px;font-weight:800;letter-spacing:-.5px}
+.kpi .l{font-size:10.5px;color:#888;text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+
+.funil-bars{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:18px 20px;margin-bottom:22px}
+.fb-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.fb-row:last-child{margin-bottom:0}
+.fb-label{width:150px;flex-shrink:0;font-size:12.5px;font-weight:600;color:#374151;display:flex;align-items:center;gap:6px}
+.fb-track{flex:1;height:20px;background:#f5f5f4;border-radius:6px;overflow:hidden}
+.fb-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;min-width:2px}
+.fb-fill span{font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap}
+.fb-count{width:120px;flex-shrink:0;text-align:right;font-size:12px;color:#6b7280;font-variant-numeric:tabular-nums}
+
+.filtros{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filtros input,.filtros select{padding:7px 10px;border:1px solid #e5e5e3;border-radius:8px;font-size:12.5px}
+.filtros input{flex:1;min-width:180px}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:#9ca3af;padding:8px 14px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid #f5f5f4;font-size:12.5px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tabela-wrap{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden}
+.tabela-scroll{overflow-x:auto}
+.num{font-variant-numeric:tabular-nums;font-weight:600}
+.badge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;display:inline-block}
+.badge.convertido{background:#f3f4f6;color:#6b7280}
+.badge.ativado{background:#FFF1E8;color:#b8460e}
+.badge.cliente{background:#E6F7F5;color:#00786F}
+.tipo-tag{font-size:11px;color:#9ca3af;text-transform:capitalize}
+.vazio{text-align:center;padding:40px 20px;color:#aaa}
+footer.nota{margin-top:28px;font-size:11.5px;color:#9ca3af;line-height:1.7;max-width:80ch}
+</style>
+</head>
+<body>
+<div class="admin-app">
+<%- adminSidebar %>
+<main class="admin-content">
+  <h1>🧭 Funil de Vendas</h1>
+  <p class="lede">Duas visões: o funil de <strong>conta</strong> (corretor, imobiliária ou agência avançando de cadastro até cliente pagante) e o funil de <strong>lead</strong> (o cliente de cada corretor, do primeiro contato até vender ou perder). O de lead usa o classificador que já existia no código mas nunca tinha sido ligado a nada — corrigido nessa leva pra ler o campo certo de resultado de visita.</p>
+
+  <h2 class="secao">Funil de conta — <%= totalContas.toLocaleString('pt-BR') %> cadastradas</h2>
+  <p class="secao-sub">Corretor autônomo, imobiliária e agência de marketing contam juntos — é o mesmo funil, só muda o campo "tipo".</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n"><%= totalContas.toLocaleString('pt-BR') %></div><div class="l">Total de contas</div></div>
+    <div class="kpi on-convertido"><div class="n"><%= (contagemConta.convertido||0).toLocaleString('pt-BR') %></div><div class="l">Convertido</div></div>
+    <div class="kpi on-ativado"><div class="n"><%= (contagemConta.ativado||0).toLocaleString('pt-BR') %></div><div class="l">Ativado</div></div>
+    <div class="kpi on-cliente"><div class="n"><%= (contagemConta.cliente||0).toLocaleString('pt-BR') %></div><div class="l">Cliente</div></div>
+    <div class="kpi on-indicador"><div class="n"><%= totalIndicadores.toLocaleString('pt-BR') %></div><div class="l">Já indicaram alguém</div></div>
+  </div>
+
+  <div class="funil-bars">
+    <% const _coresConta = { convertido:'#9ca3af', ativado:'#FC642D', cliente:'#00A699' }; %>
+    <% ['convertido','ativado','cliente'].forEach(function(k){
+      const n = contagemConta[k] || 0;
+      const pct = totalContas ? Math.round(n/totalContas*100) : 0;
+    %>
+    <div class="fb-row">
+      <div class="fb-label"><%= estagiosContaLabel[k] %></div>
+      <div class="fb-track"><div class="fb-fill" style="width:<%= Math.max(pct,3) %>%;background:<%= _coresConta[k] %>"><span><%= pct %>%</span></div></div>
+      <div class="fb-count"><%= n.toLocaleString('pt-BR') %> conta<%= n===1?'':'s' %></div>
+    </div>
+    <% }) %>
+  </div>
+
+  <div class="filtros">
+    <input type="text" id="f-busca" placeholder="Buscar por nome ou código..." oninput="filtrarContas()">
+    <select id="f-estagio" onchange="filtrarContas()">
+      <option value="">Todos os estágios</option>
+      <option value="convertido">Convertido</option>
+      <option value="ativado">Ativado</option>
+      <option value="cliente">Cliente</option>
+    </select>
+  </div>
+
+  <% if (!contasFunil.length) { %>
+    <div class="tabela-wrap"><div class="vazio">Nenhuma conta encontrada.</div></div>
+  <% } else { %>
+  <div class="tabela-wrap">
+  <div class="tabela-scroll">
+  <table id="tabela-contas">
+    <thead>
+      <tr>
+        <th>Conta</th><th>Tipo</th><th>Estágio</th><th>Imóveis</th><th>Leads</th><th>Créditos totais</th><th>Indicou</th><th>Cadastro</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% contasFunil.forEach(function(c){ %>
+      <tr data-nome="<%= (c.nome+' '+c.codigo).toLowerCase() %>" data-estagio="<%= c.estagio %>">
+        <td><strong><%= c.nome %></strong><br><span style="color:#9ca3af;font-size:11px"><%= c.codigo %></span></td>
+        <td class="tipo-tag"><%= c.tipo %></td>
+        <td><span class="badge <%= c.estagio %>"><%= estagiosContaLabel[c.estagio] %></span></td>
+        <td class="num"><%= c.imoveisCount %></td>
+        <td class="num"><%= c.leadsCount %></td>
+        <td class="num"><%= c.matchCoinsTotal.toLocaleString('pt-BR') %></td>
+        <td class="num"><%= c.indicados || '—' %></td>
+        <td><%= c.criadoEm ? new Date(c.criadoEm).toLocaleDateString('pt-BR') : '—' %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+  </div>
+  <% } %>
+
+  <h2 class="secao">Funil de leads — <%= totalLeads.toLocaleString('pt-BR') %> na plataforma toda</h2>
+  <p class="secao-sub">Consolidado de todos os corretores. Etapa mais avançada primeiro; só mostra etapa com pelo menos 1 lead.</p>
+
+  <div class="funil-bars">
+    <% const _etapasOrdenadas = Object.keys(ETAPAS).sort(function(a,b){ return ETAPAS[b].ordem - ETAPAS[a].ordem; }); %>
+    <% let _temAlguma = false; %>
+    <% _etapasOrdenadas.forEach(function(k){
+      const n = resumoLeads[k] || 0;
+      if (!n) return;
+      _temAlguma = true;
+      const pct = totalLeads ? Math.round(n/totalLeads*100) : 0;
+      const info = ETAPAS[k];
+    %>
+    <div class="fb-row">
+      <div class="fb-label"><%= info.emoji %> <%= info.label %></div>
+      <div class="fb-track"><div class="fb-fill" style="width:<%= Math.max(pct,3) %>%;background:<%= info.cor %>"><span><%= pct %>%</span></div></div>
+      <div class="fb-count"><%= n.toLocaleString('pt-BR') %> lead<%= n===1?'':'s' %></div>
+    </div>
+    <% }) %>
+    <% if (!_temAlguma) { %><div class="vazio">Nenhum lead classificado ainda.</div><% } %>
+  </div>
+
+  <footer class="nota">
+    <strong>Conta:</strong> Cliente = já comprou de verdade (mais de 1.000 créditos acumulados, passou do bônus de boas-vindas). Ativado = tem conta e já usou o produto (importou XML, cadastrou 1º imóvel ou 1ª lead) mas ainda não comprou. Convertido = só tem conta. Não existe ainda um "Recorrente" separado de "Cliente" — precisaria de um registro de compras individuais por conta, que hoje não existe (só o total acumulado).<br><br>
+    <strong>Lead:</strong> Fechado/Perdido vêm do resultado da visita (<code>pipelineStatus</code>) marcado pelo corretor nas telas de visita. Quente = 3+ matches; Visita = tem visita ativa sem desfecho ainda; sem visita e sem match, cai em Novo/Fria por tempo desde o cadastro.
+  </footer>
+</main>
+</div>
+<script>
+function filtrarContas(){
+  const q = document.getElementById('f-busca').value.trim().toLowerCase();
+  const estagio = document.getElementById('f-estagio').value;
+  document.querySelectorAll('#tabela-contas tbody tr').forEach(function(tr){
+    const bateBusca = !q || tr.dataset.nome.includes(q);
+    const bateEstagio = !estagio || tr.dataset.estagio === estagio;
+    tr.style.display = (bateBusca && bateEstagio) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

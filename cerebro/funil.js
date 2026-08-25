@@ -13,6 +13,17 @@ const ETAPAS = {
   PERDIDO:    { label: 'Perdido',     emoji: '❌', cor: '#6b7280', ordem: 0 }
 };
 
+// Desfecho comercial pós-visita mora em v.pipelineStatus (setado pelas
+// rotas /app/visitas/proposta|negociacao|fechado|perdido/:id — server.js),
+// não em v.status nem v.workflowStatus (esses são outra coisa: status
+// básico da visita e status de confirmação/agendamento, campos
+// diferentes). classificar() checava os campos errados desde que foi
+// escrito — nunca detectava um FECHADO/PERDIDO real porque comparava com
+// nomes de campo que não existem nesse formato em nenhuma visita de
+// verdade (achado ago/2026, ver auditoria de módulos não conectados).
+function _pipelineStatus(v){
+  return String(v.pipelineStatus || '').toUpperCase();
+}
 function classificar(lead, visitas) {
   visitas = visitas || [];
   const leadId = String(lead.id || lead._id || '');
@@ -20,13 +31,20 @@ function classificar(lead, visitas) {
   const agora = Date.now();
   const diasAtras = lead.createdAt ? (agora - new Date(lead.createdAt).getTime()) / 86400000 : 999;
 
-  // Pipeline de visita
-  if (visitasLead.some(function(v){ return v.status === 'fechado' || v.workflowStatus === 'FECHADO'; })) return 'FECHADO';
-  if (visitasLead.some(function(v){ return v.status === 'perdido' || v.workflowStatus === 'PERDIDO'; })) return 'PERDIDO';
-  if (visitasLead.some(function(v){ return v.status === 'proposta' || v.workflowStatus === 'PROPOSTA'; })) return 'PROPOSTA';
-  if (visitasLead.some(function(v){ return v.status === 'negociacao' || v.workflowStatus === 'NEGOCIACAO'; })) return 'NEGOCIACAO';
-  if (visitasLead.some(function(v){ return v.status === 'confirmada'; })) return 'VISITA';
-  if (visitasLead.length > 0) return 'VISITA';
+  // Visita cancelada não conta como "em andamento" pra nenhum propósito —
+  // nem pipeline comercial, nem "tem visita ativa" mais abaixo.
+  const visitasAtivas = visitasLead.filter(function(v){
+    const st = String(v.status || '').toUpperCase();
+    const wf = String(v.workflowStatus || v.workflow_status || '').toUpperCase();
+    return !st.includes('CANCEL') && !wf.includes('CANCEL');
+  });
+
+  // Pipeline de visita — do mais avançado pro menos
+  if (visitasAtivas.some(function(v){ return _pipelineStatus(v) === 'FECHADO'; })) return 'FECHADO';
+  if (visitasAtivas.some(function(v){ return _pipelineStatus(v) === 'PERDIDO'; })) return 'PERDIDO';
+  if (visitasAtivas.some(function(v){ return _pipelineStatus(v) === 'PROPOSTA'; })) return 'PROPOSTA';
+  if (visitasAtivas.some(function(v){ return _pipelineStatus(v) === 'NEGOCIACAO'; })) return 'NEGOCIACAO';
+  if (visitasAtivas.length > 0) return 'VISITA';
 
   // Match e vitrine
   const temMatch = lead.matchesBase && lead.matchesBase.length > 0;
@@ -40,9 +58,22 @@ function classificar(lead, visitas) {
 }
 
 function resumoFunil(leads, visitas) {
+  visitas = visitas || [];
+  // Agrupa visitas por leadId 1x (em vez de filtrar a lista inteira de
+  // visitas pra cada lead) — importante numa base com milhares de leads e
+  // visitas, como a tela de funil do admin que olha a plataforma toda.
+  var visitasPorLead = {};
+  visitas.forEach(function(v){
+    var k = String(v.leadId || '');
+    (visitasPorLead[k] = visitasPorLead[k] || []).push(v);
+  });
   var contagem = {};
   Object.keys(ETAPAS).forEach(function(e){ contagem[e] = 0; });
-  leads.forEach(function(l){ var etapa = classificar(l, visitas); contagem[etapa] = (contagem[etapa]||0) + 1; });
+  leads.forEach(function(l){
+    var k = String(l.id || l._id || '');
+    var etapa = classificar(l, visitasPorLead[k] || []);
+    contagem[etapa] = (contagem[etapa]||0) + 1;
+  });
   return contagem;
 }
 

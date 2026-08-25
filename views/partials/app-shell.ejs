@@ -540,10 +540,11 @@ function toggleMaisMenu(){
   </div>
 </div>
 
-<!-- POPUP "CONHEÇA O MENU DE AFILIADOS" (ago/2026) — 1x por sessão de
-     navegador (sessionStorage), só pra quem ainda não assinou o contrato de
-     afiliado (checado ao vivo em /api/afiliados/popup-status). Some pra
-     sempre depois que o contrato é aceito. -->
+<!-- POPUP "CONHEÇA O MENU DE AFILIADOS" (ago/2026) — 1x por sessão de LOGIN
+     (controlado no servidor, ver /api/afiliados/popup-status), só pra quem
+     ainda não assinou o contrato de afiliado. Reaparece a cada novo login
+     (logout destrói a sessão) e some pra sempre depois que o contrato é
+     aceito. -->
 <div id="modalAfiliadoPopup" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">
     <div style="background:linear-gradient(135deg,#FF385C,#FC642D);padding:28px 24px 22px;color:#fff">
@@ -559,10 +560,8 @@ function toggleMaisMenu(){
 </div>
 <script>
 (function(){
-  if (sessionStorage.getItem('afiliadoPopupMostrado')) return;
   fetch('/api/afiliados/popup-status').then(function(r){ return r.json(); }).then(function(data){
     if (!data || !data.mostrar) return;
-    sessionStorage.setItem('afiliadoPopupMostrado', '1');
     var m = document.getElementById('modalAfiliadoPopup');
     if (m) m.style.display = 'flex';
   }).catch(function(){});

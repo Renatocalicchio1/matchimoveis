@@ -6049,18 +6049,26 @@ app.get('/app/notificacoes', auth, async (req,res)=>{
 // aguardando resposta do corretor (status 'solicitada'). notificacoes: !lida,
 // igual já era calculado em /app-home.
 // Popup "conheça o menu de afiliados" (ago/2026, pedido explícito): toda
-// vez que o usuário entra na plataforma (1x por sessão de navegador, ver
-// sessionStorage no app-shell.ejs), até ele assinar o contrato de afiliado
-// — depois disso nunca mais aparece. Lê de _cacheUsuarios (em memória, já
-// atualizado na hora que o contrato é aceito), não de req.session.user, que
-// fica desatualizado até o próximo login (POST /app/afiliados/aceitar-
-// contrato só atualiza o cache, não a sessão).
+// vez que o usuário LOGA (1x por sessão de LOGIN — req.session, não
+// sessionStorage do navegador), até ele assinar o contrato de afiliado —
+// depois disso nunca mais aparece. Antes usava sessionStorage (1x por aba do
+// navegador), o que não reabria se o usuário deslogasse e logasse de novo na
+// mesma aba — corrigido pra usar req.session.afiliadoPopupMostrado, que só
+// existe a partir do momento que essa rota devolve mostrar:true; /logout
+// sempre destrói a sessão (req.session.destroy), então todo novo login parte
+// de sessão vazia e o popup volta a aparecer. Lê de _cacheUsuarios (em
+// memória, já atualizado na hora que o contrato é aceito), não de
+// req.session.user, que fica desatualizado até o próximo login (POST
+// /app/afiliados/aceitar-contrato só atualiza o cache, não a sessão).
 app.get('/api/afiliados/popup-status', auth, (req, res) => {
   try {
+    if (req.session.afiliadoPopupMostrado) return res.json({ mostrar: false });
     const uid = req.session.user.codigoUsuario || req.session.user.id;
     if (!_ehAfiliadoLiberado(uid)) return res.json({ mostrar: false });
     const u = (_cacheUsuarios || []).find(x => (x.codigoUsuario || x.id) === uid);
-    res.json({ mostrar: !!u && !u.afiliadoContratoAceitoEm });
+    const mostrar = !!u && !u.afiliadoContratoAceitoEm;
+    if (mostrar) req.session.afiliadoPopupMostrado = true;
+    res.json({ mostrar });
   } catch(e) { res.json({ mostrar: false }); }
 });
 

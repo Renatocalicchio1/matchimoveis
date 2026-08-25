@@ -424,13 +424,13 @@ Vale a pena conferir os dois ao mesmo tempo.
 
 Te mandei um e-mail sobre a Match Imóveis, mas imagino que deve ter passado batido na correria do dia a dia.
 
-Resumindo em 1 frase: a gente cruza cada lead com o imóvel certo da sua carteira e da rede, automaticamente, 24 horas por dia — sem você precisar ficar de olho na planilha.
+Resumindo: a gente cruza cada lead com o imóvel certo da sua carteira automaticamente, e você ainda pode ganhar comissão indicando a plataforma pra outros corretores.
 
-• Recebe o lead
-• Encontra o imóvel compatível
-• Manda a vitrine pro cliente sozinha
+• Leads cruzados sozinhos, 24 horas por dia
+• Comissão contínua se você indicar alguém
+• Grátis pra testar
 
-Dá uma olhada quando puder, é grátis pra testar.
+Dá uma olhada quando puder.
 
 — Equipe Match Imóveis`
     },
@@ -438,15 +438,11 @@ Dá uma olhada quando puder, é grátis pra testar.
       assunto: 'Reenviando — pode ter passado despercebido',
       corpo: `Olá {nome},
 
-Sei que a caixa de entrada de corretor não para, então vou direto ao ponto: a Match Imóveis existe pra resolver um problema específico — lead que demora a ser atendido e acaba fechando com outro corretor.
+Sei que a caixa de entrada de corretor não para, então vou direto ao ponto: a Match Imóveis ajuda a vender mais rápido cruzando leads automaticamente, e também paga comissão pra quem indica a plataforma pra outros corretores.
 
-Ela faz isso sozinha:
-
-• Cruza o lead com os imóveis certos
-• Monta a vitrine automaticamente
-• Agenda a visita sem você precisar lembrar
-
-1.000 créditos grátis pra testar, sem cartão.
+• Cruza o lead com o imóvel certo sozinha
+• Comissão contínua por indicação
+• 1.000 créditos grátis pra testar
 
 — Equipe Match Imóveis`
     },
@@ -454,28 +450,22 @@ Ela faz isso sozinha:
       assunto: 'Um lembrete rápido sobre a Match Imóveis',
       corpo: `Olá {nome},
 
-Passando de novo porque acho que isso pode te ajudar de verdade: enquanto você atende um cliente, outros leads continuam chegando — e quem demora a responder, perde negócio.
+Passando de novo porque acho que isso pode te interessar: além de ajudar a fechar mais rápido (cruza lead com imóvel automaticamente), a plataforma também paga comissão pra quem indica outros corretores.
 
-A Match Imóveis resolve isso automaticamente:
-
-• Cruza cada lead com o imóvel certo
-• Envia a vitrine sozinha
 • Funciona mesmo fora do seu horário
-
-Teste grátis, sem compromisso.
+• Comissão contínua por indicação
+• Teste grátis, sem compromisso
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Isso pode estar te custando vendas sem você perceber',
+      assunto: 'Isso pode estar te custando vendas (e dinheiro parado)',
       corpo: `Olá {nome},
 
-A maioria dos corretores só percebe o lead perdido quando é tarde demais — mensagem que ficou sem resposta, imóvel certo esquecido na planilha.
-
-A Match Imóveis evita isso: cruza automaticamente cada lead com o imóvel certo da sua carteira e da rede, e manda a vitrine sozinha.
+A maioria dos corretores só percebe o lead perdido quando é tarde demais. A Match Imóveis evita isso cruzando automaticamente cada lead com o imóvel certo — e de quebra, você ainda ganha comissão se indicar a plataforma pra outros corretores.
 
 • Sem mensalidade fixa
-• Sem comissão sobre venda
+• Comissão contínua por indicação
 • 1.000 créditos grátis pra começar
 
 Dá uma conferida quando puder.
@@ -486,31 +476,23 @@ Dá uma conferida quando puder.
       assunto: 'Deixei isso passar? Segue de novo',
       corpo: `Olá {nome},
 
-Talvez esse e-mail tenha se perdido no meio de tantos outros — normal, corretor recebe muito e-mail. Mas acho que vale a pena você dar uma olhada.
+Talvez esse e-mail tenha se perdido no meio de tantos outros — normal, corretor recebe muito e-mail. Vale a pena dar uma olhada: a plataforma cruza seus leads automaticamente com os imóveis certos, e ainda paga comissão pra quem indica outros corretores ou imobiliárias.
 
-A Match Imóveis:
-
-• Recebe cada lead novo automaticamente
-• Cruza com os imóveis compatíveis da sua carteira e da rede
-• Envia a vitrine sem você precisar lembrar
-
-Testa grátis, com 1.000 créditos pra começar.
+• Recebe e cruza o lead sozinha
+• Comissão contínua por indicação
+• Testa grátis, com 1.000 créditos
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Corretores que usam isso fecham mais rápido',
+      assunto: 'Corretores que usam isso fecham mais rápido (e ainda ganham indicando)',
       corpo: `Olá {nome},
 
-Você já deve ter reparado que quem responde primeiro o lead certo, na maioria das vezes, é quem fecha o negócio.
+Você já deve ter reparado que quem responde primeiro o lead certo, na maioria das vezes, é quem fecha o negócio. A Match Imóveis te coloca nessa posição automaticamente — e tem mais: você também ganha comissão indicando a plataforma pra outros corretores.
 
-A Match Imóveis existe pra te colocar nessa posição sempre:
-
-• Cruza o lead com o imóvel certo automaticamente
-• Monta e envia a vitrine sozinha
-• Trabalha por você mesmo quando você está ocupado
-
-Comece agora, grátis, com 1.000 créditos.
+• Cruza o lead com o imóvel certo sozinha
+• Comissão contínua por indicação
+• Comece agora, grátis
 
 — Equipe Match Imóveis`
     },
@@ -518,13 +500,11 @@ Comece agora, grátis, com 1.000 créditos.
       assunto: 'Ainda dá tempo de ver como funciona',
       corpo: `Olá {nome},
 
-Não sei se chegou a ver o e-mail anterior, então resumo rápido: a Match Imóveis cruza automaticamente cada lead que chega com os imóveis certos da sua carteira — sem você precisar procurar manualmente.
+Resumo rápido: a Match Imóveis cruza automaticamente cada lead que chega com os imóveis certos da sua carteira — e além de vender mais rápido, você pode ganhar comissão indicando a plataforma pra outros corretores.
 
 • Funciona 24h por dia
-• Envia a vitrine sozinha pro cliente
-• Sem mensalidade obrigatória
-
-Vale a pena conferir, é grátis pra testar.
+• Comissão contínua por indicação
+• Grátis pra testar
 
 — Equipe Match Imóveis`
     },
@@ -532,15 +512,11 @@ Vale a pena conferir, é grátis pra testar.
       assunto: 'Sua carteira pode estar rendendo mais que isso',
       corpo: `Olá {nome},
 
-Reforçando o que te mandei antes: a maior parte dos imóveis parados na carteira não tem problema nenhum — só não foram cruzados com o lead certo na hora certa.
+Reforçando o que te mandei antes: a maior parte dos imóveis parados na carteira só não foram cruzados com o lead certo ainda. A Match Imóveis faz isso sozinha — e você também pode ganhar dinheiro indicando o sistema pra outros corretores.
 
-A Match Imóveis faz esse cruzamento sozinha, o tempo todo:
-
-• Recebe o lead
-• Encontra o imóvel compatível
-• Manda a vitrine automaticamente
-
-Teste agora, sem cartão de crédito, com 1.000 créditos grátis.
+• Cruzamento automático, o tempo todo
+• Comissão contínua por indicação
+• Teste agora, sem cartão de crédito
 
 — Equipe Match Imóveis`
     },
@@ -548,27 +524,23 @@ Teste agora, sem cartão de crédito, com 1.000 créditos grátis.
       assunto: 'De novo aqui — pode valer os 2 minutos',
       corpo: `Olá {nome},
 
-Sei que sua caixa de entrada não para, mas queria te dar mais uma chance de ver isso: a Match Imóveis conecta automaticamente cada lead novo com o imóvel certo da sua carteira ou da rede.
+Mais uma chance de você ver isso: a plataforma conecta automaticamente cada lead novo com o imóvel certo da sua carteira, e ainda paga comissão pra quem indica outros corretores ou imobiliárias.
 
 • Sem precisar cruzar manualmente
-• Vitrine enviada sozinha pro cliente
-• Funciona mesmo fora do seu horário comercial
-
-Grátis pra testar, com 1.000 créditos de bônus.
+• Comissão contínua por indicação
+• Grátis pra testar, com bônus de boas-vindas
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Talvez isso resolva um problema que você já tem',
+      assunto: 'Talvez isso resolva um problema (e ainda te pague por indicar)',
       corpo: `Olá {nome},
 
-Se você já perdeu um lead por demorar a responder, esse e-mail é pra você. A Match Imóveis cruza automaticamente cada lead com os imóveis certos e manda a vitrine sozinha — 24 horas por dia.
+Se você já perdeu um lead por demorar a responder, esse e-mail é pra você. A Match Imóveis cruza automaticamente cada lead com os imóveis certos — e de quebra, paga comissão pra quem indica a plataforma pra outros corretores.
 
 • Sem mensalidade fixa
-• Sem comissão sobre venda
-• Comece grátis, com 1.000 créditos pra testar
-
-Dá uma olhada, é rápido.
+• Comissão contínua por indicação
+• Comece grátis, com 1.000 créditos
 
 — Equipe Match Imóveis`
     }
@@ -580,27 +552,25 @@ Dá uma olhada, é rápido.
       assunto: 'Vi que você deu uma olhada — faltou só criar a conta',
       corpo: `Olá {nome},
 
-Notei que você abriu o e-mail sobre a Match Imóveis — só não chegou a criar a conta ainda.
-
-É rápido e sem custo pra começar:
+Notei que você abriu o e-mail sobre a Match Imóveis, só não chegou a criar a conta. É rápido, e a conta já serve pros dois lados: vender mais rápido com o cruzamento automático de leads, e ganhar comissão indicando a plataforma pra outros corretores.
 
 • Cadastro leva menos de 2 minutos
-• Você já sai com 1.000 créditos grátis pra testar
-• Sem cartão de crédito, sem compromisso
+• 1.000 créditos grátis pra testar
+• Já sai com seu link de indicação pronto
 
 Vale a pena finalizar — os leads da sua região não esperam.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Faltou só um passo pra você começar a usar',
+      assunto: 'Faltou só um passo pra você começar a usar (e a ganhar)',
       corpo: `Olá {nome},
 
-Você chegou a ver a proposta da Match Imóveis, mas o cadastro ainda não foi feito. Fica só esse detalhe entre você e começar a receber leads cruzados automaticamente com sua carteira.
+Você chegou a ver a proposta da Match Imóveis, mas o cadastro ainda não foi feito. Fica só esse detalhe entre você e começar a receber leads cruzados automaticamente — e também ganhar comissão indicando a plataforma.
 
 • Grátis pra criar a conta
 • 1.000 créditos de bônus já na entrada
-• Leva menos tempo que ler esse e-mail
+• Link de indicação pronto assim que você entra
 
 Termina o cadastro quando puder.
 
@@ -610,11 +580,11 @@ Termina o cadastro quando puder.
       assunto: 'Ainda dá tempo de finalizar seu cadastro',
       corpo: `Olá {nome},
 
-Vi que você teve interesse na Match Imóveis, mas o cadastro ficou pela metade. Sem problema — o link continua disponível, e a conta já nasce com 1.000 créditos grátis pra você testar sem gastar nada.
+Vi que você teve interesse na Match Imóveis, mas o cadastro ficou pela metade. O link continua disponível — e a conta já vem com 1.000 créditos grátis, além do seu link de indicação pra ganhar comissão indicando outros corretores.
 
 • Cadastro rápido, sem burocracia
 • Sem mensalidade obrigatória
-• Comece a receber leads cruzados automaticamente
+• Comissão contínua por indicação, se quiser usar
 
 Fico à disposição se tiver qualquer dúvida.
 
@@ -624,11 +594,11 @@ Fico à disposição se tiver qualquer dúvida.
       assunto: 'Não deixa esse cadastro pela metade',
       corpo: `Olá {nome},
 
-Você já deu uma conferida na Match Imóveis — agora é só finalizar o cadastro pra sua conta começar a funcionar de verdade.
+Você já deu uma conferida na Match Imóveis — agora é só finalizar o cadastro. Sua conta já nasce com 1.000 créditos grátis e um link de indicação seu, pra ganhar comissão se quiser indicar outros corretores.
 
-• 1.000 créditos grátis assim que você entra
 • Sem cartão, sem compromisso
 • Leva menos de 2 minutos
+• Dois jeitos de ganhar: vendendo e indicando
 
 Enquanto isso, os leads da sua região continuam passando.
 
@@ -638,11 +608,11 @@ Enquanto isso, os leads da sua região continuam passando.
       assunto: 'O que falta é só 1 clique',
       corpo: `Olá {nome},
 
-Reparei que você já conferiu a Match Imóveis mas ainda não criou sua conta. É bem rápido, e você já sai com 1.000 créditos de bônus pra usar como quiser.
+Reparei que você já conferiu a Match Imóveis mas ainda não criou sua conta. É rápido, e você já sai com 1.000 créditos de bônus e um link de indicação pronto pra ganhar comissão indicando outros corretores.
 
 • Sem custo pra cadastrar
-• Sem mensalidade obrigatória
 • Comece a atender lead cruzado automaticamente hoje mesmo
+• Comissão contínua por indicação, quando quiser usar
 
 Termina quando puder, o link continua valendo.
 
@@ -652,11 +622,11 @@ Termina quando puder, o link continua valendo.
       assunto: 'Você chegou perto — falta só o cadastro',
       corpo: `Olá {nome},
 
-Vi que você teve interesse na plataforma. Pra começar a usar de verdade só falta criar a conta — é grátis e você já entra com 1.000 créditos pra testar sem compromisso.
+Vi que você teve interesse na plataforma. Pra começar de verdade só falta criar a conta — grátis, com 1.000 créditos e um link de indicação já pronto pra você ganhar comissão indicando outros corretores.
 
 • Cadastro rápido
 • Sem cartão de crédito
-• Leads cruzados automaticamente com sua carteira
+• Dois jeitos de ganhar, na mesma conta
 
 Se travou em algum ponto, é só responder esse e-mail.
 
@@ -666,7 +636,7 @@ Se travou em algum ponto, é só responder esse e-mail.
       assunto: 'Ainda com aquele e-mail em aberto?',
       corpo: `Olá {nome},
 
-Notei que você chegou a abrir a mensagem sobre a Match Imóveis. Pra aproveitar de verdade, só falta o cadastro — que é grátis e rápido.
+Notei que você chegou a abrir a mensagem sobre a Match Imóveis. Pra aproveitar de verdade, só falta o cadastro — que é grátis e já vem com seu link de indicação, pra ganhar comissão se quiser indicar outros corretores.
 
 • 1.000 créditos de bônus na entrada
 • Sem mensalidade obrigatória
@@ -680,39 +650,39 @@ Vale a pena terminar agora.
       assunto: 'Seu cadastro na Match Imóveis está esperando',
       corpo: `Olá {nome},
 
-Você já viu do que se trata — agora é só criar a conta pra começar a receber leads cruzados automaticamente com os imóveis da sua carteira.
+Você já viu do que se trata — agora é só criar a conta pra começar a receber leads cruzados automaticamente, e ganhar comissão se quiser indicar outros corretores pela plataforma.
 
 • Grátis pra cadastrar
 • 1.000 créditos já na entrada
-• Sem cartão, sem burocracia
+• Link de indicação pronto assim que você entra
 
 Fico à disposição se precisar de ajuda com o cadastro.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Poucos minutos separam você de começar',
+      assunto: 'Poucos minutos separam você de começar a ganhar dos dois jeitos',
       corpo: `Olá {nome},
 
-Você já conferiu a proposta da Match Imóveis. O próximo passo é rápido: criar sua conta, que já vem com 1.000 créditos grátis pra testar sem gastar nada.
+Você já conferiu a proposta da Match Imóveis. O próximo passo é rápido: criar sua conta, que já vem com 1.000 créditos grátis e um link de indicação seu, pra ganhar comissão indicando outros corretores.
 
 • Sem mensalidade obrigatória
-• Sem comissão sobre venda
 • Leads cruzados automaticamente com sua carteira
+• Comissão contínua, se quiser indicar
 
 Termina o cadastro quando tiver um minuto.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Reforçando — o cadastro é rápido e grátis',
+      assunto: 'Reforçando — o cadastro é rápido, grátis e já vem com seu link de indicação',
       corpo: `Olá {nome},
 
-Sei que a rotina de corretor não para, mas queria reforçar: você já viu a Match Imóveis, e falta só o cadastro pra começar a usar. Não tem custo, e você já sai com 1.000 créditos de bônus.
+Sei que a rotina de corretor não para, mas queria reforçar: você já viu a Match Imóveis, e falta só o cadastro. Não tem custo, você já sai com 1.000 créditos de bônus e um link pra ganhar comissão indicando outros corretores.
 
 • Menos de 2 minutos pra cadastrar
 • Sem cartão de crédito
-• Comece a receber leads cruzados automaticamente
+• Dois jeitos de ganhar, desde o primeiro dia
 
 Qualquer dúvida, é só responder esse e-mail.
 
@@ -725,142 +695,142 @@ Qualquer dúvida, é só responder esse e-mail.
   // Foco: explicar o próximo passo dentro da própria plataforma.
   followup3: [
     {
-      assunto: 'Sua conta na Match Imóveis já está pronta pra receber leads',
+      assunto: 'Sua conta já pode te render dinheiro, mesmo sem comprar combo',
       corpo: `Olá {nome},
 
-Vi que você já criou sua conta na Match Imóveis — só falta um passo pra ela começar a te trazer leads de verdade: escolher um combo dentro da plataforma.
+Vi que você já criou sua conta na Match Imóveis, mas ainda não escolheu nenhum combo. Enquanto decide, já dá pra ganhar de outro jeito: seu link de indicação já está ativo, e você ganha comissão toda vez que outro corretor ou imobiliária se cadastrar por ele.
 
-• Você entra com o mesmo login que já criou
-• Escolhe o combo que cabe no seu momento
-• Os leads da sua região entram direto na sua carteira
+• Link de indicação já pronto na sua conta
+• Comissão contínua, sem precisar comprar nada
+• Quando quiser, escolha um combo e comece a vender também
 
-Entra na sua conta e dá uma olhada nos combos disponíveis.
+Entra na sua conta e dá uma olhada nas duas opções.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Falta só escolher um combo pra começar de verdade',
+      assunto: 'Falta escolher um combo — mas já dá pra ganhar indicando',
       corpo: `Olá {nome},
 
-Sua conta na Match Imóveis já existe — o que ainda não aconteceu foi escolher um combo de leads. É esse passo que faz os leads da sua região começarem a entrar na sua carteira.
+Sua conta na Match Imóveis já existe. Pra vender mais rápido falta escolher um combo, mas isso não impede você de já ganhar comissão indicando a plataforma pra outros corretores — o link já está na sua conta.
 
 • Login com os mesmos dados do cadastro
-• Combos com preços pra cada momento
-• Sem mensalidade obrigatória, você escolhe quando quiser
+• Comissão contínua por indicação, disponível agora
+• Combos de leads quando você quiser vender também
 
 Entra na plataforma quando puder pra ver as opções.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Sua conta está esperando você escolher um combo',
+      assunto: 'Sua conta está esperando — e já pode te pagar comissão',
       corpo: `Olá {nome},
 
-Você já tem conta na Match Imóveis, então o próximo passo é simples: entrar e escolher um combo de leads pra começar a atender de verdade.
+Você já tem conta na Match Imóveis. Enquanto não escolhe um combo, use seu link de indicação: toda pessoa que se cadastrar por ele e usar a plataforma gera comissão contínua pra você.
 
 • Acesso com o login que você já criou
-• Vários tamanhos de combo, pra caber no seu momento
-• Compra única, sem compromisso de recorrência
+• Comissão em dinheiro ou crédito, você escolhe
+• Combos de leads disponíveis quando quiser
 
 Dá uma olhada nos combos direto na plataforma.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'O que falta pra sua conta começar a valer a pena',
+      assunto: 'O que falta pra sua conta começar a valer a pena (tem dois jeitos)',
       corpo: `Olá {nome},
 
-Reparei que você já se cadastrou mas ainda não pegou nenhum combo. Sem o combo, a conta fica sem leads entrando de verdade — é ele que ativa isso.
+Reparei que você já se cadastrou mas ainda não pegou nenhum combo. Sem o combo, os leads não chegam sozinhos — mas seu link de indicação já funciona, e você ganha comissão contínua sem precisar comprar nada.
 
 • Entre com o login que já tem
-• Veja os combos disponíveis pra sua região
-• Comece a receber leads assim que escolher
+• Comissão por indicação, ativa desde já
+• Veja os combos quando quiser vender mais rápido também
 
 Vale a pena conferir agora.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Sua carteira ainda está vazia de leads — resolve rápido',
+      assunto: 'Sua carteira ainda está vazia — mas seu link de indicação já rende',
       corpo: `Olá {nome},
 
-Sua conta na Match Imóveis já existe, mas sem um combo escolhido os leads não chegam até você. É rápido de resolver:
+Sua conta na Match Imóveis já existe, mas sem um combo escolhido os leads não chegam até você. Enquanto decide, seu link de indicação já está ativo e gera comissão contínua toda vez que alguém se cadastra por ele.
 
 • Faça login com os dados do seu cadastro
-• Escolha o combo que faz sentido pra você agora
-• Os leads da sua região já entram assim que confirmar
+• Comissão contínua, sem precisar comprar combo
+• Escolha um combo quando fizer sentido pra você
 
 Entra na plataforma e dá uma olhada.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Você está a um passo de receber leads de verdade',
+      assunto: 'Você está a um passo de vender mais — e já pode ganhar indicando',
       corpo: `Olá {nome},
 
-Sua conta já está pronta — o único passo que falta é escolher um combo de leads dentro da plataforma. Sem isso, a conta fica ativa mas sem leads chegando pra você.
+Sua conta já está pronta. Falta escolher um combo pra receber leads de verdade, mas isso não trava o outro lado: seu link de indicação já funciona, e cada indicação gera comissão contínua pra você.
 
 • Login com o que você já cadastrou
-• Combos pra diferentes tamanhos de carteira
-• Você escolhe quando (e se) quiser comprar mais
+• Comissão por indicação, disponível agora
+• Combos de leads quando quiser
 
 Confere as opções quando tiver um tempo.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Ainda não escolheu um combo? Fica fácil resolver',
+      assunto: 'Ainda não escolheu um combo? Comece pelo link de indicação',
       corpo: `Olá {nome},
 
-Vi que sua conta na Match Imóveis já existe, mas nenhum combo foi escolhido ainda. É esse passo que faz os leads da sua região começarem a entrar na sua carteira de verdade.
+Vi que sua conta na Match Imóveis já existe, mas nenhum combo foi escolhido ainda. Enquanto pensa nisso, já dá pra usar seu link de indicação — cada corretor ou imobiliária que se cadastrar por ele gera comissão contínua pra você.
 
 • Entra com o login que já criou
-• Veja os combos e o que cada um entrega
-• Sem mensalidade obrigatória
+• Comissão em dinheiro ou crédito
+• Combos disponíveis quando você quiser vender mais rápido
 
 Dá uma olhada quando puder.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Seus créditos de boas-vindas ainda estão aí',
+      assunto: 'Seus créditos de boas-vindas ainda estão aí (e seu link também)',
       corpo: `Olá {nome},
 
-Você ganhou créditos de boas-vindas quando criou sua conta na Match Imóveis, mas pra receber leads de verdade da sua região é preciso escolher um combo dentro da plataforma.
+Você ganhou créditos de boas-vindas ao criar sua conta, mas pra receber leads de verdade é preciso escolher um combo. Enquanto isso, aproveite seu link de indicação — comissão contínua toda vez que alguém se cadastrar por ele.
 
 • Login com os dados do seu cadastro
+• Comissão por indicação, sem custo nenhum
 • Combos com preços pra cada momento do seu negócio
-• Ativa assim que você escolher
 
 Entra na conta e confere as opções.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Um lembrete sobre sua conta na Match Imóveis',
+      assunto: 'Um lembrete: sua conta já pode gerar renda de dois jeitos',
       corpo: `Olá {nome},
 
-Sua conta já foi criada, mas ainda não tem combo ativo — e é o combo que faz os leads da sua região chegarem até você.
+Sua conta já foi criada, mas ainda não tem combo ativo. É o combo que traz leads pra sua carteira — mas seu link de indicação já está funcionando, gerando comissão contínua sem precisar comprar nada.
 
 • Faça login normalmente
-• Veja os combos disponíveis
-• Comece a atender assim que escolher um
+• Comissão por indicação, ativa desde já
+• Veja os combos quando quiser vender mais rápido
 
 Não deixa a conta parada, vale a pena conferir.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Falta pouco pra sua conta começar a trazer resultado',
+      assunto: 'Falta pouco — e você já pode estar ganhando enquanto decide',
       corpo: `Olá {nome},
 
-Reforçando: sua conta na Match Imóveis já está criada, só falta escolher um combo pra ela começar a te trazer leads de verdade.
+Reforçando: sua conta na Match Imóveis já está criada. Enquanto decide sobre o combo, seu link de indicação já está ativo — cada corretor ou imobiliária que você indicar gera comissão contínua pra você.
 
 • Entre com o login que já tem
-• Escolha o combo que cabe no seu momento
-• Leads da sua região entram direto na carteira
+• Comissão em dinheiro ou crédito
+• Escolha o combo quando fizer sentido
 
-Se tiver qualquer dúvida sobre os combos, é só responder esse e-mail.
+Se tiver qualquer dúvida, é só responder esse e-mail.
 
 — Equipe Match Imóveis`
     }

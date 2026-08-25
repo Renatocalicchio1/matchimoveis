@@ -95,6 +95,13 @@
 
 .lc-daterow{display:flex;gap:14px;font-size:11px;color:#9ca3af;margin-bottom:2px}
 
+.lc-comment-box{display:flex;gap:7px;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#78350f;cursor:pointer}
+.lc-comment-box:hover{background:#fef3c7}
+.lc-comment-box .cb-ico{flex-shrink:0;font-size:13px}
+.lc-comment-box .cb-body{min-width:0;flex:1}
+.lc-comment-box .cb-txt{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.4}
+.lc-comment-box .cb-meta{font-size:10px;color:#a16207;margin-top:2px;font-weight:600}
+
 .lead-btns{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #f0f0ee;margin-top:2px}
 .lb{font-size:12px;padding:0;border-radius:0;text-decoration:none;font-weight:600;border:none;color:#6b7280;background:none;cursor:pointer;transition:color .1s;display:inline-flex;align-items:center;gap:5px}
 .lb:hover{color:#111827}
@@ -325,7 +332,25 @@ leads.forEach(item => {
     </div>
     <% } %>
 
-    <div class="lead-btns">
+    <%
+      // Comentário mais recente sempre visível no card (não só num tooltip
+      // que exige hover — some no mobile e é fácil de não notar no
+      // desktop). Pedido explícito do Renato (ago/2026): comentário "tava
+      // escondido", precisava de "um negócio maior" pra aparecer.
+      const _com3 = (item.comentarios||[]).slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
+      const _comTitle = _com3.length ? _com3.map(c => (c.criadoEm ? new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '') + ': ' + (c.texto||'').slice(0,100)).join('\n\n') : 'Sem comentários — clique pra adicionar';
+    %>
+    <% if(_com3.length){ %>
+    <div class="lc-comment-box" id="comentario-box-<%= item.id %>" onclick="event.stopPropagation();toggleComentarioBox('<%= item.id %>')" title="<%= _comTitle %>">
+      <span class="cb-ico">💬</span>
+      <div class="cb-body">
+        <div class="cb-txt"><%= _com3[0].texto %></div>
+        <div class="cb-meta"><%= _com3[0].criadoEm ? new Date(_com3[0].criadoEm).toLocaleDateString('pt-BR') : '' %><%= item.comentarios.length>1 ? ' · +'+(item.comentarios.length-1)+' comentário'+(item.comentarios.length-1>1?'s':'') : '' %></div>
+      </div>
+    </div>
+    <% } %>
+
+    <div class="lead-btns" id="lead-btns-<%= item.id %>">
       <% if(telefone){ %>
       <% if(item.vitrineEnviada && item.vitrineLink) { %>
       <% const _linkVitrine = item.vitrineLink || ('/cliente/oferta/'+(item.leadId||item.id)+'?userId='+encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'')); %>
@@ -349,11 +374,7 @@ leads.forEach(item => {
       <% if(!item.tipoLead || item.tipoLead==='cliente'){ %>
       <button onclick="abrirClassificar('<%= item.id %>')" class="lb btn-classificar-flag" title="Classificar esta lead">🚩 Classificar</button>
       <% } %>
-      <%
-        const _com3 = (item.comentarios||[]).slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
-        const _comTitle = _com3.length ? _com3.map(c => (c.criadoEm ? new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '') + ': ' + (c.texto||'').slice(0,100)).join('\n\n') : 'Sem comentários — clique pra adicionar';
-      %>
-      <button type="button" onclick="event.stopPropagation();toggleComentarioBox('<%= item.id %>')" class="lb" title="<%= _comTitle %>">💬<%= (item.comentarios||[]).length ? ' '+(item.comentarios||[]).length : '' %></button>
+      <button type="button" id="comentario-btn-<%= item.id %>" onclick="event.stopPropagation();toggleComentarioBox('<%= item.id %>')" class="lb" title="<%= _comTitle %>">💬 <%= (item.comentarios||[]).length ? 'Comentar ('+(item.comentarios||[]).length+')' : 'Comentar' %></button>
       <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">Excluir</button>
       <a href="/app/lead/<%= item.id %>" class="lb dark">Ver detalhes →</a>
     </div>
@@ -729,12 +750,29 @@ async function salvarComentarioLead(id){
   if(!d.ok){ alert('Erro: '+(d.erro||'')); return; }
   txt.value = '';
   document.getElementById('comentario-'+id).style.display = 'none';
-  const btn = document.querySelector('[onclick*="toggleComentarioBox(\''+id+'\')"]');
+  const ultimos = d.comentarios.slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
+  const tituloComentarios = ultimos.map(c => (c.criadoEm?new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'') + ': ' + (c.texto||'').slice(0,100)).join('\n\n');
+  const btn = document.getElementById('comentario-btn-'+id);
   if(btn){
-    btn.textContent = '💬 ' + d.comentarios.length;
-    const ultimos = d.comentarios.slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
-    btn.title = ultimos.map(c => (c.criadoEm?new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'') + ': ' + (c.texto||'').slice(0,100)).join('\n\n');
+    btn.textContent = '💬 Comentar (' + d.comentarios.length + ')';
+    btn.title = tituloComentarios;
   }
+  // Box de preview visível no card: atualiza se já existir, senão cria (1º
+  // comentário dessa lead) inserindo antes dos botões.
+  let box = document.getElementById('comentario-box-'+id);
+  if(!box){
+    box = document.createElement('div');
+    box.className = 'lc-comment-box';
+    box.id = 'comentario-box-'+id;
+    box.onclick = function(e){ e.stopPropagation(); toggleComentarioBox(id); };
+    box.innerHTML = '<span class="cb-ico">💬</span><div class="cb-body"><div class="cb-txt"></div><div class="cb-meta"></div></div>';
+    const btnsDiv = document.getElementById('lead-btns-'+id);
+    if(btnsDiv) btnsDiv.parentNode.insertBefore(box, btnsDiv);
+  }
+  box.title = tituloComentarios;
+  box.querySelector('.cb-txt').textContent = ultimos[0].texto || '';
+  const meta = (ultimos[0].criadoEm ? new Date(ultimos[0].criadoEm).toLocaleDateString('pt-BR') : '') + (d.comentarios.length>1 ? ' · +'+(d.comentarios.length-1)+' comentário'+(d.comentarios.length-1>1?'s':'') : '');
+  box.querySelector('.cb-meta').textContent = meta;
 }
 
 window.addEventListener('DOMContentLoaded', aplicarFiltros);

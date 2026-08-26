@@ -144,14 +144,16 @@
               const _plCom3 = (l.comentarios||[]).slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
               const _plComTitle = _plCom3.length ? _plCom3.map(c => (c.criadoEm ? new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '') + ': ' + (c.texto||'').slice(0,100)).join('\n\n') : 'Sem comentários — clique pra adicionar';
             %>
-            <br><button type="button" class="pl-ver" style="border:none;background:none;cursor:pointer;padding:0" title="<%= _plComTitle %>" onclick="plToggleComentario('<%= l.id %>')">💬<%= (l.comentarios||[]).length ? ' '+(l.comentarios||[]).length : '' %></button>
-            <div id="pl-comentario-<%= l.id %>" style="display:none;margin-top:6px;min-width:220px">
-              <textarea id="pl-comentario-txt-<%= l.id %>" rows="2" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;resize:vertical;font-family:inherit;margin-bottom:6px" placeholder="Escreva aqui..."></textarea>
-              <div style="display:flex;gap:5px">
-                <button type="button" class="pl-ver" onclick="plSalvarComentario('<%= l.id %>')">Salvar</button>
-                <button type="button" class="pl-excluir" onclick="document.getElementById('pl-comentario-<%= l.id %>').style.display='none'">Cancelar</button>
+            <br><span style="position:relative;display:inline-block">
+              <button type="button" class="pl-ver" style="border:none;background:none;cursor:pointer;padding:0" title="<%= _plComTitle %>" onclick="plToggleComentario('<%= l.id %>')">💬<%= (l.comentarios||[]).length ? ' '+(l.comentarios||[]).length : '' %></button>
+              <div id="pl-comentario-<%= l.id %>" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;width:240px;max-width:80vw;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:30">
+                <textarea id="pl-comentario-txt-<%= l.id %>" rows="2" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;resize:vertical;font-family:inherit;margin-bottom:6px" placeholder="Escreva aqui..."></textarea>
+                <div style="display:flex;gap:5px">
+                  <button type="button" class="pl-ver" onclick="plSalvarComentario('<%= l.id %>')">Salvar</button>
+                  <button type="button" class="pl-excluir" onclick="document.getElementById('pl-comentario-<%= l.id %>').style.display='none'">Cancelar</button>
+                </div>
               </div>
-            </div>
+            </span>
           </td>
         </tr>
       <% }); %>

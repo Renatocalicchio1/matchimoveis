@@ -3163,7 +3163,7 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
 
     // Persiste a transação no histórico (coluna dados) — senão some do /app/coins
     // assim que o _cacheUsuarios atualizar de novo (a cada 15s)
-    const _rowDados = (await _q('SELECT dados FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0];
+    const _rowDados = (await _q('SELECT dados, nome, email FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0];
     const _dadosAtual = (_rowDados && _rowDados.dados) || {};
     const _transacoes = Array.isArray(_dadosAtual.matchCoinsTransacoes) ? _dadosAtual.matchCoinsTransacoes : [];
     _transacoes.push({
@@ -3189,6 +3189,25 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     // comissão, ledger) pro sub-admin responsável (atendidoPorAdmin), se houver.
     if (op === 'adicionar' && qtd > 0) {
       await _processarBonusIndicacao(cod, qtd);
+    }
+    // Aviso por email pro corretor quando o admin credita manualmente —
+    // pedido do Renato (ago/2026): "sempre eu creditar pelo admin créditos
+    // pra alguma conta, avise que ele recebeu novos créditos por email". Só
+    // pra crédito (não pra débito manual), mesmo padrão visual das outras
+    // notificações (#FF385C, botão pro /app/coins).
+    if (op === 'adicionar' && qtd > 0 && _rowDados && _rowDados.email) {
+      try {
+        const { enviarEmail } = require('./services/email');
+        enviarEmail({
+          para: _rowDados.email,
+          assunto: `🪙 Você recebeu ${qtd.toLocaleString('pt-BR')} coins — acesse agora a plataforma`,
+          html: `<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">🪙 Você recebeu novos créditos!</h2><p>Você recebeu <strong>${qtd.toLocaleString('pt-BR')} coins</strong>. Seu saldo atual é de <strong>${Number(_novoSaldo).toLocaleString('pt-BR')} coins</strong>. Acesse agora a plataforma pra aproveitar.</p><a href="https://matchimoveis.ia.br/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar agora →</a></div>`,
+          texto: `Você recebeu ${qtd} coins. Saldo atual: ${_novoSaldo} coins. Acesse agora a plataforma: https://matchimoveis.ia.br/app-home`,
+          tipo: 'credito_manual_admin',
+          botaoTexto: 'Acessar agora →',
+          userId: cod
+        }).catch(() => {});
+      } catch (eEmailCredito) { console.error('[admin/creditos] erro ao enviar aviso de crédito:', eEmailCredito.message); }
     }
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }

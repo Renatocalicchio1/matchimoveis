@@ -31,28 +31,38 @@ async function _inicializar() {
   // manda de saída ainda não guardam um id pra comparar, e não podem colidir
   // umas com as outras por serem todas NULL.
   await query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_wa_cloud_msg_id_unico ON whatsapp_cloud_mensagens(message_id) WHERE message_id IS NOT NULL`);
+  // Número legível (ex: "551130304050") de quem RECEBEU a mensagem — a Meta
+  // manda em change.value.metadata.display_phone_number no webhook, junto
+  // com o phone_number_id (esse aí é só um ID opaco, não dá pra reconhecer
+  // de olho). Pedido do Renato (ago/2026): saber em qual dos nossos números
+  // cada mensagem da inbox chegou, sem precisar decorar o ID.
+  await query(`ALTER TABLE whatsapp_cloud_mensagens ADD COLUMN IF NOT EXISTS display_phone_number TEXT`);
 }
 
 // direcao: 'entrada' (do lead pra gente) ou 'saida' (nossa resposta)
-async function salvarMensagem({ phoneNumberId, telefone, nome, direcao, tipo, texto, messageId, midiaUrl, midiaMime }) {
+async function salvarMensagem({ phoneNumberId, displayPhoneNumber, telefone, nome, direcao, tipo, texto, messageId, midiaUrl, midiaMime }) {
   await _inicializar();
   await query(
-    `INSERT INTO whatsapp_cloud_mensagens (id, phone_number_id, contato_telefone, contato_nome, direcao, tipo, texto, message_id, lida, midia_url, midia_mime)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    `INSERT INTO whatsapp_cloud_mensagens (id, phone_number_id, display_phone_number, contato_telefone, contato_nome, direcao, tipo, texto, message_id, lida, midia_url, midia_mime)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
      ON CONFLICT (message_id) WHERE message_id IS NOT NULL DO NOTHING`,
-    [uuidv4(), phoneNumberId || null, telefone, nome || null, direcao, tipo || 'texto', texto || '', messageId || null, direcao === 'saida', midiaUrl || null, midiaMime || null]
+    [uuidv4(), phoneNumberId || null, displayPhoneNumber || null, telefone, nome || null, direcao, tipo || 'texto', texto || '', messageId || null, direcao === 'saida', midiaUrl || null, midiaMime || null]
   );
 }
 
 // Uma linha por contato — última mensagem + quantas de entrada tão sem ler.
-async function listarConversas() {
+// phoneNumberId (opcional): filtra só as conversas cuja ÚLTIMA mensagem
+// chegou/saiu por esse número nosso (pedido do Renato — filtrar a inbox por
+// número quando tem mais de um configurado no WhatsApp Cloud).
+async function listarConversas(phoneNumberId) {
   await _inicializar();
   const { rows } = await query(`
     SELECT DISTINCT ON (contato_telefone)
-      contato_telefone, contato_nome, phone_number_id, direcao, tipo, texto, criado_em
+      contato_telefone, contato_nome, phone_number_id, display_phone_number, direcao, tipo, texto, criado_em
     FROM whatsapp_cloud_mensagens
     ORDER BY contato_telefone, criado_em DESC
   `);
+  const filtradas = phoneNumberId ? rows.filter(r => r.phone_number_id === phoneNumberId) : rows;
   const { rows: naoLidas } = await query(`
     SELECT contato_telefone, COUNT(*) as total
     FROM whatsapp_cloud_mensagens
@@ -61,9 +71,27 @@ async function listarConversas() {
   `);
   const mapaNaoLidas = {};
   naoLidas.forEach(r => { mapaNaoLidas[r.contato_telefone] = parseInt(r.total); });
-  return rows
+  return filtradas
     .map(r => ({ ...r, naoLidas: mapaNaoLidas[r.contato_telefone] || 0 }))
     .sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
+}
+
+// Lista os números nossos que já receberam alguma mensagem — popula o
+// filtro por número da inbox. Um por phone_number_id, com o
+// display_phone_number mais recente visto pra esse ID (pode ter ficado NULL
+// em mensagens antigas, salvas antes dessa coluna existir).
+async function listarNumerosRecebidos() {
+  await _inicializar();
+  const { rows } = await query(`
+    SELECT phone_number_id,
+      (array_agg(display_phone_number ORDER BY criado_em DESC) FILTER (WHERE display_phone_number IS NOT NULL))[1] as display_phone_number,
+      COUNT(*)::int as total
+    FROM whatsapp_cloud_mensagens
+    WHERE phone_number_id IS NOT NULL
+    GROUP BY phone_number_id
+    ORDER BY total DESC
+  `);
+  return rows;
 }
 
 async function listarMensagens(telefone) {
@@ -92,4 +120,4 @@ async function listarMensagensApos(telefone, desde) {
   return rows;
 }
 
-module.exports = { salvarMensagem, listarConversas, listarMensagens, listarMensagensApos, marcarLidas };
+module.exports = { salvarMensagem, listarConversas, listarNumerosRecebidos, listarMensagens, listarMensagensApos, marcarLidas };

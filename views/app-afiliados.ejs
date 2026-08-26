@@ -106,6 +106,15 @@ async function afAceitarContrato(){
   <div class="af-link-box">
     <span id="af-link"><%= dados.linkIndicacao %></span>
     <button onclick="navigator.clipboard.writeText('<%= dados.linkIndicacao %>');this.textContent='✓ copiado'" style="border:none;background:#111827;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;white-space:nowrap">Copiar link</button>
+    <%
+      // wa.me SEM número — abre o WhatsApp deixando o próprio usuário
+      // escolher o contato da agenda dele, com a legenda já pronta (pedido
+      // do Renato, ago/2026). Texto neutro de propósito: não presume que
+      // quem vai receber já é corretor, só convida a conhecer a plataforma
+      // — o link de cadastro é o mesmo pra qualquer pessoa de qualquer jeito.
+      const _afMsgCompartilhar = 'Oi! Conheça a MatchImóveis — plataforma que cruza automaticamente leads com os imóveis certos pra corretores e imobiliárias, sem mensalidade. Tem também um programa de indicação que paga comissão recorrente. Cadastro é grátis e já vem com créditos de bônus: ' + dados.linkIndicacao;
+    %>
+    <a href="https://wa.me/?text=<%= encodeURIComponent(_afMsgCompartilhar) %>" target="_blank" style="display:inline-flex;align-items:center;gap:6px;border:none;background:#25D366;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Compartilhar no WhatsApp</a>
   </div>
 </div>
 

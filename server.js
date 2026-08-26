@@ -4082,6 +4082,15 @@ app.get('/entrar', (req,res)=>{
   res.redirect('/' + _qs);
 });
 
+// Cadastro simplificado de afiliado/agência de marketing (ago/2026) — form
+// próprio (nome/email/telefone/senha + tipo), posta direto em POST /login
+// com afiliadoRestrito=1 (ver bloco CADASTRO ali) — mesma tabela/bcrypt do
+// cadastro padrão, só sem os campos de área de atuação que não fazem
+// sentido pra quem não é corretor/imobiliária/construtor.
+app.get('/cadastro-afiliado', (req,res)=>{
+  res.render('cadastro-afiliado', { erro: '' });
+});
+
 app.get('/politica-privacidade', (req,res)=>{
   res.render('politica-privacidade');
 });
@@ -4754,19 +4763,24 @@ app.post('/login', async (req,res)=>{
 
   // CADASTRO
   if(req.body.nome && req.body.tipoConta){
+    // Erro volta pro formulário certo — /cadastro-afiliado (simplificado)
+    // continua num formulário diferente do modal padrão de "/", senão o
+    // erro jogaria o afiliado de volta pra tela errada.
+    const _ehCadastroAfiliado = req.body.afiliadoRestrito === '1';
+    const _erroCadastro = (msg) => _ehCadastroAfiliado ? res.render('cadastro-afiliado', { erro: msg }) : res.render('login', { error: msg });
     // Validação backend
     const nomeVal = (req.body.nome||'').trim();
-    if (!nomeVal || nomeVal.length < 3) return res.render('login', { error: 'Nome inválido. Digite seu nome completo.' });
-    if (!telefone || telefone.length < 10 || telefone.length > 13) return res.render('login', { error: 'Telefone inválido. Use o formato: 47999999999' });
+    if (!nomeVal || nomeVal.length < 3) return _erroCadastro('Nome inválido. Digite seu nome completo.');
+    if (!telefone || telefone.length < 10 || telefone.length > 13) return _erroCadastro('Telefone inválido. Use o formato: 47999999999');
     const existe = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
-    if(existe) return res.redirect('/?erro=celular_existente');
+    if(existe) return _ehCadastroAfiliado ? _erroCadastro('Esse celular já está cadastrado.') : res.redirect('/?erro=celular_existente');
     const _emailNovo = (req.body.email || '').trim().toLowerCase();
     if(_emailNovo){
       const existeEmail = users.find(u => (u.email||'').trim().toLowerCase() === _emailNovo);
-      if(existeEmail) return res.redirect('/?erro=email_existente');
+      if(existeEmail) return _ehCadastroAfiliado ? _erroCadastro('Esse e-mail já está cadastrado.') : res.redirect('/?erro=email_existente');
     }
 
-    const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : req.body.tipoConta === 'agencia_marketing' ? 'agm' : 'usr';
+    const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : req.body.tipoConta === 'agencia_marketing' ? 'agm' : req.body.tipoConta === 'construtor' ? 'cst' : req.body.tipoConta === 'afiliado' ? 'afl' : 'usr';
     const uid = prefixo + '_' + Math.random().toString(36).substring(2,8) + Date.now().toString(36).slice(-4);
     const _codigoNovo = gerarCodigoUsuario(req.body.nome);
 
@@ -4844,7 +4858,14 @@ app.post('/login', async (req,res)=>{
       ...(_indicador ? { afiliadoNivel: 3 } : {}),
       atendidoPorAdmin: _adminIndicador?.usuario || '',
       atendidoPorAdminNome: _adminIndicador?.nome || '',
-      atendidoPorAdminCor: _adminIndicador?.cor || ''
+      atendidoPorAdminCor: _adminIndicador?.cor || '',
+      // Cadastro simplificado de afiliado/agência de marketing (ago/2026,
+      // /cadastro-afiliado) — mesma rota/tabela/bcrypt de todo mundo, só
+      // marca a conta como restrita (menu só mostra Afiliados+Perfil, ver
+      // _menuRestrito em app-shell.ejs). tipoConta aqui é só rótulo
+      // ("afiliado" ou "agencia_marketing") — nenhuma regra de comissão
+      // diferente entre os dois nem em relação a afiliado padrão.
+      afiliadoRestrito: req.body.afiliadoRestrito === '1'
     };
 
     users.push(novo);
@@ -4857,10 +4878,11 @@ app.post('/login', async (req,res)=>{
       // services/salvarUsuario.js) barra o 2º INSERT.
       if (eDupCad.duplicado) {
         const _ehEmailDup = eDupCad.constraint === 'idx_usuarios_email_unico';
+        if (_ehCadastroAfiliado) return _erroCadastro(_ehEmailDup ? 'Esse e-mail já está cadastrado.' : 'Esse celular já está cadastrado.');
         return res.redirect(_ehEmailDup ? '/?erro=email_existente' : '/?erro=celular_existente');
       }
       console.error('[users]', eDupCad.message);
-      return res.render('login', { error: 'Erro ao criar conta. Tente de novo em instantes.' });
+      return _erroCadastro('Erro ao criar conta. Tente de novo em instantes.');
     }
 
     // Referral de mão dupla: quem se cadastra por link de indicação (de
@@ -4915,6 +4937,7 @@ app.post('/login', async (req,res)=>{
     }
 
     req.session.user = novo;
+    if (novo.afiliadoRestrito) return res.redirect('/app/afiliados');
     const _uaN = req.headers['user-agent']||'';
     return res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaN) ? '/app/feed' : '/app-home');
   }
@@ -20604,7 +20627,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
           <select id="suTipoConta">
             <option value="corretor">Corretor</option>
             <option value="imobiliaria">Imobiliária</option>
-            <option value="agencia_marketing">Agência de Marketing</option>
+            <option value="construtor">Construtor</option>
           </select>
           <label>Estado de atuação</label>
           <select id="suAreaEstadoInput"><option value="">Selecione...</option></select>
@@ -21794,7 +21817,7 @@ async function _criarContaDemanda({ nome, email, celular, tipoConta, cpf, senha,
     : _areaAtuacaoDeCriterios(criterios);
   const novo = {
     id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal, cpf: cpfVal,
-    tipo: ['corretor', 'imobiliaria', 'agencia_marketing'].includes(tipoConta) ? tipoConta : 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
+    tipo: ['corretor', 'imobiliaria', 'construtor'].includes(tipoConta) ? tipoConta : 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
     matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
     regiaoInteresse: _regiaoInteresseDeCriterios(criterios),
     areaAtuacaoEstado: _areaAtDemanda.estado,

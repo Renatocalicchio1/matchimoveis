@@ -1,8 +1,8 @@
 /**
  * services/distribuicaoAreaAtuacao.js
  *
- * Job diário: distribui interessados de `interessados_portal` (planilha que
- * o admin importa em /admin/interesados — é a única fonte dessa tabela, não
+ * Job: distribui interessados de `interessados_portal` (planilha que o
+ * admin importa em /admin/interesados — é a única fonte dessa tabela, não
  * precisa filtro extra pra "veio de planilha") pras contas de corretor
  * conforme a área de atuação cadastrada no perfil dele (areaAtuacaoEstado/
  * Cidade/Bairros — campos que já existiam no cadastro mas nunca tinham sido
@@ -15,25 +15,41 @@
  * formatos — contas que ainda não resalvaram o perfil depois da mudança
  * continuam funcionando no formato antigo.
  *
+ * ago/2026 (2ª mudança): volume de interessados cresceu muito — pedido
+ * explícito do Renato: "5 leads pra cada conta, pelo menos 3x no dia". Antes
+ * rodava 1x/dia (4h) com teto DIÁRIO de 3 (bairro) ou 2 (cidade, em lotes de
+ * 2). Agora roda em 3+ horários espalhados no dia (HORARIOS_RODADA_BR) e
+ * cada RODADA entrega até TETO_POR_RODADA (5) pra cada conta elegível —
+ * teto por rodada, não mais por dia, então uma conta pode chegar a
+ * HORARIOS_RODADA_BR.length × 5 no dia (hoje: 3×5=15). Bairro e cidade
+ * unificados no mesmo teto (antes eram números diferentes, 3 e 2).
+ *
  * Regras (definidas com o Renato, ago/2026):
  * - Só interessados com até 7 dias (hoje - 7 dias).
  * - Conta com bairro cadastrado: prioridade — recebe lead nova que bater o
- *   bairro dela, até um teto de 3 por dia (além do teto de sempre: máx 2
- *   contas/lead).
- * - Conta só com estado+cidade (sem bairro): recebe em lotes de 2 — dá 2 pra
- *   cada conta elegível da cidade; se sobrar interessado sem dono depois
- *   disso, dá mais 2 pra cada de novo, repetindo até esgotar o estoque do
- *   dia daquela cidade (ou faltar crédito) — até um teto de 2 por dia.
+ *   bairro dela, até TETO_POR_RODADA por rodada (além do teto de sempre:
+ *   máx 2 contas/lead).
+ * - Conta só com estado+cidade (sem bairro): recebe em lotes de LOTE_CIDADE
+ *   (2) — dá 2 pra cada conta elegível da cidade; se sobrar interessado sem
+ *   dono depois disso, dá mais 2 pra cada de novo, repetindo até esgotar o
+ *   estoque da rodada daquela cidade (ou faltar crédito) — até
+ *   TETO_POR_RODADA por rodada.
  * - Mesmo interessado nunca vai pra mais de 2 contas no total (bairro + cidade
- *   somados).
+ *   somados), somando TODAS as rodadas já rodadas (não reseta por rodada).
  * - Sempre cobra em créditos (nova_lead, mesmo custo de qualquer lead nova).
+ * - Aviso por email: 1 só por corretor por rodada, com o TOTAL recebido
+ *   nessa rodada (ex: "Você recebeu 5 leads novas") — cada lead é criada com
+ *   `_lote:true` de propósito, pra NÃO disparar o alerta individual de
+ *   services/salvarLead.js (senão viraria 1 email por lead, até 5 separados
+ *   na mesma rodada).
  *
  * Idempotente: id da lead é sempre 'AREA-' + interessadoId + '-' + userId
  * (salvarLead faz UPSERT) — uma conta nunca recebe o mesmo interessado 2x,
- * mesmo rodando o job de novo. O teto "3 contas por lead" e o "já recebeu
- * esse interessado" são sempre recalculados a partir das leads 'AREA-%' que
- * já existem em `leads`, não de um contador em memória — não depende de o
- * job ter rodado sem interrupção.
+ * mesmo rodando o job de novo. O teto "2 contas por lead" é sempre
+ * recalculado a partir das leads 'AREA-%' que já existem em `leads`, não de
+ * um contador em memória — não depende de o job ter rodado sem interrupção.
+ * Já o teto de TETO_POR_RODADA é por invocação (reseta a cada rodada de
+ * propósito, é o mecanismo que permite as 3+ entregas do dia).
  */
 const { query } = require('./db');
 
@@ -149,28 +165,17 @@ async function _mapaJaAtribuidos() {
   return mapa;
 }
 
-// Teto diário por conta (horário de Brasília) — diferente por tier: conta
-// com bairro cadastrado recebe até 6/dia, conta só com cidade até 3/dia
-// (ago/2026, ajustado com o Renato). Máximo de contas que recebem a mesma
-// lead: 2 (bairro + cidade somados). Uma conta nunca entra nos dois tiers
-// pra uma MESMA cidade (é bairro OU cidade, filtro c.bairros.size abaixo),
-// então contar toda lead 'AREA-%' que ela já recebeu hoje serve pros dois
-// tetos, sem precisar marcar de qual tier veio.
-const TETO_DIARIO_BAIRRO = 3;
-const TETO_DIARIO_CIDADE = 2;
+// Teto POR RODADA por conta — igual pros dois tiers (bairro e cidade), pedido
+// do Renato (ago/2026: "5 leads pra cada conta, pelo menos 3x no dia").
+// Não é mais diário: reseta a cada invocação de distribuirLeadsPorArea(), é
+// o próprio agendamento (HORARIOS_RODADA_BR, 3+ vezes/dia) que soma o volume
+// do dia. Uma conta nunca entra nos dois tiers pra uma MESMA cidade (é
+// bairro OU cidade, filtro c.bairros.size abaixo), então um único contador
+// por conta serve pros dois tiers, sem precisar marcar de qual tier veio.
+// Máximo de contas que recebem a mesma lead (esse sim é por SEMPRE, não por
+// rodada — ver _mapaJaAtribuidos): 2 (bairro + cidade somados).
+const TETO_POR_RODADA = 5;
 const MAX_CONTAS_POR_LEAD = 2;
-async function _recebidosHoje() {
-  const hojeSP = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-  const { rows } = await query(
-    `SELECT user_id, COUNT(*)::int AS total FROM leads
-     WHERE id LIKE 'AREA-%' AND (criado_em AT TIME ZONE 'America/Sao_Paulo')::date = $1
-     GROUP BY user_id`,
-    [hojeSP]
-  );
-  const mapa = {};
-  for (const r of rows) mapa[r.user_id] = r.total;
-  return mapa;
-}
 
 // Mesmo mapeamento pra Nome/Telefone/Email/Tipo/Cidade/etc (chaves
 // capitalizadas) usado em services/buscaDemanda.js — montarPerfilEMapaDemanda
@@ -196,7 +201,9 @@ async function distribuirLeadsPorArea() {
   const jaAtribuidos = await _mapaJaAtribuidos();
   const saldoRestante = {};
   for (const c of corretores) saldoRestante[c.userId] = c.saldo;
-  const recebidoHoje = await _recebidosHoje();
+  // Teto é POR RODADA agora (não mais por dia) — cada chamada de
+  // distribuirLeadsPorArea() é 1 rodada, contador começa zerado sempre.
+  const recebidoNaRodada = {};
 
   const { CUSTO } = require('./creditos');
   const custoLead = CUSTO[CUSTO_LEAD_CHAVE] || 30;
@@ -219,7 +226,7 @@ async function distribuirLeadsPorArea() {
     if (!candidatosBairro.length && !candidatosCidade.length) continue;
 
     // Tier bairro — 1 passada por todos os interessados da região, com teto
-    // de TETO_DIARIO_BAIRRO (3) leads/dia por conta, além do teto de
+    // de TETO_POR_RODADA (5) por conta nessa rodada, além do teto de
     // MAX_CONTAS_POR_LEAD (2) contas/lead e do saldo do corretor.
     for (const it of lista) {
       const bairroN = _norm(it.bairro);
@@ -229,37 +236,37 @@ async function distribuirLeadsPorArea() {
         if (jaTem.size >= MAX_CONTAS_POR_LEAD) break;
         if (jaTem.has(c.userId) || !c.bairros.has(bairroN)) continue;
         if (saldoRestante[c.userId] < custoLead) continue;
-        if ((recebidoHoje[c.userId] || 0) >= TETO_DIARIO_BAIRRO) continue;
+        if ((recebidoNaRodada[c.userId] || 0) >= TETO_POR_RODADA) continue;
         jaTem.add(c.userId);
         saldoRestante[c.userId] -= custoLead;
-        recebidoHoje[c.userId] = (recebidoHoje[c.userId] || 0) + 1;
+        recebidoNaRodada[c.userId] = (recebidoNaRodada[c.userId] || 0) + 1;
         fila.push({ it, userId: c.userId });
       }
     }
 
     // Tier cidade — rodízio em lotes de LOTE_CIDADE por corretor, repetindo
-    // rodadas enquanto alguém ainda receber algo (evita loop infinito quando
+    // passadas enquanto alguém ainda receber algo (evita loop infinito quando
     // ninguém mais pode receber — sem saldo, ou interessados todos com
     // MAX_CONTAS_POR_LEAD contas, ou já recebidos por todo mundo, ou teto
-    // diário de TETO_DIARIO_CIDADE (2) batido).
+    // de TETO_POR_RODADA (5) dessa rodada batido).
     if (candidatosCidade.length) {
       let mudouAlgumaCoisa = true;
       while (mudouAlgumaCoisa) {
         mudouAlgumaCoisa = false;
-        const recebidoNestaRodada = {};
-        for (const c of candidatosCidade) recebidoNestaRodada[c.userId] = 0;
+        const recebidoNestaPassada = {};
+        for (const c of candidatosCidade) recebidoNestaPassada[c.userId] = 0;
         for (const it of lista) {
           const jaTem = jaAtribuidos[it.id] || (jaAtribuidos[it.id] = new Set());
           if (jaTem.size >= MAX_CONTAS_POR_LEAD) continue;
           for (const c of candidatosCidade) {
             if (jaTem.size >= MAX_CONTAS_POR_LEAD) break;
-            if (recebidoNestaRodada[c.userId] >= LOTE_CIDADE) continue;
+            if (recebidoNestaPassada[c.userId] >= LOTE_CIDADE) continue;
             if (jaTem.has(c.userId)) continue;
             if (saldoRestante[c.userId] < custoLead) continue;
-            if ((recebidoHoje[c.userId] || 0) >= TETO_DIARIO_CIDADE) continue;
+            if ((recebidoNaRodada[c.userId] || 0) >= TETO_POR_RODADA) continue;
             jaTem.add(c.userId);
-            recebidoNestaRodada[c.userId]++;
-            recebidoHoje[c.userId] = (recebidoHoje[c.userId] || 0) + 1;
+            recebidoNestaPassada[c.userId]++;
+            recebidoNaRodada[c.userId] = (recebidoNaRodada[c.userId] || 0) + 1;
             saldoRestante[c.userId] -= custoLead;
             fila.push({ it, userId: c.userId });
             mudouAlgumaCoisa = true;
@@ -283,6 +290,7 @@ async function distribuirLeadsPorArea() {
   const matchCore = require('../cerebro/match-core');
   const semSaldo = new Set();
   let criadas = 0;
+  const criadasPorUsuario = {}; // userId -> quantas recebeu NESSA rodada, pro aviso em lote abaixo
 
   for (const { it, userId } of fila) {
     if (semSaldo.has(userId)) continue;
@@ -307,25 +315,60 @@ async function distribuirLeadsPorArea() {
         await matchCore.processar({ lead, mensagem: '', canal: 'area_atuacao', userId });
       } catch (eMatch) { console.error('[distribuicaoAreaAtuacao] erro ao rodar match', userId, eMatch.message); }
       criadas++;
+      criadasPorUsuario[userId] = (criadasPorUsuario[userId] || 0) + 1;
     } catch (e) { console.error('[distribuicaoAreaAtuacao] erro ao entregar', id, e.message); }
   }
 
   console.log('[distribuicaoAreaAtuacao] rodada concluída —', criadas, 'lead(s) entregue(s) em', fila.length, 'tentativa(s)');
+
+  // Aviso por email — 1 email por corretor com o TOTAL que ele recebeu
+  // NESSA rodada (não 1 email por lead — `lead._lote:true` acima já pula de
+  // propósito o alerta individual de services/salvarLead.js, senão virariam
+  // até 5 emails separados numa rodada só). Pedido do Renato (ago/2026):
+  // "legal dizer quantas leads novas recebeu".
+  if (Object.keys(criadasPorUsuario).length) {
+    try {
+      const { rows: usuariosEmail } = await query(
+        `SELECT codigo_usuario, email FROM usuarios WHERE codigo_usuario = ANY($1) AND email IS NOT NULL AND email != ''`,
+        [Object.keys(criadasPorUsuario)]
+      );
+      const { enviarEmail } = require('./email');
+      for (const u of usuariosEmail) {
+        const total = criadasPorUsuario[u.codigo_usuario];
+        if (!total) continue;
+        const plural = total === 1 ? 'lead nova' : 'leads novas';
+        enviarEmail({
+          para: u.email,
+          assunto: `🔔 Você recebeu ${total} ${plural} — MatchImóveis`,
+          html: `<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">🔔 ${total} ${plural}!</h2><p>Chegaram ${total} ${plural} pra você agora, distribuídas conforme sua área de atuação.</p><a href="https://matchimoveis.ia.br/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver leads →</a></div>`,
+          texto: `Você recebeu ${total} ${plural} | https://matchimoveis.ia.br/app/leads`,
+          tipo: 'nova_lead_lote_area_atuacao',
+          botaoTexto: 'Ver leads →',
+          userId: u.codigo_usuario
+        }).catch(() => {});
+      }
+    } catch (eEmail) { console.error('[distribuicaoAreaAtuacao] erro ao enviar aviso em lote:', eEmail.message); }
+  }
+
   return { atribuicoes: criadas };
 }
 
-// Guard de "já rodou hoje" — evita que o fallback de boot (pro caso do
-// servidor ter ficado fora do ar na janela agendada) rode uma 2ª rodada de
-// lotes de 2 no mesmo dia. Reaproveita a tabela job_status já criada pela
-// distribuição de sub-admin (server.js, _registrarStatusJobDistribuicao).
-async function _jaRodouHoje() {
+// Guard de "rodou há pouco tempo" — substitui o antigo "já rodou hoje"
+// (fazia sentido quando só existia 1 horário/dia). Agora com 3+ horários
+// agendados por dia, o guard só precisa evitar uma rodada extra bem em cima
+// da outra (ex: o fallback de boot disparando minutos depois de uma rodada
+// agendada já ter rodado). INTERVALO_MINIMO_MS bem menor que o espaçamento
+// real entre horários (ver HORARIOS_RODADA_BR), então nunca bloqueia uma
+// rodada agendada de verdade, só duplicata acidental. Reaproveita a tabela
+// job_status já criada pela distribuição de sub-admin (server.js,
+// _registrarStatusJobDistribuicao).
+const INTERVALO_MINIMO_MS = 60 * 60 * 1000; // 1h
+async function _rodouRecentemente() {
   try {
     await query(`CREATE TABLE IF NOT EXISTS job_status (id TEXT PRIMARY KEY, atualizado_em TIMESTAMP DEFAULT NOW(), detalhe TEXT)`);
     const { rows } = await query(`SELECT atualizado_em FROM job_status WHERE id='distribuicao_area_atuacao'`);
     if (!rows.length) return false;
-    const hojeSP = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-    const ultimaSP = new Date(rows[0].atualizado_em).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-    return hojeSP === ultimaSP;
+    return (Date.now() - new Date(rows[0].atualizado_em).getTime()) < INTERVALO_MINIMO_MS;
   } catch (e) { return false; }
 }
 async function _registrarRodou(detalhe) {
@@ -338,8 +381,8 @@ async function _registrarRodou(detalhe) {
   } catch (e) { console.error('[distribuicaoAreaAtuacao] erro ao registrar status:', e.message); }
 }
 
-async function rodarComGuardDiario() {
-  if (await _jaRodouHoje()) { console.log('[distribuicaoAreaAtuacao] já rodou hoje, pulando'); return; }
+async function rodarComGuard() {
+  if (await _rodouRecentemente()) { console.log('[distribuicaoAreaAtuacao] rodou há menos de 1h, pulando (evita duplicata)'); return; }
   const r = await distribuirLeadsPorArea();
   await _registrarRodou(`${r.atribuicoes} lead(s) entregue(s)`);
 }
@@ -355,23 +398,29 @@ function _proximoHorarioBR(hh, mm, agora) {
   return alvo;
 }
 
-// 4h da madrugada — janela livre entre os outros jobs de madrugada
-// (créditos 2h-2h40, xmlScheduler 3h, recarga de cache 3h15-3h50).
+// 3 horários espalhados no dia (pedido do Renato, ago/2026: "pelo menos 3x
+// no dia") — 6h, 12h, 18h, horário de Brasília. Fora da janela de jobs de
+// madrugada (créditos 2h-2h40, xmlScheduler 3h, recarga de cache
+// 3h15-3h50), espaçados o suficiente (6h) pra nunca colidir com o guard de
+// INTERVALO_MINIMO_MS (1h).
+const HORARIOS_RODADA_BR = [6, 12, 18];
 function iniciarDistribuicaoAreaAtuacao() {
-  console.log('[distribuicaoAreaAtuacao] ⏱️ job diário iniciado — 4h da madrugada (horário de Brasília)');
+  console.log('[distribuicaoAreaAtuacao] ⏱️ ' + HORARIOS_RODADA_BR.length + ' rodadas/dia — ' + HORARIOS_RODADA_BR.join('h, ') + 'h (horário de Brasília)');
   const _agora = new Date();
+  for (const hh of HORARIOS_RODADA_BR) {
+    setTimeout(() => {
+      rodarComGuard().catch(e => console.error('[distribuicaoAreaAtuacao] erro na rodada:', e.message));
+      setInterval(() => {
+        rodarComGuard().catch(e => console.error('[distribuicaoAreaAtuacao] erro na rodada:', e.message));
+      }, 24 * 60 * 60 * 1000);
+    }, _proximoHorarioBR(hh, 0, _agora) - _agora);
+  }
+  // Fallback de boot — se o servidor ficou fora do ar durante alguma janela
+  // agendada, garante pelo menos 1 rodada ao subir. O guard de "rodou há
+  // menos de 1h" evita duplicar se uma rodada agendada acabou de rodar.
   setTimeout(() => {
-    rodarComGuardDiario().catch(e => console.error('[distribuicaoAreaAtuacao] erro na rodada:', e.message));
-    setInterval(() => {
-      rodarComGuardDiario().catch(e => console.error('[distribuicaoAreaAtuacao] erro na rodada:', e.message));
-    }, 24 * 60 * 60 * 1000);
-  }, _proximoHorarioBR(4, 0, _agora) - _agora);
-  // Fallback de boot — se o servidor ficou fora do ar durante a janela das
-  // 4h, isso evita pular o dia inteiro. O guard de "já rodou hoje" impede
-  // rodar 2x no mesmo dia caso o processo reinicie depois das 4h.
-  setTimeout(() => {
-    rodarComGuardDiario().catch(e => console.error('[distribuicaoAreaAtuacao] erro na rodada:', e.message));
+    rodarComGuard().catch(e => console.error('[distribuicaoAreaAtuacao] erro na rodada:', e.message));
   }, 40000);
 }
 
-module.exports = { iniciarDistribuicaoAreaAtuacao, distribuirLeadsPorArea, rodarComGuardDiario };
+module.exports = { iniciarDistribuicaoAreaAtuacao, distribuirLeadsPorArea, rodarComGuard };

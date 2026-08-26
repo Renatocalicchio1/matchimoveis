@@ -22720,10 +22720,12 @@ app.post('/admin/campanha/contatos/:id/excluir-celular', authAdmin, async (req, 
 });
 
 // Roda a distribuição de leads de interessados_portal por área de atuação
-// (services/distribuicaoAreaAtuacao.js) na hora, sem esperar as 4h — só pra
-// testar/conferir o resultado. Cobra créditos de verdade (mesmo custo de
-// qualquer lead nova), por isso restrito ao superadmin. Ignora o guard de
-// "já rodou hoje" de propósito (é a rota de teste manual).
+// (services/distribuicaoAreaAtuacao.js) na hora, sem esperar o próximo
+// horário agendado (6h/12h/18h) — só pra testar/conferir o resultado. Cobra
+// créditos de verdade (mesmo custo de qualquer lead nova), por isso
+// restrito ao superadmin. Ignora o guard de "rodou recentemente" de
+// propósito (é a rota de teste manual — chama distribuirLeadsPorArea()
+// direto, não rodarComGuard()).
 app.post('/admin/distribuicao-area-atuacao/rodar', authAdmin, async (req, res) => {
   if (req.session.adminSuper === false) return res.status(403).json({ ok: false, erro: 'Só o superadmin pode rodar isso manualmente.' });
   try {

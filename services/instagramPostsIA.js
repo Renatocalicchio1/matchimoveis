@@ -39,7 +39,8 @@ function _truncarLegendaSegura(texto) {
 const _INSTRUCOES_POR_TIPO = {
   feature: 'O fato é uma funcionalidade real da plataforma. Escreva um post explicando o benefício pro corretor/imobiliária de forma simples, terminando com uma chamada pra conhecer a MatchImóveis.',
   dica: 'O fato é um conceito real da plataforma. Escreva um post em formato de dica prática pro corretor imobiliário, mostrando como isso ajuda no dia a dia dele.',
-  prova_social: 'O fato é um número real agregado da rede de corretores da plataforma. Escreva um post de prova social, mostrando o resultado de forma que gere confiança em quem ainda não usa a plataforma.'
+  prova_social: 'O fato é um número real agregado da rede de corretores da plataforma. Escreva um post de prova social, mostrando o resultado de forma que gere confiança em quem ainda não usa a plataforma.',
+  ia: 'O fato é uma funcionalidade real de inteligência artificial da plataforma. IA é assunto em alta agora — aproveite isso no gancho, mas sem forçar hype nem prometer o que o fato não diz. Explique como a IA resolve um problema concreto do dia a dia do corretor.'
 };
 
 function gerarLegendaInstagram({ tipo, fato }) {

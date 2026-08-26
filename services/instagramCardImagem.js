@@ -23,7 +23,10 @@ const _FONTS_URL = 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@
 const _ICONES = {
   prova_social: '<path d="M4 23l8-8 5 5 11-13"/><path d="M20 6h8v8"/>',
   dica: '<path d="M12.5 25h7" stroke-width="2.4"/><path d="M13.5 28h5" stroke-width="2.4"/><path d="M16 4.5a9 9 0 00-5 16.5c1 .8 1.5 1.8 1.5 3.5h7c0-1.7.5-2.7 1.5-3.5a9 9 0 00-5-16.5z"/>',
-  feature: '<path fill="currentColor" stroke="none" d="M16 2c0 7.2 3 10.5 10.5 10.5C19 12.5 16 15.8 16 23c0-7.2-3-10.5-10.5-10.5C13 12.5 16 9.2 16 2z"/>'
+  feature: '<path fill="currentColor" stroke="none" d="M16 2c0 7.2 3 10.5 10.5 10.5C19 12.5 16 15.8 16 23c0-7.2-3-10.5-10.5-10.5C13 12.5 16 9.2 16 2z"/>',
+  // Duas "sparkles" (grande + pequena) — glifo comum de IA/mágica, distinto
+  // do diamante único usado em "feature" pra não confundir os dois selos.
+  ia: '<path fill="currentColor" stroke="none" d="M13 3c0 6.6-1.8 8.4-8.4 8.4C11.2 11.4 13 13.2 13 19.8c0-6.6 1.8-8.4 8.4-8.4C14.8 11.4 13 9.6 13 3z"/><path fill="currentColor" stroke="none" d="M24 14c0 3.2-.9 4.1-4.1 4.1 3.2 0 4.1.9 4.1 4.1 0-3.2.9-4.1 4.1-4.1-3.2 0-4.1-.9-4.1-4.1z"/>'
 };
 
 // Selo (eyebrow) continua ligado ao TIPO do post (conteúdo) — mas a cor do
@@ -34,7 +37,8 @@ const _ICONES = {
 const _EYEBROW_TIPO = {
   prova_social: 'PROVA SOCIAL',
   dica: 'DICA',
-  feature: 'FUNCIONALIDADE'
+  feature: 'FUNCIONALIDADE',
+  ia: 'IA'
 };
 
 // Rotação de cor por bloco de 3 posts publicados no Feed (3 vermelho, 3

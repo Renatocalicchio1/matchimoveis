@@ -11270,6 +11270,26 @@ function _fatoInstitucionalInstagram(tipo) {
     ].filter(Boolean);
     return candidatos[Math.floor(Math.random() * candidatos.length)] || 'A MatchImóveis conecta leads e imóveis automaticamente pra corretores e imobiliárias.';
   }
+  if (tipo === 'ia') {
+    // Curado à mão (não puxa de ctx.conceitos/paginas como dica/feature) —
+    // aqui o tema É "IA" especificamente, então precisa ser só fato real e
+    // já existente ligado a inteligência artificial, não qualquer conceito
+    // da plataforma. Pedido do Renato (ago/2026): assunto em alta no
+    // momento, categoria própria de post pra reforçar isso.
+    // Formato "Título: descrição" — mesmo padrão de dica/feature (vem de
+    // conceitos/páginas reais) — pra _partesDoFato() (instagramCardImagem.js)
+    // separar título/corpo certo no card, em vez da frase inteira virar
+    // headline gigante.
+    const candidatos = [
+      'Match automático: a IA cruza cada lead com os imóveis certos da carteira sozinha — por transação, tipo, localização, valor e quartos.',
+      'Assistente virtual: o corretor conversa com a IA dentro da própria plataforma e já recebe leads quentes, visitas pendentes e o resumo do dia na hora.',
+      'IA no WhatsApp: dentro da janela de atendimento, a IA já responde o cliente sozinha com base nos dados reais da carteira do corretor.',
+      'Central Operacional: o corretor manda um comando em texto e a IA interpreta e responde na hora, sem precisar navegar menu nenhum.',
+      'Descrição por IA: a plataforma gera a descrição completa do anúncio a partir dos dados cadastrados do imóvel, pronta pra publicar.',
+      'Intenção oculta: a IA identifica o interesse real do cliente pelo comportamento dele na plataforma, não só pelo que ele escreveu.'
+    ];
+    return candidatos[Math.floor(Math.random() * candidatos.length)];
+  }
   if (tipo === 'dica') {
     const pool = [
       ...Object.entries(ctx.conceitos || {}).map(([k, v]) => `${k}: ${v}`),
@@ -11291,7 +11311,7 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
   const conectado = !!(conta && conta.instagramToken && conta.instagramContaId);
   const _autoDados = (conta && conta.dados) || {};
   const autoAtivo = _autoDados.instagramAutoPostAtivo === true;
-  const _AUTO_TIPO_LABEL = { dica: 'Dica prática', feature: 'Funcionalidade', prova_social: 'Prova social' };
+  const _AUTO_TIPO_LABEL = { dica: 'Dica prática', feature: 'Funcionalidade', prova_social: 'Prova social', ia: 'IA na prática' };
   const _proximoTipoLabel = _AUTO_TIPO_LABEL[_INSTAGRAM_AUTO_TIPOS[Number(_autoDados.instagramAutoPostTipoIndice || 0) % _INSTAGRAM_AUTO_TIPOS.length]];
   let _statusAuto = 'Nunca postou automaticamente ainda.';
   if (_autoDados.instagramAutoPostUltimoEm) {
@@ -11337,6 +11357,7 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
           <option value="feature">Feature da plataforma</option>
           <option value="dica">Dica prática</option>
           <option value="prova_social">Prova social (número real)</option>
+          <option value="ia">Como a IA ajuda (tendência)</option>
         </select>
         <label style="font-size:12px;font-weight:700;margin:0 8px 0 16px">Cor</label>
         <select id="corPost">
@@ -11534,7 +11555,7 @@ async function _gerarESalvarCardImagem(req, opts) {
 // reinicia o processo, um setInterval(3h) puro reiniciaria a contagem do
 // zero a cada vez).
 const _INSTAGRAM_AUTO_BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : 'http://localhost:' + (process.env.PORT || 3000);
-const _INSTAGRAM_AUTO_TIPOS = ['dica', 'feature', 'prova_social'];
+const _INSTAGRAM_AUTO_TIPOS = ['dica', 'feature', 'prova_social', 'ia'];
 const _INSTAGRAM_AUTO_INTERVALO_MS = 3 * 60 * 60 * 1000;
 const _INSTAGRAM_AUTO_CHECK_MS = 15 * 60 * 1000;
 
@@ -11599,7 +11620,7 @@ setInterval(_rodarCicloAutoPostInstagram, _INSTAGRAM_AUTO_CHECK_MS);
 
 app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, res) => {
   try {
-    const tipo = ['feature', 'dica', 'prova_social'].includes(req.body.tipo) ? req.body.tipo : 'feature';
+    const tipo = ['feature', 'dica', 'prova_social', 'ia'].includes(req.body.tipo) ? req.body.tipo : 'feature';
     // Aceita formatos: ['feed','story'] (um ou os dois) — mantém compat com
     // o antigo `formato` singular pra quem ainda chamar a API assim.
     let formatos = Array.isArray(req.body.formatos) ? req.body.formatos.filter(f => ['feed', 'story'].includes(f)) : [];
@@ -11643,7 +11664,7 @@ app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, 
 // corIndice vem do que /gerar devolveu, pra manter a mesma cor do post.
 app.post('/admin/instagram-posts/recriar-imagem', authAdmin, express.json(), async (req, res) => {
   try {
-    const tipo = ['feature', 'dica', 'prova_social'].includes(req.body.tipo) ? req.body.tipo : 'feature';
+    const tipo = ['feature', 'dica', 'prova_social', 'ia'].includes(req.body.tipo) ? req.body.tipo : 'feature';
     const formato = req.body.formato === 'story' ? 'story' : 'feed';
     const fato = String(req.body.fato || '').trim();
     if (!fato) return res.json({ ok: false, erro: 'Gere a legenda primeiro.' });

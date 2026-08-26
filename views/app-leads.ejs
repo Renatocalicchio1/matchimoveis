@@ -97,6 +97,8 @@
 
 .lc-comment-box{display:flex;gap:7px;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#78350f;cursor:pointer}
 .lc-comment-box:hover{background:#fef3c7}
+.lc-comment-box.empty{background:#fffdf5;border:1px dashed #fde68a;color:#a16207;font-weight:600;align-items:center}
+.lc-comment-box.empty:hover{background:#fffbeb;border-style:solid}
 .lc-comment-box .cb-ico{flex-shrink:0;font-size:13px}
 .lc-comment-box .cb-body{min-width:0;flex:1}
 .lc-comment-box .cb-txt{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.4}
@@ -110,6 +112,11 @@
 .lb.dark{background:none;color:#111827;margin-left:auto}
 .lb.danger{color:#FF385C}
 .confirm-box{display:none;padding:10px 12px;background:#fef2f2;border-radius:10px;border:1px solid #fca5a5;margin-top:8px}
+/* Caixa de escrever comentário tinha a MESMA classe da caixa de "excluir
+   lead?" (.confirm-box, vermelha) — sério de mais e fora de contexto pra
+   escrever um comentário. Classe própria, tom âmbar (mesma família da
+   prévia .lc-comment-box), pra ficar óbvio que é a mesma ação, não um alerta. */
+.comment-write-box{display:none;padding:10px 12px;background:#fffbeb;border-radius:10px;border:1px solid #fde68a;margin-top:8px}
 
 .empty-col{text-align:center;padding:24px 12px;color:#d1d5db;font-size:12px}
 </style>
@@ -348,6 +355,11 @@ leads.forEach(item => {
         <div class="cb-meta"><%= _com3[0].criadoEm ? new Date(_com3[0].criadoEm).toLocaleDateString('pt-BR') : '' %><%= item.comentarios.length>1 ? ' · +'+(item.comentarios.length-1)+' comentário'+(item.comentarios.length-1>1?'s':'') : '' %></div>
       </div>
     </div>
+    <% } else { %>
+    <div class="lc-comment-box empty" id="comentario-box-<%= item.id %>" onclick="event.stopPropagation();toggleComentarioBox('<%= item.id %>')">
+      <span class="cb-ico">💬</span>
+      <span>Clique aqui para adicionar um comentário</span>
+    </div>
     <% } %>
 
     <div class="lead-btns" id="lead-btns-<%= item.id %>">
@@ -378,7 +390,7 @@ leads.forEach(item => {
       <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">Excluir</button>
       <a href="/app/lead/<%= item.id %>" class="lb dark">Ver detalhes →</a>
     </div>
-    <div class="confirm-box" id="comentario-<%= item.id %>" style="display:none">
+    <div class="comment-write-box" id="comentario-<%= item.id %>" style="display:none">
       <div style="font-size:11px;color:#374151;margin-bottom:6px;font-weight:500">Adicionar comentário:</div>
       <textarea id="comentario-txt-<%= item.id %>" rows="2" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;resize:vertical;font-family:inherit;margin-bottom:6px" placeholder="Escreva aqui..."></textarea>
       <div style="display:flex;gap:5px">
@@ -726,18 +738,18 @@ async function salvarNovaLead(){
 }
 
 function confirmarExcluir(id) {
-  document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.confirm-box, .comment-write-box').forEach(el=>el.style.display='none');
   document.getElementById('confirm-'+id).style.display='block';
 }
 async function excluirLead(id){const r=await fetch('/app/lead/'+id,{method:'DELETE'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
-function abrirClassificar(id){document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');document.getElementById('classificar-'+id).style.display='block';}
+function abrirClassificar(id){document.querySelectorAll('.confirm-box, .comment-write-box').forEach(el=>el.style.display='none');document.getElementById('classificar-'+id).style.display='block';}
 async function classificarLead(id,tipo){const r=await fetch('/app/lead/'+id+'/classificar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipoLead:tipo})});const d=await r.json();if(d.ok){ if(tipo==='corretor') window.location.href='/app/parceiros'; else location.reload(); }else alert('Erro: '+d.erro);}
 async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',{method:'POST'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
 
 function toggleComentarioBox(id){
   const box = document.getElementById('comentario-'+id);
   const aberto = box.style.display === 'block';
-  document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.confirm-box, .comment-write-box').forEach(el=>el.style.display='none');
   box.style.display = aberto ? 'none' : 'block';
   if(!aberto) document.getElementById('comentario-txt-'+id).focus();
 }
@@ -757,19 +769,21 @@ async function salvarComentarioLead(id){
     btn.textContent = '💬 Comentar (' + d.comentarios.length + ')';
     btn.title = tituloComentarios;
   }
-  // Box de preview visível no card: atualiza se já existir, senão cria (1º
-  // comentário dessa lead) inserindo antes dos botões.
+  // Box de preview visível no card: existe sempre (vazio "clique pra
+  // comentar" antes do 1º comentário, preenchido depois) — só troca de
+  // estado. Reconstrói o miolo toda vez (mais simples e à prova de já vir
+  // no estado "vazio", que não tem .cb-txt/.cb-meta dentro).
   let box = document.getElementById('comentario-box-'+id);
   if(!box){
     box = document.createElement('div');
-    box.className = 'lc-comment-box';
     box.id = 'comentario-box-'+id;
     box.onclick = function(e){ e.stopPropagation(); toggleComentarioBox(id); };
-    box.innerHTML = '<span class="cb-ico">💬</span><div class="cb-body"><div class="cb-txt"></div><div class="cb-meta"></div></div>';
     const btnsDiv = document.getElementById('lead-btns-'+id);
     if(btnsDiv) btnsDiv.parentNode.insertBefore(box, btnsDiv);
   }
+  box.className = 'lc-comment-box';
   box.title = tituloComentarios;
+  box.innerHTML = '<span class="cb-ico">💬</span><div class="cb-body"><div class="cb-txt"></div><div class="cb-meta"></div></div>';
   box.querySelector('.cb-txt').textContent = ultimos[0].texto || '';
   const meta = (ultimos[0].criadoEm ? new Date(ultimos[0].criadoEm).toLocaleDateString('pt-BR') : '') + (d.comentarios.length>1 ? ' · +'+(d.comentarios.length-1)+' comentário'+(d.comentarios.length-1>1?'s':'') : '');
   box.querySelector('.cb-meta').textContent = meta;

@@ -13507,7 +13507,7 @@ app.get('/app/imovel/:id/editar', auth, async (req,res)=>{
   const _completo2 = await _buscarImovelCompleto(imovel.id);
   if (_completo2) imovel = { ...imovel, ...(_completo2.fotos ? { fotos: _completo2.fotos } : {}), descricao: _completo2.descricao };
 
-  const idImovelEdit = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || String(imovel.id) || ''); res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1', idImovel: idImovelEdit });
+  const idImovelEdit = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || String(imovel.id) || ''); res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1', erroFoto: req.query.erro || '', idImovel: idImovelEdit });
 });
 
 // Editar imóvel - salvar
@@ -13603,13 +13603,33 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
   // Renderiza direto sem redirect para evitar problema de sessao
   const idImovelEdit = (imoveis[idx].idExterno&&imoveis[idx].idExterno.trim())?imoveis[idx].idExterno:(imoveis[idx].idInterno||String(imoveis[idx].id)||'');
-  res.render('app-editar-imovel', { user: req.session.user, imovel: imoveis[idx], salvo: true, idImovel: idImovelEdit });
+  res.render('app-editar-imovel', { user: req.session.user, imovel: imoveis[idx], salvo: true, erroFoto: '', idImovel: idImovelEdit });
 });
 
 
+// Mesma causa do bug de /app/imovel/cadastrar (ver _uploadFotosCadastroImovel):
+// o multer.fields([...]) chama next(err) direto quando rejeita uma foto
+// (formato tipo HEIC do iPhone, tamanho, quantidade) — sem esse wrapper, o
+// erro pulava o try/catch da rota (que só protege o CORPO do handler, não o
+// próprio middleware de upload) e caía no "Internal Server Error" genérico
+// do Express (não existe error-handling middleware global). Redireciona de
+// volta pra tela de editar com o motivo em ?erro=, lido em GET
+// /app/imovel/:id/editar e mostrado como banner (ver app-editar-imovel.ejs).
+function _uploadFotosEditarImovel(req, res, next) {
+  uploadImoveis.fields([{ name: 'fotos', maxCount: 20 }, { name: 'foto', maxCount: 1 }])(req, res, (err) => {
+    if (!err) return next();
+    console.error('[upload-foto] erro no upload:', err.message);
+    let codigo = 'foto_outro';
+    if (err.code === 'LIMIT_FILE_SIZE') codigo = 'foto_tamanho';
+    else if (err.code === 'LIMIT_UNEXPECTED_FILE') codigo = 'foto_qtd';
+    else if (/Tipo de arquivo não permitido/.test(err.message)) codigo = 'foto_formato';
+    res.redirect('/app/imovel/' + req.params.id + '/editar?erro=' + codigo);
+  });
+}
+
 // Upload de foto — aceita várias de uma vez (campo "fotos", até 20), mantendo
 // compatibilidade com o campo antigo "foto" (singular) caso algo ainda mande só 1.
-app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.fields([{ name: 'fotos', maxCount: 20 }, { name: 'foto', maxCount: 1 }]), async (req,res)=>{
+app.post('/app/imovel/:id/upload-foto', auth, _uploadFotosEditarImovel, async (req,res)=>{
   try {
     const pid = req.params.id;
     const arquivos = [...(req.files?.fotos || []), ...(req.files?.foto || [])];

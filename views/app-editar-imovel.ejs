@@ -45,6 +45,18 @@ const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); retu
 <% if(salvo){ %>
 <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#166534;font-weight:500">✅ Alterações salvas com sucesso.</div>
 <% } %>
+<%
+  const _MSG_ERRO_FOTO = {
+    foto: 'Nenhuma foto foi enviada — selecione pelo menos 1 arquivo.',
+    foto_formato: 'Uma das fotos está num formato não aceito (use JPG, PNG, WEBP ou GIF — foto tipo HEIC do iPhone precisa ser convertida antes de subir).',
+    foto_tamanho: 'Uma das fotos passa de 15MB — reduza o tamanho e tente de novo.',
+    foto_qtd: 'Envie no máximo 20 fotos por vez.',
+    foto_outro: 'Erro ao enviar as fotos — tente de novo.'
+  };
+%>
+<% if(typeof erroFoto !== 'undefined' && erroFoto && _MSG_ERRO_FOTO[erroFoto]){ %>
+<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b91c1c;font-weight:500">⚠️ <%= _MSG_ERRO_FOTO[erroFoto] %></div>
+<% } %>
 
 <div class="card">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-light)">
@@ -427,9 +439,10 @@ const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); retu
     </div>
     <% } %>
     <form method="POST" action="/app/imovel/<%= _pidUrl %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;margin-top:8px">
-      <input type="file" name="fotos" accept="image/*" multiple required style="flex:1;min-width:180px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px">
+      <input type="file" name="fotos" accept="image/*" multiple required style="flex:1;min-width:180px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px" onchange="if(this.files.length){this.form.submit();this.nextElementSibling.textContent='Enviando...';this.nextElementSibling.disabled=true}">
       <button type="submit" class="btn btn-primary">Subir foto(s)</button>
     </form>
+    <p style="font-size:11px;color:var(--text-ter);margin-top:4px">Assim que você escolhe as fotos, elas já sobem sozinhas — não precisa clicar no botão.</p>
   </div>
 
   <div style="font-size:12px;color:var(--text-ter);margin-top:8px">

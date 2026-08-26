@@ -1446,5 +1446,6 @@ module.exports = {
   marcarWhatsappManualEnviado, listarContatosAbertosSemDono,
   listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado, classificarNome,
   statsPorModeloEmail, estagioContatoCampanha, ESTAGIOS_CONTATO_CAMPANHA,
-  gerarPreviewPorAssunto, gerarEmailPorTipo
+  gerarPreviewPorAssunto, gerarEmailPorTipo,
+  MODELOS, gerarHTML, marcarEnviado, nomeOuFallback: _nomeOuFallback
 };

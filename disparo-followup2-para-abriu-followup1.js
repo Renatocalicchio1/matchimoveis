@@ -47,6 +47,10 @@ function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function main() {
   console.log('[reforco-abriu-followup1] escolhendo as 3 melhores variações de "followup2"...');
   const top3 = await topVariantesPorEngajamento('followup2', 3, AMOSTRA_MINIMA);
+  const semDadoNenhum = top3.every(t => t.stat.enviados === 0);
+  if (semDadoNenhum) {
+    console.log('  (followup2 ainda não tem estatística real registrada — sorteando entre as variações atuais)');
+  }
   top3.forEach((t, i) => {
     const pctAbertura = t.stat.enviados ? Math.round(t.stat.abertos / t.stat.enviados * 100) : 0;
     const pctClique = t.stat.enviados ? Math.round(t.stat.clicados / t.stat.enviados * 100) : 0;

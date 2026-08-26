@@ -674,6 +674,15 @@ async function topVariantesPorEngajamento(tipo, n, amostraMinima) {
   const doTipo = todas.filter(r => r.tipo === tipo && r.enviados > 0 && assuntosAtuais.has(r.assunto));
   const comAmostra = doTipo.filter(r => r.enviados >= piso);
   const base = comAmostra.length >= n ? comAmostra : doTipo;
+  if (!base.length) {
+    // Sem dado real nenhum ainda pra esse tipo (nunca foi enviado, ou todo
+    // o histórico registrado é de um texto que já foi reescrito) — cai pra
+    // sorteio entre as variações atuais, em vez de travar o disparo. Mesmo
+    // comportamento de _sortearVariante() quando não tem amostra suficiente
+    // (ver _sorteia acima).
+    const embaralhado = lista.slice().sort(() => Math.random() - 0.5);
+    return embaralhado.slice(0, n).map(variante => ({ variante, stat: { enviados: 0, abertos: 0, clicados: 0 } }));
+  }
   base.sort((a, b) => _taxaEngajamento(b) - _taxaEngajamento(a));
   return base.slice(0, n).map(stat => ({ variante: lista.find(v => v.assunto === stat.assunto), stat }));
 }

@@ -12822,6 +12822,31 @@ app.post('/admin/site-global/banner/excluir', authAdmin, async (req, res) => {
 // ── FIM ADMIN SITE GLOBAL ──────────────────────────────────────────────────
 
 // ── ADMIN — MODELOS DE EMAIL (tracking de abertura/clique de TODO email disparado) ──
+// Categorização + ordem (ago/2026, pedido explícito do Renato: "cada uma
+// pro sua categoria e na ordem") — antes a tela agrupava só por `tipo` cru,
+// ordenado alfabeticamente (então "afiliado" vinha antes de "demanda" antes
+// de "pagina", sem relação com a ordem real do funil). Cada categoria abaixo
+// já lista os tipos na ordem que fazem sentido pra ler de cima pra baixo;
+// tipo sem categoria mapeada cai em "Outras notificações" (nunca some da
+// tela, só não fica bonito organizado — ver _categoriaEmail).
+const _CATEGORIAS_EMAIL = [
+  { chave: 'aquisicao', label: '📣 Aquisição de corretores (campanha fria)', tipos: ['pagina', 'demanda', 'afiliado', 'followup1', 'followup2', 'followup3'] },
+  { chave: 'funil_conta', label: '🚀 Funil de conta — corretor já cadastrado', tipos: ['funil_conta_convertido', 'funil_conta_ativado'] },
+  { chave: 'indicacao', label: '🔗 Indicação e afiliados', tipos: ['convite_indicacao'] },
+  { chave: 'captacao', label: '🏠 Captação de proprietários', prefixo: 'campanha_captacao_' },
+  { chave: 'reengajamento', label: '⏰ Reengajamento', tipos: ['reengajamento_inativo', 'followup_sem_imovel'] },
+  { chave: 'onboarding', label: '👋 Boas-vindas e onboarding', tipos: ['boas_vindas_corretor', 'onboarding_completo', 'onboarding_passo'] },
+  { chave: 'outras', label: '🔔 Notificações da plataforma', tipos: [] }
+];
+function _categoriaEmail(tipo) {
+  for (let i = 0; i < _CATEGORIAS_EMAIL.length - 1; i++) {
+    const cat = _CATEGORIAS_EMAIL[i];
+    if (cat.tipos && cat.tipos.includes(tipo)) return { ordemCategoria: i, label: cat.label, ordemTipo: cat.tipos.indexOf(tipo) };
+    if (cat.prefixo && tipo && tipo.startsWith(cat.prefixo)) return { ordemCategoria: i, label: cat.label, ordemTipo: 0 };
+  }
+  const outras = _CATEGORIAS_EMAIL[_CATEGORIAS_EMAIL.length - 1];
+  return { ordemCategoria: _CATEGORIAS_EMAIL.length - 1, label: outras.label, ordemTipo: 0 };
+}
 app.get('/admin/emails', authAdmin, async (req, res) => {
   try {
     const { statsEmailEnvios } = require('./services/email');
@@ -12835,17 +12860,25 @@ app.get('/admin/emails', authAdmin, async (req, res) => {
       statsEmailEnvios().catch(() => []),
       statsPorModeloEmail().catch(() => [])
     ]);
-    const linhas = [...linhasEmail, ...linhasCampanha].sort((a, b) => (a.tipo || '').localeCompare(b.tipo || '') || b.enviados - a.enviados);
+    const linhas = [...linhasEmail, ...linhasCampanha]
+      .map(l => ({ ...l, _cat: _categoriaEmail(l.tipo) }))
+      .sort((a, b) =>
+        (a._cat.ordemCategoria - b._cat.ordemCategoria) ||
+        (a.tipo || '').localeCompare(b.tipo || '') ||
+        (a._cat.ordemTipo - b._cat.ordemTipo) ||
+        (b.enviados - a.enviados)
+      );
     const totalEnviados = linhas.reduce((s, l) => s + l.enviados, 0);
     const totalAbertos = linhas.reduce((s, l) => s + l.abertos, 0);
     const totalClicados = linhas.reduce((s, l) => s + l.clicados, 0);
+    const totalCadastrados = linhas.reduce((s, l) => s + (l.cadastrados || 0), 0);
     res.render('admin-emails', {
-      linhas, totalEnviados, totalAbertos, totalClicados,
+      linhas, totalEnviados, totalAbertos, totalClicados, totalCadastrados,
       adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('emails', _sidebarPerm(req), req)
     });
   } catch (e) {
     console.error('[admin/emails]', e.message);
-    res.render('admin-emails', { linhas: [], totalEnviados: 0, totalAbertos: 0, totalClicados: 0, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('emails', _sidebarPerm(req), req) });
+    res.render('admin-emails', { linhas: [], totalEnviados: 0, totalAbertos: 0, totalClicados: 0, totalCadastrados: 0, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('emails', _sidebarPerm(req), req) });
   }
 });
 

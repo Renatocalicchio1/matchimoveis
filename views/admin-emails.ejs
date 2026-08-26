@@ -9,11 +9,13 @@
 body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
 <%- adminShellCss %>
 .admin-content{max-width:1500px}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-@media(max-width:720px){.kpis{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:720px){.kpis{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px 18px}
 .kpi .n{font-size:24px;font-weight:800;letter-spacing:-.5px}
 .kpi .l{font-size:11.5px;color:#888;text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+.categoria{margin-bottom:28px}
+.categoria-head{font-size:15px;font-weight:800;margin-bottom:10px;color:#111}
 .grupo{background:#fff;border:1px solid #e5e5e3;border-radius:12px;margin-bottom:14px;overflow:hidden}
 .grupo-head{padding:12px 16px;background:#fafaf9;border-bottom:1px solid #e5e5e3;font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:space-between}
 .grupo-head .tot{font-weight:600;color:#888;font-size:12px}
@@ -43,62 +45,79 @@ tr.clicavel:hover{background:#fafaf9}
 <%- adminSidebar %>
 <main class="admin-content">
   <h1 style="font-size:18px;font-weight:700;margin-bottom:4px">📬 Modelos de Email</h1>
-  <p style="color:#888;font-size:12.5px;margin-bottom:16px">Todo email disparado pela plataforma (notificações, convites, campanhas) com abertura e clique rastreados — agrupado por tipo, com cada variação de assunto/botão separada pra comparar performance.</p>
+  <p style="color:#888;font-size:12.5px;margin-bottom:16px">Todo email disparado pela plataforma (notificações, convites, campanhas) com abertura, clique e cadastro rastreados — agrupado por categoria e depois por tipo, na ordem que faz sentido acompanhar (funil de aquisição primeiro, notificações soltas por último).</p>
 
   <div class="kpis">
     <div class="kpi"><div class="n"><%= totalEnviados.toLocaleString('pt-BR') %></div><div class="l">Enviados</div></div>
     <div class="kpi"><div class="n"><%= totalAbertos.toLocaleString('pt-BR') %> <span class="pct"><%= totalEnviados ? Math.round(totalAbertos/totalEnviados*100) : 0 %>%</span></div><div class="l">Abertos</div></div>
     <div class="kpi"><div class="n"><%= totalClicados.toLocaleString('pt-BR') %> <span class="pct"><%= totalEnviados ? Math.round(totalClicados/totalEnviados*100) : 0 %>%</span></div><div class="l">Clicados</div></div>
+    <div class="kpi"><div class="n"><%= totalCadastrados.toLocaleString('pt-BR') %> <span class="pct"><%= totalEnviados ? Math.round(totalCadastrados/totalEnviados*100) : 0 %>%</span></div><div class="l">Cadastros</div></div>
   </div>
 
   <% if (!linhas.length) { %>
     <div class="vazio">Nenhum email rastreado ainda.</div>
   <% } else { %>
     <%
-      // Agrupa por tipo (linhas já vêm ordenadas por tipo, enviados desc)
-      const grupos = {};
-      linhas.forEach(l => { (grupos[l.tipo] = grupos[l.tipo] || []).push(l); });
+      // Categoria > tipo > linhas — linhas já vêm do servidor ordenadas por
+      // categoria/tipo/enviados, então só precisa agrupar preservando a
+      // ordem de chegada (Map mantém ordem de inserção).
+      const categorias = new Map();
+      linhas.forEach(l => {
+        const catLabel = l._cat.label;
+        if (!categorias.has(catLabel)) categorias.set(catLabel, new Map());
+        const tipos = categorias.get(catLabel);
+        if (!tipos.has(l.tipo)) tipos.set(l.tipo, []);
+        tipos.get(l.tipo).push(l);
+      });
       function _pctClass(p) { return p >= 15 ? 'bom' : (p >= 5 ? 'medio' : 'baixo'); }
     %>
-    <% Object.keys(grupos).forEach(function(tipo){ %>
-      <% const linhasGrupo = grupos[tipo]; const totTipo = linhasGrupo.reduce((s,l)=>s+l.enviados,0); %>
-      <div class="grupo">
-        <div class="grupo-head">
-          <span><%= tipo %></span>
-          <span class="tot"><%= totTipo.toLocaleString('pt-BR') %> enviados</span>
-        </div>
-        <div style="overflow-x:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Variante</th>
-              <th>Assunto</th>
-              <th>Botão</th>
-              <th>Enviados</th>
-              <th>Abertos</th>
-              <th>Clicados</th>
-              <th>Último envio</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% linhasGrupo.forEach(function(l){ %>
-              <% const pctAb = l.enviados ? Math.round(l.abertos/l.enviados*100) : 0; %>
-              <% const pctCl = l.enviados ? Math.round(l.clicados/l.enviados*100) : 0; %>
-              <tr class="clicavel" onclick="abrirPreviewModelo('<%= tipo %>', <%= JSON.stringify(l.assunto||'') %>)" title="Clique pra ver o e-mail">
-                <td><%= l.variante || '—' %></td>
-                <td class="assunto" title="<%= l.assunto||'' %>">👁️ <%= l.assunto || '—' %></td>
-                <td><%= l.botao_texto || '—' %></td>
-                <td class="num"><%= l.enviados.toLocaleString('pt-BR') %></td>
-                <td><span class="num"><%= l.abertos %></span><span class="pct <%= _pctClass(pctAb) %>"><%= pctAb %>%</span><span class="bar"><i style="width:<%= Math.min(100,pctAb) %>%"></i></span></td>
-                <td><span class="num"><%= l.clicados %></span><span class="pct <%= _pctClass(pctCl) %>"><%= pctCl %>%</span><span class="bar"><i style="width:<%= Math.min(100,pctCl) %>%"></i></span></td>
-                <td><%= new Date(l.ultimo_envio).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) %></td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-        </div>
+    <% for (const [catLabel, tipos] of categorias) { %>
+      <div class="categoria">
+        <div class="categoria-head"><%= catLabel %></div>
+        <% for (const [tipo, linhasGrupo] of tipos) { %>
+          <% const totTipo = linhasGrupo.reduce((s,l)=>s+l.enviados,0); %>
+          <div class="grupo">
+            <div class="grupo-head">
+              <span><%= tipo %></span>
+              <span class="tot"><%= totTipo.toLocaleString('pt-BR') %> enviados</span>
+            </div>
+            <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Variante</th>
+                  <th>Assunto</th>
+                  <th>Botão</th>
+                  <th>Enviados</th>
+                  <th>Abertos</th>
+                  <th>Clicados</th>
+                  <th>Cadastros</th>
+                  <th>Último envio</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% linhasGrupo.forEach(function(l){ %>
+                  <% const pctAb = l.enviados ? Math.round(l.abertos/l.enviados*100) : 0; %>
+                  <% const pctCl = l.enviados ? Math.round(l.clicados/l.enviados*100) : 0; %>
+                  <% const pctCad = l.enviados ? Math.round((l.cadastrados||0)/l.enviados*100) : 0; %>
+                  <tr class="clicavel" onclick="abrirPreviewModelo('<%= tipo %>', <%= JSON.stringify(l.assunto||'') %>)" title="Clique pra ver o e-mail">
+                    <td><%= l.variante || '—' %></td>
+                    <td class="assunto" title="<%= l.assunto||'' %>">👁️ <%= l.assunto || '—' %></td>
+                    <td><%= l.botao_texto || '—' %></td>
+                    <td class="num"><%= l.enviados.toLocaleString('pt-BR') %></td>
+                    <td><span class="num"><%= l.abertos %></span><span class="pct <%= _pctClass(pctAb) %>"><%= pctAb %>%</span><span class="bar"><i style="width:<%= Math.min(100,pctAb) %>%"></i></span></td>
+                    <td><span class="num"><%= l.clicados %></span><span class="pct <%= _pctClass(pctCl) %>"><%= pctCl %>%</span><span class="bar"><i style="width:<%= Math.min(100,pctCl) %>%"></i></span></td>
+                    <td><span class="num"><%= l.cadastrados||0 %></span><span class="pct <%= _pctClass(pctCad) %>"><%= pctCad %>%</span><span class="bar"><i style="width:<%= Math.min(100,pctCad) %>%;background:#FC642D"></i></span></td>
+                    <td><%= new Date(l.ultimo_envio).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        <% } %>
       </div>
-    <% }) %>
+    <% } %>
   <% } %>
 
   <div id="modal-preview-overlay" class="modal-overlay" onclick="if(event.target===this) fecharPreviewModelo()">

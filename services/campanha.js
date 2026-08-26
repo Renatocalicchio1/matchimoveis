@@ -656,6 +656,28 @@ function _taxaEngajamento(stat) {
   // assunto funcionou.
   return (stat.clicados * 3 + stat.abertos) / stat.enviados;
 }
+
+// Top N variações de um tipo por engajamento real — usado pelos scripts de
+// disparo único/manual (ago/2026), não pelo job contínuo (esse já pesa via
+// _sortearVariante). Só considera candidata quem tem estatística registrada
+// E cujo assunto ainda existe em MODELOS[tipo] hoje — o texto das variações
+// já foi reescrito mais de uma vez, então tem estatística real presa a um
+// assunto que não corresponde a variação nenhuma do código atual (achado
+// rodando o primeiro desses scripts, ago/2026); ignorar evita escolher uma
+// "vencedora fantasma" que não existe mais pra reenviar.
+async function topVariantesPorEngajamento(tipo, n, amostraMinima) {
+  const lista = MODELOS[tipo];
+  if (!lista) throw new Error('Tipo "' + tipo + '" não existe em MODELOS.');
+  const piso = amostraMinima || _AMOSTRA_MINIMA_PESO;
+  const todas = await statsPorModeloEmail();
+  const assuntosAtuais = new Set(lista.map(v => v.assunto));
+  const doTipo = todas.filter(r => r.tipo === tipo && r.enviados > 0 && assuntosAtuais.has(r.assunto));
+  const comAmostra = doTipo.filter(r => r.enviados >= piso);
+  const base = comAmostra.length >= n ? comAmostra : doTipo;
+  base.sort((a, b) => _taxaEngajamento(b) - _taxaEngajamento(a));
+  return base.slice(0, n).map(stat => ({ variante: lista.find(v => v.assunto === stat.assunto), stat }));
+}
+
 async function _sortearVariante(tipo) {
   const lista = MODELOS[tipo];
   const statsPorTitulo = await _statsPorTitulo(tipo).catch(() => ({}));
@@ -950,11 +972,17 @@ async function statsTracking() {
 // enviando de verdade e sendo rastreada à parte em campanha_contatos.
 async function statsPorModeloEmail() {
   await _garantirColunas();
+  // cadastrados: quantos e-mails distintos daquele grupo hoje têm conta em
+  // usuarios (LOWER pra não perder por caixa alta/baixa) — pedido explícito
+  // do Renato (ago/2026) pra ver conversão real por campanha/variação, não
+  // só abertura/clique.
+  const _cadastrados = `COUNT(DISTINCT CASE WHEN LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '') THEN LOWER(email) END)::int`;
   const { rows } = await query(`
     SELECT modelo_usado as tipo, titulo_usado as assunto,
       COUNT(*)::int as enviados,
       COUNT(aberto_em)::int as abertos,
       COUNT(clicado_em)::int as clicados,
+      ${_cadastrados} as cadastrados,
       MAX(enviado_em) as ultimo_envio
     FROM campanha_contatos
     WHERE status = 'enviado' AND modelo_usado IS NOT NULL
@@ -962,6 +990,7 @@ async function statsPorModeloEmail() {
     UNION ALL
     SELECT 'followup1' as tipo, followup1_titulo_usado as assunto,
       COUNT(*)::int, COUNT(followup1_aberto_em)::int, COUNT(followup1_clicado_em)::int,
+      ${_cadastrados},
       MAX(followup1_enviado_em)
     FROM campanha_contatos
     WHERE followup1_enviado_em IS NOT NULL AND followup1_titulo_usado IS NOT NULL
@@ -969,6 +998,7 @@ async function statsPorModeloEmail() {
     UNION ALL
     SELECT 'followup2' as tipo, followup2_titulo_usado as assunto,
       COUNT(*)::int, COUNT(followup2_aberto_em)::int, COUNT(followup2_clicado_em)::int,
+      ${_cadastrados},
       MAX(followup2_enviado_em)
     FROM campanha_contatos
     WHERE followup2_enviado_em IS NOT NULL AND followup2_titulo_usado IS NOT NULL
@@ -976,6 +1006,7 @@ async function statsPorModeloEmail() {
     UNION ALL
     SELECT 'followup3' as tipo, followup3_titulo_usado as assunto,
       COUNT(*)::int, COUNT(followup3_aberto_em)::int, COUNT(followup3_clicado_em)::int,
+      ${_cadastrados},
       MAX(followup3_enviado_em)
     FROM campanha_contatos
     WHERE followup3_enviado_em IS NOT NULL AND followup3_titulo_usado IS NOT NULL
@@ -1447,5 +1478,6 @@ module.exports = {
   listarContatosAfiliadoParaReatribuir, atribuirContatoAfiliado, classificarNome,
   statsPorModeloEmail, estagioContatoCampanha, ESTAGIOS_CONTATO_CAMPANHA,
   gerarPreviewPorAssunto, gerarEmailPorTipo,
-  MODELOS, gerarHTML, marcarEnviado, nomeOuFallback: _nomeOuFallback
+  MODELOS, gerarHTML, marcarEnviado, nomeOuFallback: _nomeOuFallback,
+  topVariantesPorEngajamento, marcarFollowupEnviado
 };

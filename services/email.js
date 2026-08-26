@@ -150,6 +150,9 @@ async function registrarCliqueEmail(id) {
 }
 
 // Agrega desempenho por tipo+variante+assunto+botão — base da tela /admin/emails.
+// cadastrados: quantos destinatários distintos desse grupo hoje têm conta em
+// usuarios (pedido explícito do Renato, ago/2026 — conversão real por
+// campanha, não só abertura/clique).
 async function statsEmailEnvios() {
   await _garantirTabelaEmailEnvios();
   const { rows } = await query(`
@@ -157,6 +160,7 @@ async function statsEmailEnvios() {
       COUNT(*)::int as enviados,
       COUNT(aberto_em)::int as abertos,
       COUNT(clicado_em)::int as clicados,
+      COUNT(DISTINCT CASE WHEN LOWER(destinatario) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '') THEN LOWER(destinatario) END)::int as cadastrados,
       MAX(enviado_em) as ultimo_envio
     FROM email_envios
     GROUP BY tipo, variante, assunto, botao_texto

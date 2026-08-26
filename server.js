@@ -14657,6 +14657,26 @@ function _montarContextoAssistente(user) {
   return { imoveis, leads, visitas, d };
 }
 
+// Alimenta o balão flutuante 🤖 de app-shell.ejs com um sinal REAL da conta
+// (services/agenteProativo.js — "Radar do Corretor", ago/2026), em vez do
+// sorteio entre 8 frases fixas que tinha antes. Sem sinal urgente agora, o
+// front cai de volta nas dicas genéricas (fallback já existia no widget).
+app.get('/api/agente/proximo-sinal', auth, async (req, res) => {
+  try {
+    // Não usa req.session.user direto — saldo/whatsapp/instagram mudam com
+    // frequência e a sessão pode estar desatualizada (mesmo motivo já
+    // documentado no saldo checado em /app/imovel/cadastrar).
+    const user = (_cacheUsuarios || []).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario) || req.session.user;
+    const { imoveis, leads, visitas, d } = _montarContextoAssistente(user);
+    const { proximoSinal } = require('./services/agenteProativo');
+    const sinal = await proximoSinal({ usuario: user, imoveis, leads, visitas, estagioConta: d.estagioConta });
+    res.json({ ok: true, sinal });
+  } catch (e) {
+    console.error('[api/agente/proximo-sinal]', e.message);
+    res.json({ ok: true, sinal: null });
+  }
+});
+
 // ── JOB_REATRIBUICAO_CONTATOS_AFILIADO — reequilibra os contatos de campanha
 // que "Convidar novos" mostra pra cada afiliado (ago/2026, pedido explícito).
 // Duas situações fazem um contato mudar de dono, sempre dentro do MESMO

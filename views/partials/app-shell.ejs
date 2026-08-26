@@ -603,14 +603,16 @@ function toggleMaisMenu(){
     { titulo: 'Parceria QuintoAndar 🤝', texto: 'Você pode enviar seus imóveis pro QuintoAndar vender, ou ter acesso à carteira deles pra fazer match com seus leads. Vem ver como funciona!', link: '/app/parceria-quintoandar', cta: true }
   ];
   var INTERVALO = 1 * 60 * 1000;
-  function mostrar(){
+  // Sinal real da conta (services/agenteProativo.js — "Radar do Corretor")
+  // tem prioridade sobre as dicas fixas — só cai nas dicas genéricas quando
+  // não tem nenhum sinal urgente agora.
+  function exibir(escolhida){
     var bolha = document.getElementById('robo-bolha');
     var msg = document.getElementById('robo-msg');
     var titulo = document.getElementById('robo-titulo');
     var cta = document.getElementById('robo-cta');
     var btn = document.getElementById('robo-btn');
     if(!bolha || !msg) return;
-    var escolhida = MSGS[Math.floor(Math.random()*MSGS.length)];
     titulo.textContent = escolhida.titulo;
     msg.textContent = escolhida.texto;
     cta.style.display = escolhida.cta ? 'block' : 'none';
@@ -620,6 +622,17 @@ function toggleMaisMenu(){
     bolha.style.display = 'block';
     sessionStorage.setItem('mi_robo_ultimo', String(Date.now()));
     setTimeout(function(){ bolha.style.display = 'none'; }, 9000);
+  }
+  function mostrar(){
+    fetch('/api/agente/proximo-sinal').then(function(r){ return r.json(); }).then(function(d){
+      if(d && d.ok && d.sinal){
+        exibir({ titulo: d.sinal.titulo, texto: d.sinal.texto, link: d.sinal.link, cta: true });
+      } else {
+        exibir(MSGS[Math.floor(Math.random()*MSGS.length)]);
+      }
+    }).catch(function(){
+      exibir(MSGS[Math.floor(Math.random()*MSGS.length)]);
+    });
   }
   document.getElementById('robo-btn').onclick = function(){ window.location.href = '/app/assistente'; };
   var ultimo = parseInt(sessionStorage.getItem('mi_robo_ultimo')||'0', 10);

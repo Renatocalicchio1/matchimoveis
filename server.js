@@ -11882,7 +11882,29 @@ function _limparValorBR(v) {
   return parseInt(String(v || '').replace(/\D/g, ''), 10) || 0;
 }
 
-app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async (req, res) => {
+// Envolve o multer(.array('fotos',20)) pra converter o erro dele (rejeição
+// de extensão/tamanho/quantidade) numa mensagem legível, em vez de deixar
+// cair no erro genérico "Internal Server Error" do Express — não existe
+// NENHUM error-handling middleware no servidor inteiro, então qualquer
+// next(err) do multer (é assim que ele reporta erro, sempre) ia parar
+// direto nesse fallback cru. Reportado pelo Renato (ago/2026): cadastro
+// quebrava ao subir mais de 1 foto — bastava UMA ser HEIC (formato padrão
+// do iPhone, fora de _EXTENSOES_PERMITIDAS_IMOVEIS) pra travar o form
+// inteiro, mesmo as outras fotos sendo válidas, sem explicar o motivo.
+function _uploadFotosCadastroImovel(req, res, next) {
+  uploadImoveis.array('fotos', 20)(req, res, (err) => {
+    if (!err) return next();
+    console.error('[cadastro-imovel] erro no upload de fotos:', err.message);
+    let msg = 'Erro ao enviar as fotos: ' + err.message;
+    if (err.code === 'LIMIT_FILE_SIZE') msg = 'Uma das fotos passa de 15MB — reduza o tamanho e tente de novo.';
+    else if (err.code === 'LIMIT_UNEXPECTED_FILE') msg = 'Envie no máximo 20 fotos por vez.';
+    else if (/Tipo de arquivo não permitido/.test(err.message)) msg = 'Uma das fotos está num formato não aceito (use JPG, PNG, WEBP ou GIF — foto tipo HEIC do iPhone precisa ser convertida antes de subir).';
+    res.status(400).send(msg + ' <a href="javascript:history.back()">Voltar</a>');
+  });
+}
+
+app.post('/app/imovel/cadastrar', auth, _uploadFotosCadastroImovel, async (req, res) => {
+  try {
   // verifica saldo antes de cadastrar
   const _userCad = (_cacheUsuarios||[]).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario);
   const _saldoCad = _userCad?.matchCoins || req.session.user?.matchCoins || 0;
@@ -12010,6 +12032,10 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
   // editar (pedido explícito: sem passo intermediário, sem delay percebido).
   res.redirect('/app/imoveis?cadastrado=1');
   setTimeout(() => regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-cadastro]', e.message)), 1000);
+  } catch (e) {
+    console.error('[app/imovel/cadastrar]', e.message);
+    res.status(500).send('Erro ao cadastrar o imóvel: ' + e.message + ' <a href="javascript:history.back()">Voltar</a>');
+  }
 });
 
 // Detalhe do imóvel

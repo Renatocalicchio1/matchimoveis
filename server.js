@@ -15645,6 +15645,27 @@ app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, express
   } catch(e) { _envioBoasVindasEmAndamento = false; res.status(500).json({ ok:false, erro: e.message }); }
 });
 
+// Números da MatchImóveis conhecidos/documentados na WABA (só os 2 já
+// cadastrados pra disparo de campanha, ver services/metaWhatsapp.js
+// NUMEROS_DISPARO — origem única, não duplicar essa lista) — usado pra
+// rotular o número na inbox mesmo em mensagem antiga sem display_phone_number
+// salvo. ID que não bate com nenhum desses é um número real recebendo
+// mensagem mas que NÃO está nessa lista — vale conferir no WhatsApp Manager
+// da Meta (Business Manager → contas do WhatsApp → Números de telefone).
+function _labelNumeroConhecidoWaCloud(phoneNumberId) {
+  const { NUMEROS_DISPARO } = require('./services/metaWhatsapp');
+  const conhecido = Object.values(NUMEROS_DISPARO).find(n => n.id === phoneNumberId);
+  return conhecido ? conhecido.label : '';
+}
+// Junta número real (se já capturado) + rótulo conhecido (se for um dos
+// nossos números documentados) + o ID, sempre mostrando o ID também
+// (pedido do Renato — "tem como colocar o número e o ID do número?").
+function _rotuloNumeroWaCloud(phoneNumberId, displayPhoneNumber) {
+  if (!phoneNumberId) return '';
+  const nome = displayPhoneNumber || _labelNumeroConhecidoWaCloud(phoneNumberId);
+  return (nome ? nome + ' · ' : '') + 'ID ' + phoneNumberId;
+}
+
 app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
   try {
     const { listarCampanhas, buscarCampanha, buscarFollowupMensagem } = require('./services/salvarDisparo');
@@ -15664,7 +15685,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     // número quando tem mais de um configurado).
     const optionsNumeros = '<option value="">— todos os números —</option>' + numeros.map(n =>
       '<option value="'+_escHtmlWaCloud(n.phone_number_id)+'"'+(n.phone_number_id===numeroFiltro?' selected':'')+'>'+
-      _escHtmlWaCloud((n.display_phone_number ? n.display_phone_number+' · ' : '')+'ID '+n.phone_number_id)+' ('+n.total+')</option>'
+      _escHtmlWaCloud(_rotuloNumeroWaCloud(n.phone_number_id, n.display_phone_number))+' ('+n.total+')</option>'
     ).join('');
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -15721,6 +15742,13 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     const _campanhaIdFiltro = ${JSON.stringify(campanhaIdFiltro)};
     const _numeroFiltro = ${JSON.stringify(numeroFiltro)};
+    const _numerosConhecidos = ${JSON.stringify(require('./services/metaWhatsapp').NUMEROS_DISPARO)};
+    function rotuloNumero(phoneNumberId, displayPhoneNumber){
+      if(!phoneNumberId) return '';
+      const conhecido = Object.values(_numerosConhecidos).find(function(n){ return n.id === phoneNumberId; });
+      const nome = displayPhoneNumber || (conhecido ? conhecido.label : '');
+      return (nome ? nome+' · ' : '')+'ID '+phoneNumberId;
+    }
     async function salvarFollowup(){
       const status = document.getElementById('statusFollowup');
       const mensagem = document.getElementById('txtFollowup').value.trim();
@@ -15791,7 +15819,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
           const prevista = escHtml((c.tipo==='botao'?'🔘 ':c.tipo==='audio'?'🎤 ':'') + (c.direcao==='saida'?'Você: ':'') + (c.texto||'').slice(0,60));
           const telLimpo = String(c.contato_telefone||'').replace(/\\D/g,'');
           const waLink = 'https://wa.me/'+telLimpo+'?text='+encodeURIComponent('Olá! Somos da MatchImóveis. Para começar gratuitamente e testar o sistema, faça seu cadastro e ganhe 1.000 créditos para utilizar a plataforma. No app tem o assistente robô que te ajuda a tirar todas as suas dúvidas. matchimoveis.ia.br');
-          const numeroLabel = c.phone_number_id ? ((c.display_phone_number ? c.display_phone_number+' · ' : '')+'ID '+c.phone_number_id) : '';
+          const numeroLabel = rotuloNumero(c.phone_number_id, c.display_phone_number);
           const numeroBadge = numeroLabel ? ' <span style="background:#f3f4f6;color:#374151;border-radius:6px;padding:1px 7px;font-size:10.5px;font-weight:600">📱 '+escHtml(numeroLabel)+'</span>' : '';
           return '<div class="linha" style="cursor:pointer' + (c.naoLidas>0?';background:#fff7f0':'') + '" onclick="location.href=\\'/admin/whatsapp-cloud/'+encodeURIComponent(c.contato_telefone)+'\\'"' + '>' +
             '<div><p style="margin:0;font-weight:700;font-size:14px;color:#111">'+escHtml(c.contato_nome||c.contato_telefone)+(c.naoLidas>0?' <span style="background:#FF385C;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;margin-left:6px">'+c.naoLidas+'</span>':'')+numeroBadge+'</p>' +
@@ -15902,9 +15930,7 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     const bolhas = mensagens.map(_bolha).join('');
     const _ultimaData = mensagens.length ? mensagens[mensagens.length-1].criado_em : new Date(0).toISOString();
     const _ultimoRecebidoNumero = [...mensagens].reverse().find(m => m.direcao === 'entrada');
-    const numeroLabel = _ultimoRecebidoNumero?.phone_number_id
-      ? ((_ultimoRecebidoNumero.display_phone_number ? _ultimoRecebidoNumero.display_phone_number+' · ' : '')+'ID '+_ultimoRecebidoNumero.phone_number_id)
-      : '';
+    const numeroLabel = _rotuloNumeroWaCloud(_ultimoRecebidoNumero?.phone_number_id, _ultimoRecebidoNumero?.display_phone_number);
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conversa — ${nome}</title>
     <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
     ${_adminShellCss()}

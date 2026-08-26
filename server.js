@@ -15664,7 +15664,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     // número quando tem mais de um configurado).
     const optionsNumeros = '<option value="">— todos os números —</option>' + numeros.map(n =>
       '<option value="'+_escHtmlWaCloud(n.phone_number_id)+'"'+(n.phone_number_id===numeroFiltro?' selected':'')+'>'+
-      _escHtmlWaCloud(n.display_phone_number || ('ID '+n.phone_number_id))+' ('+n.total+')</option>'
+      _escHtmlWaCloud((n.display_phone_number ? n.display_phone_number+' · ' : '')+'ID '+n.phone_number_id)+' ('+n.total+')</option>'
     ).join('');
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -15791,7 +15791,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
           const prevista = escHtml((c.tipo==='botao'?'🔘 ':c.tipo==='audio'?'🎤 ':'') + (c.direcao==='saida'?'Você: ':'') + (c.texto||'').slice(0,60));
           const telLimpo = String(c.contato_telefone||'').replace(/\\D/g,'');
           const waLink = 'https://wa.me/'+telLimpo+'?text='+encodeURIComponent('Olá! Somos da MatchImóveis. Para começar gratuitamente e testar o sistema, faça seu cadastro e ganhe 1.000 créditos para utilizar a plataforma. No app tem o assistente robô que te ajuda a tirar todas as suas dúvidas. matchimoveis.ia.br');
-          const numeroLabel = c.display_phone_number || c.phone_number_id;
+          const numeroLabel = c.phone_number_id ? ((c.display_phone_number ? c.display_phone_number+' · ' : '')+'ID '+c.phone_number_id) : '';
           const numeroBadge = numeroLabel ? ' <span style="background:#f3f4f6;color:#374151;border-radius:6px;padding:1px 7px;font-size:10.5px;font-weight:600">📱 '+escHtml(numeroLabel)+'</span>' : '';
           return '<div class="linha" style="cursor:pointer' + (c.naoLidas>0?';background:#fff7f0':'') + '" onclick="location.href=\\'/admin/whatsapp-cloud/'+encodeURIComponent(c.contato_telefone)+'\\'"' + '>' +
             '<div><p style="margin:0;font-weight:700;font-size:14px;color:#111">'+escHtml(c.contato_nome||c.contato_telefone)+(c.naoLidas>0?' <span style="background:#FF385C;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;margin-left:6px">'+c.naoLidas+'</span>':'')+numeroBadge+'</p>' +
@@ -15902,7 +15902,9 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     const bolhas = mensagens.map(_bolha).join('');
     const _ultimaData = mensagens.length ? mensagens[mensagens.length-1].criado_em : new Date(0).toISOString();
     const _ultimoRecebidoNumero = [...mensagens].reverse().find(m => m.direcao === 'entrada');
-    const numeroLabel = _ultimoRecebidoNumero?.display_phone_number || _ultimoRecebidoNumero?.phone_number_id || '';
+    const numeroLabel = _ultimoRecebidoNumero?.phone_number_id
+      ? ((_ultimoRecebidoNumero.display_phone_number ? _ultimoRecebidoNumero.display_phone_number+' · ' : '')+'ID '+_ultimoRecebidoNumero.phone_number_id)
+      : '';
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conversa — ${nome}</title>
     <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
     ${_adminShellCss()}

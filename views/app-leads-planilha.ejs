@@ -144,16 +144,7 @@
               const _plCom3 = (l.comentarios||[]).slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
               const _plComTitle = _plCom3.length ? _plCom3.map(c => (c.criadoEm ? new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '') + ': ' + (c.texto||'').slice(0,100)).join('\n\n') : 'Sem comentários — clique pra adicionar';
             %>
-            <br><span style="position:relative;display:inline-block">
-              <button type="button" class="pl-ver" style="border:none;background:none;cursor:pointer;padding:0" title="<%= _plComTitle %>" onclick="plToggleComentario('<%= l.id %>')">💬<%= (l.comentarios||[]).length ? ' '+(l.comentarios||[]).length : '' %></button>
-              <div id="pl-comentario-<%= l.id %>" style="display:none;position:absolute;right:0;top:100%;margin-top:6px;width:240px;max-width:80vw;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:30">
-                <textarea id="pl-comentario-txt-<%= l.id %>" rows="2" style="width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;resize:vertical;font-family:inherit;margin-bottom:6px" placeholder="Escreva aqui..."></textarea>
-                <div style="display:flex;gap:5px">
-                  <button type="button" class="pl-ver" onclick="plSalvarComentario('<%= l.id %>')">Salvar</button>
-                  <button type="button" class="pl-excluir" onclick="document.getElementById('pl-comentario-<%= l.id %>').style.display='none'">Cancelar</button>
-                </div>
-              </div>
-            </span>
+            <br><button type="button" class="pl-ver" style="border:none;background:none;cursor:pointer;padding:0" title="<%= _plComTitle %>" onclick="abrirModalComentario('<%= l.id %>')">💬 Comentários<%= (l.comentarios||[]).length ? ' ('+(l.comentarios||[]).length+')' : '' %></button>
           </td>
         </tr>
       <% }); %>
@@ -163,6 +154,22 @@
 
 <div class="pl-foot">
   <span>Mostrando <%= leads.length %> lead<%= leads.length===1?'':'s' %></span>
+</div>
+
+<!-- Modal único de comentário (reaproveitado por toda linha da tabela) —
+     antes era uma caixa position:absolute ancorada no botão, mas dentro da
+     tabela com table-layout:fixed + overflow-x:auto o posicionamento saía
+     torto/flutuando (reportado pelo Renato). Modal fixo no viewport não
+     depende de onde o botão está na tabela. -->
+<div id="modalComentarioOverlay" style="display:none;position:fixed;inset:0;background:rgba(17,17,17,.45);z-index:200;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this) fecharModalComentario()">
+  <div style="background:var(--white);border-radius:12px;padding:20px;width:360px;max-width:100%;box-shadow:0 20px 50px rgba(0,0,0,.28)">
+    <p style="margin:0 0 10px;font-weight:700;font-size:14px;color:var(--text)">💬 Comentário</p>
+    <textarea id="modalComentarioTxt" rows="4" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;resize:vertical;font-family:inherit" placeholder="Escreva aqui..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button type="button" class="pl-excluir" style="margin-top:0" onclick="fecharModalComentario()">Cancelar</button>
+      <button type="button" class="pl-ver" onclick="salvarModalComentario()">Salvar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -175,26 +182,31 @@ async function plExcluirLead(id){
     else alert('Erro: '+(d.erro||'não foi possível excluir'));
   }catch(e){ alert('Erro ao excluir a lead.'); }
 }
-function plToggleComentario(id){
-  const box = document.getElementById('pl-comentario-'+id);
-  const aberto = box.style.display === 'block';
-  document.querySelectorAll('[id^="pl-comentario-"]').forEach(el=>el.style.display='none');
-  box.style.display = aberto ? 'none' : 'block';
-  if(!aberto) document.getElementById('pl-comentario-txt-'+id).focus();
+let _plLeadComentarioAtual = null;
+function abrirModalComentario(id){
+  _plLeadComentarioAtual = id;
+  document.getElementById('modalComentarioTxt').value = '';
+  document.getElementById('modalComentarioOverlay').style.display = 'flex';
+  document.getElementById('modalComentarioTxt').focus();
 }
-async function plSalvarComentario(id){
-  const txt = document.getElementById('pl-comentario-txt-'+id);
+function fecharModalComentario(){
+  document.getElementById('modalComentarioOverlay').style.display = 'none';
+  _plLeadComentarioAtual = null;
+}
+async function salvarModalComentario(){
+  if(!_plLeadComentarioAtual) return;
+  const id = _plLeadComentarioAtual;
+  const txt = document.getElementById('modalComentarioTxt');
   const texto = txt.value.trim();
   if(!texto) return;
   try{
     const r = await fetch('/app/lead/'+id+'/comentario', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ texto }) });
     const d = await r.json();
     if(!d.ok){ alert('Erro: '+(d.erro||'')); return; }
-    txt.value = '';
-    document.getElementById('pl-comentario-'+id).style.display = 'none';
-    const btn = document.querySelector('[onclick*="plToggleComentario(\''+id+'\')"]');
+    fecharModalComentario();
+    const btn = document.querySelector('[onclick*="abrirModalComentario(\''+id+'\')"]');
     if(btn){
-      btn.textContent = '💬 ' + d.comentarios.length;
+      btn.textContent = '💬 Comentários (' + d.comentarios.length + ')';
       const ultimos = d.comentarios.slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
       btn.title = ultimos.map(c => (c.criadoEm?new Date(c.criadoEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'') + ': ' + (c.texto||'').slice(0,100)).join('\n\n');
     }

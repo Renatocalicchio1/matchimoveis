@@ -73,7 +73,15 @@ async function proximoLoteDDD(ddd, limite) {
 
 async function escolherTop3() {
   const todas = await statsPorModeloEmail();
-  const doAfiliado = todas.filter(r => r.tipo === 'afiliado' && r.enviados > 0);
+  const assuntosAtuais = new Set(MODELOS.afiliado.map(v => v.assunto));
+  // Só entra na disputa quem tem envio registrado E cujo texto ainda existe
+  // em MODELOS.afiliado hoje — a base de ~118 mil já rodou desde jul/2026,
+  // e o texto das variações foi reescrito mais de uma vez nesse meio tempo
+  // (reformulação "aversão à perda", ago/2026); tem estatística real de
+  // assunto que não corresponde a variação nenhuma do código atual. Filtrar
+  // ANTES de escolher o top 3 evita escolher uma vencedora "fantasma" e só
+  // descobrir no meio do disparo que ela não existe mais pra reenviar.
+  const doAfiliado = todas.filter(r => r.tipo === 'afiliado' && r.enviados > 0 && assuntosAtuais.has(r.assunto));
   // Só confia na taxa de quem já tem amostra decente — mas se menos de 3
   // variações bateram o piso, usa todas que existem mesmo assim (sempre
   // melhor que travar o disparo por falta de dado).
@@ -82,15 +90,9 @@ async function escolherTop3() {
   base.sort((a, b) => taxaEngajamento(b) - taxaEngajamento(a));
   const top3 = base.slice(0, 3);
   if (!top3.length) {
-    throw new Error('Nenhuma variação de "afiliado" com envio registrado ainda — não dá pra escolher a melhor.');
+    throw new Error('Nenhuma variação de "afiliado" com texto ainda igual ao atual tem envio registrado — não dá pra escolher a melhor.');
   }
-  return top3.map(stat => {
-    const variante = MODELOS.afiliado.find(v => v.assunto === stat.assunto);
-    if (!variante) {
-      throw new Error('Variação "' + stat.assunto + '" não encontrada em MODELOS.afiliado (texto pode ter mudado desde o envio original).');
-    }
-    return { variante, stat };
-  });
+  return top3.map(stat => ({ variante: MODELOS.afiliado.find(v => v.assunto === stat.assunto), stat }));
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }

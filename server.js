@@ -12870,16 +12870,17 @@ function _categoriaEmail(tipo) {
 }
 app.get('/admin/emails', authAdmin, async (req, res) => {
   try {
-    const { statsEmailEnvios } = require('./services/email');
+    const { statsEmailEnvios, contarCadastradosUnicos } = require('./services/email');
     // Junta os e-mails rastreados via email_envios (indicação, portal global
     // etc — todo enviarEmail() com `tipo` preenchido) com os da campanha de
     // aquisição corretor/imobiliária (pagina/demanda/followup), que é
     // rastreada à parte em campanha_contatos e nunca aparecia aqui (ver
     // statsPorModeloEmail em services/campanha.js).
     const { statsPorModeloEmail } = require('./services/campanha');
-    const [linhasEmail, linhasCampanha] = await Promise.all([
+    const [linhasEmail, linhasCampanha, totalCadastrados] = await Promise.all([
       statsEmailEnvios().catch(() => []),
-      statsPorModeloEmail().catch(() => [])
+      statsPorModeloEmail().catch(() => []),
+      contarCadastradosUnicos().catch(() => 0)
     ]);
     const linhas = [...linhasEmail, ...linhasCampanha]
       .map(l => ({ ...l, _cat: _categoriaEmail(l.tipo) }))
@@ -12892,7 +12893,10 @@ app.get('/admin/emails', authAdmin, async (req, res) => {
     const totalEnviados = linhas.reduce((s, l) => s + l.enviados, 0);
     const totalAbertos = linhas.reduce((s, l) => s + l.abertos, 0);
     const totalClicados = linhas.reduce((s, l) => s + l.clicados, 0);
-    const totalCadastrados = linhas.reduce((s, l) => s + (l.cadastrados || 0), 0);
+    // totalCadastrados vem de contarCadastradosUnicos() (query própria,
+    // COUNT DISTINCT) — NÃO soma l.cadastrados das linhas, porque a mesma
+    // pessoa aparece em várias linhas (tipo principal + followup1 +
+    // followup2...) e somar contava o mesmo cadastro várias vezes.
     res.render('admin-emails', {
       linhas, totalEnviados, totalAbertos, totalClicados, totalCadastrados,
       adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('emails', _sidebarPerm(req), req)

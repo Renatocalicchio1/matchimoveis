@@ -169,6 +169,28 @@ async function statsEmailEnvios() {
   return rows;
 }
 
+// Total de cadastros ÚNICOS entre TODO email já rastreado (email_envios +
+// campanha_contatos), pro KPI geral de /admin/emails. NÃO é a soma do
+// `cadastrados` de cada linha de statsEmailEnvios()/statsPorModeloEmail() —
+// essas linhas são por tipo+variante, e uma mesma pessoa aparece em várias
+// (ex: recebeu o e-mail principal da campanha E o followup1 E o followup2 —
+// 3 linhas diferentes, mesmo email). Somar as linhas conta esse mesmo
+// cadastro 2-3x; aqui é 1 query só, com COUNT(DISTINCT email) sobre a união
+// das duas fontes, então cada pessoa entra 1x no total, não importa quantos
+// tipos de email ela recebeu.
+async function contarCadastradosUnicos() {
+  await _garantirTabelaEmailEnvios();
+  const { rows } = await query(`
+    SELECT COUNT(DISTINCT email_lower)::int as total FROM (
+      SELECT LOWER(destinatario) as email_lower FROM email_envios WHERE destinatario IS NOT NULL AND destinatario != ''
+      UNION
+      SELECT LOWER(email) FROM campanha_contatos WHERE status = 'enviado' AND email IS NOT NULL AND email != ''
+    ) t
+    WHERE email_lower IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+  `);
+  return rows[0]?.total || 0;
+}
+
 async function enviarEmail({ para, assunto, html, texto, tipo, variante, botaoTexto, leadId, userId }) {
   if (await emailDescadastrado(para).catch(() => false)) {
     console.log('[EMAIL] pulado (descadastrado):', para);
@@ -205,4 +227,4 @@ async function enviarEmail({ para, assunto, html, texto, tipo, variante, botaoTe
   return { ...result, envioId };
 }
 
-module.exports = { enviarEmail, descadastrarEmail, emailDescadastrado, registrarAberturaEmail, registrarCliqueEmail, statsEmailEnvios };
+module.exports = { enviarEmail, descadastrarEmail, emailDescadastrado, registrarAberturaEmail, registrarCliqueEmail, statsEmailEnvios, contarCadastradosUnicos };

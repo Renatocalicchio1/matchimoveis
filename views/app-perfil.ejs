@@ -153,8 +153,12 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
 // em vez de banner solto na página — aparece por cima de tudo (menu incluso),
 // sem X pra fechar, só sai depois que a pessoa preenche os dados e clica
 // "Receber meu presente". O popup NUNCA diz o que é o presente — só a
-// celebração de balões (depois do clique) revela "plataforma liberada + até
-// 30 leads de bônus". Só mostra enquanto o cadastro ainda está incompleto
+// celebração de balões (depois do clique) revela, com uma mensagem maior
+// parabenizando pelo Dia do Corretor (ago/2026, 2ª mudança, pedido
+// explícito do Renato: "mensagem mais completa"), os 5.000 créditos
+// (BONUS_CADASTRO, services/creditos.js) — texto sobre receber leads
+// automaticamente removido a pedido do Renato (3ª mudança), fica só o
+// crédito. Só mostra enquanto o cadastro ainda está incompleto
 // (locals.completarPerfil) — depois de completar, a página volta ao normal
 // (formulário de perfil comum, sem popup, sem texto de presente).
 const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPerfil;
@@ -182,9 +186,11 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
   #pf-celebra-overlay.pf-celebra-sumindo{animation:pf-celebra-sumir .5s ease forwards}
   #pf-celebra-overlay .pf-baloes{position:absolute;inset:0;pointer-events:none}
   #pf-celebra-overlay .pf-balao{position:absolute;bottom:-80px;font-size:40px;animation:pf-balao-subir 3.6s ease-in forwards}
-  #pf-celebra-overlay .pf-conteudo{position:relative;z-index:2;color:#fff;animation:pf-conteudo-entra .5s ease}
-  #pf-celebra-overlay h2{font-size:26px;margin:0 0 10px;font-weight:800}
-  #pf-celebra-overlay p{font-size:15px;margin:0;opacity:.95;max-width:340px}
+  #pf-celebra-overlay .pf-conteudo{position:relative;z-index:2;color:#fff;animation:pf-conteudo-entra .5s ease;max-height:calc(100vh - 48px);overflow-y:auto}
+  #pf-celebra-overlay h2{font-size:26px;margin:0 0 14px;font-weight:800}
+  #pf-celebra-overlay p{font-size:15px;line-height:1.55;margin:0 0 14px;opacity:.95;max-width:420px}
+  #pf-celebra-overlay p:last-child{margin-bottom:0}
+  #pf-celebra-overlay p.pf-celebra-destaque{font-size:19px;font-weight:800;opacity:1;background:rgba(255,255,255,.18);border-radius:10px;padding:12px 18px;margin:16px auto}
   @keyframes pf-balao-subir{0%{transform:translateY(0) rotate(0deg);opacity:0}8%{opacity:1}100%{transform:translateY(-115vh) rotate(12deg);opacity:1}}
   @keyframes pf-conteudo-entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   @keyframes pf-celebra-sumir{to{opacity:0;visibility:hidden}}
@@ -200,8 +206,9 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
     <% } %>
   </div>
   <div class="pf-conteudo">
-    <h2>🎉 Parabéns pelo Dia do Corretor!</h2>
-    <p>Aqui está o seu presente: plataforma liberada + até 30 leads de bônus 🎁</p>
+    <h2>🎉 Feliz Dia do Corretor de Imóveis!</h2>
+    <p>Hoje, 27 de agosto, é a data que celebra oficialmente a sua profissão desde 1962. Corretor é quem transforma sonho em endereço — é a ponte entre uma família e a casa onde ela vai construir suas memórias, entrega depois de entrega, chave depois de chave. Hoje o dia é seu, e a MatchImóveis quer comemorar junto.</p>
+    <p class="pf-celebra-destaque">Você acabou de receber <strong>5.000 créditos</strong> na plataforma 🪙</p>
   </div>
 </div>
 <% } %>
@@ -399,19 +406,21 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
   });
 
   // Botão "🎁 Receber meu presente" — salva, mostra a celebração (bexiga
-  // subindo + parabéns) segurando tempo suficiente pra dar pra ler, e só
+  // subindo + mensagem completa parabenizando pelo Dia do Corretor + revela
+  // os 5.000 créditos) segurando tempo suficiente pra dar pra ler, e só
   // DEPOIS recarrega a página, revelando o formulário/fluxo normal por
   // baixo já liberado. Pedido explícito do Renato: "tem que dar tempo de o
-  // usuário ler a mensagem, aí sim vai pra tela do sistema" — segura 4.5s
-  // com a mensagem no ar antes de começar a sumir (fade de 0.5s), reload
-  // só depois disso (5s no total).
+  // usuário ler a mensagem, aí sim vai pra tela do sistema" — mensagem
+  // maior (ago/2026, 2ª mudança) pediu mais tempo: segura 7s com a
+  // mensagem no ar antes de começar a sumir (fade de 0.5s), reload só
+  // depois disso (7.5s no total).
   if (_mostrarPopupPresente) {
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       // Área de atuação (onde ele quer RECEBER lead) é diferente da
       // localização atual (capturada sozinha em segundo plano, pro mapa) —
       // sem a área preenchida o job de distribuição de lead por região não
-      // tem pra onde mandar, e a promessa dos 30 leads não se cumpre.
+      // tem pra onde mandar, e ele não começa a receber lead automática.
       // Obrigatória só nesse fluxo do presente (perfil comum continua sem
       // travar por isso).
       const _areaEstado = document.getElementById('pfAreaAtuacaoEstadoHidden')?.value || '';
@@ -432,9 +441,9 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
       const overlay = document.getElementById('pf-celebra-overlay');
       if (overlay) {
         overlay.classList.add('pf-celebra-ativo');
-        setTimeout(() => overlay.classList.add('pf-celebra-sumindo'), 4500);
+        setTimeout(() => overlay.classList.add('pf-celebra-sumindo'), 7000);
       }
-      setTimeout(() => location.reload(), overlay ? 5000 : 0);
+      setTimeout(() => location.reload(), overlay ? 7500 : 0);
     });
   }
 })();

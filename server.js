@@ -23151,6 +23151,15 @@ app.get('/admin/campanha/exportar-corretores-engajados', authAdmin, async (req, 
   try {
     const XLSX = require('xlsx');
     const { query: _qExportCorr } = require('./services/db');
+    const { nomeOuFallback } = require('./services/campanha');
+    // refAdmin (opcional): grava esse código em toda linha — /admin/disparos/criar
+    // joga a planilha inteira em `variaveis` por linha (variaveis: l, ver
+    // _prepararContatosDisparo), então uma coluna "refAdmin" aqui já vincula
+    // 100% dos contatos a esse afiliado sem precisar de nenhum código novo no
+    // upload — reaproveita listarContatosPorRefAdmin()/inbox que já existiam
+    // pro round-robin de sub-admin. Ex: campanha bancada pelo Bruno (BRU-8MPC,
+    // ago/2026) — só ele deve ver/atender esses contatos.
+    const refAdmin = String(req.query.refAdmin || '').trim();
     const { rows } = await _qExportCorr(`
       SELECT id, nome, email, celular FROM campanha_contatos
       WHERE aberto_em IS NOT NULL
@@ -23162,7 +23171,9 @@ app.get('/admin/campanha/exportar-corretores-engajados', authAdmin, async (req, 
     for (const c of rows) {
       const celularValido = _extrairCelularValidoWA(c.celular);
       if (!celularValido) continue;
-      linhas.push({ 'ID contato': c.id, 'Nome': c.nome || '', 'Email': c.email || '', 'Celular': celularValido });
+      const linha = { 'ID contato': c.id, 'Nome': nomeOuFallback(c.nome), 'Email': c.email || '', 'Celular': celularValido };
+      if (refAdmin) linha.refAdmin = refAdmin;
+      linhas.push(linha);
     }
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(linhas);

@@ -641,4 +641,12 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, imovelVisivelPublico, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR, siglaEstadoBR, buscarBairroEmTexto };
+// Espera o dicionário IBGE/OSM estar carregado — normalizarCidadeBR/
+// normalizarBairroBR já funcionam sem isso (caem no fallback de formatação
+// se _dicIBGE ainda não carregou), mas um script em lote que processa
+// muitos registros seguidos quer garantir que o casamento aproximado de
+// verdade já está disponível antes de começar, senão a primeira leva de
+// registros processada logo após o require() cairia só no fallback.
+async function garantirDicionarioLocalidades() { await _carregarDicIBGE(); }
+
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, imovelVisivelPublico, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR, siglaEstadoBR, buscarBairroEmTexto, garantirDicionarioLocalidades };

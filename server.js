@@ -6637,17 +6637,22 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
       bairrosPorCidade[cidChave].add(baiDisp);
     }
   });
-  const estados = Object.values(estadosPorChave).sort();
+  // localeCompare com 'pt-BR' (não .sort() puro) — .sort() do JS compara por
+  // código Unicode, então nome acentuado ("Óbidos") cai fora de ordem (depois
+  // de "Z..." em vez de perto de "O...") — só ficou visível depois que os
+  // nomes voltaram a ter acento certo do IBGE (ago/2026).
+  const _ordenarPtBR = (a, b) => a.localeCompare(b, 'pt-BR');
+  const estados = Object.values(estadosPorChave).sort(_ordenarPtBR);
   const cidades = {};
   Object.keys(cidadesPorEstado).forEach(chaveEst => {
-    cidades[estadosPorChave[chaveEst]] = Object.values(cidadesPorEstado[chaveEst]).sort();
+    cidades[estadosPorChave[chaveEst]] = Object.values(cidadesPorEstado[chaveEst]).sort(_ordenarPtBR);
   });
   const bairros = {};
   Object.keys(bairrosPorCidade).forEach(chaveCid => {
     // acha o nome de exibição da cidade a partir de qualquer entrada com essa chave
     let nomeCidade = chaveCid;
     Object.values(cidadesPorEstado).forEach(mapa => { if (mapa[chaveCid]) nomeCidade = mapa[chaveCid]; });
-    bairros[nomeCidade] = [...bairrosPorCidade[chaveCid]].sort();
+    bairros[nomeCidade] = [...bairrosPorCidade[chaveCid]].sort(_ordenarPtBR);
   });
   // Filtros do servidor
   const _fEstado = (q.estado||'').trim();
@@ -11064,7 +11069,14 @@ app.get('/api/localidades/cidades', async (req, res) => {
     // direto no servidor, usado em outros pontos) mantém limite baixo.
     sql += ' ORDER BY cidade LIMIT ' + (q ? 30 : 1000);
     const { rows } = await _qLocC(sql, params);
-    res.json({ ok: true, cidades: rows.map(r => r.cidade) });
+    // Reordena em JS com localeCompare('pt-BR') — o ORDER BY do Postgres
+    // acima é só pra escolher QUAIS linhas entram no LIMIT (aproximado já
+    // basta), mas não garante ordem alfabética certa pra nome acentuado
+    // (colation do banco pode comparar por código Unicode, jogando "Óbidos"
+    // pra depois de "Z..." em vez de perto de "O...") — achado ago/2026
+    // junto da correção de acento do IBGE.
+    const cidades = rows.map(r => r.cidade).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    res.json({ ok: true, cidades });
   } catch (e) { res.json({ ok: false, cidades: [] }); }
 });
 app.get('/api/localidades/bairros', async (req, res) => {
@@ -11087,10 +11099,12 @@ app.get('/api/localidades/bairros', async (req, res) => {
     // Mesmo problema do /cidades (LIMIT baixo cortando resultado de verdade
     // antes do fim) — sobe pra 5000 pra nunca truncar nem a cidade com mais
     // bairro mapeado na base (ago/2026, pedido explícito de mostrar tudo).
+    // Mesma reordenação em JS que /cidades — ver comentário lá.
+    const _ordenarBairros = rows => rows.map(r => r.bairro).sort((a, b) => a.localeCompare(b, 'pt-BR'));
     const { rows: confiaveis } = await _qLocB(`SELECT DISTINCT bairro ${sqlBase} AND fonte IN ('ibge','osm') ORDER BY bairro LIMIT 5000`, params);
-    if (confiaveis.length) return res.json({ ok: true, bairros: confiaveis.map(r => r.bairro) });
+    if (confiaveis.length) return res.json({ ok: true, bairros: _ordenarBairros(confiaveis) });
     const { rows: todos } = await _qLocB(`SELECT DISTINCT bairro ${sqlBase} ORDER BY bairro LIMIT 5000`, params);
-    res.json({ ok: true, bairros: todos.map(r => r.bairro) });
+    res.json({ ok: true, bairros: _ordenarBairros(todos) });
   } catch (e) { res.json({ ok: false, bairros: [] }); }
 });
 

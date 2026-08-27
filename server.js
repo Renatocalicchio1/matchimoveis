@@ -7690,11 +7690,15 @@ app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
       // ao lado de "vender mais rápido" isso soava como se a IA vendendo
       // imóvel gerasse a comissão; agora sempre nomeado explicitamente
       // "quem indica outro corretor/empresa" (pedido explícito, ago/2026).
+      // Emoji nos momentos-chave (pedido explícito do Renato, ago/2026): não
+      // só decorativo no fim — marca saudação, o nome/empresa, o gancho de
+      // curiosidade, a IA, o ganho/comissão e a chamada pra ação, sempre
+      // logo depois da palavra/trecho que ele reforça.
       const _waVariacoesEmpresa = [
-        'Oi! Vi que a ' + nomeContato + ' atua com imóveis e queria compartilhar uma novidade 📈 Entramos numa plataforma com IA que ajuda a vender/alugar mais rápido — e, separado disso, paga comissão em dinheiro ou crédito pra quem indicar outro corretor ou imobiliária pra conhecer. Dá uma olhada: ' + linkAfiliado,
-        'Oi! Conheço o trabalho da ' + nomeContato + ' na região e acho que isso pode interessar 🏢 Plataforma nova de imóveis com IA, com programa de indicação pago — comissão por cada corretor ou imobiliária que entrar pelo link, não por venda de imóvel. Vale a pena ver: ' + linkAfiliado,
-        'Separei um convite pra ' + nomeContato + ' 👀 Plataforma nova de match imobiliário com IA — ajuda a vender mais rápido, e à parte disso paga quem trouxer outras empresas do setor pra conhecer. 2 minutos: ' + linkAfiliado,
-        'Oi! Queria apresentar uma ferramenta que pode ajudar a ' + nomeContato + ' a vender mais rápido — cruzamento automático de lead com imóvel via IA, e comissão pra quem indica outras empresas do setor: ' + linkAfiliado
+        'Oi!🤓 Vi que a ' + nomeContato + '🏢 atua com imóveis e queria compartilhar uma novidade📈 Entramos numa plataforma com IA🤖 que ajuda a vender/alugar mais rápido — e, separado disso, paga comissão em dinheiro ou crédito🤑 pra quem indicar outro corretor ou imobiliária pra conhecer. Dá uma olhada:🤩 ' + linkAfiliado,
+        'Oi!🤓 Conheço o trabalho da ' + nomeContato + '🏢 na região, e acho que isso pode interessar📓 Plataforma nova de imóveis com IA🤖, com programa de indicação pago🫰 — comissão por cada corretor ou imobiliária que entrar pelo link🤑, e não por venda de imóvel. Vale a pena ver:🤩 ' + linkAfiliado,
+        'Separei um convite pra ' + nomeContato + '🏢 👀 Plataforma nova de match imobiliário com IA🤖 — ajuda a vender mais rápido, e à parte disso paga🤑 quem trouxer outras empresas do setor pra conhecer. 2 minutos:🤩 ' + linkAfiliado,
+        'Oi!🤓 Queria apresentar uma ferramenta que pode ajudar a ' + nomeContato + '🏢 a vender mais rápido — cruzamento automático de lead com imóvel via IA🤖, e comissão🫰 pra quem indica outras empresas do setor: ' + linkAfiliado
       ];
       textoMsg = _waVariacoesEmpresa[Math.floor(Math.random() * _waVariacoesEmpresa.length)];
     } else {
@@ -7706,21 +7710,23 @@ app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
       // é oferta comercial. 8 variações sorteadas a cada clique — mandar
       // sempre a mesma frase do mesmo número pra várias pessoas é caminho
       // curto pro WhatsApp marcar como spam.
-      const saudacao = tipoNome === 'humano' ? ('Oi ' + nomeContato + '! ') : 'Oi! ';
+      const saudacao = tipoNome === 'humano' ? ('Oi ' + nomeContato + '!🤓 ') : 'Oi!🤓 ';
       // Mesmo cuidado do bloco empresa acima: a comissão é por PESSOA
       // indicada pra plataforma, não por venda/aluguel de imóvel — nomeada
       // explicitamente em toda variação que menciona ganho (pedido
       // explícito do Renato, ago/2026: "ele não pode achar que ganha
-      // indicação na comissão da venda de um imóvel").
+      // indicação na comissão da venda de um imóvel"). Emoji nos momentos-
+      // -chave (mesmo pedido de ago/2026 aplicado aqui): saudação, gancho de
+      // curiosidade, IA, ganho/comissão e chamada pra ação.
       const _waVariacoesAfiliado = [
-        '👋 Vi seu perfil e lembrei de você — separei algo que só tô mostrando pra quem realmente entende do mercado imobiliário. Topa dar uma olhada? ' + linkAfiliado + ' 🚀',
-        'Posso te contar uma coisa rápida? 😏 Entrei numa plataforma nova de imóveis com IA, e quem entra primeiro sai na frente de todo mundo. Dá uma olhada aqui: ' + linkAfiliado,
-        'Separei um convite bem específico pra você — poucas pessoas tão vendo isso ainda 👀 É uma plataforma nova de imóveis com IA, e também tem um jeito de ganhar dinheiro ou crédito só por indicar outras pessoas pra conhecer (nada a ver com venda de imóvel) 💰. Vale 2 minutos: ' + linkAfiliado,
-        'Isso ainda tá bem no começo e você é uma das primeiras pessoas que pensei em chamar 🙂 É a MatchImóveis — imóvel + IA, e comissão em dinheiro ou crédito pra quem indica outras pessoas pra plataforma. Dá uma espiada: ' + linkAfiliado,
-        '🔥 Não é venda, é convite mesmo: entrei numa plataforma que tá bombando entre corretor esperto, e queria que você conhecesse antes de virar comum. ' + linkAfiliado,
-        'Bora? 👀 Achei que ia gostar disso — uma IA que ajuda a vender/alugar imóvel mais rápido, e à parte disso paga quem trouxer outras pessoas pra plataforma (comissão de indicação, não de venda). Dá uma olhada rapidinho: ' + linkAfiliado,
-        'Separei esse link só pra você 🎯 Não é sobre comprar nada — é sobre estar dentro antes da maioria. MatchImóveis: ' + linkAfiliado,
-        'Posso te chamar pra uma coisa? 😄 Tô usando uma plataforma nova de imóveis com IA, que também paga comissão pra quem indica outras pessoas pra conhecer — queria que você fosse um dos primeiros a ver como funciona: ' + linkAfiliado
+        '👋 Vi seu perfil e lembrei de você — separei algo que só tô mostrando pra quem realmente entende📓 do mercado imobiliário. Topa dar uma olhada?🤩 ' + linkAfiliado + ' 🚀',
+        'Posso te contar uma coisa rápida?😏 Entrei numa plataforma nova de imóveis com IA🤖, e quem entra primeiro sai na frente de todo mundo🚀. Dá uma olhada aqui:🤩 ' + linkAfiliado,
+        'Separei um convite bem específico pra você — poucas pessoas tão vendo isso ainda👀 É uma plataforma nova de imóveis com IA🤖, e também tem um jeito de ganhar dinheiro ou crédito🤑 só por indicar outras pessoas pra conhecer (nada a ver com venda de imóvel). Vale 2 minutos:🤩 ' + linkAfiliado,
+        'Isso ainda tá bem no começo e você é uma das primeiras pessoas que pensei em chamar🙂 É a MatchImóveis — imóvel + IA🤖, e comissão em dinheiro ou crédito🫰 pra quem indica outras pessoas pra plataforma. Dá uma espiada:🤩 ' + linkAfiliado,
+        '🔥 Não é venda, é convite mesmo: entrei numa plataforma que tá bombando🤖 entre corretor esperto🤓, e queria que você conhecesse antes de virar comum. ' + linkAfiliado,
+        'Bora?👀 Achei que ia gostar disso — uma IA🤖 que ajuda a vender/alugar imóvel mais rápido, e à parte disso paga🤑 quem trouxer outras pessoas pra plataforma (comissão de indicação, não de venda). Dá uma olhada rapidinho:🤩 ' + linkAfiliado,
+        'Separei esse link só pra você🎯 Não é sobre comprar nada — é sobre estar dentro antes da maioria🚀. MatchImóveis:🤩 ' + linkAfiliado,
+        'Posso te chamar pra uma coisa?😄 Tô usando uma plataforma nova de imóveis com IA🤖, que também paga comissão🤑 pra quem indica outras pessoas pra conhecer — queria que você fosse um dos primeiros a ver como funciona:🤩 ' + linkAfiliado
       ];
       const corpoVariante = _waVariacoesAfiliado[Math.floor(Math.random() * _waVariacoesAfiliado.length)];
       textoMsg = saudacao + corpoVariante;
@@ -16100,6 +16106,19 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
                 const telWebhook55 = _celularWA(telefone);
                 const usuarioMatch = (_cacheUsuarios || []).find(u => telWebhook55 && _celularWA(u.celular || u.telefone) === telWebhook55);
                 if (!usuarioMatch) return;
+                // Contato de campanha de disparo com afiliado dono (refAdmin,
+                // ex: Bruno na "Dia do Corretor") — quem vira corretor por
+                // esse caminho continua conversando pelo mesmo número
+                // oficial, e esse IA-auto-responder ia interceptar antes do
+                // afiliado conseguir responder manualmente pela Inbox dele
+                // (/app/afiliados). Pedido explícito do Renato (ago/2026):
+                // "no inbox eu não pedi pra responder por IA, não é
+                // necessário por enquanto" — pausa só pra quem tem afiliado
+                // dono; corretor cadastrado "normal" (sem campanha) continua
+                // recebendo a resposta da IA como já era.
+                const { buscarContatoPorTelefone: _buscarContatoRefIA } = require('./services/salvarDisparo');
+                const _contatoCampanhaIA = await _buscarContatoRefIA(telefone).catch(() => null);
+                if (_contatoCampanhaIA?.variaveis?.refAdmin) return;
                 const textoMsg = (msg.text?.body || '').trim();
                 if (!textoMsg) return;
                 const { imoveis, leads, visitas, d } = _montarContextoAssistente(usuarioMatch);
@@ -23722,6 +23741,9 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       <label>Quantidade de variáveis no corpo do template ({{1}}, {{2}}...)</label>
       <input type="number" id="qtdVariaveis" min="0" max="10" value="0" onchange="montarVariaveis()">
       <div id="variaveis-map"></div>
+      <label>Quantidade de contatos pra esse disparo (deixe vazio pra todos da planilha)</label>
+      <input type="number" id="quantidadeDisparo" min="1" placeholder="Ex: 200 — deixe vazio pra mandar pra todo mundo da planilha">
+      <p class="gray" style="margin-top:-4px">Quem já recebeu disparo antes é pulado automaticamente (a não ser que marque "Ignorar histórico" acima) — então rodar de novo com o mesmo número já avança pro próximo lote sozinho, sem repetir gente.</p>
       <label>Delay entre envios (ms)</label>
       <input type="number" id="delayMs" value="2500" min="500" max="30000">
       <div class="box" style="background:#fff">
@@ -23858,7 +23880,8 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       if(!_arquivoPath){ alert('Carregue a planilha primeiro'); return; }
       const nomeCampanha = document.getElementById('nomeCampanha').value.trim();
       if(!nomeCampanha){ alert('Dê um nome pra campanha'); return; }
-      if(!confirm('Iniciar disparo pra '+_amostra.length+'+ contatos da planilha? Essa ação não pode ser desfeita.')) return;
+      const quantidadeDisparo = document.getElementById('quantidadeDisparo').value.trim();
+      if(!confirm('Iniciar disparo pra '+(quantidadeDisparo ? 'até '+quantidadeDisparo+' contato(s)' : _amostra.length+'+ contatos')+' da planilha? Essa ação não pode ser desfeita.')) return;
       document.getElementById('resultado').innerHTML = '<p>⏳ Criando campanha...</p>';
       const body = {
         nomeCampanha,
@@ -23870,6 +23893,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
         ignorarHistorico: document.getElementById('ignorarHistorico').checked,
         usarNomeHeader: document.getElementById('usarNomeHeader').checked,
+        quantidade: quantidadeDisparo ? parseInt(quantidadeDisparo) : undefined,
         phoneNumberId: document.getElementById('phoneNumberId').value,
         delayMs: parseInt(document.getElementById('delayMs').value)||2500
       };
@@ -24062,16 +24086,36 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
 
 app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao, phoneNumberId, ignorarHistorico, usarNomeHeader } = req.body;
+    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao, phoneNumberId, ignorarHistorico, usarNomeHeader, quantidade } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
 
     const { linhas } = _lerPlanilhaDisparo(arquivo);
-    const { contatos, numerosInvalidos } = _prepararContatosDisparo(linhas, mapeamento);
+    let { contatos, numerosInvalidos } = _prepararContatosDisparo(linhas, mapeamento);
     if (!contatos.length) return res.json({ ok: false, erro: 'Nenhum contato com telefone válido na planilha' });
 
-    const { criarCampanha, inserirContatos } = require('./services/salvarDisparo');
+    const { criarCampanha, inserirContatos, listarJaEnviados, listarOptout } = require('./services/salvarDisparo');
+    // Quantidade (opcional, pedido explícito do Renato: "escolho 200, depois
+    // mais 200"): pra rodar de novo com o MESMO arquivo e realmente pegar o
+    // PRÓXIMO lote (não os mesmos 200 de novo, que só tomariam status
+    // "já enviado" e não sairiam do lugar), filtra quem já recebeu disparo
+    // ou já é opt-out ANTES de cortar pela quantidade — o corte vale só
+    // sobre quem ainda não foi contatado. Sem quantidade informada, comporta
+    // exatamente como antes (manda pra todo mundo válido da planilha).
+    const _quantidadeNum = parseInt(quantidade, 10);
+    if (_quantidadeNum > 0) {
+      const _telsPlanilha = contatos.map(c => c.telefone);
+      const [_jaEnviadosQtd, _optadosQtd] = await Promise.all([
+        ignorarHistorico ? Promise.resolve([]) : listarJaEnviados(_telsPlanilha),
+        listarOptout(_telsPlanilha)
+      ]);
+      const _excluirQtd = new Set([..._jaEnviadosQtd, ..._optadosQtd]);
+      // Só quem ainda não foi tocado entra na disputa pela quantidade — quem
+      // já tomou "já enviado"/opt-out não ocupa vaga do lote (não seria
+      // mandado de qualquer forma).
+      contatos = contatos.filter(c => !_excluirQtd.has(c.telefone)).slice(0, _quantidadeNum);
+    }
     const campanhaId = await criarCampanha({
       nomeCampanha,
       templateNome,

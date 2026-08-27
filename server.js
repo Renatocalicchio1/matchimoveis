@@ -5175,6 +5175,15 @@ function _registrarGostei(lead, imovelObj) {
   if (!lead.imoveisGostei) lead.imoveisGostei = [];
   const jaTem = lead.imoveisGostei.some(g => String(g.idExterno||g.idInterno||g.id||'') === chave);
   if (jaTem) return;
+  // Alimenta o Motor de Intenção (cerebro/motor-intencao.js) — "Gostei" já
+  // é tratado como sinal forte (peso 3x) no case 'salvou_imovel', mas até
+  // ago/2026 só quem alimentava esse motor era o CORRETOR clicando dentro
+  // do próprio painel (app-lead-detalhe.ejs); "Gostei" clicado pelo lead de
+  // verdade na página pública nunca tinha chegado até aqui.
+  try {
+    const { registrarComportamento: _regCompGostei } = require('./cerebro/motor-intencao');
+    Object.assign(lead, _regCompGostei(lead, { tipo: 'salvou_imovel', imovel: { id: chave, tipo: imovelObj.tipo, bairro: imovelObj.bairro, preco: imovelObj.valor_imovel || imovelObj.valor || 0, quartos: imovelObj.quartos }, em: new Date().toISOString() }));
+  } catch (e) { console.error('[comportamento-gostei]', e.message); }
   lead.imoveisGostei.push({
     id: imovelObj.id || imovelObj.idInterno || imovelObj.idExterno || '',
     idExterno: imovelObj.idExterno || '',
@@ -5239,6 +5248,16 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
     lead = leads[idxLead];
   }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
+  // Alimenta o Motor de Intenção com a abertura real da vitrine pelo lead —
+  // case 'viu_vitrine' já existia em registrarComportamento() mas nunca
+  // tinha disparo nenhum (motor construído, nunca ligado na página pública).
+  // Aplicado nas 2 cópias dessa rota (ver nota de duplicação de rotas no
+  // topo do arquivo) — só a 1ª registrada pelo Express roda de verdade, mas
+  // mantém as cópias consistentes.
+  try {
+    const { registrarComportamento: _regCompVitrine } = require('./cerebro/motor-intencao');
+    Object.assign(lead, _regCompVitrine(lead, { tipo: 'viu_vitrine', em: new Date().toISOString() }));
+  } catch (e) { console.error('[comportamento-vitrine]', e.message); }
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   const _usersMapVitrine = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapVitrine[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
   res.render('cliente-oferta', {
@@ -5278,6 +5297,47 @@ app.get('/cliente/gostei/:leadId/:imovelId', (req,res)=>{
     salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   }
   res.redirect(req.query.voltar || ('/cliente/oferta/'+req.params.leadId));
+});
+
+// Comportamento REAL do lead nas páginas públicas (vitrine e /imovel/:id) —
+// sem login, quem navega ali é o cliente, não o corretor. Alimenta o mesmo
+// Motor de Intenção (cerebro/motor-intencao.js) que já existia mas só era
+// disparado quando o CORRETOR clicava dentro do próprio painel
+// (app-lead-detalhe.ejs) — pedido do Renato (ago/2026, comparando com a
+// BoomTown: "IA analisa comportamento do lead na página do imóvel").
+app.post('/api/comportamento-lead', async (req, res) => {
+  try {
+    const leadId = String(req.body.leadId || '').trim();
+    const tipo = String(req.body.tipo || '').trim();
+    const TIPOS_VALIDOS = ['visualizou_imovel', 'salvou_imovel', 'compartilhou', 'abriu_mapa', 'clicou_contato', 'viu_vitrine'];
+    if (!leadId || !TIPOS_VALIDOS.includes(tipo)) return res.json({ ok: false });
+    const leads = (_cacheLeads || []);
+    const idx = leads.findIndex(l => String(l.id || l.leadId || '') === leadId);
+    if (idx < 0) return res.json({ ok: false });
+    const { registrarComportamento: _regCompApi } = require('./cerebro/motor-intencao');
+    const im = req.body.imovel || {};
+    const evento = {
+      tipo,
+      // Trava de 30min — evita duração absurda de uma aba esquecida aberta
+      // virando sinal de intenção falso.
+      duracao_segundos: Math.min(Math.max(Number(req.body.duracao_segundos) || 0, 0), 1800),
+      em: new Date().toISOString(),
+      imovel: {
+        id: String(im.id || ''),
+        tipo: String(im.tipo || ''),
+        bairro: String(im.bairro || ''),
+        preco: Number(im.preco) || 0,
+        quartos: Number(im.quartos) || 0,
+        area: Number(im.area) || 0
+      }
+    };
+    leads[idx] = _regCompApi(leads[idx], evento);
+    salvarTodosLeads(leads).catch(e => console.error('[comportamento-lead]', e.message));
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[api/comportamento-lead]', e.message);
+    res.json({ ok: false });
+  }
 });
 
 app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
@@ -19551,6 +19611,16 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
     lead = leads[idxLead];
   }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
+  // Alimenta o Motor de Intenção com a abertura real da vitrine pelo lead —
+  // case 'viu_vitrine' já existia em registrarComportamento() mas nunca
+  // tinha disparo nenhum (motor construído, nunca ligado na página pública).
+  // Aplicado nas 2 cópias dessa rota (ver nota de duplicação de rotas no
+  // topo do arquivo) — só a 1ª registrada pelo Express roda de verdade, mas
+  // mantém as cópias consistentes.
+  try {
+    const { registrarComportamento: _regCompVitrine } = require('./cerebro/motor-intencao');
+    Object.assign(lead, _regCompVitrine(lead, { tipo: 'viu_vitrine', em: new Date().toISOString() }));
+  } catch (e) { console.error('[comportamento-vitrine]', e.message); }
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   const _usersMapVitrine = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapVitrine[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
   res.render('cliente-oferta', {

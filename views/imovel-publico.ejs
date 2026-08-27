@@ -776,5 +776,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+<!-- COMPORTAMENTO REAL DO LEAD (ago/2026) — mede quanto tempo o cliente
+     ficou olhando ESSE imóvel e manda pro Motor de Intenção
+     (cerebro/motor-intencao.js) quando ele sai da página. Só manda se tiver
+     leadId (veio de vitrine/WhatsApp com atribuição — sem isso não tem em
+     qual lead gravar) e se ficou pelo menos 3s (visita muito curta não é
+     sinal de intenção real, é só passagem). navigator.sendBeacon garante o
+     envio mesmo quando a aba fecha, diferente de um fetch normal que pode
+     ser cancelado nesse momento. -->
+<script>
+(function(){
+  const _leadIdComport = new URLSearchParams(window.location.search).get('leadId') || new URLSearchParams(window.location.search).get('lid') || '';
+  if (!_leadIdComport || !imovelId) return;
+  const _inicioComport = Date.now();
+  let _jaEnviado = false;
+  function _enviarComportamento(){
+    if (_jaEnviado) return;
+    const duracao = Math.round((Date.now() - _inicioComport) / 1000);
+    if (duracao < 3) return;
+    _jaEnviado = true;
+    const payload = JSON.stringify({
+      leadId: _leadIdComport,
+      tipo: 'visualizou_imovel',
+      duracao_segundos: duracao,
+      imovel: {
+        id: imovelId,
+        tipo: <%- JSON.stringify(imovel.tipo || '') %>,
+        bairro: <%- JSON.stringify(imovel.bairro || '') %>,
+        preco: <%- JSON.stringify(Number(imovel.valor_imovel || 0)) %>,
+        quartos: <%- JSON.stringify(Number(imovel.quartos || 0)) %>
+      }
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/comportamento-lead', new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch('/api/comportamento-lead', { method: 'POST', headers: {'Content-Type':'application/json'}, body: payload, keepalive: true }).catch(function(){});
+    }
+  }
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') _enviarComportamento(); });
+  window.addEventListener('pagehide', _enviarComportamento);
+})();
+</script>
 </body>
 </html>

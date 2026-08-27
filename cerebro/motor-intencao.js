@@ -406,9 +406,18 @@ function registrarComportamento(lead, evento) {
   switch (evento.tipo) {
 
     case 'visualizou_imovel': {
-      // Evita duplicata na mesma sessão (mesmo id nas últimas 10 visualizações)
+      // Evita duplicata só DENTRO da mesma sessão (mesmo imóvel visto de
+      // novo há menos de 30min — provável reload/duplo-envio da mesma
+      // visita, não um retorno de verdade). Antes checava só "apareceu nas
+      // últimas 10 visualizações" sem olhar tempo nenhum — isso também
+      // bloqueava pra sempre um retorno real dias depois (bug achado
+      // ago/2026: é exatamente esse retorno que o Radar do Corretor usa
+      // pra detectar lead esquentando, ver services/agenteProativo.js
+      // sinal 29 — "voltou a ver o mesmo imóvel").
       const recentes = lead.comportamento.imoveisVisualizados.slice(-10);
-      const jaViu = recentes.some(v => v.id === imovel.id);
+      const ultimaVezMesmoImovel = [...recentes].reverse().find(v => v.id === imovel.id);
+      const _agoraMs = new Date(evento.em || Date.now()).getTime();
+      const jaViu = ultimaVezMesmoImovel && (_agoraMs - new Date(ultimaVezMesmoImovel.em).getTime()) < 30 * 60 * 1000;
       if (!jaViu) {
         lead.comportamento.imoveisVisualizados.push({
           id: imovel.id,

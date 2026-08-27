@@ -300,9 +300,36 @@ function _sinal27(ctx) {
 // completa de usuarios pra esse cálculo específico.
 function _sinal28(_ctx) { return null; /* PENDENTE — precisaria da lista completa de usuarios, fora do escopo atual do ctx */ }
 
+// 29 · Lead voltou a ver o mesmo imóvel — comportamento REAL na vitrine/
+// página pública, capturado por POST /api/comportamento-lead (sem login,
+// disparado pelo próprio navegador do lead) e pela abertura da vitrine
+// (GET /cliente/oferta/:leadId), ambos alimentando
+// lead.comportamento.imoveisVisualizados via registrarComportamento()
+// (cerebro/motor-intencao.js). Pedido do Renato (ago/2026, comparando com
+// a BoomTown: "IA analisa comportamento do lead e recomenda a próxima
+// ação") — repetição no MESMO imóvel em poucos dias é o sinal mais forte
+// de intenção real que existe, mais confiável que só "abriu a vitrine".
+function _sinal29(ctx) {
+  const l = (ctx.leads || []).find(l => {
+    if (['visita', 'proposta', 'fechado', 'perdido'].includes(l.faseFunil)) return false;
+    const vistos = (l.comportamento && l.comportamento.imoveisVisualizados) || [];
+    if (vistos.length < 2) return false;
+    const ultimo = vistos[vistos.length - 1];
+    if (!ultimo || _diasDesde(ultimo.em) == null || _diasDesde(ultimo.em) > 2) return false;
+    const repeticoes = {};
+    vistos.forEach(v => { if (v.id) repeticoes[v.id] = (repeticoes[v.id] || 0) + 1; });
+    return Object.values(repeticoes).some(n => n >= 2);
+  });
+  if (!l) return null;
+  const repeticoes = {};
+  (l.comportamento.imoveisVisualizados || []).forEach(v => { if (v.id) repeticoes[v.id] = (repeticoes[v.id] || 0) + 1; });
+  const vezes = Math.max(0, ...Object.values(repeticoes));
+  return { id: 29, categoria: 'leads', severidade: 'crit', titulo: 'Lead voltou a ver o mesmo imóvel', texto: (l.nome || 'Uma lead') + ' já viu o mesmo imóvel ' + vezes + 'x nos últimos dias — sinal forte de interesse, chama agora.', link: '/app/lead/' + l.id };
+}
+
 // ── ORQUESTRAÇÃO ─────────────────────────────────────────────────────────
 
-const _SINAIS_SINCRONOS = [_sinal01, _sinal02, _sinal03, _sinal04, _sinal05, _sinal06, _sinal07, _sinal08, _sinal09, _sinal10, _sinal11, _sinal13, _sinal14, _sinal15, _sinal16, _sinal17, _sinal18, _sinal19, _sinal20, _sinal21, _sinal22, _sinal23, _sinal24, _sinal25, _sinal26, _sinal27, _sinal28];
+const _SINAIS_SINCRONOS = [_sinal01, _sinal02, _sinal03, _sinal04, _sinal05, _sinal06, _sinal07, _sinal08, _sinal09, _sinal10, _sinal11, _sinal13, _sinal14, _sinal15, _sinal16, _sinal17, _sinal18, _sinal19, _sinal20, _sinal21, _sinal22, _sinal23, _sinal24, _sinal25, _sinal26, _sinal27, _sinal28, _sinal29];
 const _SINAIS_ASSINCRONOS = [_sinal12];
 
 const _ORDEM_SEVERIDADE = { crit: 0, atencao: 1, oportunidade: 2, info: 3 };

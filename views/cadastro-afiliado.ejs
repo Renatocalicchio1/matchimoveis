@@ -26,8 +26,8 @@
 <body>
   <div class="box">
     <div class="logo">Match<span>Imóveis</span></div>
-    <h1>💰 Programa de afiliados</h1>
-    <p class="sub">Não precisa ser corretor pra ganhar aqui. Cadastre-se e ganhe comissão recorrente indicando corretores e imobiliárias pra plataforma.</p>
+    <h1>💰 Renda extra por indicação</h1>
+    <p class="sub">Não precisa ser corretor, nem entender de imóvel. Cadastre-se de graça e ganhe comissão recorrente indicando corretores, imobiliárias, construtoras e agências pra plataforma — você indica uma vez e continua recebendo enquanto a conta indicada usar o sistema.</p>
     <% if (typeof erro !== 'undefined' && erro) { %>
       <div class="erro"><%= erro %></div>
     <% } %>
@@ -39,20 +39,15 @@
     -->
     <form method="POST" action="/login" onsubmit="this.querySelector('button[type=submit]').disabled=true;this.querySelector('button[type=submit]').textContent='Criando conta...'">
       <input type="hidden" name="afiliadoRestrito" value="1">
+      <input type="hidden" name="tipoConta" value="afiliado">
       <div class="m-field"><label>Nome completo</label><input name="nome" placeholder="Seu nome" required></div>
       <div class="m-field"><label>E-mail</label><input name="email" type="email" placeholder="seu@email.com" required></div>
       <div class="m-field"><label>Celular</label><input name="telefone" placeholder="47999999999" required></div>
-      <div class="m-field">
-        <label>Você é</label>
-        <select name="tipoConta">
-          <option value="afiliado">Afiliado</option>
-          <option value="agencia_marketing">Agência de Marketing</option>
-        </select>
-      </div>
       <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="Mínimo 4 caracteres" required minlength="4"></div>
-      <button type="submit" class="m-btn">Criar conta de afiliado →</button>
+      <button type="submit" class="m-btn">Quero ganhar comissão →</button>
       <p class="m-note">Grátis — sem mensalidade</p>
     </form>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.5">É corretor, imobiliária, construtora ou agência de marketing? <a href="/" style="color:var(--rosa);font-weight:600;text-decoration:none">Cadastre sua conta aqui</a> — o programa de afiliados já vem incluso, sem precisar desse cadastro à parte.</p>
     <a class="voltar" href="/">← Voltar</a>
   </div>
 </body>

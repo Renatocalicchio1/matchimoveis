@@ -129,6 +129,14 @@
 .sugestao-item.gray:hover{background:none}
 </style>
 
+<%
+// Conta de afiliado restrito (/cadastro-afiliado, ver _menuRestrito em
+// app-shell.ejs) não trabalha com imóvel/lead — perfil dela mostra só
+// nome/telefone/email/senha, sem CRECI/CPF/área de atuação/combos/vitrine/
+// localização/WhatsApp/Instagram (tudo isso é específico de quem atende lead).
+const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
+%>
+<% if (!_afiliadoSimples) { %>
 <% if (locals.completarPerfil) {
   const _faltando = [];
   if (!user.nome || user.nome.trim() === (user.nomeImportado||'').trim()) _faltando.push('nome');
@@ -170,6 +178,7 @@
   <p class="pf-card-sub" style="color:#166534">Seus créditos já foram adicionados à sua conta.</p>
 </div>
 <% } %>
+<% } %>
 
 <!-- Dados do usuário -->
 <div class="pf-card">
@@ -189,6 +198,7 @@
         <label>E-mail</label>
         <input name="email" type="email" value="<%= user.email||'' %>" placeholder="seu@email.com">
       </div>
+      <% if (!_afiliadoSimples) { %>
       <div class="pf-field">
         <label>CRECI</label>
         <input name="creci" value="<%= user.creci||'' %>">
@@ -228,11 +238,12 @@
         <input type="hidden" name="areaAtuacaoCidades" id="pfAreaAtuacaoCidadesHidden">
         <input type="hidden" name="areaAtuacaoBairros" id="pfAreaAtuacaoBairrosHidden">
       </div>
+      <% } %>
     </div>
     <button class="pf-btn" type="submit">Salvar perfil</button>
   </form>
 </div>
-<script src="/area-atuacao-widget.js"></script>
+<% if (!_afiliadoSimples) { %><script src="/area-atuacao-widget.js"></script><% } %>
 <script>
 (function(){
   const form = document.getElementById('formDadosUsuario');
@@ -241,6 +252,7 @@
   const _nomeImportado = <%- JSON.stringify(user.nomeImportado||'') %>;
   const _temLocalizacao = <%- JSON.stringify(!!(user.lat && user.lng)) %>;
 
+  <% if (!_afiliadoSimples) { %>
   // Cidades + bairros de atuação — estruturado (estado -> múltiplas cidades
   // -> múltiplos bairros reais, via /api/localidades/*, widget de chips em
   // public/area-atuacao-widget.js), pra depois dar pra rotear lead batendo
@@ -261,6 +273,7 @@
     : _bairrosAtualRaw.map(b => ({ cidade: _cidadesAtual[0] || '', bairro: b })).filter(p => p.cidade && p.bairro);
   const _pfAreaSel = criarSeletorAreaAtuacao('pfArea', { onChange: () => {} });
   if (_estadoAtual) _pfAreaSel.preencher(_estadoAtual, _cidadesAtual, _bairrosAtual);
+  <% } %>
 
   let timer;
   // Salva automaticamente enquanto o usuário preenche — sem precisar clicar
@@ -295,6 +308,7 @@
 })();
 </script>
 
+<% if (!_afiliadoSimples) { %>
 <%- include('partials/modal-consumo-creditos') %>
 
 <div class="pf-card">
@@ -348,6 +362,7 @@ async function contratarPlano(plano){
 contratarPlano(<%- JSON.stringify(comboAuto) %>);
 <% } %>
 </script>
+<% } %>
 
 <div class="pf-card">
   <p class="pf-card-title">🔒 Alterar senha</p>
@@ -367,6 +382,7 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
   </form>
 </div>
 
+<% if (!_afiliadoSimples) { %>
 <!-- Vitrine -->
 <div class="pf-card">
   <p class="pf-card-title">🏠 Preferências de Vitrine</p>
@@ -510,6 +526,7 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     <a href="/app/instagram/conectar" class="pf-btn pf-btn-green" style="margin-top:0;text-decoration:none">Conectar Instagram</a>
   <% } %>
 </div>
+<% } %>
 
 <script>
 (function(){
@@ -528,6 +545,7 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
 })();
 </script>
 
+<% if (!_afiliadoSimples) { %>
 <script>
 let _cepPerfilLat = null, _cepPerfilLng = null;
 
@@ -752,5 +770,6 @@ async function desconectarWA() {
 
 checkWA();
 </script>
+<% } %>
 
 <%- include('partials/app-end') %>

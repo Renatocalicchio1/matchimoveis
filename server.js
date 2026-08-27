@@ -1952,6 +1952,7 @@ app.get('/admin', authAdmin, async (req, res) => {
     // /admin/campanha/contatos.
     const buscaT = (req.query.busca || '').trim();
     const subadminT = (req.query.subadmin || '').trim();
+    const tipoT = (req.query.tipo || '').trim();
     const conds = [];
     const pars = [];
     if (buscaT) {
@@ -1971,6 +1972,10 @@ app.get('/admin', authAdmin, async (req, res) => {
       pars.push(subadminT);
       conds.push(`dados->>'atendidoPorAdmin' = $${pars.length}`);
     }
+    if (tipoT) {
+      pars.push(tipoT);
+      conds.push(`COALESCE(tipo,'corretor') = $${pars.length}`);
+    }
     const whereUsuarios = conds.length ? ('WHERE ' + conds.join(' AND ')) : '';
     // atendidoPorAdmin* não é coluna própria — vem de dentro do JSONB `dados`
     // (userToRow() joga lá qualquer campo sem coluna dedicada, ver
@@ -1979,8 +1984,9 @@ app.get('/admin', authAdmin, async (req, res) => {
     // e-mail de recarga — é o "quem atende esse corretor" que o superadmin
     // precisa ver de relance em toda a base, não só dentro da conta do
     // próprio sub-admin.
-    const usuarios = await _q(`SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso, match_coins, autoriza_quintoandar,
-      dados->>'atendidoPorAdmin' AS atendido_por_admin, dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome, dados->>'atendidoPorAdminCor' AS atendido_por_admin_cor
+    const usuarios = await _q(`SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso, match_coins, autoriza_quintoandar, tipo,
+      dados->>'atendidoPorAdmin' AS atendido_por_admin, dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome, dados->>'atendidoPorAdminCor' AS atendido_por_admin_cor,
+      dados->>'afiliadoRestrito' AS afiliado_restrito
       FROM usuarios ${whereUsuarios} ORDER BY criado_em DESC`, pars);
     const { listarAdminContas: _listarContasFiltroAdmin } = require('./services/salvarAdminConta');
     const _contasFiltroAdmin = await _listarContasFiltroAdmin().catch(() => []);
@@ -2002,6 +2008,21 @@ app.get('/admin', authAdmin, async (req, res) => {
     const leadsMap = {}; leads.rows.forEach(r => leadsMap[r.user_id] = r.total);
     const visitasMap = {}; visitas.rows.forEach(r => visitasMap[r.user_id] = r.total);
     const leadsMesMap = {}; leadsMesQ.rows.forEach(r => leadsMesMap[r.user_id] = r.total);
+    // Rótulo/cor do tipo de conta — mesmos 5 valores gravados em POST /login
+    // (tipoConta do cadastro padrão: corretor/imobiliaria/construtor; do
+    // /cadastro-afiliado: afiliado/agencia_marketing). Coluna `tipo` default
+    // 'corretor' no banco, então null/vazio cai nesse mesmo rótulo.
+    const _TIPO_CONTA_INFO = {
+      corretor: { label: 'Corretor', bg: '#eff6ff', cor: '#2563eb' },
+      imobiliaria: { label: 'Imobiliária', bg: '#f5f3ff', cor: '#7c3aed' },
+      construtor: { label: 'Construtor', bg: '#fff7ed', cor: '#c2410c' },
+      afiliado: { label: 'Afiliado', bg: '#f0fdfa', cor: '#0d9488' },
+      agencia_marketing: { label: 'Agência Mkt', bg: '#fdf2f8', cor: '#db2777' }
+    };
+    const _tipoContaBadge = (tipo, restrito) => {
+      const info = _TIPO_CONTA_INFO[tipo] || _TIPO_CONTA_INFO.corretor;
+      return `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:${info.bg};color:${info.cor}">${info.label}</span>${restrito === 'true' ? '<div style="font-size:9px;color:#9ca3af;margin-top:2px">menu restrito</div>' : ''}`;
+    };
     const rows = usuarios.rows.map(u => `
       <tr>
         <td>${u.codigo_usuario||'-'}</td>
@@ -2016,6 +2037,7 @@ app.get('/admin', authAdmin, async (req, res) => {
             </form>
           </div>
         </td>
+        <td>${_tipoContaBadge(u.tipo, u.afiliado_restrito)}</td>
         <td>${u.telefone ? `<a href="https://wa.me/55${(u.telefone||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:600;text-decoration:none;">📱 ${u.telefone}</a>` : '-'}</td>
         <td><span title="${u.senha||''}" style="cursor:pointer;letter-spacing:2px;color:#9ca3af;" onclick="this.textContent=this.textContent==='••••••'?'${u.senha||''}':'••••••'">••••••</span></td>
         <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>
@@ -2087,19 +2109,23 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
   </div>
   <form method="GET" action="/admin" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
     <input type="text" name="busca" value="${buscaT.replace(/"/g,'&quot;')}" placeholder="Nome, código ou telefone..." style="flex:1;min-width:220px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;">
+    <select name="tipo" style="padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;">
+      <option value="">Todos os tipos de conta</option>
+      ${Object.entries(_TIPO_CONTA_INFO).map(([val, info]) => `<option value="${val}" ${tipoT===val?'selected':''}>${info.label}</option>`).join('')}
+    </select>
     <select name="subadmin" style="padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;">
       <option value="">Todos os sub-admins</option>
       <option value="_nenhum" ${subadminT==='_nenhum'?'selected':''}>Sem sub-admin</option>
       ${_contasFiltroAdmin.map(c => `<option value="${c.usuario}" ${subadminT===c.usuario?'selected':''}>${(c.nome||c.usuario).replace(/"/g,'').replace(/</g,'')} (${c.usuario})</option>`).join('')}
     </select>
     <button type="submit" style="background:#111;color:#fff;padding:8px 18px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;">🔍 Buscar</button>
-    ${(buscaT || subadminT) ? `<a href="/admin" style="font-size:12px;color:#888;text-decoration:none;">Limpar filtros</a>` : ''}
+    ${(buscaT || subadminT || tipoT) ? `<a href="/admin" style="font-size:12px;color:#888;text-decoration:none;">Limpar filtros</a>` : ''}
   </form>
   <div class="card">
-    ${(buscaT || subadminT) ? `<div style="padding:10px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee;">${usuarios.rows.length} usuário(s) encontrado(s)</div>` : ''}
+    ${(buscaT || subadminT || tipoT) ? `<div style="padding:10px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee;">${usuarios.rows.length} usuário(s) encontrado(s)</div>` : ''}
     <div class="table-wrap"><table>
       <thead><tr>
-        <th>Cód.</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Sub-admin</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
+        <th>Cód.</th><th>Nome</th><th>Tipo</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Sub-admin</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>

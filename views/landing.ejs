@@ -60,6 +60,8 @@
     .hero-sub{font-size:17.5px;color:var(--muted);max-width:480px;margin:0 0 34px;line-height:1.65}
     .hero-ctas{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
     .cta-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .cta-path{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+    .cta-path-label{font-size:11.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
     .btn-main{font-family:'Inter';background:var(--rosa);color:#fff;padding:14px 26px;border-radius:10px;font-size:14.5px;font-weight:700;border:none;cursor:pointer;box-shadow:0 10px 24px rgba(255,56,92,.28);transition:transform .15s,box-shadow .15s}
     .btn-main:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(255,56,92,.36)}
     .btn-sec{background:#fff;color:var(--teal-dark);padding:13px 24px;border-radius:10px;font-size:14px;font-weight:700;border:1.5px solid var(--teal);cursor:pointer;transition:background .15s,transform .15s;display:inline-block}
@@ -223,6 +225,7 @@
       .hero-wrap{grid-template-columns:1fr;padding:52px 24px 44px;gap:36px;text-align:center}
       .hero-ctas{align-items:center;margin:0 auto}
       .cta-row{justify-content:center}
+      .cta-path{align-items:center}
       .afiliado-note{margin:0 auto}
       .hero-sub{margin:0 auto 30px}
       h1{font-size:38px;letter-spacing:-1.3px}
@@ -273,11 +276,15 @@
     <h1>A IA que trabalha<br>enquanto você <em>dorme.</em></h1>
     <p class="hero-sub">Lead chega, IA qualifica, match acontece, vitrine é enviada, visita confirmada. Você só aparece para fechar o negócio.</p>
     <div class="hero-ctas">
-      <div class="cta-row">
-        <button class="btn-main" onclick="openModal('cadastro')">Corretor, imobiliária ou construtor — comece já</button>
-        <a href="/cadastro-afiliado" class="btn-sec">Sou afiliado / agência →</a>
+      <div class="cta-path">
+        <div class="cta-path-label">Trabalha com mercado imobiliário</div>
+        <button class="btn-main" onclick="openModal('cadastro')">Sou corretor, imobiliária, construtor ou agência — começar agora →</button>
       </div>
-      <div class="afiliado-note">💰 <b>Não precisa ser corretor pra ganhar aqui</b> — como afiliado, você indica corretores e imobiliárias pra plataforma e recebe comissão recorrente, em dinheiro ou crédito, sem atender lead nenhuma.</div>
+      <div class="cta-path">
+        <div class="cta-path-label">Quer uma renda extra, sem atender lead nenhuma</div>
+        <a href="/cadastro-afiliado" class="btn-sec">Sou afiliado, quero indicar e ganhar comissão →</a>
+      </div>
+      <div class="afiliado-note">💰 <b>As duas coisas não se excluem.</b> Se você é corretor, imobiliária, construtor ou agência, sua conta já vem com o programa de afiliados liberado — indique outros profissionais e ganhe comissão recorrente por fora. E se você não trabalha com imóveis e só quer essa renda extra, o cadastro de afiliado é só isso: indicar e receber, sem precisar atender ninguém.</div>
       <a href="#como-funciona" class="hero-links">Como funciona a plataforma →</a>
     </div>
     <p class="hero-note">Sem mensalidade fixa · Só pague o que usar · Cancele quando quiser</p>
@@ -506,9 +513,10 @@
 <section class="afiliados-sec">
   <div class="afiliados-inner">
     <div class="sec-tag laranja" style="justify-content:center;margin-bottom:14px"><i></i>Programa de afiliados</div>
-    <h2>Não precisa ser corretor<br>pra ganhar aqui</h2>
-    <p>Cada corretor, imobiliária ou agência que você conhece pode virar comissão contínua pra você — em dinheiro ou crédito, você escolhe. Enquanto você não conhece o programa, essa renda simplesmente não existe.</p>
-    <a href="/cadastro-afiliado" class="btn-laranja">Quero ser afiliado →</a>
+    <h2>Uma renda extra,<br>só por indicar</h2>
+    <p>Não precisa ser corretor, nem entender de imóvel. Cada corretor, imobiliária, construtora ou agência que você conhece e indica vira comissão recorrente pra você — em dinheiro ou crédito, você escolhe. É renda extra de verdade: você indica uma vez e continua recebendo enquanto a conta indicada usar a plataforma.</p>
+    <p style="font-size:13px;color:var(--faint);margin-top:-14px;margin-bottom:24px">Já trabalha com imóveis? Sua conta de corretor, imobiliária, construtor ou agência já vem com esse programa liberado — não precisa de um cadastro à parte.</p>
+    <a href="/cadastro-afiliado" class="btn-laranja">Quero ser afiliado e ganhar comissão →</a>
   </div>
 </section>
 
@@ -607,6 +615,7 @@
             <option value="corretor">Corretor</option>
             <option value="imobiliaria">Imobiliária</option>
             <option value="construtor">Construtor</option>
+            <option value="agencia_marketing">Agência de Marketing</option>
           </select>
         </div>
         <div class="m-field">

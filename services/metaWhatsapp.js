@@ -33,12 +33,20 @@ function _telefoneValido(telefone) {
   return /^55\d{10,11}$/.test(_normalizarTelefone(telefone));
 }
 
-async function enviarTemplate({ telefone, templateNome, templateIdioma, parametros, botoesUrl, phoneNumberId: phoneNumberIdOverride }) {
+async function enviarTemplate({ telefone, templateNome, templateIdioma, parametros, headerParametro, botoesUrl, phoneNumberId: phoneNumberIdOverride }) {
   const { token, phoneNumberId } = _config(phoneNumberIdOverride);
   const numero = _normalizarTelefone(telefone);
   if (!numero) throw new Error('Telefone inválido');
 
   const components = [];
+  // headerParametro: variável do CABEÇALHO (ex: "Feliz Dia do Corretor,
+  // {{1}}!") — diferente de `parametros`, que é sempre CORPO. Componente
+  // separado porque a Meta rejeita o envio (erro 132000) se vier component
+  // 'header' pra template sem variável no cabeçalho, então só entra quando
+  // o chamador manda esse valor de propósito (ver campanha.usar_nome_header).
+  if (headerParametro != null) {
+    components.push({ type: 'header', parameters: [{ type: 'text', text: String(headerParametro) }] });
+  }
   if (parametros && parametros.length) {
     components.push({ type: 'body', parameters: parametros.map(p => ({ type: 'text', text: String(p == null ? '' : p) })) });
   }

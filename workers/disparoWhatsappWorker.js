@@ -1,6 +1,7 @@
 const { workerData, parentPort } = require('worker_threads');
 const { buscarCampanha, atualizarCampanha, incrementarContador, proximoLotePendente, marcarContato, dentroDaJanelaDisparo } = require('../services/salvarDisparo');
 const { enviarTemplate, _normalizarTelefone, _telefoneValido } = require('../services/metaWhatsapp');
+const { nomeOuFallback } = require('../services/campanha');
 
 const MAX_TENTATIVAS = 3;
 
@@ -37,6 +38,14 @@ async function enviarComRetry(contato, campanha) {
   // cai no template único da campanha (caso normal, sem A/B).
   const _templateNome = contato.template_nome_usado || campanha.template_nome;
   const _templateIdioma = contato.template_idioma_usado || campanha.template_idioma;
+  // Nome no CABEÇALHO do template (ex: "Feliz Dia do Corretor, {{1}}!") —
+  // só primeiro nome (cabeçalho tem 60 caracteres no total, nome completo
+  // podia estourar) e com o mesmo fallback "Corretor" já usado no resto do
+  // sistema pra sigla/lixo/vazio (classificarNome/nomeOuFallback,
+  // services/campanha.js) — nunca manda header vazio nem sigla estranha.
+  const headerParametro = campanha.usar_nome_header
+    ? nomeOuFallback(contato.nome || '').split(/\s+/)[0]
+    : undefined;
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
     try {
       const resultado = await enviarTemplate({
@@ -44,6 +53,7 @@ async function enviarComRetry(contato, campanha) {
         templateNome: _templateNome,
         templateIdioma: _templateIdioma,
         parametros,
+        headerParametro,
         botoesUrl,
         phoneNumberId: campanha.phone_number_id || undefined
       });

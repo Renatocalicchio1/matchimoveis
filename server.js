@@ -23614,6 +23614,10 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         <input type="checkbox" id="emailIgnorarHistorico" style="width:auto">
         Ignorar histórico — enviar mesmo pra quem já recebeu disparo antes
       </label>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px">
+        <input type="checkbox" id="emailUsarNomeHeader" style="width:auto">
+        Template usa o nome da pessoa no CABEÇALHO (ex: "Feliz Dia do Corretor, {{1}}!") — deixe desmarcado se a variável do template está no corpo
+      </label>
       <label>Delay entre envios (ms)</label>
       <input type="number" id="emailDelayMs" value="2500" min="500" max="30000">
       <button onclick="iniciarDeEmail()">🚀 Iniciar campanha de quem abriu o email</button>
@@ -23754,6 +23758,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         subAdmins,
         restringirHorario: document.getElementById('emailRestringirHorario').checked,
         ignorarHistorico: document.getElementById('emailIgnorarHistorico').checked,
+        usarNomeHeader: document.getElementById('emailUsarNomeHeader').checked,
         delayMs: parseInt(document.getElementById('emailDelayMs').value)||2500
       };
       const r = await fetch('/admin/disparos/criar-de-campanha-email', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -23961,7 +23966,7 @@ app.post('/admin/disparos/criar-de-usuarios', authAdmin, express.json(), async (
 // 30%/15% (1ª compra/recorrência) quando essa conta comprar créditos (ver _processarBonusIndicacao).
 app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, templateNome, templateIdioma, templates, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins } = req.body;
+    const { nomeCampanha, templateNome, templateIdioma, templates, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins, usarNomeHeader } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
 
@@ -24053,7 +24058,12 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
       templateNome,
       templateIdioma: templateIdioma || 'pt_BR',
       templates: Array.isArray(templates) ? templates.filter(t => t && t.nome) : undefined,
-      mapeamentoVariaveis: ['nome'],
+      // Nome vai ou no CORPO (mapeamento_variaveis, padrão histórico dessa
+      // rota) ou no CABEÇALHO (usar_nome_header, ex: "Feliz Dia do Corretor,
+      // {{1}}!") — nunca os dois, cada template só declara a variável num
+      // lugar. usarNomeHeader vem do checkbox novo em /admin/disparos.
+      mapeamentoVariaveis: usarNomeHeader ? [] : ['nome'],
+      usarNomeHeader: !!usarNomeHeader,
       delayMs: delayMs || 2500,
       criadoPor: 'admin',
       phoneNumberId: phoneNumberId || null,

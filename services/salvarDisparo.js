@@ -70,6 +70,13 @@ async function _inicializar() {
   // horário ruim). Desligado por padrão — só liga quem pedir explicitamente
   // na criação da campanha.
   await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS restringir_horario BOOLEAN DEFAULT false`);
+  // Nome da pessoa no CABEÇALHO do template (ex: "Feliz Dia do Corretor,
+  // {{1}}!") — mecanismo separado de mapeamento_variaveis, que só cobre
+  // variável no CORPO (enviarTemplate manda em components tipo diferente:
+  // 'header' x 'body'). Desligado por padrão pra não quebrar campanha
+  // existente cujo template não tem variável no cabeçalho (Meta rejeita o
+  // envio se mandar parâmetro de header pra template sem essa variável).
+  await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS usar_nome_header BOOLEAN DEFAULT false`);
   await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS auto_respondido_em TIMESTAMP`);
   // Teste A/B de mensagem: quando a campanha tem mais de 1 template em
   // `templates` (JSONB [{nome,idioma},...]), cada contato recebe um sorteado
@@ -183,13 +190,13 @@ async function listarJaEnviados(telefones) {
 // 2+ entradas, cada contato sorteia um template na hora de entrar na fila
 // (inserirContatos). templateNome/templateIdioma continuam obrigatórios
 // como fallback (campanha de 1 template só não usa o array).
-async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, templates, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao, phoneNumberId, restringirHorario }) {
+async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, templates, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao, phoneNumberId, restringirHorario, usarNomeHeader }) {
   await _inicializar();
   const id = uuidv4();
   await query(
-    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, templates, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao, phone_number_id, restringir_horario)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-    [id, nomeCampanha, templateNome, templateIdioma, (templates && templates.length > 1) ? JSON.stringify(templates) : null, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao, phoneNumberId || null, !!restringirHorario]
+    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, templates, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao, phone_number_id, restringir_horario, usar_nome_header)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+    [id, nomeCampanha, templateNome, templateIdioma, (templates && templates.length > 1) ? JSON.stringify(templates) : null, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao, phoneNumberId || null, !!restringirHorario, !!usarNomeHeader]
   );
   return id;
 }

@@ -3281,6 +3281,42 @@ app.post('/admin/deletar/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
     const cod = req.params.codigo;
+    // Redistribuição de downline de afiliado (ago/2026, pedido explícito do
+    // Renato): se a conta deletada tinha gente indicada por ela
+    // (indicadoPor === cod), essa gente não pode ficar órfã (indicadoPor
+    // apontando pra um código que não existe mais) — redistribui em rodízio
+    // entre as OUTRAS contas do MESMO nível da deletada (ex: Nível 2 deletado
+    // com 30 indicados → os 30 se dividem entre os Nível 2 que sobraram).
+    // Mesmo padrão de UPDATE já usado em /admin/afiliados/distribuir-n2-
+    // -para-n1 (backfill manual de órfãos antigos), só que aqui dispara
+    // sozinho no delete em vez de precisar de botão. Se não sobrar nenhuma
+    // conta no mesmo nível pra receber, fica órfão mesmo (mesmo estado que
+    // as N2 antigas já ficavam antes desse mecanismo existir) — precisa
+    // rodar antes do DELETE, enquanto a conta ainda está em _cacheUsuarios
+    // pra saber o nível dela.
+    const _contaDeletada = (_cacheUsuarios || []).find(u => String(u.id) === String(cod) || String(u.codigoUsuario) === String(cod));
+    if (_contaDeletada) {
+      const _nivelDeletado = _nivelAfiliado(_contaDeletada);
+      const _downlineDeletado = (_cacheUsuarios || []).filter(u => u.indicadoPor === cod);
+      const _destinosDeletado = (_cacheUsuarios || []).filter(u => (u.codigoUsuario || u.id) !== cod && _nivelAfiliado(u) === _nivelDeletado);
+      if (_downlineDeletado.length && _destinosDeletado.length) {
+        let _diDeletado = 0;
+        for (const _filhoDeletado of _downlineDeletado) {
+          const _filhoCodigo = _filhoDeletado.codigoUsuario || _filhoDeletado.id;
+          const _destino = _destinosDeletado[_diDeletado % _destinosDeletado.length];
+          const _destinoCodigo = _destino.codigoUsuario || _destino.id;
+          _diDeletado++;
+          await _q(
+            `UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'::jsonb), '{indicadoPor}', to_jsonb($1::text)) WHERE codigo_usuario=$2 OR id=$2`,
+            [_destinoCodigo, _filhoCodigo]
+          );
+          _filhoDeletado.indicadoPor = _destinoCodigo;
+        }
+        console.log('[admin/deletar] redistribuiu', _downlineDeletado.length, 'afiliado(s) de', cod, '(nível', _nivelDeletado, ') entre', _destinosDeletado.length, 'conta(s) do mesmo nível');
+      } else if (_downlineDeletado.length) {
+        console.log('[admin/deletar]', _downlineDeletado.length, 'afiliado(s) de', cod, 'ficaram órfãos — nenhuma outra conta no nível', _nivelDeletado, 'pra redistribuir');
+      }
+    }
     // codigo_usuario OU id — em teoria são sempre iguais (migração jul/2026),
     // mas deletar só por codigo_usuario deixava a linha órfã (sem apagar) em
     // qualquer conta antiga onde os dois campos ainda divergissem, e o admin

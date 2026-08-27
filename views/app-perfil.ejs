@@ -127,6 +127,12 @@
 .sugestao-item:hover{background:#f3f4f6}
 .sugestao-item.gray{color:#9ca3af;cursor:default}
 .sugestao-item.gray:hover{background:none}
+
+/* Popup bloqueante "Receber meu presente" (campanha Dia do Corretor,
+   ago/2026) — cobre a tela inteira (menu incluso), sem X pra fechar, sem
+   clique-fora pra fechar; só some quando o form é enviado (ver JS). */
+.pf-gift-backdrop{position:fixed;inset:0;z-index:10000;background:rgba(15,17,21,.72);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.pf-gift-modal{max-width:440px;width:100%;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 </style>
 
 <%
@@ -140,9 +146,18 @@ const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
 // precisaComprarPlano (ver POST /entrar/:contatoId), então o "presente" é
 // literal: plataforma liberada + leads normais desde já, sem pagar nada.
 // Campanha "leads garantidos" sem afiliado continua com o texto genérico.
-// Escopo de módulo (fora de qualquer if) porque tanto o banner quanto o
+// Escopo de módulo (fora de qualquer if) porque tanto o popup quanto o
 // botão "Receber meu presente" mais abaixo precisam dele.
 const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano === false;
+// ago/2026 (2ª mudança, pedido explícito do Renato): virou popup bloqueante
+// em vez de banner solto na página — aparece por cima de tudo (menu incluso),
+// sem X pra fechar, só sai depois que a pessoa preenche os dados e clica
+// "Receber meu presente". O popup NUNCA diz o que é o presente — só a
+// celebração de balões (depois do clique) revela "plataforma liberada + até
+// 30 leads de bônus". Só mostra enquanto o cadastro ainda está incompleto
+// (locals.completarPerfil) — depois de completar, a página volta ao normal
+// (formulário de perfil comum, sem popup, sem texto de presente).
+const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPerfil;
 %>
 <% if (!_afiliadoSimples) { %>
 <% if (locals.completarPerfil) {
@@ -151,16 +166,18 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
   if (!user.email) _faltando.push('e-mail');
   if (!user.lat || !user.lng) _faltando.push('localização');
 %>
-<% if (_bemvindoPresenteAfiliado) { %>
+<% if (_mostrarPopupPresente) { %>
 <!-- CELEBRAÇÃO DE BOAS-VINDAS (campanha "Dia do Corretor", ago/2026) —
-     ordem pedida: primeiro preenche os dados, DEPOIS clica "Receber meu
-     presente" (botão do form muda de texto só nesse estado) — só então
-     aparece o overlay com bexiga subindo + parabéns. Fica escondido por
+     ordem pedida: primeiro preenche os dados no popup bloqueante (mais
+     abaixo), DEPOIS clica "Receber meu presente" — só então aparece esse
+     overlay com bexiga subindo + parabéns, e SÓ AQUI o presente é revelado
+     (o popup de preenchimento nunca diz o que é). Fica escondido por
      padrão (display:none), o JS do submit (mais abaixo, junto do
-     autosave) que mostra na hora certa. CSS puro (sem lib externa), leve
+     autosave) que mostra na hora certa e segura tempo suficiente pra dar
+     pra ler antes de seguir pro sistema. CSS puro (sem lib externa), leve
      o bastante pra rodar liso até em celular fraco. -->
 <style>
-  #pf-celebra-overlay{display:none;position:fixed;inset:0;background:linear-gradient(160deg,#FF385C,#FC642D);z-index:9999;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;text-align:center;padding:24px}
+  #pf-celebra-overlay{display:none;position:fixed;inset:0;background:linear-gradient(160deg,#FF385C,#FC642D);z-index:10001;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;text-align:center;padding:24px}
   #pf-celebra-overlay.pf-celebra-ativo{display:flex}
   #pf-celebra-overlay.pf-celebra-sumindo{animation:pf-celebra-sumir .5s ease forwards}
   #pf-celebra-overlay .pf-baloes{position:absolute;inset:0;pointer-events:none}
@@ -184,15 +201,12 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
   </div>
   <div class="pf-conteudo">
     <h2>🎉 Parabéns pelo Dia do Corretor!</h2>
-    <p>Aqui está o seu presente: plataforma liberada + até 30 leads de bônus.</p>
+    <p>Aqui está o seu presente: plataforma liberada + até 30 leads de bônus 🎁</p>
   </div>
 </div>
 <% } %>
+<% if (!_mostrarPopupPresente) { %>
 <div class="pf-card" style="background:#111827;color:#fff;border:none">
-  <% if (_bemvindoPresenteAfiliado) { %>
-  <p class="pf-card-title" style="color:#fff">🎉 Feliz Dia do Corretor!</p>
-  <p class="pf-card-sub" style="color:#d1d5db">Termine seu cadastro e receba agora seu presente: plataforma liberada e até <strong>30 leads de bônus</strong>, sem precisar contratar nada.</p>
-  <% } else { %>
   <p class="pf-card-title" style="color:#fff">👋 <%= locals.bemvindo ? 'Bem-vindo(a) à MatchImóveis!' : 'Complete seu perfil pra continuar' %></p>
   <p class="pf-card-sub" style="color:#d1d5db">
     <% if (_faltando.length) { %>
@@ -201,7 +215,6 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
       Quase lá — salve as alterações abaixo pra liberar o restante da plataforma.
     <% } %>
   </p>
-  <% } %>
   <% if (locals.senhaInicial) { %>
     <div style="background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:8px;padding:12px 14px;margin-top:8px">
       <p style="margin:0 0 4px;font-size:12px;color:#d1d5db">Sua senha inicial de acesso (anote ou troque abaixo):</p>
@@ -209,6 +222,7 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
     </div>
   <% } %>
 </div>
+<% } %>
 <% } else if (locals.comprarPlano) { %>
 <div class="pf-card" style="background:#111827;color:#fff;border:none">
   <p class="pf-card-title" style="color:#fff">🚀 Contrate um combo e comece a vender</p>
@@ -230,10 +244,23 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
 <% } %>
 <% } %>
 
-<!-- Dados do usuário -->
-<div class="pf-card">
+<!-- Dados do usuário (ou, no fluxo do presente, popup bloqueante com o
+     mesmo form — ver _mostrarPopupPresente no topo do arquivo) -->
+<% if (_mostrarPopupPresente) { %><div id="pf-gift-backdrop" class="pf-gift-backdrop"><% } %>
+<div class="pf-card<%= _mostrarPopupPresente ? ' pf-gift-modal' : '' %>">
+  <% if (_mostrarPopupPresente) { %>
+  <p class="pf-card-title">🎉 Feliz Dia do Corretor!</p>
+  <p class="pf-card-sub">Preparamos um presente especial pra você — preenche rapidinho os dados abaixo pra desbloquear. <span id="pf-autosave-status" style="color:#15803d;font-weight:600"></span></p>
+  <% if (locals.senhaInicial) { %>
+    <div style="background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:10px 14px;margin-bottom:14px">
+      <p style="margin:0 0 4px;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.03em">Senha de acesso (anote ou troque depois)</p>
+      <p style="margin:0;font-size:18px;font-weight:700;letter-spacing:.05em;color:#111827"><%= senhaInicial %></p>
+    </div>
+  <% } %>
+  <% } else { %>
   <p class="pf-card-title">Dados do usuário</p>
   <p class="pf-card-sub">Informações da sua conta no MatchImóveis. <span id="pf-autosave-status" style="color:#15803d;font-weight:600"></span></p>
+  <% } %>
   <form method="POST" action="/app/perfil" id="formDadosUsuario">
     <div class="pf-grid">
       <div class="pf-field">
@@ -249,6 +276,7 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
         <input name="email" type="email" value="<%= user.email||'' %>" placeholder="seu@email.com">
       </div>
       <% if (!_afiliadoSimples) { %>
+      <% if (!_mostrarPopupPresente) { %>
       <div class="pf-field">
         <label>CRECI</label>
         <input name="creci" value="<%= user.creci||'' %>">
@@ -265,6 +293,7 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
         <label>Código do usuário</label>
         <input value="<%= user.codigoUsuario||user.codigo||'-' %>" readonly class="strong">
       </div>
+      <% } %>
       <div class="pf-field">
         <label>Estado de atuação</label>
         <select id="pfAreaEstadoInput"><option value="">Selecione...</option></select>
@@ -290,8 +319,10 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
       </div>
       <% } %>
     </div>
-    <button class="pf-btn" type="submit" id="pf-btn-salvar-perfil"><%= _bemvindoPresenteAfiliado ? '🎁 Receber meu presente' : 'Salvar perfil' %></button>
+    <button class="pf-btn" type="submit" id="pf-btn-salvar-perfil" style="<%= _mostrarPopupPresente ? 'width:100%;justify-content:center' : '' %>"><%= _mostrarPopupPresente ? '🎁 Receber meu presente' : 'Salvar perfil' %></button>
   </form>
+</div>
+<% if (_mostrarPopupPresente) { %></div><% } %>
 </div>
 <% if (!_afiliadoSimples) { %><script src="/area-atuacao-widget.js"></script><% } %>
 <script>
@@ -330,7 +361,13 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
   // em "Salvar perfil". Se isso completar os requisitos obrigatórios (nome
   // trocado + e-mail + localização) de uma conta ainda em onboarding, recarrega
   // a página pra liberar o próximo passo (contratar combo).
-  const _bemvindoPresenteAfiliado = <%- JSON.stringify(!!_bemvindoPresenteAfiliado) %>;
+  const _mostrarPopupPresente = <%- JSON.stringify(!!_mostrarPopupPresente) %>;
+  // Popup bloqueante: trava o scroll da página por trás enquanto ele não
+  // preenche e clica "Receber meu presente" (o backdrop já cobre a tela
+  // inteira via CSS, isso só evita o body rolar atrás dele).
+  if (_mostrarPopupPresente && document.getElementById('pf-gift-backdrop')) {
+    document.body.style.overflow = 'hidden';
+  }
   form.querySelectorAll('input:not([readonly])').forEach(inp => {
     inp.addEventListener('input', () => {
       clearTimeout(timer);
@@ -347,7 +384,7 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
           // sozinho aqui — quem dispara a celebração + recarrega é o clique
           // em "🎁 Receber meu presente" (listener de submit abaixo), pra
           // bexiga só subir depois que a pessoa clicar, não no meio de digitar.
-          if (!_perfilCompletoAntes && !_bemvindoPresenteAfiliado) {
+          if (!_perfilCompletoAntes && !_mostrarPopupPresente) {
             const nomeAgora = form.querySelector('[name="nome"]').value.trim();
             const emailAgora = form.querySelector('[name="email"]').value.trim();
             if (nomeAgora && nomeAgora !== _nomeImportado && nomeAgora.length >= 3 && emailAgora && _temLocalizacao) {
@@ -362,9 +399,13 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
   });
 
   // Botão "🎁 Receber meu presente" — salva, mostra a celebração (bexiga
-  // subindo + parabéns) e só DEPOIS recarrega a página, revelando o
-  // formulário/fluxo normal por baixo já liberado.
-  if (_bemvindoPresenteAfiliado) {
+  // subindo + parabéns) segurando tempo suficiente pra dar pra ler, e só
+  // DEPOIS recarrega a página, revelando o formulário/fluxo normal por
+  // baixo já liberado. Pedido explícito do Renato: "tem que dar tempo de o
+  // usuário ler a mensagem, aí sim vai pra tela do sistema" — segura 4.5s
+  // com a mensagem no ar antes de começar a sumir (fade de 0.5s), reload
+  // só depois disso (5s no total).
+  if (_mostrarPopupPresente) {
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       // Área de atuação (onde ele quer RECEBER lead) é diferente da
@@ -391,9 +432,9 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
       const overlay = document.getElementById('pf-celebra-overlay');
       if (overlay) {
         overlay.classList.add('pf-celebra-ativo');
-        setTimeout(() => overlay.classList.add('pf-celebra-sumindo'), 3200);
+        setTimeout(() => overlay.classList.add('pf-celebra-sumindo'), 4500);
       }
-      setTimeout(() => location.reload(), overlay ? 3700 : 0);
+      setTimeout(() => location.reload(), overlay ? 5000 : 0);
     });
   }
 })();

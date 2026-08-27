@@ -939,6 +939,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex',
   '/admin/campanha/importar', '/admin/campanha/teste',
   '/admin/campanha/iniciar', '/admin/campanha/pausar',
+  '/admin/campanha/exportar-corretores-engajados',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/comissoes-pendentes', '/admin/site-global', '/admin/emails',
   '/admin/instagram-posts', '/admin/pagamentos'
@@ -23123,6 +23124,58 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     const contatos = rows.map(c => ({ ...c, optoutToken: _waOptOutToken('campanha', c.id) }));
     res.json({ ok:true, contatos, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }
+});
+
+// Extrai um celular BR válido de verdade de um campo que às vezes vem sujo
+// (formatado com parênteses/espaço, telefone fixo junto, ou mais de 1
+// número na mesma célula separados por vírgula) — mesma lógica já testada
+// em diagnostico-lista-whatsapp-corretores.js.
+function _extrairCelularValidoWA(bruto) {
+  if (!bruto) return null;
+  const partes = String(bruto).split(',');
+  for (let parte of partes) {
+    let d = parte.replace(/\D/g, '');
+    if (d.length === 13 && d.startsWith('55')) d = d.slice(2);
+    if (/^[1-9][0-9]9[0-9]{8}$/.test(d)) return d;
+  }
+  return null;
+}
+
+// Planilha pro disparo de WhatsApp combinado com o Renato (ago/2026): quem
+// abriu o 1º e-mail da campanha, tem palavra relacionada a corretor/imóvel/
+// imobiliária no nome ou e-mail, tem celular válido extraível, e nunca virou
+// conta na plataforma. Restrito ao superadmin (_ADMIN_ROTAS_SUPERADMIN_ONLY)
+// — exporta e-mail/celular real de gente que nunca autorizou WhatsApp da
+// plataforma, não é dado pra sub-admin baixar.
+app.get('/admin/campanha/exportar-corretores-engajados', authAdmin, async (req, res) => {
+  try {
+    const XLSX = require('xlsx');
+    const { query: _qExportCorr } = require('./services/db');
+    const { rows } = await _qExportCorr(`
+      SELECT id, nome, email, celular FROM campanha_contatos
+      WHERE aberto_em IS NOT NULL
+        AND (unaccent(lower(nome)) ~ 'corretor|imov|imobili|broker' OR unaccent(lower(email)) ~ 'corretor|imov|imobili|broker')
+        AND celular IS NOT NULL AND celular != ''
+        AND NOT EXISTS (SELECT 1 FROM usuarios u WHERE LOWER(u.email) = LOWER(campanha_contatos.email))
+    `);
+    const linhas = [];
+    for (const c of rows) {
+      const celularValido = _extrairCelularValidoWA(c.celular);
+      if (!celularValido) continue;
+      linhas.push({ 'ID contato': c.id, 'Nome': c.nome || '', 'Email': c.email || '', 'Celular': celularValido });
+    }
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(linhas);
+    XLSX.utils.book_append_sheet(wb, ws, 'Corretores engajados');
+    const file = `corretores-engajados-whatsapp-${new Date().toISOString().slice(0,10)}.xlsx`;
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Disposition', `attachment; filename="${file}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (e) {
+    console.error('[exportar-corretores-engajados]', e.message);
+    res.status(500).send('Erro ao exportar: ' + e.message);
+  }
 });
 
 // Registra quem clicou pra falar com esse contato pelo WhatsApp (colore a

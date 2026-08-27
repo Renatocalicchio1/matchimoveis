@@ -53,7 +53,8 @@ async function verificarOnboardingPassos() {
   try {
     const { rows: usuarios } = await query(
       `SELECT id, codigo_usuario, nome, email, xml_url, whatsapp_status, historico_assistente, dados
-       FROM usuarios WHERE email IS NOT NULL AND email != '' AND ativo = true`
+       FROM usuarios WHERE email IS NOT NULL AND email != '' AND ativo = true
+       AND COALESCE((dados->>'afiliadoRestrito')::boolean, false) = false`
     );
     console.log('[ONBOARDING EMAIL] verificando', usuarios.length, 'usuarios');
 

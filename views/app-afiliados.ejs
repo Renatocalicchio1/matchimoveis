@@ -103,7 +103,9 @@ async function afAceitarContrato(){
       <span style="margin-left:10px;font-size:12px;color:#6b7280">Nível máximo do programa</span>
     <% } %>
   </div>
-  <div class="af-link-box">
+  <div>
+    <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#111827">Convide seus amigos corretores</p>
+    <div class="af-link-box">
     <span id="af-link"><%= dados.linkIndicacao %></span>
     <button onclick="navigator.clipboard.writeText('<%= dados.linkIndicacao %>');this.textContent='✓ copiado'" style="border:none;background:#111827;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;white-space:nowrap">Copiar link</button>
     <%
@@ -115,6 +117,7 @@ async function afAceitarContrato(){
       const _afMsgCompartilhar = 'Oi! Conheça a MatchImóveis — plataforma que cruza automaticamente leads com os imóveis certos pra corretores e imobiliárias, sem mensalidade. Tem também um programa de indicação que paga comissão recorrente. Cadastro é grátis e já vem com créditos de bônus: ' + dados.linkIndicacao;
     %>
     <a href="https://wa.me/?text=<%= encodeURIComponent(_afMsgCompartilhar) %>" target="_blank" style="display:inline-flex;align-items:center;gap:6px;border:none;background:#25D366;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Compartilhar no WhatsApp</a>
+    </div>
   </div>
 </div>
 
@@ -140,12 +143,17 @@ async function afAceitarContrato(){
   <form id="af-resgate-form">
     <div style="overflow-x:auto">
     <table class="af-table">
-      <thead><tr><th></th><th>Data</th><th>Papel</th><th>Coins</th><th>Status</th></tr></thead>
+      <thead><tr><th></th><th>Data</th><th>Comprador</th><th>Origem</th><th>Papel</th><th>Coins</th><th>Status</th></tr></thead>
       <tbody>
         <% dados.historico.forEach(function(h){ %>
         <tr>
           <td><% if (h.status === 'disponivel') { %><input type="checkbox" class="af-check-linha" value="<%= h.id %>"><% } %></td>
           <td><%= new Date(h.criado_em).toLocaleDateString('pt-BR') %></td>
+          <td><%= h.compradorNome %></td>
+          <td>
+            <% if (h.origem === 'admin') { %><span title="Crédito adicionado manualmente pelo admin" style="color:#6b7280">🎁 Crédito admin</span>
+            <% } else { %><span title="Pagamento real via app" style="color:#00A699">🛒 Compra no app</span><% } %>
+          </td>
           <td><%= h.papel === 'propria' ? 'Própria venda' : h.papel === 'override_n2' ? 'Override N2' : h.papel === 'override_n1' ? 'Override N1' : '-' %></td>
           <td><%= h.bonus_coins %></td>
           <td>
@@ -159,8 +167,10 @@ async function afAceitarContrato(){
     </table>
     </div>
     <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <% if (!(user && user.afiliadoRestrito === true)) { %>
       <label style="font-size:13px"><input type="radio" name="af-modo" value="credito" checked> Creditar na minha conta</label>
-      <label style="font-size:13px"><input type="radio" name="af-modo" value="dinheiro"> Sacar em dinheiro (fecha dia 25, paga em até 3 dias)</label>
+      <% } %>
+      <label style="font-size:13px"><input type="radio" name="af-modo" value="dinheiro" <%= (user && user.afiliadoRestrito === true) ? 'checked' : '' %>> Sacar em dinheiro (fecha dia 25, paga em até 3 dias)</label>
       <button type="button" onclick="afResgatar()" style="background:#111827;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer">Resgatar selecionadas</button>
       <span id="af-resgate-status" style="font-size:13px;color:#6b7280"></span>
     </div>
@@ -316,7 +326,7 @@ async function afAceitarContrato(){
 
 <div id="af-pane-niveis" class="af-tab-pane card">
   <h3 style="margin-top:0">Como funciona o programa</h3>
-  <p style="font-size:13px;color:#374151">Todo corretor já é afiliado. Nível 3 é quem acabou de entrar por indicação; Nível 2 e Nível 1 sobem por volume de vendas próprias geradas (R$<%= dados.promocao.paraNivel2.toLocaleString('pt-BR') %> pra Nível 2, R$<%= dados.promocao.paraNivel1.toLocaleString('pt-BR') %> pra Nível 1).</p>
+  <p style="font-size:13px;color:#374151">Todo corretor já é afiliado. Toda conta nova entra no <strong>Nível 3</strong>. Pra subir de nível, é preciso gerar um volume de vendas próprias (sempre contado em reais, nunca em coins): <strong>R$<%= dados.promocao.paraNivel2.toLocaleString('pt-BR') %></strong> em vendas leva do Nível 3 pro Nível 2, e mais <strong>R$<%= dados.promocao.paraNivel1.toLocaleString('pt-BR') %></strong> leva do Nível 2 pro Nível 1 (nível máximo do programa).</p>
   <%
     const _afPct = v => v ? (v*100).toLocaleString('pt-BR',{maximumFractionDigits:2}) + '%' : '-';
     const _afPool = t => Math.round(((t.propria||0)+(t.n2||0)+(t.n1||0))*1000)/10;

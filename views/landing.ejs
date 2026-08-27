@@ -282,7 +282,7 @@
       </div>
       <div class="cta-path">
         <div class="cta-path-label">Quer uma renda extra, sem atender lead nenhuma</div>
-        <a href="/afiliados" class="btn-sec">Sou afiliado, quero indicar e ganhar comissão →</a>
+        <a href="/afiliados<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" class="btn-sec">Sou afiliado, quero indicar e ganhar comissão →</a>
       </div>
       <div class="afiliado-note">💰 <b>As duas coisas não se excluem.</b> Se você é corretor, imobiliária, construtor ou agência, sua conta já vem com o programa de afiliados liberado — indique o MatchImóveis pra outros profissionais e ganhe comissão toda vez que eles recarregarem créditos na plataforma (não é comissão de venda de imóvel). E se você não trabalha com imóveis e só quer essa renda extra, dá pra ser só afiliado — sem precisar atender ninguém.</div>
       <a href="#como-funciona" class="hero-links">Como funciona a plataforma →</a>
@@ -516,7 +516,7 @@
     <h2>Uma renda extra,<br>só por indicar</h2>
     <p>Não precisa ser corretor, nem entender de imóvel. Você indica o MatchImóveis pra corretores, imobiliárias, construtoras ou agências — e toda vez que essa conta compra créditos pra usar a plataforma, uma parte vira comissão pra você, em dinheiro ou crédito. Não é comissão de venda de imóvel: é comissão do sistema, recorrente, enquanto a conta indicada continuar usando.</p>
     <p style="font-size:13px;color:var(--faint);margin-top:-14px;margin-bottom:24px">Já trabalha com imóveis? Sua conta de corretor, imobiliária, construtor ou agência já vem com esse programa liberado — não precisa de um cadastro à parte.</p>
-    <a href="/afiliados" class="btn-laranja">Como funciona o programa de afiliados →</a>
+    <a href="/afiliados<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" class="btn-laranja">Como funciona o programa de afiliados →</a>
   </div>
 </section>
 

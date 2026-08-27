@@ -154,7 +154,7 @@
   <h1>Indique o MatchImóveis.<br>Ganhe <em>comissão do sistema.</em></h1>
   <p class="hero-sub">Você não vende imóvel — você indica a plataforma pra quem vende. A comissão vem do que a pessoa indicada paga pra usar o MatchImóveis, não do negócio imobiliário dela.</p>
   <div class="hero-ctas">
-    <a href="/cadastro-afiliado" class="btn-main">Quero ser afiliado →</a>
+    <a href="/cadastro-afiliado<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" class="btn-main">Quero ser afiliado →</a>
     <a href="#como-funciona" class="btn-ghost">Como funciona</a>
   </div>
   <p class="hero-note">Grátis pra se cadastrar · Sem precisar ser corretor · Sem atender lead nenhuma</p>
@@ -236,14 +236,14 @@
 <div class="duplo">
   <h3>Já trabalha com imóveis?</h3>
   <p>Se você já é (ou vai ser) corretor, imobiliária, construtor ou agência de marketing na plataforma, o programa de afiliados já vem incluso na sua própria conta — não precisa desse cadastro à parte. Você atende lead normalmente <b>e</b> ganha comissão indicando outros profissionais, ao mesmo tempo.</p>
-  <a href="/" class="btn-sec2">Cadastrar minha conta de corretor/imobiliária →</a>
+  <a href="/<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" class="btn-sec2">Cadastrar minha conta de corretor/imobiliária →</a>
 </div>
 
 <section class="cta-final">
   <div class="cta-final-inner">
     <h2>Comece a indicar hoje</h2>
     <p>Cadastro grátis, sem mensalidade. Pegue seu link e comece a ganhar comissão recorrente do sistema MatchImóveis.</p>
-    <a href="/cadastro-afiliado" class="btn-cta">Quero ser afiliado →</a>
+    <a href="/cadastro-afiliado<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" class="btn-cta">Quero ser afiliado →</a>
     <p class="cta-note">Sem custo pra se cadastrar · Sem precisar entender de imóvel</p>
   </div>
 </section>

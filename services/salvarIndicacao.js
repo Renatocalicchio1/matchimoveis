@@ -36,13 +36,20 @@ async function _inicializar() {
   // pro cálculo de volume de venda própria que dispara promoção automática
   // de nível (ver _volumeVendasAfiliado/_checarPromocaoAfiliado em server.js).
   await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS papel TEXT`);
+  // Origem da recarga que gerou a comissão — 'app' (pagamento real via
+  // Mercado Pago) ou 'admin' (crédito manual pelo admin, que também conta
+  // como recarga pra quem indicou, ver comentário em POST
+  // /admin/usuario/:codigo/creditos). Pedido do Renato (ago/2026): mostrar
+  // isso na planilha de comissões do afiliado, pra distinguir comissão de
+  // venda real da gerada por crédito de cortesia.
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS origem TEXT DEFAULT 'app'`);
 }
 
-async function registrarBonus({ indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo, papel }) {
+async function registrarBonus({ indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo, papel, origem }) {
   await _inicializar();
   await query(
-    `INSERT INTO indicacoes_bonus (id, indicador_codigo, indicado_codigo, valor_compra_coins, bonus_coins, indicador_tipo, papel) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [uuidv4(), indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo || 'corretor', papel || null]
+    `INSERT INTO indicacoes_bonus (id, indicador_codigo, indicado_codigo, valor_compra_coins, bonus_coins, indicador_tipo, papel, origem) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+    [uuidv4(), indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo || 'corretor', papel || null, origem || 'app']
   );
 }
 

@@ -96,6 +96,7 @@ async function enviarEmailFunilConta() {
       ) ld ON ld.uid = u.codigo_usuario
       WHERE u.email IS NOT NULL AND u.email != '' AND u.ativo = true
         AND COALESCE((u.dados->>'emailOptOut')::boolean, false) = false
+        AND COALESCE((u.dados->>'afiliadoRestrito')::boolean, false) = false
         AND COALESCE(u.match_coins_total, 0) <= 1000
         AND (u.dados->>'nudgeFunilEnviadoEm' IS NULL OR (u.dados->>'nudgeFunilEnviadoEm')::timestamp <= NOW() - INTERVAL '7 days')
       ORDER BY u.criado_em ASC

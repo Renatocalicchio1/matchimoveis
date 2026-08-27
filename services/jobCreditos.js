@@ -210,6 +210,10 @@ async function enviarEmailsRecarga() {
     for (const u of users) {
       const uid = u.id || u.userId;
       if (!uid || u.ativo === false) continue;
+      // Afiliado restrito não consome coins (não cadastra imóvel/lead, não
+      // manda WhatsApp) — não faz sentido esse alerta de saldo baixo pra
+      // ela (pedido do Renato, ago/2026: só email do programa de afiliados).
+      if (u.afiliadoRestrito === true) continue;
       const saldo = u.matchCoins || 0;
       if (saldo >= 500) continue;
       const email = (u.email || '').trim();

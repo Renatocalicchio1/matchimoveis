@@ -40,6 +40,10 @@
     <form method="POST" action="/login" onsubmit="this.querySelector('button[type=submit]').disabled=true;this.querySelector('button[type=submit]').textContent='Criando conta...'">
       <input type="hidden" name="afiliadoRestrito" value="1">
       <input type="hidden" name="tipoConta" value="afiliado">
+      <!-- Quem indicou esse cadastro (link ?ref= de outro afiliado) — mesmo
+           campo/nome que o modal padrão de landing.ejs usa, lido em POST
+           /login pro novo cadastro já nascer com indicadoPor preenchido. -->
+      <input type="hidden" name="indicadoPor" value="<%= typeof ref !== 'undefined' ? ref : '' %>">
       <div class="m-field"><label>Nome completo</label><input name="nome" placeholder="Seu nome" required></div>
       <div class="m-field"><label>E-mail</label><input name="email" type="email" placeholder="seu@email.com" required></div>
       <div class="m-field"><label>Celular</label><input name="telefone" placeholder="47999999999" required></div>
@@ -47,8 +51,8 @@
       <button type="submit" class="m-btn">Quero ganhar comissão →</button>
       <p class="m-note">Grátis — sem mensalidade</p>
     </form>
-    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.5">É corretor, imobiliária, construtora ou agência de marketing? <a href="/" style="color:var(--rosa);font-weight:600;text-decoration:none">Cadastre sua conta aqui</a> — o programa de afiliados já vem incluso, sem precisar desse cadastro à parte.</p>
-    <a class="voltar" href="/afiliados">← Voltar</a>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:14px;line-height:1.5">É corretor, imobiliária, construtora ou agência de marketing? <a href="/<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" style="color:var(--rosa);font-weight:600;text-decoration:none">Cadastre sua conta aqui</a> — o programa de afiliados já vem incluso, sem precisar desse cadastro à parte.</p>
+    <a class="voltar" href="/afiliados<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>">← Voltar</a>
   </div>
 </body>
 </html>

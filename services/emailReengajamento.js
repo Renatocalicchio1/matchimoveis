@@ -11,6 +11,8 @@ async function enviarEmailReengajamento() {
       AND ultimo_acesso < $1
       AND ativo = true
       AND COALESCE((dados->>'emailOptOut')::boolean, false) = false
+      -- Afiliado restrito só recebe email do programa de afiliados (ago/2026)
+      AND COALESCE((dados->>'afiliadoRestrito')::boolean, false) = false
     `, [sete_dias_atras]);
 
     console.log('[REENGAJAMENTO] usuarios inativos:', rows.length);

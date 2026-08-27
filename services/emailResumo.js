@@ -11,7 +11,12 @@ async function enviarEmailResumo() {
     const { rows: usuarios } = await query(
       `SELECT codigo_usuario, nome, email, whatsapp_status, whatsapp_instance
        FROM usuarios WHERE email IS NOT NULL AND email != '' AND ativo = true
-       AND COALESCE((dados->>'emailOptOut')::boolean, false) = false`
+       AND COALESCE((dados->>'emailOptOut')::boolean, false) = false
+       -- Conta de afiliado restrito não cadastra imóvel/lead/WhatsApp — esse
+       -- resumo periódico não tem nada pra mostrar pra ela, só ruído
+       -- (pedido do Renato, ago/2026: afiliado só recebe email do próprio
+       -- programa de afiliados).
+       AND COALESCE((dados->>'afiliadoRestrito')::boolean, false) = false`
     );
 
     console.log('[RESUMO EMAIL] usuarios:', usuarios.length);

@@ -543,6 +543,27 @@ app.use('/app', async (req, res, next) => {
   return res.redirect('/app/perfil?comprarPlano=1');
 });
 
+// ── MENU RESTRITO PRA CONTA DE AFILIADO (ago/2026) ──────────────────────────
+// Cadastro simplificado (/cadastro-afiliado, afiliadoRestrito=true) só
+// mostra Afiliados+Perfil no menu (ver _menuRestrito em app-shell.ejs), mas
+// isso é só visual — sem essa trava, a conta ainda conseguia digitar/cair
+// direto em qualquer outra URL de /app/* (ex: /app/leads) e via o resto da
+// plataforma vazio, sem sentido pra quem só é afiliado (reportado pelo
+// Renato). Mesmo padrão das 3 travas acima (saldo/perfil/combo).
+const _rotasLivresAfiliado = ['/app/afiliados', '/app/perfil'];
+app.use('/app', (req, res, next) => {
+  if (!req.session || !req.session.user || req.session.user.afiliadoRestrito !== true) return next();
+  const _rota = req.path;
+  if (_rotasLivresAfiliado.some(r => _rota.startsWith(r.replace('/app','')))) return next();
+  const _querJson = (req.headers['content-type']||'').includes('application/json')
+    || (req.headers['accept']||'').includes('application/json')
+    || req.xhr;
+  if (_querJson) {
+    return res.status(403).json({ ok: false, erro: 'Essa área não está disponível pra conta de afiliado.' });
+  }
+  return res.redirect('/app/afiliados');
+});
+
 // ── SEGURANÇA: SANITIZAÇÃO DE INPUTS ─────────────────────────────────────────
 app.use((req, res, next) => {
   const sanitize = (obj) => {
@@ -3214,14 +3235,14 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     // 10% pro corretor indicador, 30%/15% (1ª compra/recorrência, em
     // comissão, ledger) pro sub-admin responsável (atendidoPorAdmin), se houver.
     if (op === 'adicionar' && qtd > 0) {
-      await _processarBonusIndicacao(cod, qtd);
+      await _processarBonusIndicacao(cod, qtd, 'admin');
     }
     // Aviso por email pro corretor quando o admin credita manualmente —
     // pedido do Renato (ago/2026): "sempre eu creditar pelo admin créditos
     // pra alguma conta, avise que ele recebeu novos créditos por email". Só
     // pra crédito (não pra débito manual), mesmo padrão visual das outras
     // notificações (#FF385C, botão pro /app/coins).
-    if (op === 'adicionar' && qtd > 0 && _rowDados && _rowDados.email) {
+    if (op === 'adicionar' && qtd > 0 && _rowDados && _rowDados.email && !_dadosAtual.afiliadoRestrito) {
       try {
         const { enviarEmail } = require('./services/email');
         enviarEmail({
@@ -4114,7 +4135,7 @@ app.get('/entrar', (req,res)=>{
 // isso da landing normal em vez de só um box de cadastro). Landing.ejs e o
 // banner de afiliados linkam pra cá antes de mandar pro cadastro de fato.
 app.get('/afiliados', (req,res)=>{
-  res.render('afiliados');
+  res.render('afiliados', { ref: (req.query.ref || '').trim() });
 });
 
 // Cadastro simplificado de afiliado/agência de marketing (ago/2026) — form
@@ -4123,7 +4144,7 @@ app.get('/afiliados', (req,res)=>{
 // cadastro padrão, só sem os campos de área de atuação que não fazem
 // sentido pra quem não é corretor/imobiliária/construtor.
 app.get('/cadastro-afiliado', (req,res)=>{
-  res.render('cadastro-afiliado', { erro: '' });
+  res.render('cadastro-afiliado', { erro: '', ref: (req.query.ref || '').trim() });
 });
 
 app.get('/politica-privacidade', (req,res)=>{
@@ -4802,7 +4823,7 @@ app.post('/login', async (req,res)=>{
     // continua num formulário diferente do modal padrão de "/", senão o
     // erro jogaria o afiliado de volta pra tela errada.
     const _ehCadastroAfiliado = req.body.afiliadoRestrito === '1';
-    const _erroCadastro = (msg) => _ehCadastroAfiliado ? res.render('cadastro-afiliado', { erro: msg }) : res.render('login', { error: msg });
+    const _erroCadastro = (msg) => _ehCadastroAfiliado ? res.render('cadastro-afiliado', { erro: msg, ref: (req.body.indicadoPor || '').trim() }) : res.render('login', { error: msg });
     // Validação backend
     const nomeVal = (req.body.nome||'').trim();
     if (!nomeVal || nomeVal.length < 3) return _erroCadastro('Nome inválido. Digite seu nome completo.');
@@ -4887,10 +4908,13 @@ app.post('/login', async (req,res)=>{
       areaAtuacaoCidades: _areaCidadesCadastro,
       areaAtuacaoBairros: _areaBairrosCadastro,
       indicadoPor: _indicador ? (_indicador.codigoUsuario || _indicador.id) : '',
-      // Programa de afiliados: todo cadastro que veio por link de indicação de
-      // um corretor/afiliado já entra direto como Nível 3 — independente do
-      // nível de quem indicou (ver bloco PROGRAMA DE AFILIADOS acima).
-      ...(_indicador ? { afiliadoNivel: 3 } : {}),
+      // Programa de afiliados: TODO cadastro novo entra Nível 3, com ou sem
+      // indicador (pedido explícito do Renato, ago/2026) — antes só setava
+      // quando tinha _indicador; sem indicador, afiliadoNivel ficava
+      // undefined e _nivelAfiliado() caía no fallback de Nível 2 (pensado
+      // pra conta antiga anterior ao programa, não pra cadastro novo) — bug
+      // confirmado numa conta de teste de afiliado sem indicação.
+      afiliadoNivel: 3,
       atendidoPorAdmin: _adminIndicador?.usuario || '',
       atendidoPorAdminNome: _adminIndicador?.nome || '',
       atendidoPorAdminCor: _adminIndicador?.cor || '',
@@ -4954,8 +4978,11 @@ app.post('/login', async (req,res)=>{
       } catch(_e) { console.error('[notif-cadastro]', _e.message); }
     })();
 
-    // Email de boas-vindas
-    if (novo.email) {
+    // Email de boas-vindas — fala de XML/WhatsApp/Instagram/lead, nada disso
+    // se aplica a conta de afiliado restrito (só recebe email do próprio
+    // programa de afiliados, ver services/emailIndicacao.js — pedido do
+    // Renato, ago/2026).
+    if (novo.email && !novo.afiliadoRestrito) {
       try {
         const { enviarEmail } = require('./services/email');
         await enviarEmail({
@@ -4995,6 +5022,7 @@ app.post('/login', async (req,res)=>{
   req.session.user = user;
   const { query: _qlg } = require('./services/db');
   _qlg('UPDATE usuarios SET ultimo_acesso=$1, atualizado_em=NOW() WHERE codigo_usuario=$2', [new Date().toISOString(), user.codigoUsuario||user.codigo||user.id]).catch(()=>{});
+  if (user.afiliadoRestrito === true) return res.redirect('/app/afiliados');
   const _uaL = req.headers['user-agent']||'';
   res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaL) ? '/app/feed' : '/app-home');
 });
@@ -6198,6 +6226,10 @@ app.get('/api/menu/badges', auth, async (req, res) => {
 });
 
 app.get('/app-home', auth, async (req,res)=>{
+  // Conta de afiliado restrito não usa dashboard de lead/imóvel — não é
+  // pego pela trava de /app/* (esse endpoint é /app-home, sem barra, então
+  // fora daquele mount) — checa direto aqui também.
+  if (req.session.user && req.session.user.afiliadoRestrito === true) return res.redirect('/app/afiliados');
   const user = req.session.user;
   const { lerLeads: _llSvc2 } = require('./services/salvarLead');
   // Direto no banco, já filtrado por usuário — não pelo cache global de TODOS
@@ -7201,7 +7233,15 @@ app.get('/app/afiliados', auth, async (req, res) => {
     }
 
     const { listarBonusPorIndicador, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
-    const historico = await listarBonusPorIndicador(uid, 'afiliado').catch(() => []);
+    const _historicoRaw = await listarBonusPorIndicador(uid, 'afiliado').catch(() => []);
+    // Nome de quem comprou (indicado_codigo é só o código) + origem da
+    // recarga (app = pagamento real, admin = crédito manual) — pedido do
+    // Renato (ago/2026) pra planilha de comissões mostrar quem gerou cada
+    // linha e se foi venda de verdade ou cortesia.
+    const historico = _historicoRaw.map(h => ({
+      ...h,
+      compradorNome: ((_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === h.indicado_codigo) || {}).nome || h.indicado_codigo
+    }));
     const disponivelCoins = await totalDisponivelPorIndicador(uid, 'afiliado').catch(() => 0);
     const indicados = (_cacheUsuarios || [])
       .filter(u => u.indicadoPor === uid)
@@ -7351,6 +7391,13 @@ app.post('/app/afiliados/resgate', auth, express.json(), async (req, res) => {
     const { ids, modo } = req.body;
     if (!Array.isArray(ids) || !ids.length) return res.json({ ok: false, erro: 'Selecione ao menos uma comissão' });
     if (modo !== 'dinheiro' && modo !== 'credito') return res.json({ ok: false, erro: 'Modo inválido' });
+    // Conta de afiliado restrito não tem uso pra crédito na própria conta
+    // (não cadastra imóvel/lead, não manda WhatsApp) — só pode sacar em
+    // dinheiro. Checado aqui além de escondido na tela (app-afiliados.ejs),
+    // pra não depender só do front.
+    if (modo === 'credito' && req.session.user.afiliadoRestrito === true) {
+      return res.json({ ok: false, erro: 'Conta de afiliado só pode resgatar em dinheiro' });
+    }
 
     const { solicitarResgate, marcarResgatePago } = require('./services/salvarIndicacao');
     // credito_destino é sempre a própria conta — o afiliado nunca pode
@@ -10382,7 +10429,13 @@ async function _enviarFollowupSemImoveis() {
   try {
     const { query: _qFU } = require('./services/db');
     const usuariosSemImovel = await _qFU(
-      "SELECT codigo_usuario, nome, email, telefone, celular, dados FROM usuarios WHERE NOT EXISTS (SELECT 1 FROM imoveis i WHERE i.user_id = usuarios.codigo_usuario)"
+      `SELECT codigo_usuario, nome, email, telefone, celular, dados FROM usuarios
+       WHERE NOT EXISTS (SELECT 1 FROM imoveis i WHERE i.user_id = usuarios.codigo_usuario)
+       -- Afiliado restrito nunca vai ter imóvel cadastrado (não é o
+       -- propósito da conta) — sem isso, esse nudge repetiria pra sempre,
+       -- toda semana (pedido do Renato, ago/2026: só email/mensagem do
+       -- programa de afiliados pra essa conta).
+       AND COALESCE((dados->>'afiliadoRestrito')::boolean, false) = false`
     );
     const agora = Date.now();
     const tresDias = 7 * 24 * 60 * 60 * 1000;
@@ -14957,7 +15010,7 @@ async function _checarPromocaoAfiliado(codigo) {
 // direto: o afiliado escolhe depois, no resgate (POST /app/afiliados/resgate),
 // entre saque em dinheiro ou crédito na própria conta (nunca em conta de
 // terceiro — é regra do programa, não só técnica).
-async function _processarComissaoAfiliado(userId, creditosComprados, eraPrimeiraCompra) {
+async function _processarComissaoAfiliado(userId, creditosComprados, eraPrimeiraCompra, origem) {
   try {
     const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
     if (!comprador || !comprador.indicadoPor) return;
@@ -14973,7 +15026,7 @@ async function _processarComissaoAfiliado(userId, creditosComprados, eraPrimeira
       if (!codigoGanhador || !fracao) return;
       const valor = Math.floor(creditosComprados * fracao);
       if (valor <= 0) return;
-      await registrarBonus({ indicadorCodigo: codigoGanhador, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: valor, indicadorTipo: 'afiliado', papel });
+      await registrarBonus({ indicadorCodigo: codigoGanhador, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: valor, indicadorTipo: 'afiliado', papel, origem: origem || 'app' });
       criarNotificacaoService({
         id: Date.now().toString() + '_afil_' + papel,
         tipo: 'afiliado_comissao',
@@ -15009,7 +15062,7 @@ async function _processarComissaoAfiliado(userId, creditosComprados, eraPrimeira
 // 30%/15%, sub-admins criados a partir de ago/2026 usam 20%/10%. Fica só no
 // ledger (indicacoes_bonus, indicador_tipo='admin'), nunca em
 // usuarios.match_coins, porque sub-admin não é corretor.
-async function _processarBonusIndicacao(userId, creditosComprados) {
+async function _processarBonusIndicacao(userId, creditosComprados, origem) {
   try {
     const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
     if (!comprador) return;
@@ -15027,7 +15080,7 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
       comprador.comprouEm = _comprouEmStamp;
     }
 
-    await _processarComissaoAfiliado(userId, creditosComprados, _eraPrimeiraCompra);
+    await _processarComissaoAfiliado(userId, creditosComprados, _eraPrimeiraCompra, origem);
     // Comissão fixa de sub-admin (30%/15%/20%/10% via atendidoPorAdmin) foi
     // aposentada (ago/2026) — sub-admin não existe mais como login separado,
     // virou só afiliado (indicadoPor + níveis). O campo atendidoPorAdmin em

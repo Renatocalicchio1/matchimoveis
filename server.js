@@ -4782,7 +4782,14 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // Os 1.000 créditos de bônus são só pra poder mexer no sistema e ver
         // o valor — não substituem a compra. Só libera o resto da plataforma
         // depois de contratar um dos combos (ver middleware precisaComprarPlano).
-        precisaComprarPlano: true,
+        // EXCEÇÃO (ago/2026, campanha "Dia do Corretor" bancada pelo Bruno):
+        // conta que entra vinculada a um AFILIADO (_afiliadoAtendente, via
+        // refAdmin) pula essa trava — recebe lead normal desde o início, sem
+        // precisar comprar combo. Pedido explícito do Renato: "as duas regras
+        // ficam" — campanha "leads garantidos" sem afiliado (bancada direto
+        // pela empresa) continua exigindo compra do jeito que já é hoje; só
+        // campanha com afiliado dono muda.
+        precisaComprarPlano: !_afiliadoAtendente,
         // Qual variante de template (teste A/B) trouxe essa conta — usado
         // por statsPorTemplate() pra saber qual mensagem converte mais em
         // cadastro/compra, não só em clique.

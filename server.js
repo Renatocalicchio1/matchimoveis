@@ -23700,6 +23700,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         mapeamento: _mapeamentoAtual(),
         corretorUserId: document.getElementById('corretorUserId').value,
         usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
+        usarNomeHeader: document.getElementById('usarNomeHeader').checked,
         phoneNumberId: document.getElementById('phoneNumberId').value,
         numeros
       };
@@ -23848,13 +23849,19 @@ app.post('/admin/disparos/preview-planilha', authAdmin, upload.single('arquivo')
 });
 app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) => {
   try {
-    const { arquivo, templateNome, templateIdioma, mapeamento, numeros, corretorUserId, usarContatoIdBotao, phoneNumberId } = req.body;
+    const { arquivo, templateNome, templateIdioma, mapeamento, numeros, corretorUserId, usarContatoIdBotao, usarNomeHeader, phoneNumberId } = req.body;
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!numeros || !numeros.length) return res.json({ ok: false, erro: 'Informe ao menos 1 número' });
     const { linhas } = _lerPlanilhaDisparo(arquivo);
     const primeira = linhas[0] || {};
     const { enviarTemplate, _normalizarTelefone } = require('./services/metaWhatsapp');
     const parametros = (mapeamento.variaveisOrdem || []).map(c => primeira[c] ?? '');
+    // Nome de teste FIXO ("Corretor Teste"), nunca o da 1ª linha da planilha
+    // (bug real reportado pelo Renato ago/2026: os números digitados na
+    // caixa de teste não têm nada a ver com quem está na planilha, mas
+    // pegava o nome da 1ª linha do arquivo pra todo mundo — confuso e podia
+    // vazar nome de contato real numa mensagem de teste).
+    const headerParametro = usarNomeHeader ? 'Corretor Teste' : undefined;
     const resultados = [];
 
     // Botão de URL dinâmica com criação de conta (/entrar/:id) precisa de uma
@@ -23868,6 +23875,7 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
         nomeCampanha: `[teste] ${templateNome} — ${new Date().toLocaleString('pt-BR')}`,
         templateNome, templateIdioma: templateIdioma || 'pt_BR',
         mapeamentoVariaveis: mapeamento.variaveisOrdem || [],
+        usarNomeHeader: !!usarNomeHeader,
         criadoPor: 'teste', usarContatoIdBotao: true, phoneNumberId: phoneNumberId || null
       });
     }
@@ -23886,11 +23894,19 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
           const contatoIdTeste = uuidv4Teste();
           await _qContatoTeste(
             `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis, status) VALUES ($1,$2,$3,$4,$5,'enviado')`,
-            [contatoIdTeste, _campanhaTesteId, (mapeamento.nome ? primeira[mapeamento.nome] : '') || '', _normalizarTelefone(numero), JSON.stringify(primeira)]
+            [contatoIdTeste, _campanhaTesteId, headerParametro || 'Corretor Teste', _normalizarTelefone(numero), JSON.stringify(primeira)]
           );
-          botoesUrl = [{ index: 0, valor: contatoIdTeste }];
+          // Mesmo comportamento do disparo de verdade (enviarComRetry,
+          // workers/disparoWhatsappWorker.js): se a planilha tem coluna
+          // refAdmin (ex: exportar-corretores-engajados?refAdmin=BRU-8MPC),
+          // o botão de teste também precisa levar o ?ref= — sem isso a
+          // conta criada ao clicar não fica vinculada a nenhum afiliado
+          // (bug real reportado pelo Renato ago/2026: cadastrou de teste
+          // não apareceu nos afiliados do Bruno).
+          const _refAdminTeste = primeira.refAdmin;
+          botoesUrl = [{ index: 0, valor: _refAdminTeste ? `${contatoIdTeste}?ref=${_refAdminTeste}` : contatoIdTeste }];
         }
-        await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, botoesUrl, phoneNumberId: phoneNumberId || undefined });
+        await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, headerParametro, botoesUrl, phoneNumberId: phoneNumberId || undefined });
         resultados.push({ numero, ok: true });
       } catch(e) {
         resultados.push({ numero, ok: false, erro: e.message });

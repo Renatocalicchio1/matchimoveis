@@ -7656,12 +7656,35 @@ async function _telefoneAfiliadoPertence(uid, telefone) {
 app.get('/api/afiliados/inbox/lista', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
-    const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
+    const { listarContatosPorRefAdmin, listarOptout } = require('./services/salvarDisparo');
     const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
     const meusContatos = await listarContatosPorRefAdmin(uid, 1000);
     const telsSet = new Set(meusContatos.map(c => String(c.telefone || '').replace(/\D/g, '').slice(-8)).filter(Boolean));
+
+    // Cadastrou: telefone/celular bate com alguma conta já criada (mesmo
+    // padrão de _CADASTROU_EXISTS já usado em services/salvarDisparo.js) —
+    // checado ao vivo, não confia só no status='convertido' estático.
+    const _telsCadastrados = new Set();
+    (_cacheUsuarios || []).forEach(u => {
+      const t1 = String(u.telefone || '').replace(/\D/g, '').slice(-8);
+      const t2 = String(u.celular || '').replace(/\D/g, '').slice(-8);
+      if (t1) _telsCadastrados.add(t1);
+      if (t2) _telsCadastrados.add(t2);
+    });
+    // Excluído: clicou "Não sou corretor"/"Não tenho interesse" (opt-out
+    // global, ver POST /webhook/whatsapp-cloud).
+    const _telsExcluidos = new Set(await listarOptout(meusContatos.map(c => c.telefone).filter(Boolean)));
+
+    const _statusContato = telefoneCru => {
+      const suf = String(telefoneCru || '').replace(/\D/g, '').slice(-8);
+      if (_telsCadastrados.has(suf)) return 'cadastrou';
+      if (_telsExcluidos.has(telefoneCru)) return 'excluido';
+      return null;
+    };
+
     const conversas = (await listarConversas().catch(() => []))
-      .filter(c => telsSet.has(String(c.contato_telefone || '').replace(/\D/g, '').slice(-8)));
+      .filter(c => telsSet.has(String(c.contato_telefone || '').replace(/\D/g, '').slice(-8)))
+      .map(c => ({ ...c, statusContato: _statusContato(c.contato_telefone) }));
     // Contato atribuído que ainda não escreveu nada (sem linha em
     // whatsapp_cloud_mensagens ainda) também entra, marcado como "aguardando"
     // — o afiliado precisa saber que existe, mesmo sem poder puxar assunto
@@ -7669,7 +7692,7 @@ app.get('/api/afiliados/inbox/lista', auth, async (req, res) => {
     const telsComConversa = new Set(conversas.map(c => String(c.contato_telefone || '').replace(/\D/g, '').slice(-8)));
     const aguardando = meusContatos
       .filter(c => c.telefone && !telsComConversa.has(String(c.telefone).replace(/\D/g, '').slice(-8)))
-      .map(c => ({ contato_telefone: c.telefone, contato_nome: c.nome, status: c.status, aguardando: true }));
+      .map(c => ({ contato_telefone: c.telefone, contato_nome: c.nome, status: c.status, aguardando: true, statusContato: _statusContato(c.telefone) }));
     res.json({ ok: true, conversas, aguardando });
   } catch (e) {
     console.error('[api/afiliados/inbox/lista]', e.message);
@@ -15906,6 +15929,13 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
           } else if (texto === 'não tenho interesse' || texto === 'nao tenho interesse') {
             await marcarOptout(telefone, 'whatsapp_botao_nao_interesse');
             console.log('[whatsapp-cloud] opt-out registrado (leads garantidos):', telefone);
+          } else if (texto === 'não sou corretor' || texto === 'nao sou corretor') {
+            // Campanha "Dia do Corretor" bancada pelo Bruno (ago/2026) — quem
+            // clica aqui não é o público certo, sai da lista na hora (mesmo
+            // opt-out global de marcarOptout, aparece como excluído no inbox
+            // do afiliado dono do disparo).
+            await marcarOptout(telefone, 'whatsapp_botao_nao_sou_corretor');
+            console.log('[whatsapp-cloud] opt-out registrado (não é corretor):', telefone);
           } else if (texto === 'falar com humano') {
             console.log('[whatsapp-cloud] pedido de atendimento humano:', telefone);
             // Não dá pra usar botão de URL/call pro WhatsApp de suporte (Meta

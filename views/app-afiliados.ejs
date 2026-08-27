@@ -423,6 +423,11 @@ async function afInboxCarregar(){
     if (!conversas.length && !aguardando.length) { vazio.style.display = 'block'; return; }
     corpo.style.display = 'flex';
     lista.innerHTML = '';
+    function afInboxBadgeStatus(statusContato){
+      if (statusContato === 'cadastrou') return { texto: '✅ Cadastrou', cor: '#00A699' };
+      if (statusContato === 'excluido') return { texto: '🚫 Excluído', cor: '#9ca3af' };
+      return null;
+    }
     conversas.forEach(function(c){
       const item = document.createElement('div');
       item.style.cssText = 'padding:12px 14px;border-bottom:1px solid #f3f4f6;cursor:pointer';
@@ -434,6 +439,13 @@ async function afInboxCarregar(){
         const badge = document.createElement('span');
         badge.style.cssText = 'background:#FF385C;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:6px';
         badge.textContent = c.naoLidas;
+        nome.appendChild(badge);
+      }
+      const statusBadge = afInboxBadgeStatus(c.statusContato);
+      if (statusBadge) {
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size:10px;font-weight:700;margin-left:6px;color:' + statusBadge.cor;
+        badge.textContent = statusBadge.texto;
         nome.appendChild(badge);
       }
       const preview = document.createElement('div');
@@ -449,11 +461,18 @@ async function afInboxCarregar(){
       const nome = document.createElement('div');
       nome.style.cssText = 'font-size:13px;font-weight:600;color:#111827';
       nome.textContent = c.contato_nome || c.contato_telefone;
+      const statusBadge = afInboxBadgeStatus(c.statusContato);
+      if (statusBadge) {
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size:10px;font-weight:700;margin-left:6px;color:' + statusBadge.cor;
+        badge.textContent = statusBadge.texto;
+        nome.appendChild(badge);
+      }
       const preview = document.createElement('div');
       preview.style.cssText = 'font-size:11.5px;color:#b45309;margin-top:2px';
-      preview.textContent = '⏳ Aguardando resposta';
+      preview.textContent = statusBadge ? '' : '⏳ Aguardando resposta';
       item.appendChild(nome);
-      item.appendChild(preview);
+      if (!statusBadge) item.appendChild(preview);
       lista.appendChild(item);
     });
   } catch(e) {

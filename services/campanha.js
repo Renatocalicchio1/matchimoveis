@@ -815,6 +815,17 @@ async function _garantirColunas() {
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_enviado_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_enviado_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_enviado_em TIMESTAMP`);
+  // Erro de follow-up não marca followupN_enviado_em de propósito (tenta de
+  // novo no próximo ciclo, pra sobreviver a falha transiente) — mas sem
+  // limite isso faz o MESMO contato quebrado (endereço que a AWS já rejeita
+  // de vez) voltar a ser "o próximo elegível" pra sempre, monopolizando o
+  // slot de follow-up e reforçando bounce/erro a cada tentativa (ago/2026,
+  // achado ao investigar taxa de devolução alta). Contador por estágio +
+  // teto de 3 tentativas em proximoFollowupN() resolve sem perder a
+  // resiliência a erro passageiro.
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_tentativas INT DEFAULT 0`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_tentativas INT DEFAULT 0`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_tentativas INT DEFAULT 0`);
   // Rastreio por estágio de follow-up (ago/2026) — antes só existia
   // titulo_usado/aberto_em/clicado_em GENÉRICOS (1 valor só por contato),
   // que nunca eram atualizados pelos follow-ups (marcarFollowupEnviado só
@@ -1183,6 +1194,7 @@ async function proximoFollowup1() {
       AND cc.aberto_em IS NULL
       AND cc.enviado_em <= NOW() - INTERVAL '24 hours'
       AND cc.followup1_enviado_em IS NULL
+      AND COALESCE(cc.followup1_tentativas, 0) < 3
       AND LOWER(cc.email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
     ORDER BY cc.enviado_em ASC LIMIT 1
   `);
@@ -1195,6 +1207,7 @@ async function proximoFollowup2() {
     WHERE cc.aberto_em IS NOT NULL
       AND cc.aberto_em <= NOW() - INTERVAL '24 hours'
       AND cc.followup2_enviado_em IS NULL
+      AND COALESCE(cc.followup2_tentativas, 0) < 3
       AND LOWER(cc.email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
     ORDER BY cc.aberto_em ASC LIMIT 1
   `);
@@ -1209,6 +1222,7 @@ async function proximoFollowup3() {
     JOIN usuarios u ON LOWER(u.email) = LOWER(cc.email)
     WHERE u.criado_em <= NOW() - INTERVAL '24 hours'
       AND cc.followup3_enviado_em IS NULL
+      AND COALESCE(cc.followup3_tentativas, 0) < 3
       AND COALESCE(u.match_coins_total, 0) <= 1000
     ORDER BY u.criado_em ASC LIMIT 1
   `);
@@ -1216,11 +1230,22 @@ async function proximoFollowup3() {
 }
 const _FOLLOWUP_COLUNA = { 1: 'followup1_enviado_em', 2: 'followup2_enviado_em', 3: 'followup3_enviado_em' };
 const _FOLLOWUP_COLUNA_TITULO = { 1: 'followup1_titulo_usado', 2: 'followup2_titulo_usado', 3: 'followup3_titulo_usado' };
+const _FOLLOWUP_COLUNA_TENTATIVAS = { 1: 'followup1_tentativas', 2: 'followup2_tentativas', 3: 'followup3_tentativas' };
 async function marcarFollowupEnviado(id, numero, titulo) {
   const coluna = _FOLLOWUP_COLUNA[numero];
   if (!coluna) throw new Error('número de follow-up inválido: ' + numero);
   const colunaTitulo = _FOLLOWUP_COLUNA_TITULO[numero];
   await query(`UPDATE campanha_contatos SET ${coluna}=NOW(), ${colunaTitulo}=$1 WHERE id=$2`, [titulo || null, id]);
+}
+// Incrementa a tentativa em vez de marcar enviado — depois de 3 (ver
+// COALESCE(...,0) < 3 em proximoFollowupN()) o contato para de ser
+// selecionado, sem precisar marcar como "enviado de verdade" nem apagar o
+// histórico. Só existe pra parar o "pra sempre" documentado em
+// _enviarFollowup() — erro passageiro isolado (1-2x) ainda tenta de novo.
+async function marcarFollowupErro(id, numero) {
+  const coluna = _FOLLOWUP_COLUNA_TENTATIVAS[numero];
+  if (!coluna) throw new Error('número de follow-up inválido: ' + numero);
+  await query(`UPDATE campanha_contatos SET ${coluna} = COALESCE(${coluna},0) + 1 WHERE id=$1`, [id]);
 }
 
 // Registra quem (admin ou conta admin secundária) clicou pra falar com esse
@@ -1365,7 +1390,12 @@ async function _enviarFollowup(contato, tipo, numero) {
     await marcarFollowupEnviado(contato.id, numero, variacao.assunto);
     return { enviado: true, email: contato.email, modelo: tipo, titulo: variacao.assunto };
   } catch (e) {
-    // não marca followupN_enviado_em em caso de erro — tenta de novo no próximo ciclo
+    // não marca followupN_enviado_em em caso de erro — tenta de novo no
+    // próximo ciclo (sobrevive a falha transiente), mas conta a tentativa
+    // pra não virar retry infinito num contato permanentemente quebrado
+    // (ver COALESCE(...,0) < 3 em proximoFollowupN() e comentário acima da
+    // coluna em _garantirColunas()).
+    await marcarFollowupErro(contato.id, numero).catch(eErro => console.error('[CAMPANHA] erro ao marcar tentativa de followup:', eErro.message));
     return { enviado: false, motivo: 'erro_envio', erro: e.message };
   }
 }

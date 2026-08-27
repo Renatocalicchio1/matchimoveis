@@ -11564,7 +11564,12 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
         <label style="font-size:12px;font-weight:700;margin:0 8px 0 16px">Onde publicar</label>
         <label style="font-size:13px;font-weight:600;margin-right:12px"><input type="checkbox" id="formatoFeed" checked onchange="atualizarFormatos()"> Feed</label>
         <label style="font-size:13px;font-weight:600"><input type="checkbox" id="formatoStory" checked onchange="atualizarFormatos()"> Story</label>
-        <button class="btn-primaria" style="margin-left:8px" onclick="gerarLegenda()">✨ Gerar legenda</button>
+        <div style="margin-top:12px">
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Tema/dica (opcional) — dá o assunto pra IA não ficar repetindo os mesmos posts</label>
+          <textarea id="temaCustom" placeholder="Ex: Busca corrigida: cidade e bairro agora seguem certinho o nome oficial do IBGE, sem erro de digitação ou acento faltando" style="width:100%;min-height:56px;border:1px solid #d1d5db;border-radius:8px;padding:8px;font-size:12.5px;font-family:inherit;resize:vertical"></textarea>
+          <p style="font-size:11px;color:#9ca3af;margin-top:4px">Deixa vazio pra IA escolher um fato sozinha (pool fixo, repete mais). Preenchendo, ela escreve a legenda e a imagem em cima exatamente desse tema.</p>
+        </div>
+        <button class="btn-primaria" style="margin-top:10px" onclick="gerarLegenda()">✨ Gerar legenda</button>
         <p id="fatoUsado" style="font-size:11.5px;color:#9ca3af;margin-top:8px"></p>
       </div>
 
@@ -11617,8 +11622,9 @@ app.get('/admin/instagram-posts', authAdmin, (req, res) => {
       if(!formatos.length) return alert('Marca pelo menos Feed ou Story.');
       const corSel = document.getElementById('corPost').value;
       const corIndice = corSel === 'auto' ? null : Number(corSel);
+      const tema = document.getElementById('temaCustom').value.trim();
       document.getElementById('fatoUsado').textContent = 'Gerando legenda e imagem...';
-      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formatos, corIndice})});
+      const r = await fetch('/admin/instagram-posts/gerar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({tipo, formatos, corIndice, tema})});
       const j = await r.json();
       if(!j.ok){ document.getElementById('fatoUsado').textContent = 'Erro: ' + j.erro; return; }
       document.getElementById('legendaTexto').value = j.legenda;
@@ -11820,7 +11826,13 @@ app.post('/admin/instagram-posts/gerar', authAdmin, express.json(), async (req, 
     // o antigo `formato` singular pra quem ainda chamar a API assim.
     let formatos = Array.isArray(req.body.formatos) ? req.body.formatos.filter(f => ['feed', 'story'].includes(f)) : [];
     if (!formatos.length) formatos = [req.body.formato === 'story' ? 'story' : 'feed'];
-    const fato = _fatoInstitucionalInstagram(tipo);
+    // Tema digitado pelo admin (opcional) — pedido do Renato (ago/2026): a IA
+    // repetia muito escolhendo sozinha do pool fixo de _fatoInstitucionalInstagram.
+    // Preenchendo, usa o texto dele DIRETO como fato (mesmo nível de confiança
+    // do pool curado à mão — ele é quem sabe o que é real na própria
+    // plataforma), pulando o sorteio. Vazio continua sorteando como antes.
+    const temaCustom = typeof req.body.tema === 'string' ? req.body.tema.trim().slice(0, 500) : '';
+    const fato = temaCustom || _fatoInstitucionalInstagram(tipo);
     const { gerarLegendaInstagram } = require('./services/instagramPostsIA');
     const legenda = await gerarLegendaInstagram({ tipo, fato });
 

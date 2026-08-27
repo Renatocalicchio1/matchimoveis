@@ -622,15 +622,36 @@ async function afInboxAbrirConversa(telefone, nomeContato){
       _afInboxUltimaData = m.criado_em;
     });
     thread.scrollTop = thread.scrollHeight;
-    const temMensagemRecebida = mensagens.some(function(m){ return m.direcao === 'entrada'; });
-    replyBox.style.display = temMensagemRecebida ? 'block' : 'none';
-    replyBloqueado.style.display = temMensagemRecebida ? 'none' : 'block';
+    // Janela de 24h (regra da Meta): não basta "ela já respondeu alguma
+    // vez" — se a ÚLTIMA mensagem dela foi há mais de 24h, texto/áudio
+    // livre não funciona mais (só reabre se ela escrever de novo, ou com
+    // template novo — que conta como conversa nova, com cobrança de novo).
+    const recebidas = mensagens.filter(function(m){ return m.direcao === 'entrada'; });
+    const ultimaRecebida = recebidas[recebidas.length - 1];
+    const _horasDesdeUltima = ultimaRecebida ? (Date.now() - new Date(ultimaRecebida.criado_em).getTime()) / 3600000 : Infinity;
+    const janelaAberta = ultimaRecebida && _horasDesdeUltima < 24;
+    replyBox.style.display = janelaAberta ? 'block' : 'none';
+    replyBloqueado.style.display = janelaAberta ? 'none' : 'block';
+    replyBloqueado.textContent = !ultimaRecebida
+      ? '⏳ Aguardando essa pessoa responder — sem isso não dá pra mandar texto livre (regra do WhatsApp oficial).'
+      : '🔒 A janela de 24h desde a última mensagem dela fechou — só reabre se ela escrever de novo, ou com um template novo (conta como conversa nova, com cobrança de novo).';
     // Fica de olho em mensagem nova enquanto essa conversa está aberta (sem
     // precisar recarregar a página) — mesmo padrão do inbox admin.
     _afInboxPollTimer = setInterval(_afInboxChecarNovas, 5000);
   } catch(e) {
     thread.innerHTML = '<p style="color:#dc2626;font-size:12px">Erro ao carregar mensagens.</p>';
   }
+}
+// Servidor detectou que a janela de 24h fechou no meio do caminho (ex: você
+// abriu a conversa a tempo, mas demorou pra digitar) — em vez de só um
+// alert genérico, já esconde a caixa de resposta e mostra o aviso certo.
+function _afInboxTratarJanelaFechada(d){
+  if (!d || !d.janelaFechada) return false;
+  document.getElementById('af-inbox-reply-box').style.display = 'none';
+  const bloqueado = document.getElementById('af-inbox-reply-bloqueado');
+  bloqueado.textContent = '🔒 ' + d.erro;
+  bloqueado.style.display = 'block';
+  return true;
 }
 async function afInboxResponder(textoFixo){
   const input = document.getElementById('af-inbox-reply-texto');
@@ -645,7 +666,7 @@ async function afInboxResponder(textoFixo){
       const thread = document.getElementById('af-inbox-thread');
       thread.appendChild(_afInboxMontarBolha({ id: 'local-' + Date.now(), direcao: 'saida', tipo: 'texto', texto, criado_em: new Date().toISOString() }));
       thread.scrollTop = thread.scrollHeight;
-    } else {
+    } else if (!_afInboxTratarJanelaFechada(d)) {
       alert((d && d.erro) || 'Erro ao enviar.');
     }
   } catch(e) {
@@ -664,7 +685,7 @@ async function afInboxEnviarBlobAudio(blob, nomeArquivo){
     const r = await fetch('/api/afiliados/inbox/' + encodeURIComponent(_afInboxTelefoneAtivo) + '/responder-audio', { method:'POST', body: fd });
     const d = await r.json();
     status.textContent = '';
-    if (d && d.ok) { _afInboxChecarNovas(); } else { alert((d && d.erro) || 'Erro ao enviar áudio'); }
+    if (d && d.ok) { _afInboxChecarNovas(); } else if (!_afInboxTratarJanelaFechada(d)) { alert((d && d.erro) || 'Erro ao enviar áudio'); }
   } catch(e) {
     status.textContent = '';
     alert('Erro ao enviar áudio');

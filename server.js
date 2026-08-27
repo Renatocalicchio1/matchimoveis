@@ -7844,6 +7844,17 @@ app.post('/api/afiliados/inbox/:telefone/responder', auth, express.json(), async
     }
     const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
     if (!ultimoRecebido) return res.status(400).json({ ok: false, erro: 'Essa pessoa ainda não te respondeu — o WhatsApp oficial só libera texto livre depois que ela manda a primeira mensagem (janela de 24h).' });
+    // A janela de 24h fecha sozinha (regra da Meta, não é nada que a gente
+    // controla) — checar só "já respondeu alguma vez" não basta, senão o
+    // Bruno tenta mandar texto livre pra alguém que respondeu há 3 dias e
+    // toma erro cru da Meta sem entender o motivo. Depois de fechada, só um
+    // TEMPLATE aprovado reabre (e isso conta como conversa nova pra Meta,
+    // com cobrança de novo — pedido do Renato: "se passar a janela de 24h e
+    // o Bruno mandar msg, cobra novamente").
+    const _horasDesdeUltima = (Date.now() - new Date(ultimoRecebido.criado_em).getTime()) / 3600000;
+    if (_horasDesdeUltima >= 24) {
+      return res.status(400).json({ ok: false, janelaFechada: true, erro: 'A janela de 24h desde a última mensagem dela já fechou — não dá mais pra mandar texto livre. Só reabre se ela escrever de novo, ou disparando um template novo pra ela (e isso conta como uma conversa nova pra Meta, com cobrança de novo).' });
+    }
     const { enviarTexto } = require('./services/metaWhatsapp');
     await enviarTexto({ telefone, texto, phoneNumberId: ultimoRecebido.phone_number_id });
     await salvarMensagem({ phoneNumberId: ultimoRecebido.phone_number_id, displayPhoneNumber: ultimoRecebido.display_phone_number, telefone, nome: ultimoRecebido.contato_nome, direcao: 'saida', tipo: 'texto', texto });
@@ -7886,6 +7897,10 @@ app.post('/api/afiliados/inbox/:telefone/responder-audio', auth, multer({ storag
     const mensagens = await listarMensagens(telefone).catch(() => []);
     const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
     if (!ultimoRecebido) return res.status(400).json({ ok: false, erro: 'Essa pessoa ainda não te respondeu — o WhatsApp oficial só libera texto livre depois que ela manda a primeira mensagem (janela de 24h).' });
+    // Mesma checagem de janela de 24h da rota de texto (ver comentário lá).
+    if ((Date.now() - new Date(ultimoRecebido.criado_em).getTime()) / 3600000 >= 24) {
+      return res.status(400).json({ ok: false, janelaFechada: true, erro: 'A janela de 24h desde a última mensagem dela já fechou — não dá mais pra mandar áudio livre. Só reabre se ela escrever de novo, ou disparando um template novo pra ela.' });
+    }
     const { enviarAudio } = require('./services/metaWhatsapp');
     const mimeType = req.file.mimetype || 'audio/ogg';
     await enviarAudio({ telefone, buffer: req.file.buffer, mimeType, nomeArquivo: req.file.originalname, phoneNumberId: ultimoRecebido.phone_number_id });

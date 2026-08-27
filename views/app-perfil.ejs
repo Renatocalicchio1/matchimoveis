@@ -135,6 +135,14 @@
 // nome/telefone/email/senha, sem CRECI/CPF/área de atuação/combos/vitrine/
 // localização/WhatsApp/Instagram (tudo isso é específico de quem atende lead).
 const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
+// Boas-vindas de campanha com afiliado dono (ex: "Dia do Corretor",
+// Bruno/BRU-8MPC, ago/2026) — mesma conta que já pulou a trava de
+// precisaComprarPlano (ver POST /entrar/:contatoId), então o "presente" é
+// literal: plataforma liberada + leads normais desde já, sem pagar nada.
+// Campanha "leads garantidos" sem afiliado continua com o texto genérico.
+// Escopo de módulo (fora de qualquer if) porque tanto o banner quanto o
+// botão "Receber meu presente" mais abaixo precisam dele.
+const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano === false;
 %>
 <% if (!_afiliadoSimples) { %>
 <% if (locals.completarPerfil) {
@@ -143,7 +151,48 @@ const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
   if (!user.email) _faltando.push('e-mail');
   if (!user.lat || !user.lng) _faltando.push('localização');
 %>
+<% if (_bemvindoPresenteAfiliado) { %>
+<!-- CELEBRAÇÃO DE BOAS-VINDAS (campanha "Dia do Corretor", ago/2026) —
+     ordem pedida: primeiro preenche os dados, DEPOIS clica "Receber meu
+     presente" (botão do form muda de texto só nesse estado) — só então
+     aparece o overlay com bexiga subindo + parabéns. Fica escondido por
+     padrão (display:none), o JS do submit (mais abaixo, junto do
+     autosave) que mostra na hora certa. CSS puro (sem lib externa), leve
+     o bastante pra rodar liso até em celular fraco. -->
+<style>
+  #pf-celebra-overlay{display:none;position:fixed;inset:0;background:linear-gradient(160deg,#FF385C,#FC642D);z-index:9999;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;text-align:center;padding:24px}
+  #pf-celebra-overlay.pf-celebra-ativo{display:flex}
+  #pf-celebra-overlay.pf-celebra-sumindo{animation:pf-celebra-sumir .5s ease forwards}
+  #pf-celebra-overlay .pf-baloes{position:absolute;inset:0;pointer-events:none}
+  #pf-celebra-overlay .pf-balao{position:absolute;bottom:-80px;font-size:40px;animation:pf-balao-subir 3.6s ease-in forwards}
+  #pf-celebra-overlay .pf-conteudo{position:relative;z-index:2;color:#fff;animation:pf-conteudo-entra .5s ease}
+  #pf-celebra-overlay h2{font-size:26px;margin:0 0 10px;font-weight:800}
+  #pf-celebra-overlay p{font-size:15px;margin:0;opacity:.95;max-width:340px}
+  @keyframes pf-balao-subir{0%{transform:translateY(0) rotate(0deg);opacity:0}8%{opacity:1}100%{transform:translateY(-115vh) rotate(12deg);opacity:1}}
+  @keyframes pf-conteudo-entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pf-celebra-sumir{to{opacity:0;visibility:hidden}}
+  @media (prefers-reduced-motion: reduce){
+    #pf-celebra-overlay .pf-balao,#pf-celebra-overlay .pf-conteudo{animation-duration:.01s !important}
+  }
+</style>
+<div id="pf-celebra-overlay">
+  <div class="pf-baloes">
+    <% const _baloesEmoji=['🎈','🎈','🎈','🎈','🎈','🎉']; %>
+    <% for(let i=0;i<14;i++){ %>
+    <span class="pf-balao" style="left:<%= Math.round(Math.random()*94) %>%;animation-delay:<%= (Math.random()*1.2).toFixed(2) %>s;font-size:<%= 28+Math.round(Math.random()*26) %>px"><%= _baloesEmoji[i % _baloesEmoji.length] %></span>
+    <% } %>
+  </div>
+  <div class="pf-conteudo">
+    <h2>🎉 Parabéns pelo Dia do Corretor!</h2>
+    <p>Aqui está o seu presente: plataforma liberada + até 30 leads de bônus.</p>
+  </div>
+</div>
+<% } %>
 <div class="pf-card" style="background:#111827;color:#fff;border:none">
+  <% if (_bemvindoPresenteAfiliado) { %>
+  <p class="pf-card-title" style="color:#fff">🎉 Feliz Dia do Corretor!</p>
+  <p class="pf-card-sub" style="color:#d1d5db">Termine seu cadastro e receba agora seu presente: plataforma liberada e até <strong>30 leads de bônus</strong>, sem precisar contratar nada.</p>
+  <% } else { %>
   <p class="pf-card-title" style="color:#fff">👋 <%= locals.bemvindo ? 'Bem-vindo(a) à MatchImóveis!' : 'Complete seu perfil pra continuar' %></p>
   <p class="pf-card-sub" style="color:#d1d5db">
     <% if (_faltando.length) { %>
@@ -152,6 +201,7 @@ const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
       Quase lá — salve as alterações abaixo pra liberar o restante da plataforma.
     <% } %>
   </p>
+  <% } %>
   <% if (locals.senhaInicial) { %>
     <div style="background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:8px;padding:12px 14px;margin-top:8px">
       <p style="margin:0 0 4px;font-size:12px;color:#d1d5db">Sua senha inicial de acesso (anote ou troque abaixo):</p>
@@ -240,7 +290,7 @@ const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
       </div>
       <% } %>
     </div>
-    <button class="pf-btn" type="submit">Salvar perfil</button>
+    <button class="pf-btn" type="submit" id="pf-btn-salvar-perfil"><%= _bemvindoPresenteAfiliado ? '🎁 Receber meu presente' : 'Salvar perfil' %></button>
   </form>
 </div>
 <% if (!_afiliadoSimples) { %><script src="/area-atuacao-widget.js"></script><% } %>
@@ -280,6 +330,7 @@ const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
   // em "Salvar perfil". Se isso completar os requisitos obrigatórios (nome
   // trocado + e-mail + localização) de uma conta ainda em onboarding, recarrega
   // a página pra liberar o próximo passo (contratar combo).
+  const _bemvindoPresenteAfiliado = <%- JSON.stringify(!!_bemvindoPresenteAfiliado) %>;
   form.querySelectorAll('input:not([readonly])').forEach(inp => {
     inp.addEventListener('input', () => {
       clearTimeout(timer);
@@ -292,7 +343,11 @@ const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
           await fetch('/app/perfil', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
           status.textContent = '✓ Salvo automaticamente';
           status.style.color = '#15803d';
-          if (!_perfilCompletoAntes) {
+          // No fluxo do presente (campanha com afiliado), NÃO recarrega
+          // sozinho aqui — quem dispara a celebração + recarrega é o clique
+          // em "🎁 Receber meu presente" (listener de submit abaixo), pra
+          // bexiga só subir depois que a pessoa clicar, não no meio de digitar.
+          if (!_perfilCompletoAntes && !_bemvindoPresenteAfiliado) {
             const nomeAgora = form.querySelector('[name="nome"]').value.trim();
             const emailAgora = form.querySelector('[name="email"]').value.trim();
             if (nomeAgora && nomeAgora !== _nomeImportado && nomeAgora.length >= 3 && emailAgora && _temLocalizacao) {
@@ -305,6 +360,42 @@ const _afiliadoSimples = !!(user && user.afiliadoRestrito === true);
       }, 900);
     });
   });
+
+  // Botão "🎁 Receber meu presente" — salva, mostra a celebração (bexiga
+  // subindo + parabéns) e só DEPOIS recarrega a página, revelando o
+  // formulário/fluxo normal por baixo já liberado.
+  if (_bemvindoPresenteAfiliado) {
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      // Área de atuação (onde ele quer RECEBER lead) é diferente da
+      // localização atual (capturada sozinha em segundo plano, pro mapa) —
+      // sem a área preenchida o job de distribuição de lead por região não
+      // tem pra onde mandar, e a promessa dos 30 leads não se cumpre.
+      // Obrigatória só nesse fluxo do presente (perfil comum continua sem
+      // travar por isso).
+      const _areaEstado = document.getElementById('pfAreaAtuacaoEstadoHidden')?.value || '';
+      const _areaCidades = document.getElementById('pfAreaAtuacaoCidadesHidden')?.value || '[]';
+      let _temCidade = false;
+      try { _temCidade = JSON.parse(_areaCidades).length > 0; } catch(e) {}
+      if (!_areaEstado || !_temCidade) {
+        alert('Antes de receber seu presente, escolhe pelo menos o estado e 1 cidade onde você quer receber os leads.');
+        document.getElementById('pfAreaEstadoInput')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      const btn = document.getElementById('pf-btn-salvar-perfil');
+      btn.disabled = true;
+      try {
+        const params = new URLSearchParams(new FormData(form));
+        await fetch('/app/perfil', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+      } catch(e) {}
+      const overlay = document.getElementById('pf-celebra-overlay');
+      if (overlay) {
+        overlay.classList.add('pf-celebra-ativo');
+        setTimeout(() => overlay.classList.add('pf-celebra-sumindo'), 3200);
+      }
+      setTimeout(() => location.reload(), overlay ? 3700 : 0);
+    });
+  }
 })();
 </script>
 

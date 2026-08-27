@@ -4766,13 +4766,14 @@ app.get('/entrar/:contatoId', async (req, res) => {
       const senhaHash = await bcrypt.hash(senhaGerada, 10);
       const { buscarCampanha: _buscarCampanhaEntrar } = require('./services/salvarDisparo');
       const _campanhaEntrar = await _buscarCampanhaEntrar(contato.campanha_id).catch(() => null);
+      const { BONUS_CADASTRO: _bonusCadEntrar } = require('./services/creditos');
       user = {
         id: codigo,
         nome: contato.nome || '',
         telefone, celular: telefone,
         email: '', tipo: 'corretor', ativo: true,
         codigoUsuario: codigo, senha: senhaHash,
-        matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
+        matchCoins: _bonusCadEntrar, matchCoinsTotal: _bonusCadEntrar, matchCoinsBonusInicial: _bonusCadEntrar,
         origemCadastro: 'campanha_' + (_campanhaEntrar?.nome_campanha || 'leads_garantidos'),
         // Nome vindo da planilha é só provisório (ex: "Teste 1") — obriga
         // trocar por um nome de verdade, junto com e-mail e localização,
@@ -4808,6 +4809,27 @@ app.get('/entrar/:contatoId', async (req, res) => {
       await _salvarEntrar(user);
       req.session.senhaInicialTemp = senhaGerada;
       console.log('[ENTRAR] conta criada via', user.origemCadastro, ':', codigo, '| tel:', telefone, '| atendente:', _adminAtendente?.usuario || _afiliadoAtendente?.codigoUsuario || '(nenhum)');
+      // Bônus pro afiliado dono do disparo (mesma regra do cadastro manual
+      // via link — POST /login — achado ago/2026 revisando o fluxo da
+      // campanha "Dia do Corretor": essa rota nunca chamava esse bônus, só
+      // o cadastro manual chamava; sem isso o Bruno não recebia nada por
+      // essa campanha específica de WhatsApp). Valor: BONUS_INDICACAO
+      // (services/creditos.js) — 300 baixado pra 100 em ago/2026.
+      if (_afiliadoAtendente) {
+        const { BONUS_INDICACAO: _bonusIndEntrar } = require('./services/creditos');
+        const _codIndicadorEntrar = _afiliadoAtendente.codigoUsuario || _afiliadoAtendente.id;
+        adicionarCreditos(_codIndicadorEntrar, _bonusIndEntrar, 'bonus_indicacao_cadastro').catch(e=>console.error('[bonus-indicador-cadastro-entrar]', e.message));
+        if (_cacheUsuarios) { const _uiIndicadorEntrar = _cacheUsuarios.findIndex(u => (u.codigoUsuario||u.id) === _codIndicadorEntrar); if (_uiIndicadorEntrar >= 0) { _cacheUsuarios[_uiIndicadorEntrar].matchCoins = (_cacheUsuarios[_uiIndicadorEntrar].matchCoins||0) + _bonusIndEntrar; } }
+        criarNotificacaoService({
+          id: Date.now().toString() + '_indica_cadastro_entrar',
+          tipo: 'indicacao_cadastro',
+          titulo: '🎉 Indicação deu certo!',
+          mensagem: (user.nome || 'Alguém') + ' se cadastrou pelo seu disparo — você ganhou ' + _bonusIndEntrar + ' coins na hora.',
+          usuarioId: _codIndicadorEntrar,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      }
       (async () => {
         try {
           const _linhaAtendente = _adminAtendente ? `\n🙋 *Atendente:* ${_adminAtendente.nome || _adminAtendente.usuario}` : '';
@@ -4911,6 +4933,7 @@ app.post('/login', async (req,res)=>{
       .filter(p => p.cidade && p.bairro)
       .slice(0, 200);
 
+    const { BONUS_CADASTRO: _bonusCadNovo } = require('./services/creditos');
     const novo = {
       id: _codigoNovo,
       nome: req.body.nome,
@@ -4921,9 +4944,9 @@ app.post('/login', async (req,res)=>{
       ativo: true,
       codigoUsuario: _codigoNovo,
       senha: _senhaCadastroHash,
-      matchCoins: 1000,
-      matchCoinsTotal: 1000,
-      matchCoinsBonusInicial: 1000,
+      matchCoins: _bonusCadNovo,
+      matchCoinsTotal: _bonusCadNovo,
+      matchCoinsBonusInicial: _bonusCadNovo,
       regioesAtuacao: _regioesCadastro,
       areaAtuacaoEstado: _areaEstadoCadastro,
       areaAtuacaoCidades: _areaCidadesCadastro,
@@ -4976,23 +4999,26 @@ app.post('/login', async (req,res)=>{
       if (_cacheUsuarios) { const _uiNovoRef = _cacheUsuarios.findIndex(u => u.id === novo.codigoUsuario); if (_uiNovoRef >= 0) { _cacheUsuarios[_uiNovoRef].matchCoins = (_cacheUsuarios[_uiNovoRef].matchCoins||0) + 500; } }
     }
 
-    // Bônus de 300 coins pro INDICADOR, na hora do cadastro do indicado —
-    // pedido do Renato (ago/2026), separado da comissão de compra que já
-    // existia (essa continua igual, só na recarga, ver _processarBonusIndicacao).
+    // Bônus pro INDICADOR, na hora do cadastro do indicado — pedido do
+    // Renato (ago/2026), separado da comissão de compra que já existia
+    // (essa continua igual, só na recarga, ver _processarBonusIndicacao).
     // Só corretor-indica-corretor (_indicador) — o fluxo de sub-admin
     // (_adminIndicador) já tem sua própria comissão de 1ª compra, não ganha
     // esse bônus extra de cadastro. Creditado direto em match_coins (não
     // passa pelo ledger indicacoes_bonus/resgate — esse fica só pra comissão
     // de compra, que pode virar dinheiro; esse aqui é sempre coin, na hora).
+    // Valor: BONUS_INDICACAO (services/creditos.js) — 300 baixado pra 100
+    // em ago/2026, pedido explícito do Renato.
     if (_indicador) {
+      const { BONUS_INDICACAO: _bonusIndCadastro } = require('./services/creditos');
       const _codIndicador = _indicador.codigoUsuario || _indicador.id;
-      adicionarCreditos(_codIndicador, 300, 'bonus_indicacao_cadastro').catch(e=>console.error('[bonus-indicador-cadastro]', e.message));
-      if (_cacheUsuarios) { const _uiIndicador = _cacheUsuarios.findIndex(u => (u.codigoUsuario||u.id) === _codIndicador); if (_uiIndicador >= 0) { _cacheUsuarios[_uiIndicador].matchCoins = (_cacheUsuarios[_uiIndicador].matchCoins||0) + 300; } }
+      adicionarCreditos(_codIndicador, _bonusIndCadastro, 'bonus_indicacao_cadastro').catch(e=>console.error('[bonus-indicador-cadastro]', e.message));
+      if (_cacheUsuarios) { const _uiIndicador = _cacheUsuarios.findIndex(u => (u.codigoUsuario||u.id) === _codIndicador); if (_uiIndicador >= 0) { _cacheUsuarios[_uiIndicador].matchCoins = (_cacheUsuarios[_uiIndicador].matchCoins||0) + _bonusIndCadastro; } }
       criarNotificacaoService({
         id: Date.now().toString() + '_indica_cadastro',
         tipo: 'indicacao_cadastro',
         titulo: '🎉 Indicação deu certo!',
-        mensagem: (novo.nome || 'Alguém') + ' se cadastrou pelo seu link — você ganhou 300 coins na hora.',
+        mensagem: (novo.nome || 'Alguém') + ' se cadastrou pelo seu link — você ganhou ' + _bonusIndCadastro + ' coins na hora.',
         usuarioId: _codIndicador,
         lida: false,
         criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
@@ -7441,6 +7467,7 @@ app.get('/app/afiliados', auth, async (req, res) => {
     // antes quem convertia simplesmente sumia da lista; agora fica visível
     // com o status "Cadastrou"/"Comprou", igual a tela do admin já mostra,
     // prova social de que o link tá funcionando.
+    const { BONUS_CADASTRO: _bonusCadAfiliados, BONUS_INDICACAO: _bonusIndAfiliados } = require('./services/creditos');
     const { rows: _meusContatosCampanhaRaw } = await require('./services/db').query(`
       SELECT id, nome, email, status,
         -- algumas linhas da planilha importada têm mais de um celular
@@ -7453,7 +7480,7 @@ app.get('/app/afiliados', auth, async (req, res) => {
         ), ',', 1) AS celular,
         aberto_em, clicado_em, wa_manual_enviado_em, atendido_em,
         (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
-        COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou,
+        COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > ${_bonusCadAfiliados} AS comprou,
         -- campanha_tracking grava 1 linha POR clique de verdade (não é
         -- COALESCE-só-1x como clicado_em) — dá pra contar quantas vezes a
         -- pessoa voltou a clicar em qualquer e-mail (principal + follow-ups).
@@ -7493,7 +7520,8 @@ app.get('/app/afiliados', auth, async (req, res) => {
         faltaProximoNivel,
         comissaoTabela: _COMISSAO_AFILIADO,
         promocao: _PROMOCAO_AFILIADO,
-        contatosCampanha: meusContatosCampanha
+        contatosCampanha: meusContatosCampanha,
+        bonusIndicacao: _bonusIndAfiliados
       }
     });
   } catch(e) {
@@ -14942,8 +14970,8 @@ function _afiliadosNivel1() {
 // 3, só muda o campo `tipo`), complementando estagioContatoCampanha()
 // (que só cobre quem ainda não tem conta). 3 estágios, nessa ordem de
 // prioridade:
-//   cliente   — já comprou de verdade (match_coins_total > 1000, passou do
-//               bônus de boas-vindas)
+//   cliente   — já comprou de verdade (match_coins_total > BONUS_CADASTRO,
+//               passou do bônus de boas-vindas — 5.000, ver services/creditos.js)
 //   ativado   — tem conta e já usou o produto de verdade (XML importado,
 //               1º imóvel cadastrado ou 1ª lead manual) mas ainda não
 //               comprou — sinal de "product-qualified", mesmos campos que
@@ -14966,7 +14994,8 @@ function _indexarContagemPorUsuario(lista) {
   return mapa;
 }
 function _estagioConta(usuario, imoveisCount, leadsCount) {
-  if (Number(usuario.matchCoinsTotal || usuario.match_coins_total || 0) > 1000) return 'cliente';
+  const { BONUS_CADASTRO: _bonusCadEstagio } = require('./services/creditos');
+  if (Number(usuario.matchCoinsTotal || usuario.match_coins_total || 0) > _bonusCadEstagio) return 'cliente';
   const ativado = !!(usuario.xmlUrl || usuario.xml_url) || (imoveisCount > 0) || (leadsCount > 0);
   return ativado ? 'ativado' : 'convertido';
 }
@@ -15100,10 +15129,11 @@ app.get('/api/indicacao/lembrete', auth, async (req, res) => {
     const saldo = Number(user.matchCoins || 0);
     const saldoBaixo = saldo <= 200;
     const link = 'https://www.matchimoveis.ia.br/?ref=' + codigo;
+    const { BONUS_INDICACAO: _bonusIndLembrete } = require('./services/creditos');
     const mensagem = saldoBaixo
-      ? 'Seus créditos estão acabando — indique um corretor amigo e ganhe 300 coins na hora pra continuar usando a plataforma.'
-      : 'Indique um corretor amigo pro MatchImóveis e ganhe 300 coins na hora assim que ele se cadastrar.';
-    const textoWhats = 'Oi! Conheça a MatchImóveis — plataforma que cruza automaticamente leads com os imóveis certos pra corretores e imobiliárias, sem mensalidade. Cadastro é grátis e já vem com créditos de bônus. Ah, e eu ganho 300 coins assim que você se cadastrar por esse link, então já ajuda de graça 🙂: ' + link;
+      ? `Seus créditos estão acabando — indique um corretor amigo e ganhe ${_bonusIndLembrete} coins na hora pra continuar usando a plataforma.`
+      : `Indique um corretor amigo pro MatchImóveis e ganhe ${_bonusIndLembrete} coins na hora assim que ele se cadastrar.`;
+    const textoWhats = `Oi! Conheça a MatchImóveis — plataforma que cruza automaticamente leads com os imóveis certos pra corretores e imobiliárias, sem mensalidade. Cadastro é grátis e já vem com créditos de bônus. Ah, e eu ganho ${_bonusIndLembrete} coins assim que você se cadastrar por esse link, então já ajuda de graça 🙂: ` + link;
     res.json({ ok: true, saldoBaixo, link, mensagem, textoWhats });
   } catch (e) {
     console.error('[api/indicacao/lembrete]', e.message);
@@ -22243,10 +22273,11 @@ async function _criarContaDemanda({ nome, email, celular, tipoConta, cpf, senha,
   const _areaAtDemanda = (areaAtuacaoEstado && String(areaAtuacaoEstado).trim())
     ? { estado: String(areaAtuacaoEstado).trim(), cidades: _areaCidadesDemanda, bairros: _areaBairrosDemanda }
     : _areaAtuacaoDeCriterios(criterios);
+  const { BONUS_CADASTRO: _bonusCadDemanda } = require('./services/creditos');
   const novo = {
     id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal, cpf: cpfVal,
     tipo: ['corretor', 'imobiliaria', 'construtor'].includes(tipoConta) ? tipoConta : 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
-    matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
+    matchCoins: _bonusCadDemanda, matchCoinsTotal: _bonusCadDemanda, matchCoinsBonusInicial: _bonusCadDemanda,
     regiaoInteresse: _regiaoInteresseDeCriterios(criterios),
     areaAtuacaoEstado: _areaAtDemanda.estado,
     areaAtuacaoCidades: _areaAtDemanda.cidades,
@@ -23186,7 +23217,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     if(status === 'abriu'){ where += ` AND aberto_em IS NOT NULL`; }
     else if(status === 'clicou'){ where += ` AND clicado_em IS NOT NULL`; }
     else if(status === 'cadastrou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')`; }
-    else if(status === 'comprou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE COALESCE(match_coins_total,0) > 1000)`; }
+    else if(status === 'comprou'){ const { BONUS_CADASTRO: _bonusCadStatus } = require('./services/creditos'); where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE COALESCE(match_coins_total,0) > ${_bonusCadStatus})`; }
     else if(status === 'followup1'){ where += ` AND followup1_enviado_em IS NOT NULL`; }
     else if(status === 'followup2'){ where += ` AND followup2_enviado_em IS NOT NULL`; }
     else if(status === 'followup3'){ where += ` AND followup3_enviado_em IS NOT NULL`; }
@@ -23195,13 +23226,15 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     params.push(_CAMPANHA_TAMANHO_PAGINA); params.push(offset);
     // "comprou": não tem sinal direto de compra de combo, então usa como
     // proxy o saldo total (match_coins_total) passar do bônus de boas-vindas
-    // (1000) — se passou, recarregou em algum momento (ver conversa jul/2026,
-    // decidido usar esse critério em vez de cruzar com Mercado Pago por ora).
+    // (BONUS_CADASTRO, services/creditos.js — 5.000, era 1.000) — se passou,
+    // recarregou em algum momento (ver conversa jul/2026, decidido usar esse
+    // critério em vez de cruzar com Mercado Pago por ora).
     // "celular": se o contato virou usuário cadastrado, mostra o celular DA
     // CONTA (sempre o mais atual, lido ao vivo) em vez do celular importado
     // na planilha original — a planilha pode estar desatualizada, mas o
     // e-mail nunca muda, então é o vínculo confiável pra achar o celular
     // certo. Sem conta cadastrada com celular preenchido, mantém o da planilha.
+    const { BONUS_CADASTRO: _bonusCadContatos } = require('./services/creditos');
     const { rows } = await require('./services/db').query(`SELECT id,nome,email,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
       followup1_enviado_em,followup2_enviado_em,followup3_enviado_em,
       atendido_por,atendido_por_nome,atendido_por_cor,atendido_em,wa_manual_enviado_em,
@@ -23210,7 +23243,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
         campanha_contatos.celular
       ) AS celular,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
-      COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
+      COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > ${_bonusCadContatos} AS comprou
       FROM campanha_contatos ${where}
       -- Quem já recebeu o WhatsApp manual (wa_manual_enviado_em) desce pro
       -- final da lista — critério de ordenação MAIS externo, na frente até
@@ -23226,7 +23259,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
           (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
           campanha_contatos.celular
         ) <> ''
-        AND NOT (COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000)
+        AND NOT (COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > ${_bonusCadContatos})
         AND (
           (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != ''))
           OR clicado_em IS NOT NULL OR aberto_em IS NOT NULL

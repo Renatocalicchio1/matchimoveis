@@ -4,6 +4,27 @@
  */
 const { lerUsuarios, salvarTodosUsuarios } = require('./salvarUsuario');
 
+// Bônus de boas-vindas de toda conta nova — subiu de 1.000 pra 5.000
+// (ago/2026, pedido do Renato: "vamos subir pra 5000"). Usado em 2 sentidos
+// nos vários pontos de cadastro (server.js): (1) o valor em si, dado na
+// criação da conta; (2) o limiar "match_coins_total > BONUS_CADASTRO" usado
+// em vários lugares (funil de conta, filtros do admin, e-mail de reengajamento,
+// follow-up 3 de campanha) pra distinguir quem só tem o bônus de quem já
+// comprou de verdade — os dois sentidos têm que usar a MESMA constante,
+// senão toda conta nova passa a contar como "já comprou" sem nunca ter pago
+// nada (achado nessa mudança: eram ~10 lugares com o número 1000 espalhado).
+const BONUS_CADASTRO = 5000;
+
+// Bônus instantâneo pro afiliado/indicador quando alguém se cadastra pelo
+// link dele — baixou de 300 pra 100 (ago/2026, pedido do Renato: "os
+// afiliados ganham 100 créditos quando alguém novo se cadastrar e não mais
+// 300"). Constante única porque o mesmo valor aparece em 2 lugares
+// funcionais (POST /login e /entrar/:contatoId, ambos chamam
+// adicionarCreditos + atualizam o cache em memória) e em 4 textos de copy
+// (notificação de indicação nas duas rotas, mensagem de /api/indicacao/lembrete,
+// texto de compartilhar WhatsApp em app-afiliados.ejs).
+const BONUS_INDICACAO = 100;
+
 // Valores ajustados conforme tabela "Como seus créditos são usados" (ago/2026)
 const CUSTO = {
   cadastrar_imovel:       10,
@@ -334,4 +355,4 @@ async function saldo(userId) {
   } catch(e) { return 0; }
 }
 
-module.exports = { consumir, consumirLote, adicionarCreditos, debitarCreditos, temSaldo, saldo, CUSTO, _desconectarWhatsappSeZerado, desconectarWhatsappContasSemCredito };
+module.exports = { consumir, consumirLote, adicionarCreditos, debitarCreditos, temSaldo, saldo, CUSTO, BONUS_CADASTRO, BONUS_INDICACAO, _desconectarWhatsappSeZerado, desconectarWhatsappContasSemCredito };

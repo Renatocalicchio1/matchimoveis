@@ -1217,13 +1217,14 @@ async function proximoFollowup3() {
   await _garantirColunas();
   // Gatilho é o cadastro em si (usuarios.criado_em), não o e-mail original —
   // por isso o JOIN em vez de olhar só campanha_contatos.
+  const { BONUS_CADASTRO } = require('./creditos');
   const { rows } = await query(`
     SELECT cc.id, cc.nome, cc.email, cc.celular FROM campanha_contatos cc
     JOIN usuarios u ON LOWER(u.email) = LOWER(cc.email)
     WHERE u.criado_em <= NOW() - INTERVAL '24 hours'
       AND cc.followup3_enviado_em IS NULL
       AND COALESCE(cc.followup3_tentativas, 0) < 3
-      AND COALESCE(u.match_coins_total, 0) <= 1000
+      AND COALESCE(u.match_coins_total, 0) <= ${BONUS_CADASTRO}
     ORDER BY u.criado_em ASC LIMIT 1
   `);
   return rows[0] || null;

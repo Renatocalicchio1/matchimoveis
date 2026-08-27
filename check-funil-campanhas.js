@@ -6,6 +6,7 @@
 // se o buraco é "abriu mas não clicou" (problema de copy/CTA do e-mail) ou
 // "clicou mas não cadastrou" (problema de fricção no formulário/página).
 const { query, dbOk } = require('./services/db');
+const { BONUS_CADASTRO } = require('./services/creditos');
 
 function _pct(n, base) { return base > 0 ? (n / base * 100).toFixed(1) + '%' : '—'; }
 
@@ -37,7 +38,7 @@ function _imprimeFunil(titulo, etapas) {
       COUNT(*) FILTER (WHERE aberto_em IS NOT NULL)::int AS abertos,
       COUNT(*) FILTER (WHERE clicado_em IS NOT NULL)::int AS clicados,
       COUNT(*) FILTER (WHERE LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != ''))::int AS cadastrados,
-      COUNT(*) FILTER (WHERE LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE COALESCE(match_coins_total,0) > 1000))::int AS comprados,
+      COUNT(*) FILTER (WHERE LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE COALESCE(match_coins_total,0) > ${BONUS_CADASTRO}))::int AS comprados,
       COUNT(*) FILTER (WHERE wa_manual_enviado_em IS NOT NULL)::int AS wa_manual_enviado
     FROM campanha_contatos
   `);

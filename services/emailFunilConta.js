@@ -81,6 +81,7 @@ function _varianteDeterministica(lista, codigo) {
 // de server.js.
 async function enviarEmailFunilConta() {
   try {
+    const { BONUS_CADASTRO } = require('./creditos');
     const { rows } = await query(`
       SELECT u.codigo_usuario, u.nome, u.email, u.xml_url,
         COALESCE(im.cnt, 0) AS imoveis_count,
@@ -97,7 +98,7 @@ async function enviarEmailFunilConta() {
       WHERE u.email IS NOT NULL AND u.email != '' AND u.ativo = true
         AND COALESCE((u.dados->>'emailOptOut')::boolean, false) = false
         AND COALESCE((u.dados->>'afiliadoRestrito')::boolean, false) = false
-        AND COALESCE(u.match_coins_total, 0) <= 1000
+        AND COALESCE(u.match_coins_total, 0) <= ${BONUS_CADASTRO}
         AND (u.dados->>'nudgeFunilEnviadoEm' IS NULL OR (u.dados->>'nudgeFunilEnviadoEm')::timestamp <= NOW() - INTERVAL '7 days')
       ORDER BY u.criado_em ASC
       LIMIT 500

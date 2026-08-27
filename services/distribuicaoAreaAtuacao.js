@@ -19,10 +19,13 @@
  * explícito do Renato: "5 leads pra cada conta, pelo menos 3x no dia". Antes
  * rodava 1x/dia (4h) com teto DIÁRIO de 3 (bairro) ou 2 (cidade, em lotes de
  * 2). Agora roda em 3+ horários espalhados no dia (HORARIOS_RODADA_BR) e
- * cada RODADA entrega até TETO_POR_RODADA (5) pra cada conta elegível —
+ * cada RODADA entrega até TETO_POR_RODADA (2) pra cada conta elegível —
  * teto por rodada, não mais por dia, então uma conta pode chegar a
- * HORARIOS_RODADA_BR.length × 5 no dia (hoje: 3×5=15). Bairro e cidade
+ * HORARIOS_RODADA_BR.length × 2 no dia (hoje: 3×2=6). Bairro e cidade
  * unificados no mesmo teto (antes eram números diferentes, 3 e 2).
+ * ago/2026 (3ª mudança): pedido explícito do Renato pra baixar de 5 pra 2
+ * leads por rodada ("vamos baixar para duas leads por distribuição") —
+ * TETO_POR_RODADA 5 → 2, cadência de 3x/dia mantida.
  *
  * Regras (definidas com o Renato, ago/2026):
  * - Só interessados com até 7 dias (hoje - 7 dias).
@@ -174,7 +177,7 @@ async function _mapaJaAtribuidos() {
 // por conta serve pros dois tiers, sem precisar marcar de qual tier veio.
 // Máximo de contas que recebem a mesma lead (esse sim é por SEMPRE, não por
 // rodada — ver _mapaJaAtribuidos): 2 (bairro + cidade somados).
-const TETO_POR_RODADA = 5;
+const TETO_POR_RODADA = 2;
 const MAX_CONTAS_POR_LEAD = 2;
 
 // Mesmo mapeamento pra Nome/Telefone/Email/Tipo/Cidade/etc (chaves
@@ -226,7 +229,7 @@ async function distribuirLeadsPorArea() {
     if (!candidatosBairro.length && !candidatosCidade.length) continue;
 
     // Tier bairro — 1 passada por todos os interessados da região, com teto
-    // de TETO_POR_RODADA (5) por conta nessa rodada, além do teto de
+    // de TETO_POR_RODADA (2) por conta nessa rodada, além do teto de
     // MAX_CONTAS_POR_LEAD (2) contas/lead e do saldo do corretor.
     for (const it of lista) {
       const bairroN = _norm(it.bairro);
@@ -248,7 +251,7 @@ async function distribuirLeadsPorArea() {
     // passadas enquanto alguém ainda receber algo (evita loop infinito quando
     // ninguém mais pode receber — sem saldo, ou interessados todos com
     // MAX_CONTAS_POR_LEAD contas, ou já recebidos por todo mundo, ou teto
-    // de TETO_POR_RODADA (5) dessa rodada batido).
+    // de TETO_POR_RODADA (2) dessa rodada batido).
     if (candidatosCidade.length) {
       let mudouAlgumaCoisa = true;
       while (mudouAlgumaCoisa) {

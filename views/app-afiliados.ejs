@@ -376,19 +376,43 @@ async function afAceitarContrato(){
   <h3 style="margin-top:0">Inbox — WhatsApp oficial</h3>
   <p style="font-size:12.5px;color:#6b7280;margin-top:-8px">Contatos de campanha de disparo oficial vinculados a você. Só dá pra conversar livremente com quem já te respondeu pelo menos 1x (regra do WhatsApp oficial: a janela de texto livre só abre depois que a pessoa fala primeiro).</p>
   <div id="af-inbox-carregando" style="padding:20px 0;color:#6b7280;font-size:13px">Carregando...</div>
-  <div id="af-inbox-corpo" style="display:none;gap:16px;align-items:flex-start" >
-    <div style="flex:1;min-width:220px;max-height:520px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:10px">
-      <div id="af-inbox-lista"></div>
+  <div id="af-inbox-corpo" style="display:none;gap:16px;align-items:flex-start">
+    <div style="flex:1;min-width:220px">
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <input type="text" id="af-inbox-busca" placeholder="Buscar nome ou telefone..." oninput="afInboxFiltrar()" style="flex:1;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:12.5px">
+        <select id="af-inbox-filtro-status" onchange="afInboxFiltrar()" style="padding:8px 6px;border:1px solid #d1d5db;border-radius:8px;font-size:12px;max-width:118px">
+          <option value="">Todos</option>
+          <option value="comprou">💰 Comprou</option>
+          <option value="cadastrou">✅ Cadastrou</option>
+          <option value="aguardando">⏳ Aguardando</option>
+          <option value="excluido">🚫 Bloqueado</option>
+        </select>
+      </div>
+      <div style="max-height:480px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:10px">
+        <div id="af-inbox-lista"></div>
+        <p id="af-inbox-lista-vazia" style="display:none;padding:16px;color:#9ca3af;font-size:12.5px;text-align:center">Nenhum contato bate com esse filtro.</p>
+      </div>
     </div>
     <div style="flex:2;min-width:260px;border:1px solid #e5e7eb;border-radius:10px;display:flex;flex-direction:column;height:520px">
-      <div id="af-inbox-thread-header" style="padding:12px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:700;color:#111827">Selecione uma conversa</div>
+      <div id="af-inbox-thread-header" style="padding:12px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:700;color:#111827;display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <span id="af-inbox-thread-titulo" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Selecione uma conversa</span>
+        <span id="af-inbox-thread-acoes" style="display:none;gap:10px;font-size:11px;font-weight:600;flex-shrink:0">
+          <button type="button" onclick="afInboxBloquear()" style="background:none;border:none;color:#b45309;cursor:pointer;font-size:11px;padding:0">🚫 Bloquear</button>
+          <button type="button" onclick="afInboxExcluir()" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:11px;padding:0">🗑️ Excluir</button>
+        </span>
+      </div>
       <div id="af-inbox-thread" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px"></div>
       <div id="af-inbox-reply-bloqueado" style="display:none;padding:10px 14px;font-size:12px;color:#b45309;background:#fffbeb;border-top:1px solid #fde68a">⏳ Aguardando essa pessoa responder — sem isso não dá pra mandar texto livre (regra do WhatsApp oficial).</div>
-      <div id="af-inbox-reply-box" style="display:none;padding:10px;border-top:1px solid #e5e7eb;gap:6px">
-        <div style="display:flex;gap:6px">
-          <input type="text" id="af-inbox-reply-texto" placeholder="Escreva sua resposta..." style="flex:1;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
+      <div id="af-inbox-reply-box" style="display:none;padding:10px;border-top:1px solid #e5e7eb">
+        <div id="af-inbox-rapidas" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="text" id="af-inbox-reply-texto" placeholder="Escreva sua resposta... (Enter envia)" onkeydown="if(event.key==='Enter'){afInboxResponder();}" style="flex:1;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
+          <button type="button" id="af-inbox-btn-gravar" onclick="afInboxAlternarGravacao()" title="Gravar áudio" style="background:#fff;border:1px solid #d1d5db;color:#374151;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:14px">🎤</button>
+          <button type="button" onclick="document.getElementById('af-inbox-arquivo-audio').click()" title="Enviar arquivo de áudio" style="background:#fff;border:1px solid #d1d5db;color:#374151;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:14px">📎</button>
+          <input type="file" id="af-inbox-arquivo-audio" accept="audio/*" style="display:none" onchange="afInboxEnviarArquivoAudio(this.files[0])">
           <button type="button" onclick="afInboxResponder()" style="background:#111827;color:#fff;border:none;padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer">Enviar</button>
         </div>
+        <div id="af-inbox-status-audio" style="font-size:11px;color:#6b7280;margin-top:4px"></div>
       </div>
     </div>
   </div>
@@ -407,109 +431,210 @@ function afTab(nome, btn){
 // ── INBOX (campanha de disparo oficial vinculada a este afiliado) ──────
 let _afInboxCarregado = false;
 let _afInboxTelefoneAtivo = null;
+let _afInboxNomeAtivo = '';
+let _afInboxUltimaData = null;
+let _afInboxPollTimer = null;
+let _afInboxConversas = [];
+let _afInboxAguardando = [];
 function _afEscHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _afLinkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:inherit;text-decoration:underline">$1</a>'); }
+// Respostas rápidas — clicar já manda na hora (pedido explícito do Renato:
+// "quero que quando Bruno responde já vai a msg clicando"). Textos pensados
+// pro momento certo da campanha "Dia do Corretor" (link já mandado, dúvida
+// mais comum é "como acesso"/"funcionou?").
+const AF_INBOX_RESPOSTAS_RAPIDAS = [
+  'Oi! Tudo bem? 😊',
+  'É só clicar no botão "Quero meu presente" na mensagem que você recebeu, que já libera o acesso.',
+  'Qualquer dúvida, pode me chamar aqui a qualquer hora!',
+  'Perfeito, fico à disposição 🙌'
+];
+function afInboxBadgeStatus(statusContato){
+  if (statusContato === 'comprou') return { texto: '💰 Comprou', cor: '#FC642D' };
+  if (statusContato === 'cadastrou') return { texto: '✅ Cadastrou', cor: '#00A699' };
+  if (statusContato === 'excluido') return { texto: '🚫 Bloqueado', cor: '#9ca3af' };
+  return null;
+}
 async function afInboxCarregar(){
   _afInboxCarregado = true;
   const carregando = document.getElementById('af-inbox-carregando');
   const corpo = document.getElementById('af-inbox-corpo');
   const vazio = document.getElementById('af-inbox-vazio');
-  const lista = document.getElementById('af-inbox-lista');
   try {
     const r = await fetch('/api/afiliados/inbox/lista');
     const d = await r.json();
     carregando.style.display = 'none';
-    const conversas = (d && d.conversas) || [];
-    const aguardando = (d && d.aguardando) || [];
-    if (!conversas.length && !aguardando.length) { vazio.style.display = 'block'; return; }
+    _afInboxConversas = (d && d.conversas) || [];
+    _afInboxAguardando = (d && d.aguardando) || [];
+    if (!_afInboxConversas.length && !_afInboxAguardando.length) { vazio.style.display = 'block'; return; }
     corpo.style.display = 'flex';
-    lista.innerHTML = '';
-    function afInboxBadgeStatus(statusContato){
-      if (statusContato === 'cadastrou') return { texto: '✅ Cadastrou', cor: '#00A699' };
-      if (statusContato === 'excluido') return { texto: '🚫 Excluído', cor: '#9ca3af' };
-      return null;
-    }
-    conversas.forEach(function(c){
-      const item = document.createElement('div');
-      item.style.cssText = 'padding:12px 14px;border-bottom:1px solid #f3f4f6;cursor:pointer';
-      item.onclick = function(){ afInboxAbrirConversa(c.contato_telefone, true); };
-      const nome = document.createElement('div');
-      nome.style.cssText = 'font-size:13px;font-weight:600;color:#111827';
-      nome.textContent = c.contato_nome || c.contato_telefone;
-      if (c.naoLidas) {
-        const badge = document.createElement('span');
-        badge.style.cssText = 'background:#FF385C;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:6px';
-        badge.textContent = c.naoLidas;
-        nome.appendChild(badge);
-      }
-      const statusBadge = afInboxBadgeStatus(c.statusContato);
-      if (statusBadge) {
-        const badge = document.createElement('span');
-        badge.style.cssText = 'font-size:10px;font-weight:700;margin-left:6px;color:' + statusBadge.cor;
-        badge.textContent = statusBadge.texto;
-        nome.appendChild(badge);
-      }
-      const preview = document.createElement('div');
-      preview.style.cssText = 'font-size:11.5px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-      preview.textContent = (c.direcao === 'saida' ? 'Você: ' : '') + (c.texto || '');
-      item.appendChild(nome);
-      item.appendChild(preview);
-      lista.appendChild(item);
-    });
-    aguardando.forEach(function(c){
-      const item = document.createElement('div');
-      item.style.cssText = 'padding:12px 14px;border-bottom:1px solid #f3f4f6;opacity:.6';
-      const nome = document.createElement('div');
-      nome.style.cssText = 'font-size:13px;font-weight:600;color:#111827';
-      nome.textContent = c.contato_nome || c.contato_telefone;
-      const statusBadge = afInboxBadgeStatus(c.statusContato);
-      if (statusBadge) {
-        const badge = document.createElement('span');
-        badge.style.cssText = 'font-size:10px;font-weight:700;margin-left:6px;color:' + statusBadge.cor;
-        badge.textContent = statusBadge.texto;
-        nome.appendChild(badge);
-      }
-      const preview = document.createElement('div');
-      preview.style.cssText = 'font-size:11.5px;color:#b45309;margin-top:2px';
-      preview.textContent = statusBadge ? '' : '⏳ Aguardando resposta';
-      item.appendChild(nome);
-      if (!statusBadge) item.appendChild(preview);
-      lista.appendChild(item);
-    });
+    afInboxFiltrar();
   } catch(e) {
     carregando.textContent = 'Erro ao carregar.';
   }
 }
-async function afInboxAbrirConversa(telefone, podeResponder){
+// Filtra client-side (busca por nome/telefone + status) — não recarrega do
+// servidor, só re-renderiza a partir do que já veio (_afInboxConversas/
+// _afInboxAguardando), pra ficar instantâneo digitando.
+function afInboxFiltrar(){
+  const termo = (document.getElementById('af-inbox-busca').value || '').trim().toLowerCase();
+  const filtroStatus = document.getElementById('af-inbox-filtro-status').value;
+  const lista = document.getElementById('af-inbox-lista');
+  const vaziaMsg = document.getElementById('af-inbox-lista-vazia');
+  lista.innerHTML = '';
+  const _bate = c => {
+    if (termo) {
+      const alvo = ((c.contato_nome || '') + ' ' + (c.contato_telefone || '')).toLowerCase();
+      if (alvo.indexOf(termo) === -1) return false;
+    }
+    if (filtroStatus === 'aguardando') return !!c.aguardando;
+    if (filtroStatus) return c.statusContato === filtroStatus;
+    return true;
+  };
+  const conversasF = _afInboxConversas.filter(_bate);
+  const aguardandoF = _afInboxAguardando.filter(_bate);
+  conversasF.forEach(function(c){
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:12px 14px;border-bottom:1px solid #f3f4f6;cursor:pointer' + (c.contato_telefone === _afInboxTelefoneAtivo ? ';background:#f9fafb' : '');
+    item.onclick = function(){ afInboxAbrirConversa(c.contato_telefone, c.contato_nome); };
+    const nome = document.createElement('div');
+    nome.style.cssText = 'font-size:13px;font-weight:600;color:#111827';
+    nome.textContent = c.contato_nome || c.contato_telefone;
+    if (c.naoLidas) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'background:#FF385C;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:6px';
+      badge.textContent = c.naoLidas;
+      nome.appendChild(badge);
+    }
+    const statusBadge = afInboxBadgeStatus(c.statusContato);
+    if (statusBadge) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'font-size:10px;font-weight:700;margin-left:6px;color:' + statusBadge.cor;
+      badge.textContent = statusBadge.texto;
+      nome.appendChild(badge);
+    }
+    const preview = document.createElement('div');
+    preview.style.cssText = 'font-size:11.5px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    preview.textContent = (c.direcao === 'saida' ? 'Você: ' : '') + (c.texto || '');
+    item.appendChild(nome);
+    item.appendChild(preview);
+    lista.appendChild(item);
+  });
+  aguardandoF.forEach(function(c){
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:12px 14px;border-bottom:1px solid #f3f4f6;opacity:.6';
+    const nome = document.createElement('div');
+    nome.style.cssText = 'font-size:13px;font-weight:600;color:#111827';
+    nome.textContent = c.contato_nome || c.contato_telefone;
+    const statusBadge = afInboxBadgeStatus(c.statusContato);
+    if (statusBadge) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'font-size:10px;font-weight:700;margin-left:6px;color:' + statusBadge.cor;
+      badge.textContent = statusBadge.texto;
+      nome.appendChild(badge);
+    }
+    const preview = document.createElement('div');
+    preview.style.cssText = 'font-size:11.5px;color:#b45309;margin-top:2px';
+    preview.textContent = statusBadge ? '' : '⏳ Aguardando resposta';
+    item.appendChild(nome);
+    if (!statusBadge) item.appendChild(preview);
+    lista.appendChild(item);
+  });
+  vaziaMsg.style.display = (!conversasF.length && !aguardandoF.length) ? 'block' : 'none';
+}
+function _afInboxMontarBolha(m){
+  const minha = m.direcao === 'saida';
+  let corpo;
+  if (m.tipo === 'audio' && m.midia_url) {
+    corpo = '<audio controls preload="none" src="' + m.midia_url + '" style="max-width:220px"></audio>';
+  } else if ((m.tipo === 'image' || m.tipo === 'sticker') && m.midia_url) {
+    corpo = '<img src="' + m.midia_url + '" style="max-width:200px;border-radius:8px;display:block">';
+  } else if (m.tipo === 'video' && m.midia_url) {
+    corpo = '<video controls preload="metadata" src="' + m.midia_url + '" style="max-width:200px;border-radius:8px;display:block"></video>';
+  } else if (m.tipo === 'botao') {
+    corpo = '<span style="opacity:.8;font-size:11px">🔘 clicou:</span><br>' + _afLinkify(_afEscHtml(m.texto || ''));
+  } else {
+    corpo = _afLinkify(_afEscHtml(m.texto || ''));
+  }
+  const bolha = document.createElement('div');
+  bolha.setAttribute('data-id', m.id);
+  bolha.style.cssText = 'max-width:75%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.4;' + (minha ? 'align-self:flex-end;background:#111827;color:#fff' : 'align-self:flex-start;background:#f3f4f6;color:#111827');
+  bolha.innerHTML = corpo + '<div style="font-size:10px;opacity:.65;margin-top:4px">' + (m.criado_em ? new Date(m.criado_em).toLocaleString('pt-BR') : '') + '</div>';
+  return bolha;
+}
+function _afInboxPararPoll(){
+  if (_afInboxPollTimer) { clearInterval(_afInboxPollTimer); _afInboxPollTimer = null; }
+}
+async function _afInboxChecarNovas(){
+  if (!_afInboxTelefoneAtivo) return;
+  try {
+    const r = await fetch('/api/afiliados/inbox/' + encodeURIComponent(_afInboxTelefoneAtivo) + '/novas?apos=' + encodeURIComponent(_afInboxUltimaData || new Date(0).toISOString()));
+    const novas = await r.json();
+    if (!novas || !novas.length) return;
+    const thread = document.getElementById('af-inbox-thread');
+    const pertoDoFim = thread.scrollTop + thread.clientHeight >= thread.scrollHeight - 60;
+    let temEntrada = false;
+    novas.forEach(function(m){
+      if (!thread.querySelector('[data-id="' + m.id + '"]')) thread.appendChild(_afInboxMontarBolha(m));
+      _afInboxUltimaData = m.criado_em;
+      if (m.direcao === 'entrada') temEntrada = true;
+    });
+    if (pertoDoFim) thread.scrollTop = thread.scrollHeight;
+    if (temEntrada) {
+      document.getElementById('af-inbox-reply-box').style.display = 'block';
+      document.getElementById('af-inbox-reply-bloqueado').style.display = 'none';
+    }
+  } catch(e) {}
+}
+function _afInboxRenderRapidas(){
+  const wrap = document.getElementById('af-inbox-rapidas');
+  wrap.innerHTML = '';
+  AF_INBOX_RESPOSTAS_RAPIDAS.forEach(function(texto){
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.textContent = texto.length > 32 ? texto.slice(0, 32) + '…' : texto;
+    chip.title = texto;
+    chip.style.cssText = 'background:#f3f4f6;border:1px solid #e5e7eb;color:#374151;font-size:11.5px;padding:5px 10px;border-radius:14px;cursor:pointer';
+    chip.onclick = function(){ afInboxResponder(texto); };
+    wrap.appendChild(chip);
+  });
+}
+async function afInboxAbrirConversa(telefone, nomeContato){
   _afInboxTelefoneAtivo = telefone;
-  const header = document.getElementById('af-inbox-thread-header');
+  _afInboxNomeAtivo = nomeContato || telefone;
+  _afInboxUltimaData = null;
+  _afInboxPararPoll();
+  const titulo = document.getElementById('af-inbox-thread-titulo');
+  const acoes = document.getElementById('af-inbox-thread-acoes');
   const thread = document.getElementById('af-inbox-thread');
   const replyBox = document.getElementById('af-inbox-reply-box');
   const replyBloqueado = document.getElementById('af-inbox-reply-bloqueado');
-  header.textContent = telefone;
+  titulo.textContent = _afInboxNomeAtivo + (nomeContato ? ' · ' + telefone : '');
+  acoes.style.display = 'flex';
   thread.innerHTML = '<p style="color:#9ca3af;font-size:12px">Carregando...</p>';
+  _afInboxRenderRapidas();
   try {
     const r = await fetch('/api/afiliados/inbox/' + encodeURIComponent(telefone) + '/mensagens');
     const d = await r.json();
     const mensagens = (d && d.mensagens) || [];
     thread.innerHTML = '';
     mensagens.forEach(function(m){
-      const bolha = document.createElement('div');
-      const minha = m.direcao === 'saida';
-      bolha.style.cssText = 'max-width:75%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.4;' + (minha ? 'align-self:flex-end;background:#111827;color:#fff' : 'align-self:flex-start;background:#f3f4f6;color:#111827');
-      bolha.textContent = m.texto || '';
-      thread.appendChild(bolha);
+      thread.appendChild(_afInboxMontarBolha(m));
+      _afInboxUltimaData = m.criado_em;
     });
     thread.scrollTop = thread.scrollHeight;
     const temMensagemRecebida = mensagens.some(function(m){ return m.direcao === 'entrada'; });
     replyBox.style.display = temMensagemRecebida ? 'block' : 'none';
     replyBloqueado.style.display = temMensagemRecebida ? 'none' : 'block';
+    // Fica de olho em mensagem nova enquanto essa conversa está aberta (sem
+    // precisar recarregar a página) — mesmo padrão do inbox admin.
+    _afInboxPollTimer = setInterval(_afInboxChecarNovas, 5000);
   } catch(e) {
     thread.innerHTML = '<p style="color:#dc2626;font-size:12px">Erro ao carregar mensagens.</p>';
   }
 }
-async function afInboxResponder(){
+async function afInboxResponder(textoFixo){
   const input = document.getElementById('af-inbox-reply-texto');
-  const texto = input.value.trim();
+  const texto = (typeof textoFixo === 'string' ? textoFixo : input.value).trim();
   if (!texto || !_afInboxTelefoneAtivo) return;
   input.disabled = true;
   try {
@@ -517,7 +642,9 @@ async function afInboxResponder(){
     const d = await r.json();
     if (d && d.ok) {
       input.value = '';
-      afInboxAbrirConversa(_afInboxTelefoneAtivo, true);
+      const thread = document.getElementById('af-inbox-thread');
+      thread.appendChild(_afInboxMontarBolha({ id: 'local-' + Date.now(), direcao: 'saida', tipo: 'texto', texto, criado_em: new Date().toISOString() }));
+      thread.scrollTop = thread.scrollHeight;
     } else {
       alert((d && d.erro) || 'Erro ao enviar.');
     }
@@ -526,6 +653,76 @@ async function afInboxResponder(){
   } finally {
     input.disabled = false;
   }
+}
+async function afInboxEnviarBlobAudio(blob, nomeArquivo){
+  if (!_afInboxTelefoneAtivo) return;
+  const status = document.getElementById('af-inbox-status-audio');
+  status.textContent = 'Enviando áudio...';
+  try {
+    const fd = new FormData();
+    fd.append('audio', blob, nomeArquivo || 'audio.webm');
+    const r = await fetch('/api/afiliados/inbox/' + encodeURIComponent(_afInboxTelefoneAtivo) + '/responder-audio', { method:'POST', body: fd });
+    const d = await r.json();
+    status.textContent = '';
+    if (d && d.ok) { _afInboxChecarNovas(); } else { alert((d && d.erro) || 'Erro ao enviar áudio'); }
+  } catch(e) {
+    status.textContent = '';
+    alert('Erro ao enviar áudio');
+  }
+}
+function afInboxEnviarArquivoAudio(file){
+  if (!file) return;
+  afInboxEnviarBlobAudio(file, file.name);
+}
+let _afInboxGravador = null, _afInboxChunks = [];
+async function afInboxAlternarGravacao(){
+  const btn = document.getElementById('af-inbox-btn-gravar');
+  if (_afInboxGravador && _afInboxGravador.state === 'recording') { _afInboxGravador.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mime = MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : '';
+    _afInboxGravador = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+    _afInboxChunks = [];
+    _afInboxGravador.ondataavailable = function(e){ if (e.data.size > 0) _afInboxChunks.push(e.data); };
+    _afInboxGravador.onstop = function(){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      btn.textContent = '🎤'; btn.style.background = '#fff'; btn.style.color = '#374151';
+      const blob = new Blob(_afInboxChunks, { type: _afInboxGravador.mimeType || 'audio/webm' });
+      if (blob.size > 500) afInboxEnviarBlobAudio(blob, 'gravacao.' + (blob.type.includes('ogg') ? 'ogg' : 'webm'));
+    };
+    _afInboxGravador.start();
+    btn.textContent = '⏹'; btn.style.background = '#FF385C'; btn.style.color = '#fff';
+  } catch(e) {
+    alert('Não consegui acessar o microfone: ' + e.message);
+  }
+}
+async function afInboxBloquear(){
+  if (!_afInboxTelefoneAtivo) return;
+  if (!confirm('Bloquear ' + _afInboxNomeAtivo + '? Ele não vai mais receber disparo nenhum da plataforma (mas a conversa continua aqui).')) return;
+  try {
+    const r = await fetch('/api/afiliados/inbox/' + encodeURIComponent(_afInboxTelefoneAtivo) + '/bloquear', { method:'POST' });
+    const d = await r.json();
+    if (d && d.ok) { afInboxCarregar(); } else { alert((d && d.erro) || 'Erro ao bloquear.'); }
+  } catch(e) { alert('Erro ao bloquear.'); }
+}
+async function afInboxExcluir(){
+  if (!_afInboxTelefoneAtivo) return;
+  if (!confirm('Excluir ' + _afInboxNomeAtivo + ' da sua inbox? Some da lista (o histórico de mensagens continua salvo no sistema).')) return;
+  try {
+    const r = await fetch('/api/afiliados/inbox/' + encodeURIComponent(_afInboxTelefoneAtivo) + '/excluir', { method:'POST' });
+    const d = await r.json();
+    if (d && d.ok) {
+      _afInboxPararPoll();
+      _afInboxTelefoneAtivo = null;
+      document.getElementById('af-inbox-thread-titulo').textContent = 'Selecione uma conversa';
+      document.getElementById('af-inbox-thread-acoes').style.display = 'none';
+      document.getElementById('af-inbox-thread').innerHTML = '';
+      document.getElementById('af-inbox-reply-box').style.display = 'none';
+      document.getElementById('af-inbox-reply-bloqueado').style.display = 'none';
+      afInboxCarregar();
+    } else { alert((d && d.erro) || 'Erro ao excluir.'); }
+  } catch(e) { alert('Erro ao excluir.'); }
 }
 async function afResgatar(){
   const ids = Array.from(document.querySelectorAll('.af-check-linha:checked')).map(function(c){ return c.value; });

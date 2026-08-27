@@ -333,6 +333,15 @@ const UPLOADS_AUDIO_DIR = process.env.RENDER
 fs.mkdirSync(UPLOADS_AUDIO_DIR, { recursive: true });
 app.use('/data-uploads-audio', express.static(UPLOADS_AUDIO_DIR));
 
+// Imagem/sticker/vídeo recebidos de lead no WhatsApp oficial (ago/2026) —
+// antes só áudio baixava mídia de verdade, o resto virava texto literal
+// tipo "[sticker]" sem nada pra ver — mesmo padrão de disco persistente.
+const UPLOADS_MIDIA_WA_DIR = process.env.RENDER
+  ? '/opt/render/project/src/data/uploads/whatsapp-midia'
+  : path.join(__dirname, 'public', 'uploads', 'whatsapp-midia');
+fs.mkdirSync(UPLOADS_MIDIA_WA_DIR, { recursive: true });
+app.use('/data-uploads-midia', express.static(UPLOADS_MIDIA_WA_DIR));
+
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 // ── SEGURANÇA: HELMET (headers HTTP) ─────────────────────────────────────────
@@ -7761,12 +7770,28 @@ app.get('/api/afiliados/inbox/lista', auth, async (req, res) => {
       if (t1) _telsCadastrados.add(t1);
       if (t2) _telsCadastrados.add(t2);
     });
+    // Comprou: mesmo limiar usado em todo o resto do sistema pra distinguir
+    // quem só tem o bônus de boas-vindas de quem já pagou de verdade
+    // (BONUS_CADASTRO, services/creditos.js) — pedido do Renato: "tipo quem
+    // comprou aparece também". Checado antes de "cadastrou" (é o status mais
+    // avançado, sobrepõe).
+    const { BONUS_CADASTRO: _bonusCadInboxAf } = require('./services/creditos');
+    const _telsCompraram = new Set();
+    (_cacheUsuarios || []).forEach(u => {
+      if (Number(u.matchCoinsTotal || 0) <= _bonusCadInboxAf) return;
+      const t1 = String(u.telefone || '').replace(/\D/g, '').slice(-8);
+      const t2 = String(u.celular || '').replace(/\D/g, '').slice(-8);
+      if (t1) _telsCompraram.add(t1);
+      if (t2) _telsCompraram.add(t2);
+    });
     // Excluído: clicou "Não sou corretor"/"Não tenho interesse" (opt-out
-    // global, ver POST /webhook/whatsapp-cloud).
+    // global, ver POST /webhook/whatsapp-cloud) OU o próprio afiliado
+    // bloqueou pela inbox (ver POST /api/afiliados/inbox/:telefone/bloquear).
     const _telsExcluidos = new Set(await listarOptout(meusContatos.map(c => c.telefone).filter(Boolean)));
 
     const _statusContato = telefoneCru => {
       const suf = String(telefoneCru || '').replace(/\D/g, '').slice(-8);
+      if (_telsCompraram.has(suf)) return 'comprou';
       if (_telsCadastrados.has(suf)) return 'cadastrou';
       if (_telsExcluidos.has(telefoneCru)) return 'excluido';
       return null;
@@ -7822,6 +7847,88 @@ app.post('/api/afiliados/inbox/:telefone/responder', auth, express.json(), async
     const { enviarTexto } = require('./services/metaWhatsapp');
     await enviarTexto({ telefone, texto, phoneNumberId: ultimoRecebido.phone_number_id });
     await salvarMensagem({ phoneNumberId: ultimoRecebido.phone_number_id, displayPhoneNumber: ultimoRecebido.display_phone_number, telefone, nome: ultimoRecebido.contato_nome, direcao: 'saida', tipo: 'texto', texto });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, erro: e.message });
+  }
+});
+
+// Polling de mensagens novas (mesmo padrão de /admin/whatsapp-cloud/:telefone/
+// novas) — deixa a conversa aberta "viva" sem precisar recarregar a página.
+app.get('/api/afiliados/inbox/:telefone/novas', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json([]);
+    const apos = req.query.apos || new Date(0).toISOString();
+    const { listarMensagensApos, marcarLidas } = require('./services/salvarWhatsappCloudMsg');
+    const novas = await listarMensagensApos(req.params.telefone, apos).catch(() => []);
+    if (novas.some(m => m.direcao === 'entrada')) marcarLidas(req.params.telefone).catch(() => {});
+    res.json(novas);
+  } catch (e) {
+    res.status(500).json([]);
+  }
+});
+
+// Responder com áudio (gravado na hora ou arquivo) — mesmo mecanismo de
+// /admin/whatsapp-cloud/:telefone/responder-audio, só com a checagem de
+// dono (_telefoneAfiliadoPertence) em vez de authAdmin. Multer em memória
+// direto aqui (em vez de reaproveitar _uploadAudioMem) porque essa
+// constante só é declarada bem mais abaixo no arquivo (linha ~16088) — e
+// arrow function/const não sobe (hoisting), então referenciar ela aqui em
+// cima quebraria o boot do servidor.
+app.post('/api/afiliados/inbox/:telefone/responder-audio', auth, multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } }).single('audio'), async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
+    const telefone = req.params.telefone;
+    if (!req.file) return res.status(400).json({ ok: false, erro: 'Nenhum áudio recebido' });
+    const { listarMensagens, salvarMensagem } = require('./services/salvarWhatsappCloudMsg');
+    const mensagens = await listarMensagens(telefone).catch(() => []);
+    const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
+    if (!ultimoRecebido) return res.status(400).json({ ok: false, erro: 'Essa pessoa ainda não te respondeu — o WhatsApp oficial só libera texto livre depois que ela manda a primeira mensagem (janela de 24h).' });
+    const { enviarAudio } = require('./services/metaWhatsapp');
+    const mimeType = req.file.mimetype || 'audio/ogg';
+    await enviarAudio({ telefone, buffer: req.file.buffer, mimeType, nomeArquivo: req.file.originalname, phoneNumberId: ultimoRecebido.phone_number_id });
+    const ext = mimeType.includes('ogg') ? 'ogg' : mimeType.includes('webm') ? 'webm' : mimeType.includes('mpeg') ? 'mp3' : mimeType.includes('mp4') || mimeType.includes('m4a') ? 'm4a' : 'audio';
+    const nomeArq = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    fs.writeFileSync(path.join(UPLOADS_AUDIO_DIR, nomeArq), req.file.buffer);
+    await salvarMensagem({ phoneNumberId: ultimoRecebido.phone_number_id, displayPhoneNumber: ultimoRecebido.display_phone_number, telefone, nome: ultimoRecebido.contato_nome, direcao: 'saida', tipo: 'audio', texto: '[áudio]', midiaUrl: '/data-uploads-audio/' + nomeArq, midiaMime: mimeType });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, erro: e.message });
+  }
+});
+
+// Bloquear contato (opt-out) — some da fila de disparo futuro (mesma tabela
+// disparos_optout usada pelo botão "Não sou corretor"/"Não tenho interesse"
+// do webhook), mas continua aparecendo na inbox com o selo "🚫 Excluído"
+// (histórico, não apaga a conversa).
+app.post('/api/afiliados/inbox/:telefone/bloquear', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
+    const { marcarOptout } = require('./services/salvarDisparo');
+    await marcarOptout(req.params.telefone, 'bloqueado_pelo_afiliado_' + uid);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, erro: e.message });
+  }
+});
+
+// Excluir contato da inbox — some da lista (some das linhas em
+// disparos_contatos que pertencem a esse afiliado); mensagens trocadas
+// continuam gravadas em whatsapp_cloud_mensagens (histórico não some), só
+// não aparecem mais aqui porque o telefone deixa de estar em "meus contatos".
+app.post('/api/afiliados/inbox/:telefone/excluir', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
+    const { query: _qExcluirContatoAf } = require('./services/db');
+    const suf = String(req.params.telefone || '').replace(/\D/g, '').slice(-8);
+    await _qExcluirContatoAf(
+      `DELETE FROM disparos_contatos WHERE variaveis->>'refAdmin' = $1 AND RIGHT(REGEXP_REPLACE(telefone,'\\D','','g'), 8) = $2`,
+      [uid, suf]
+    );
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ ok: false, erro: e.message });
@@ -16010,6 +16117,24 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
                 await _salvarMsgCloud({ phoneNumberId, displayPhoneNumber, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'audio', texto: '[áudio — falha ao baixar]', messageId: msg.id }).catch(()=>{});
               }
             })();
+          } else if (msg.type === 'image' || msg.type === 'sticker' || msg.type === 'video') {
+            // Mesmo tratamento do áudio (baixa da Meta, guarda cópia local —
+            // a URL da Meta expira e exige token, não dá pra exibir direto).
+            (async () => {
+              try {
+                const _midiaObj = msg[msg.type] || {};
+                const { baixarMedia } = require('./services/metaWhatsapp');
+                const { buffer, mimeType } = await baixarMedia(_midiaObj.id, phoneNumberId);
+                const _extMidia = mimeType.includes('webp') ? 'webp' : mimeType.includes('png') ? 'png' : mimeType.includes('gif') ? 'gif' : mimeType.includes('mp4') ? 'mp4' : 'jpg';
+                const nomeArqMidia = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${_extMidia}`;
+                fs.writeFileSync(path.join(UPLOADS_MIDIA_WA_DIR, nomeArqMidia), buffer);
+                const _legenda = _midiaObj.caption ? ' ' + _midiaObj.caption : '';
+                await _salvarMsgCloud({ phoneNumberId, displayPhoneNumber, telefone, nome: nomeContato, direcao: 'entrada', tipo: msg.type, texto: `[${msg.type}]${_legenda}`, messageId: msg.id, midiaUrl: '/data-uploads-midia/' + nomeArqMidia, midiaMime: mimeType }).catch(()=>{});
+              } catch(e) {
+                console.error('[whatsapp-cloud] erro baixando ' + msg.type + ':', e.message);
+                await _salvarMsgCloud({ phoneNumberId, displayPhoneNumber, telefone, nome: nomeContato, direcao: 'entrada', tipo: msg.type, texto: `[${msg.type} — falha ao baixar]`, messageId: msg.id }).catch(()=>{});
+              }
+            })();
           } else {
             await _salvarMsgCloud({ phoneNumberId, displayPhoneNumber, telefone, nome: nomeContato, direcao: 'entrada', tipo: msg.type || 'outro', texto: `[${msg.type || 'mídia'}]`, messageId: msg.id }).catch(()=>{});
           }
@@ -16565,6 +16690,10 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
       const minha = m.direcao === 'saida';
       const corpo = (m.tipo === 'audio' && m.midia_url)
         ? '<audio controls preload="none" src="'+m.midia_url+'" style="max-width:220px"></audio>'
+        : ((m.tipo === 'image' || m.tipo === 'sticker') && m.midia_url)
+        ? '<img src="'+m.midia_url+'" style="max-width:220px;border-radius:8px;display:block">' + (m.texto && m.texto !== '['+m.tipo+']' ? '<div style="margin-top:4px">'+linkify(escHtml(m.texto.replace('['+m.tipo+'] ','')))+'</div>' : '')
+        : (m.tipo === 'video' && m.midia_url)
+        ? '<video controls preload="metadata" src="'+m.midia_url+'" style="max-width:220px;border-radius:8px;display:block"></video>'
         : (m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : '') + linkify(escHtml(m.texto||''));
       const div = document.createElement('div');
       div.style.cssText = 'display:flex;justify-content:'+(minha?'flex-end':'flex-start')+';margin:6px 0';

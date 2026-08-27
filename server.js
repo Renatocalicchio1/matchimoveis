@@ -7635,6 +7635,86 @@ app.get('/app/afiliados/contato/:id/whatsapp', auth, async (req, res) => {
   }
 });
 
+// ── INBOX DO AFILIADO (ago/2026) — mesmo padrão do inbox admin
+// (/admin/whatsapp-cloud), só que escopado ao afiliado logado. Pedido do
+// Renato: campanha de disparo oficial (Meta Cloud API) bancada por um
+// afiliado específico (ex: Bruno, BRU-8MPC) — cada contato da campanha
+// carrega variaveis.refAdmin = <codigo do afiliado> (gravado na planilha
+// de upload, ver /admin/campanha/exportar-corretores-engajados?refAdmin=),
+// e listarContatosPorRefAdmin() (services/salvarDisparo.js) já existia pro
+// round-robin antigo de sub-admin — só reaproveitada aqui. Rota comum
+// (auth), não authAdmin — é dentro do app do corretor, cada afiliado só
+// enxerga o que é dele.
+async function _telefoneAfiliadoPertence(uid, telefone) {
+  const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
+  const meusContatos = await listarContatosPorRefAdmin(uid, 1000);
+  const alvo = String(telefone || '').replace(/\D/g, '').slice(-8);
+  if (!alvo) return false;
+  return meusContatos.some(c => String(c.telefone || '').replace(/\D/g, '').slice(-8) === alvo);
+}
+
+app.get('/api/afiliados/inbox/lista', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
+    const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
+    const meusContatos = await listarContatosPorRefAdmin(uid, 1000);
+    const telsSet = new Set(meusContatos.map(c => String(c.telefone || '').replace(/\D/g, '').slice(-8)).filter(Boolean));
+    const conversas = (await listarConversas().catch(() => []))
+      .filter(c => telsSet.has(String(c.contato_telefone || '').replace(/\D/g, '').slice(-8)));
+    // Contato atribuído que ainda não escreveu nada (sem linha em
+    // whatsapp_cloud_mensagens ainda) também entra, marcado como "aguardando"
+    // — o afiliado precisa saber que existe, mesmo sem poder puxar assunto
+    // ainda (janela de 24h só abre quando a pessoa responde primeiro).
+    const telsComConversa = new Set(conversas.map(c => String(c.contato_telefone || '').replace(/\D/g, '').slice(-8)));
+    const aguardando = meusContatos
+      .filter(c => c.telefone && !telsComConversa.has(String(c.telefone).replace(/\D/g, '').slice(-8)))
+      .map(c => ({ contato_telefone: c.telefone, contato_nome: c.nome, status: c.status, aguardando: true }));
+    res.json({ ok: true, conversas, aguardando });
+  } catch (e) {
+    console.error('[api/afiliados/inbox/lista]', e.message);
+    res.status(500).json({ ok: false, conversas: [], aguardando: [] });
+  }
+});
+
+app.get('/api/afiliados/inbox/:telefone/mensagens', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
+    const { listarMensagens, marcarLidas } = require('./services/salvarWhatsappCloudMsg');
+    const mensagens = await listarMensagens(req.params.telefone);
+    await marcarLidas(req.params.telefone).catch(() => {});
+    res.json({ ok: true, mensagens });
+  } catch (e) {
+    res.status(500).json({ ok: false, mensagens: [] });
+  }
+});
+
+app.post('/api/afiliados/inbox/:telefone/responder', auth, express.json(), async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
+    const telefone = req.params.telefone;
+    const texto = (req.body.texto || '').trim();
+    if (!texto) return res.status(400).json({ ok: false, erro: 'Mensagem vazia' });
+    const { listarMensagens, salvarMensagem } = require('./services/salvarWhatsappCloudMsg');
+    const mensagens = await listarMensagens(telefone).catch(() => []);
+    // Mesma trava de reenvio duplicado do inbox admin.
+    const ultimaMsg = mensagens[mensagens.length - 1];
+    if (ultimaMsg && ultimaMsg.direcao === 'saida' && ultimaMsg.tipo === 'texto' && ultimaMsg.texto === texto) {
+      return res.json({ ok: true, duplicado: true });
+    }
+    const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
+    if (!ultimoRecebido) return res.status(400).json({ ok: false, erro: 'Essa pessoa ainda não te respondeu — o WhatsApp oficial só libera texto livre depois que ela manda a primeira mensagem (janela de 24h).' });
+    const { enviarTexto } = require('./services/metaWhatsapp');
+    await enviarTexto({ telefone, texto, phoneNumberId: ultimoRecebido.phone_number_id });
+    await salvarMensagem({ phoneNumberId: ultimoRecebido.phone_number_id, displayPhoneNumber: ultimoRecebido.display_phone_number, telefone, nome: ultimoRecebido.contato_nome, direcao: 'saida', tipo: 'texto', texto });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, erro: e.message });
+  }
+});
+
 // Admin: árvore geral de todos os afiliados + edição manual de nível — só o
 // superadmin principal (é aqui que o Renato marca as 6 contas fixas + os
 // sub-admins existentes como Nível 1, já que nenhuma conta nasce Nível 1).

@@ -4108,6 +4108,15 @@ app.get('/entrar', (req,res)=>{
   res.redirect('/' + _qs);
 });
 
+// Página pública explicando o programa de afiliados (ago/2026, pedido do
+// Renato: deixar claro que a comissão vem do USO da plataforma pela conta
+// indicada — recarga de créditos — e não de venda de imóvel, e separar
+// isso da landing normal em vez de só um box de cadastro). Landing.ejs e o
+// banner de afiliados linkam pra cá antes de mandar pro cadastro de fato.
+app.get('/afiliados', (req,res)=>{
+  res.render('afiliados');
+});
+
 // Cadastro simplificado de afiliado/agência de marketing (ago/2026) — form
 // próprio (nome/email/telefone/senha + tipo), posta direto em POST /login
 // com afiliadoRestrito=1 (ver bloco CADASTRO ali) — mesma tabela/bcrypt do

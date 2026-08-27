@@ -46,9 +46,73 @@ function normalizarNomeLocalidade(valor) {
   }).join(' ');
 }
 
+// Distância de edição (Levenshtein) — usada só pra achar o nome real mais
+// parecido com o que foi digitado (erro de digitação de verdade, não só
+// diferença de acento/maiúscula, que _chaveLocalidade já resolve sozinho).
+// Implementação padrão O(n*m), sem depender de lib externa.
+function _distanciaEdicao(a, b) {
+  const la = a.length, lb = b.length;
+  if (la === 0) return lb;
+  if (lb === 0) return la;
+  let linhaAnterior = new Array(lb + 1);
+  for (let j = 0; j <= lb; j++) linhaAnterior[j] = j;
+  for (let i = 1; i <= la; i++) {
+    const linhaAtual = new Array(lb + 1);
+    linhaAtual[0] = i;
+    for (let j = 1; j <= lb; j++) {
+      const custo = a[i-1] === b[j-1] ? 0 : 1;
+      linhaAtual[j] = Math.min(
+        linhaAnterior[j] + 1,      // remoção
+        linhaAtual[j-1] + 1,       // inserção
+        linhaAnterior[j-1] + custo // substituição
+      );
+    }
+    linhaAnterior = linhaAtual;
+  }
+  return linhaAnterior[lb];
+}
+// Tolerância proporcional ao tamanho do nome — nome curto tolera menos erro
+// (senão "Vila" casa com qualquer coisa), nome longo tolera mais letra
+// trocada/faltando. Teto de 3 pra nunca ficar frouxo demais mesmo em nome
+// muito longo.
+function _toleranciaEdicao(tamanho) {
+  if (tamanho <= 4) return 0; // nome bem curto: exige igual (evita falso positivo)
+  return Math.max(1, Math.min(3, Math.floor(tamanho * 0.22)));
+}
+// Acha, dentro de um mapa {chaveNormalizada: nomeReal}, a entrada mais
+// parecida com chaveDigitada — exata primeiro (rápido), senão a de menor
+// distância de edição dentro da tolerância. Retorna null se não achar nada
+// perto o bastante (não força casamento errado).
+function _casamentoAproximado(chaveDigitada, mapa) {
+  if (!chaveDigitada || !mapa) return null;
+  if (mapa[chaveDigitada]) return mapa[chaveDigitada];
+  const tolerancia = _toleranciaEdicao(chaveDigitada.length);
+  if (tolerancia === 0) return null;
+  let melhorChave = null, melhorDist = Infinity;
+  for (const chave in mapa) {
+    // filtro rápido de tamanho antes de calcular a distância de verdade —
+    // evita rodar Levenshtein contra milhares de bairro de cidade grande
+    // toda vez, e uma diferença de tamanho grande nunca ia passar na
+    // tolerância mesmo assim.
+    if (Math.abs(chave.length - chaveDigitada.length) > tolerancia) continue;
+    const dist = _distanciaEdicao(chaveDigitada, chave);
+    if (dist < melhorDist) { melhorDist = dist; melhorChave = chave; }
+    if (melhorDist === 0) break;
+  }
+  return (melhorChave && melhorDist <= tolerancia) ? mapa[melhorChave] : null;
+}
+
 // Cruza cidade/bairro contra a tabela `localidades` (IBGE municípios + bairros
 // OSM, já populada por popular-brasil-tudo.js) — resolve casos que o cleanup
-// puramente formatação não resolve, tipo acento faltando ("ITAJAI" -> "Itajaí").
+// puramente formatação não resolve, tipo acento faltando ("ITAJAI" -> "Itajaí")
+// E erro de digitação de verdade ("Aclimacao"/"aclimaçao" -> "Aclimação").
+// A base do IBGE/OSM (fonte='ibge'/'osm') SEMPRE prevalece — nunca aceita
+// como "confiável" o que foi só digitado por corretor e auto-aprendido
+// (fonte='interno', ver _alimentarLocalidades), exatamente pra não deixar
+// erro de digitação de alguém virar "verdade" pra todo mundo (pedido
+// explícito do Renato, ago/2026: "tem que prevalecer o que é correto do
+// IBGE, em tudo da app"). Interno só entra como fallback de bairro (cidade
+// sempre tem cobertura completa via IBGE, não precisa de fallback).
 // Cache em memória, recarrega do PG a cada 1h (mesmo padrão de cerebro/extrator-perfil.js).
 let _dicIBGE = null;
 let _dicIBGEAt = 0;
@@ -56,27 +120,35 @@ async function _carregarDicIBGE() {
   const agora = Date.now();
   if (_dicIBGE && agora - _dicIBGEAt < 3600000) return;
   try {
-    const r = await query('SELECT bairro, cidade, estado FROM localidades WHERE cidade IS NOT NULL');
+    const r = await query('SELECT bairro, cidade, estado, fonte FROM localidades WHERE cidade IS NOT NULL');
     const cidadesPorEstado = {};
-    const bairrosPorCidade = {};
+    const bairrosPorCidade = {};       // só fonte confiável (ibge/osm)
+    const bairrosPorCidadeTodos = {};  // confiável + interno (fallback)
     for (const row of r.rows) {
       if (!row.cidade || !row.estado) continue;
+      const confiavel = row.fonte === 'ibge' || row.fonte === 'osm';
       const chaveEstado = _chaveLocalidade(normalizarEstadoBR(row.estado));
       const chaveCidade = _chaveLocalidade(row.cidade);
-      if (!cidadesPorEstado[chaveEstado]) cidadesPorEstado[chaveEstado] = {};
-      if (!cidadesPorEstado[chaveEstado][chaveCidade]) cidadesPorEstado[chaveEstado][chaveCidade] = row.cidade;
+      if (confiavel) {
+        if (!cidadesPorEstado[chaveEstado]) cidadesPorEstado[chaveEstado] = {};
+        if (!cidadesPorEstado[chaveEstado][chaveCidade]) cidadesPorEstado[chaveEstado][chaveCidade] = row.cidade;
+      }
       if (row.bairro) {
-        if (!bairrosPorCidade[chaveCidade]) bairrosPorCidade[chaveCidade] = {};
         const chaveBairro = _chaveLocalidade(row.bairro);
-        if (!bairrosPorCidade[chaveCidade][chaveBairro]) bairrosPorCidade[chaveCidade][chaveBairro] = row.bairro;
+        if (confiavel) {
+          if (!bairrosPorCidade[chaveCidade]) bairrosPorCidade[chaveCidade] = {};
+          if (!bairrosPorCidade[chaveCidade][chaveBairro]) bairrosPorCidade[chaveCidade][chaveBairro] = row.bairro;
+        }
+        if (!bairrosPorCidadeTodos[chaveCidade]) bairrosPorCidadeTodos[chaveCidade] = {};
+        if (!bairrosPorCidadeTodos[chaveCidade][chaveBairro]) bairrosPorCidadeTodos[chaveCidade][chaveBairro] = row.bairro;
       }
     }
-    _dicIBGE = { cidadesPorEstado, bairrosPorCidade };
+    _dicIBGE = { cidadesPorEstado, bairrosPorCidade, bairrosPorCidadeTodos };
     _dicIBGEAt = agora;
     console.log('[LOCALIDADES IBGE] cache carregado — estados:', Object.keys(cidadesPorEstado).length);
   } catch(e) {
     console.error('[LOCALIDADES IBGE] erro ao carregar:', e.message);
-    if (!_dicIBGE) _dicIBGE = { cidadesPorEstado: {}, bairrosPorCidade: {} };
+    if (!_dicIBGE) _dicIBGE = { cidadesPorEstado: {}, bairrosPorCidade: {}, bairrosPorCidadeTodos: {} };
   }
 }
 _carregarDicIBGE();
@@ -92,19 +164,28 @@ _carregarDicIBGE();
 setInterval(_carregarDicIBGE, 3600000).unref();
 
 // estadoCanonico: já deve vir de normalizarEstadoBR(). Sem cache pronto ou sem
-// correspondência na tabela, cai pro cleanup só de formatação (normalizarNomeLocalidade).
+// correspondência (nem aproximada) na tabela, cai pro cleanup só de
+// formatação (normalizarNomeLocalidade) — nunca inventa uma cidade errada.
 function normalizarCidadeBR(estadoCanonico, cidadeBruta) {
   const fallback = normalizarNomeLocalidade(cidadeBruta);
   if (!fallback || !_dicIBGE) return fallback;
   const mapa = _dicIBGE.cidadesPorEstado[_chaveLocalidade(estadoCanonico)];
-  return (mapa && mapa[_chaveLocalidade(fallback)]) || fallback;
+  return _casamentoAproximado(_chaveLocalidade(fallback), mapa) || fallback;
 }
-// cidadeCanonica: já deve vir de normalizarCidadeBR().
+// cidadeCanonica: já deve vir de normalizarCidadeBR(). Tenta primeiro contra
+// a base confiável (IBGE/OSM); só cai pro que já foi aprendido de cadastro
+// anterior (fonte='interno') se não achar nada parecido na confiável —
+// cobre bairro real que a raspagem OSM não pegou, sem deixar erro de
+// digitação de um corretor "ensinar" bairro errado pros outros.
 function normalizarBairroBR(cidadeCanonica, bairroBruto) {
   const fallback = normalizarNomeLocalidade(bairroBruto);
   if (!fallback || !_dicIBGE) return fallback;
-  const mapa = _dicIBGE.bairrosPorCidade[_chaveLocalidade(cidadeCanonica)];
-  return (mapa && mapa[_chaveLocalidade(fallback)]) || fallback;
+  const chaveCidade = _chaveLocalidade(cidadeCanonica);
+  const chaveFallback = _chaveLocalidade(fallback);
+  const daConfiavel = _casamentoAproximado(chaveFallback, _dicIBGE.bairrosPorCidade[chaveCidade]);
+  if (daConfiavel) return daConfiavel;
+  const doAprendido = _casamentoAproximado(chaveFallback, _dicIBGE.bairrosPorCidadeTodos[chaveCidade]);
+  return doAprendido || fallback;
 }
 
 // Alimenta `localidades` (fonte='interno') com bairro/cidade/estado reais

@@ -11038,7 +11038,14 @@ app.get('/api/localidades/cidades', async (req, res) => {
     const estado = String(req.query.estado || '').trim();
     const q = String(req.query.q || '').trim();
     const params = [];
-    let sql = "SELECT DISTINCT cidade FROM localidades WHERE cidade IS NOT NULL AND cidade != ''";
+    // Só fonte confiável (ibge/osm) — cidade tem cobertura completa via
+    // IBGE (5570 municípios), então não existe cidade real que só apareça
+    // como 'interno' (auto-aprendido de cadastro digitado) — se aparecer,
+    // é erro de digitação de alguém, não deve virar sugestão pra mais
+    // ninguém (pedido do Renato, ago/2026: "tem que prevalecer o que é
+    // correto do IBGE, em tudo da app", citando explicitamente a área de
+    // atuação do cadastro).
+    let sql = "SELECT DISTINCT cidade FROM localidades WHERE cidade IS NOT NULL AND cidade != '' AND fonte IN ('ibge','osm')";
     // unaccent+lower dos dois lados — a tabela localidades foi montada
     // cruzando IBGE + Overpass/OSM, que podem gravar acento com normalização
     // Unicode diferente (NFC/NFD); visualmente igual, mas ILIKE puro não bate
@@ -11066,15 +11073,24 @@ app.get('/api/localidades/bairros', async (req, res) => {
     if (!cidade) return res.json({ ok: true, bairros: [] });
     const { query: _qLocB } = require('./services/db');
     const estado = String(req.query.estado || '').trim();
+    // Bairro confiável (ibge/osm) primeiro — só cai pro auto-aprendido
+    // (fonte='interno', pode ter erro de digitação de cadastro anterior)
+    // se a cidade não tiver NENHUM bairro confiável mapeado ainda (cobre
+    // cidade média/pequena que a raspagem OSM deixou sem bairro nenhum,
+    // ex: Praia Grande — sem isso ficaria sem sugestão nenhuma). Mesma
+    // prioridade de services/salvarImovel.js#normalizarBairroBR (pedido do
+    // Renato, ago/2026: prevalece o correto do IBGE em toda a plataforma,
+    // incluindo a área de atuação do cadastro).
     const params = [cidade];
-    let sql = "SELECT DISTINCT bairro FROM localidades WHERE bairro IS NOT NULL AND bairro != '' AND unaccent(lower(cidade)) = unaccent(lower($1))";
-    if (estado) { params.push(estado); sql += ` AND unaccent(lower(estado)) = unaccent(lower($${params.length}))`; }
+    let sqlBase = "FROM localidades WHERE bairro IS NOT NULL AND bairro != '' AND unaccent(lower(cidade)) = unaccent(lower($1))";
+    if (estado) { params.push(estado); sqlBase += ` AND unaccent(lower(estado)) = unaccent(lower($${params.length}))`; }
     // Mesmo problema do /cidades (LIMIT baixo cortando resultado de verdade
     // antes do fim) — sobe pra 5000 pra nunca truncar nem a cidade com mais
     // bairro mapeado na base (ago/2026, pedido explícito de mostrar tudo).
-    sql += ' ORDER BY bairro LIMIT 5000';
-    const { rows } = await _qLocB(sql, params);
-    res.json({ ok: true, bairros: rows.map(r => r.bairro) });
+    const { rows: confiaveis } = await _qLocB(`SELECT DISTINCT bairro ${sqlBase} AND fonte IN ('ibge','osm') ORDER BY bairro LIMIT 5000`, params);
+    if (confiaveis.length) return res.json({ ok: true, bairros: confiaveis.map(r => r.bairro) });
+    const { rows: todos } = await _qLocB(`SELECT DISTINCT bairro ${sqlBase} ORDER BY bairro LIMIT 5000`, params);
+    res.json({ ok: true, bairros: todos.map(r => r.bairro) });
   } catch (e) { res.json({ ok: false, bairros: [] }); }
 });
 

@@ -6708,13 +6708,26 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   if (_fFotos === 'nao') imoveis = imoveis.filter(i => !(i.fotos && i.fotos.length > 0));
 
   const _fOrdenar = (q.ordenar || 'menor-preco').trim();
+  let _compararOrdenacao;
   if (_fOrdenar === 'maior-preco') {
-    imoveis.sort((a, b) => (Number(b.valor_imovel)||0) - (Number(a.valor_imovel)||0));
+    _compararOrdenacao = (a, b) => (Number(b.valor_imovel)||0) - (Number(a.valor_imovel)||0);
   } else if (_fOrdenar === 'recentes') {
-    imoveis.sort((a, b) => new Date(b.criadoEm||b.dataCadastro||b.data_cadastro||0) - new Date(a.criadoEm||a.dataCadastro||a.data_cadastro||0));
+    _compararOrdenacao = (a, b) => new Date(b.criadoEm||b.dataCadastro||b.data_cadastro||0) - new Date(a.criadoEm||a.dataCadastro||a.data_cadastro||0);
   } else {
-    imoveis.sort((a, b) => (Number(a.valor_imovel)||0) - (Number(b.valor_imovel)||0));
+    _compararOrdenacao = (a, b) => (Number(a.valor_imovel)||0) - (Number(b.valor_imovel)||0);
   }
+  // Imóvel com valor zerado/vazio ou sem foto sempre vai pro fim da lista,
+  // não importa a ordenação escolhida (pedido do Renato, ago/2026) — sem
+  // isso, "menor preço" colocava esse tipo de cadastro incompleto logo no
+  // topo (valor 0 é sempre o "menor"). Vale pra carteira própria e pra
+  // rede completa (essa função atende os dois, ver _rede em /app/imoveis).
+  const _semQualidade = i => (Number(i.valor_imovel)||0) <= 0 || !(i.fotos && i.fotos.length > 0);
+  imoveis.sort((a, b) => {
+    const penA = _semQualidade(a) ? 1 : 0;
+    const penB = _semQualidade(b) ? 1 : 0;
+    if (penA !== penB) return penA - penB;
+    return _compararOrdenacao(a, b);
+  });
   const _totalImoveisFiltrado = imoveis.length;
   const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / perPage);
   const _temFiltro = _fEstado || _fCidade || _bairrosArr.length || _fBusca || _fCorretor;
@@ -6747,7 +6760,16 @@ app.get('/app/imoveis', auth, async (req,res)=>{
       global._cacheRede = await lerImoveis(null);
       global._cacheRedeTTL = Date.now() + 5 * 60 * 1000; // 5 min
     }
-    imoveis = global._cacheRede;
+    // Cópia embaralhada (Fisher-Yates), nunca mexe no array do cache
+    // direto — _filtrarEPaginarImoveis ordena por valor por cima disso,
+    // então o embaralho só decide o desempate entre imóveis de valor igual
+    // (ou perto), pra não sempre puxar o mesmo corretor pro topo da rede
+    // completa (pedido do Renato, ago/2026).
+    imoveis = global._cacheRede.slice();
+    for (let i = imoveis.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [imoveis[i], imoveis[j]] = [imoveis[j], imoveis[i]];
+    }
   } else {
     // Direto no banco, já filtrado por usuário — ver nota em GET /app-home
     // sobre por que não usar o lerImoveis()/_cacheImoveis global aqui.

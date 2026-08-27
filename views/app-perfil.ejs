@@ -436,6 +436,11 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
       btn.disabled = true;
       try {
         const params = new URLSearchParams(new FormData(form));
+        // Marca conclusão do fluxo do presente — servidor libera o perfil
+        // (precisaCompletarPerfil=false) sem esperar a localização (lat/lng),
+        // que é capturada à parte em segundo plano e pode nunca terminar a
+        // tempo (ver comentário em POST /app/perfil, server.js).
+        params.set('presenteConcluido', '1');
         await fetch('/app/perfil', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
       } catch(e) {}
       const overlay = document.getElementById('pf-celebra-overlay');

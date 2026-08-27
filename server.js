@@ -7264,8 +7264,27 @@ app.post('/app/perfil', auth, async (req,res)=>{
   req.session.user = { ...req.session.user, ...dados };
 
   if (req.session.user.precisaCompletarPerfil) {
-    const completo = await _verificarPerfilCompleto(uid);
-    if (completo) req.session.user.precisaCompletarPerfil = false;
+    // Popup "Receber meu presente" (campanha com afiliado, ver
+    // _mostrarPopupPresente em app-perfil.ejs) manda presenteConcluido=1 no
+    // clique final — esse fluxo só exige nome+email+área de atuação, NUNCA
+    // pediu localização (lat/lng). _verificarPerfilCompleto abaixo EXIGE
+    // lat/lng, que é capturada à parte, em segundo plano, sem garantia de
+    // quando termina (depende do navegador conceder permissão de
+    // geolocalização — falha ou demora sempre em aba anônima, por exemplo).
+    // Sem esse desvio, o popup ficava esperando a localização pra sempre e
+    // voltava a aparecer depois da celebração mesmo com tudo preenchido —
+    // bug reportado pelo Renato (ago/2026) testando o fluxo. Confere de novo
+    // aqui (não confia só no client-side) antes de liberar.
+    const _nomeTrocadoPresente = !!(req.session.user.nome && req.session.user.nome.trim() && req.session.user.nome.trim() !== (req.session.user.nomeImportado || '').trim());
+    const _areaAtuacaoOk = String(req.session.user.areaAtuacaoEstado || '').trim() && Array.isArray(req.session.user.areaAtuacaoCidades) && req.session.user.areaAtuacaoCidades.length > 0;
+    if (req.body.presenteConcluido === '1' && _nomeTrocadoPresente && req.session.user.email && _areaAtuacaoOk) {
+      req.session.user.precisaCompletarPerfil = false;
+      await _auPerfil(uid, { precisaCompletarPerfil: false }).catch(e=>console.error("[perfil-presente]",e.message));
+      if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.id === uid); if (idx >= 0) _cacheUsuarios[idx].precisaCompletarPerfil = false; }
+    } else {
+      const completo = await _verificarPerfilCompleto(uid);
+      if (completo) req.session.user.precisaCompletarPerfil = false;
+    }
   }
 
   res.redirect('/app/perfil' + (req.session.user.precisaCompletarPerfil ? '?completarPerfil=1' : ''));

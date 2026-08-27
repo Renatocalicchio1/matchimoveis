@@ -1988,10 +1988,10 @@ app.get('/admin', authAdmin, async (req, res) => {
       }
     }
     if (subadminT === '_nenhum') {
-      conds.push(`COALESCE(dados->>'atendidoPorAdmin','') = ''`);
+      conds.push(`COALESCE(dados->>'indicadoPor','') = ''`);
     } else if (subadminT) {
       pars.push(subadminT);
-      conds.push(`dados->>'atendidoPorAdmin' = $${pars.length}`);
+      conds.push(`dados->>'indicadoPor' = $${pars.length}`);
     }
     if (tipoT) {
       pars.push(tipoT);
@@ -2007,10 +2007,18 @@ app.get('/admin', authAdmin, async (req, res) => {
     // próprio sub-admin.
     const usuarios = await _q(`SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso, match_coins, autoriza_quintoandar, tipo,
       dados->>'atendidoPorAdmin' AS atendido_por_admin, dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome, dados->>'atendidoPorAdminCor' AS atendido_por_admin_cor,
-      dados->>'afiliadoRestrito' AS afiliado_restrito
+      dados->>'afiliadoRestrito' AS afiliado_restrito, dados->>'indicadoPor' AS indicado_por
       FROM usuarios ${whereUsuarios} ORDER BY criado_em DESC`, pars);
-    const { listarAdminContas: _listarContasFiltroAdmin } = require('./services/salvarAdminConta');
-    const _contasFiltroAdmin = await _listarContasFiltroAdmin().catch(() => []);
+    // Filtro "Indicado por" (ago/2026, era "sub-admin" antes de o programa
+    // de afiliados substituir esse sistema) — lista só quem já indicou
+    // pelo menos 1 conta (não todo mundo, senão o dropdown ficaria enorme),
+    // resolvido pro nome via _cacheUsuarios.
+    const { rows: _indicadoresRows } = await _q(
+      `SELECT DISTINCT dados->>'indicadoPor' as codigo FROM usuarios WHERE COALESCE(dados->>'indicadoPor','') != ''`
+    );
+    const _contasFiltroAdmin = _indicadoresRows
+      .map(r => ({ usuario: r.codigo, nome: ((_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === r.codigo) || {}).nome }))
+      .sort((a, b) => (a.nome || a.usuario).localeCompare(b.nome || b.usuario));
     const solQA = await _q('SELECT user_id, atendido FROM solicitacoes_quintoandar').catch(()=>({rows:[]}));
     const solQAMap = {}; solQA.rows.forEach(r => solQAMap[r.user_id] = r.atendido);
     const counts = await _q('SELECT user_id, COUNT(*) as total FROM imoveis GROUP BY user_id');
@@ -2044,6 +2052,12 @@ app.get('/admin', authAdmin, async (req, res) => {
       const info = _TIPO_CONTA_INFO[tipo] || _TIPO_CONTA_INFO.corretor;
       return `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:${info.bg};color:${info.cor}">${info.label}</span>${restrito === 'true' ? '<div style="font-size:9px;color:#9ca3af;margin-top:2px">menu restrito</div>' : ''}`;
     };
+    // Coluna "Sub-admin" virou "Indicado por" (ago/2026) — sub-admin foi
+    // descontinuado, todo mundo é afiliado agora (indicadoPor + níveis).
+    // Resolve o código de quem indicou pro nome via _cacheUsuarios (base
+    // completa em memória) — se buscasse só na página filtrada, quem
+    // indicou podia não bater o filtro de busca e sumir da resolução.
+    const _nomePorCodigo = {}; (_cacheUsuarios || []).forEach(u => { _nomePorCodigo[u.codigoUsuario || u.id] = u.nome; });
     const rows = usuarios.rows.map(u => `
       <tr>
         <td>${u.codigo_usuario||'-'}</td>
@@ -2068,7 +2082,7 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status==='open'?'open':u.whatsapp_status==='close'?'close':u.whatsapp_status==='connecting'?'conn...':'descon.'}</span></td>
         <td style="text-align:center">${u.autoriza_quintoandar?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Ativo</span>':'<span style="color:#9ca3af;font-size:11px">Inativo</span>'}</td>
         <td style="text-align:center">${solQAMap[u.codigo_usuario]!==undefined?(solQAMap[u.codigo_usuario]?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-size:11px;font-weight:600">⏳ Aguard.</span>'):'-'}</td>
-        <td>${u.atendido_por_admin ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:${u.atendido_por_admin_cor||'#6b7280'}1a;color:${u.atendido_por_admin_cor||'#6b7280'}">${u.atendido_por_admin_nome||u.atendido_por_admin}</span>` : '<span style="color:#9ca3af;font-size:11px">—</span>'}</td>
+        <td>${u.indicado_por ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#f0fdfa;color:#0d9488">${_nomePorCodigo[u.indicado_por] || u.indicado_por}</span>` : '<span style="color:#9ca3af;font-size:11px">—</span>'}</td>
         <td>${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
         <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
         <td style="text-align:center">
@@ -2135,8 +2149,8 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
       ${Object.entries(_TIPO_CONTA_INFO).map(([val, info]) => `<option value="${val}" ${tipoT===val?'selected':''}>${info.label}</option>`).join('')}
     </select>
     <select name="subadmin" style="padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;">
-      <option value="">Todos os sub-admins</option>
-      <option value="_nenhum" ${subadminT==='_nenhum'?'selected':''}>Sem sub-admin</option>
+      <option value="">Todos os indicadores</option>
+      <option value="_nenhum" ${subadminT==='_nenhum'?'selected':''}>Sem indicador</option>
       ${_contasFiltroAdmin.map(c => `<option value="${c.usuario}" ${subadminT===c.usuario?'selected':''}>${(c.nome||c.usuario).replace(/"/g,'').replace(/</g,'')} (${c.usuario})</option>`).join('')}
     </select>
     <button type="submit" style="background:#111;color:#fff;padding:8px 18px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;">🔍 Buscar</button>
@@ -2146,7 +2160,7 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
     ${(buscaT || subadminT || tipoT) ? `<div style="padding:10px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee;">${usuarios.rows.length} usuário(s) encontrado(s)</div>` : ''}
     <div class="table-wrap"><table>
       <thead><tr>
-        <th>Cód.</th><th>Nome</th><th>Tipo</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Sub-admin</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
+        <th>Cód.</th><th>Nome</th><th>Tipo</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Indicado por</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>

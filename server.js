@@ -4968,6 +4968,29 @@ app.post('/login', async (req,res)=>{
       if (_cacheUsuarios) { const _uiNovoRef = _cacheUsuarios.findIndex(u => u.id === novo.codigoUsuario); if (_uiNovoRef >= 0) { _cacheUsuarios[_uiNovoRef].matchCoins = (_cacheUsuarios[_uiNovoRef].matchCoins||0) + 500; } }
     }
 
+    // Bônus de 300 coins pro INDICADOR, na hora do cadastro do indicado —
+    // pedido do Renato (ago/2026), separado da comissão de compra que já
+    // existia (essa continua igual, só na recarga, ver _processarBonusIndicacao).
+    // Só corretor-indica-corretor (_indicador) — o fluxo de sub-admin
+    // (_adminIndicador) já tem sua própria comissão de 1ª compra, não ganha
+    // esse bônus extra de cadastro. Creditado direto em match_coins (não
+    // passa pelo ledger indicacoes_bonus/resgate — esse fica só pra comissão
+    // de compra, que pode virar dinheiro; esse aqui é sempre coin, na hora).
+    if (_indicador) {
+      const _codIndicador = _indicador.codigoUsuario || _indicador.id;
+      adicionarCreditos(_codIndicador, 300, 'bonus_indicacao_cadastro').catch(e=>console.error('[bonus-indicador-cadastro]', e.message));
+      if (_cacheUsuarios) { const _uiIndicador = _cacheUsuarios.findIndex(u => (u.codigoUsuario||u.id) === _codIndicador); if (_uiIndicador >= 0) { _cacheUsuarios[_uiIndicador].matchCoins = (_cacheUsuarios[_uiIndicador].matchCoins||0) + 300; } }
+      criarNotificacaoService({
+        id: Date.now().toString() + '_indica_cadastro',
+        tipo: 'indicacao_cadastro',
+        titulo: '🎉 Indicação deu certo!',
+        mensagem: (novo.nome || 'Alguém') + ' se cadastrou pelo seu link — você ganhou 300 coins na hora.',
+        usuarioId: _codIndicador,
+        lida: false,
+        criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+      });
+    }
+
     // Notificar admin sobre novo cadastro
     (async () => {
       try {
@@ -14888,6 +14911,32 @@ app.get('/api/agente/todos-sinais', auth, async (req, res) => {
   } catch (e) {
     console.error('[api/agente/todos-sinais]', e.message);
     res.json({ ok: true, sinais: [] });
+  }
+});
+
+// Dado fresco pro popup de "indique um amigo" (app-shell.ejs) — chamado a
+// cada hora enquanto o corretor está logado (pedido do Renato, ago/2026:
+// "temos que chamar a atenção dele pra usar o link... a cada 1 hora aparece
+// um popup"). Nunca usa req.session.user direto pro saldo — mesmo motivo já
+// documentado em /api/agente/proximo-sinal, saldo muda o tempo todo e a
+// sessão fica desatualizada rápido. saldoBaixo troca a mensagem pro tom de
+// "seus créditos estão acabando, indique e ganhe" (mesmo piso de
+// agenteProativo.js sinal 20, ≤200 coins).
+app.get('/api/indicacao/lembrete', auth, async (req, res) => {
+  try {
+    const user = (_cacheUsuarios || []).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario) || req.session.user;
+    const codigo = user.codigoUsuario || user.id;
+    const saldo = Number(user.matchCoins || 0);
+    const saldoBaixo = saldo <= 200;
+    const link = 'https://www.matchimoveis.ia.br/?ref=' + codigo;
+    const mensagem = saldoBaixo
+      ? 'Seus créditos estão acabando — indique um corretor amigo e ganhe 300 coins na hora pra continuar usando a plataforma.'
+      : 'Indique um corretor amigo pro MatchImóveis e ganhe 300 coins na hora assim que ele se cadastrar.';
+    const textoWhats = 'Oi! Conheça a MatchImóveis — plataforma que cruza automaticamente leads com os imóveis certos pra corretores e imobiliárias, sem mensalidade. Cadastro é grátis e já vem com créditos de bônus. Ah, e eu ganho 300 coins assim que você se cadastrar por esse link, então já ajuda de graça 🙂: ' + link;
+    res.json({ ok: true, saldoBaixo, link, mensagem, textoWhats });
+  } catch (e) {
+    console.error('[api/indicacao/lembrete]', e.message);
+    res.json({ ok: false });
   }
 });
 

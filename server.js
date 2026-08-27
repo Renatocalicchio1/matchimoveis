@@ -14788,6 +14788,29 @@ app.get('/api/agente/proximo-sinal', auth, async (req, res) => {
   }
 });
 
+// Todos os sinais ativos agora (não só o mais urgente) — alimenta a aba
+// "Radar" em /app/notificacoes (ago/2026, pedido do Renato: mostrar isso
+// em notificações em vez de mandar WhatsApp proativo por número não
+// oficial — risco de bloqueio — ou oficial — custo por disparo).
+// calcularSinais() já existe pronta pra isso (services/agenteProativo.js,
+// comentário "útil pra uma tela de todos os alertas"), só faltava o
+// endpoint. Sinal é sempre calculado ao vivo (não fica salvo em tabela) —
+// some sozinho da lista assim que a causa é resolvida, sem precisar
+// "marcar como lido".
+app.get('/api/agente/todos-sinais', auth, async (req, res) => {
+  try {
+    const user = (_cacheUsuarios || []).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario) || req.session.user;
+    if (user && user.afiliadoRestrito === true) return res.json({ ok: true, sinais: [] });
+    const { imoveis, leads, visitas, d } = _montarContextoAssistente(user);
+    const { calcularSinais } = require('./services/agenteProativo');
+    const sinais = await calcularSinais({ usuario: user, imoveis, leads, visitas, estagioConta: d.estagioConta });
+    res.json({ ok: true, sinais });
+  } catch (e) {
+    console.error('[api/agente/todos-sinais]', e.message);
+    res.json({ ok: true, sinais: [] });
+  }
+});
+
 // ── JOB_REATRIBUICAO_CONTATOS_AFILIADO — reequilibra os contatos de campanha
 // que "Convidar novos" mostra pra cada afiliado (ago/2026, pedido explícito).
 // Duas situações fazem um contato mudar de dono, sempre dentro do MESMO

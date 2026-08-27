@@ -17,6 +17,21 @@
 .tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg);border-radius:10px;padding:4px;width:fit-content}
 .tab{padding:6px 16px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer;border:none;background:transparent;transition:all .1s}
 .tab.on{background:#fff;color:var(--dark);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.radar-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:10px;border:1px solid var(--border);text-decoration:none;color:inherit;margin-bottom:8px}
+.radar-item:hover{background:var(--bg)}
+.radar-sev{width:6px;align-self:stretch;border-radius:4px;flex-shrink:0}
+.radar-sev.crit{background:#FF385C}
+.radar-sev.atencao{background:#f59e0b}
+.radar-sev.oportunidade{background:#00A699}
+.radar-sev.info{background:#d1d5db}
+.radar-body{flex:1;min-width:0}
+.radar-titulo{font-size:13px;font-weight:600;color:var(--dark);margin-bottom:2px}
+.radar-msg{font-size:12px;color:var(--text-sec);line-height:1.5}
+.radar-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.radar-tag.crit{background:#fff1f3;color:#FF385C}
+.radar-tag.atencao{background:#fffbeb;color:#b45309}
+.radar-tag.oportunidade{background:#f0fdfa;color:#00847A}
+.radar-tag.info{background:#f3f4f6;color:#6b7280}
 </style>
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
@@ -25,6 +40,7 @@
     <button class="tab" onclick="filtrarNotif('nao_lida',this)">Não lidas</button>
     <button class="tab" onclick="filtrarNotif('visita',this)">Visitas</button>
     <button class="tab" onclick="filtrarNotif('match',this)">Matches</button>
+    <button class="tab" id="tab-radar" onclick="abrirRadar(this)">🎯 Radar</button>
   </div>
   <% if(notificacoes && notificacoes.length) { %>
   <button onclick="marcarTodasLidas()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer">
@@ -33,7 +49,7 @@
   <% } %>
 </div>
 
-<div class="card" style="padding:8px">
+<div id="pane-notif" class="card" style="padding:8px">
   <% if(!notificacoes || !notificacoes.length) { %>
     <div class="notif-empty">
       <div style="font-size:36px;margin-bottom:12px;opacity:.3">🔔</div>
@@ -74,8 +90,80 @@
   <% } %>
 </div>
 
+<div id="pane-radar" class="card" style="padding:8px;display:none">
+  <div id="radar-carregando" style="text-align:center;padding:40px 20px;color:var(--text-ter);font-size:13px">Analisando sua conta...</div>
+  <div id="radar-vazio" class="notif-empty" style="display:none">
+    <div style="font-size:36px;margin-bottom:12px;opacity:.3">🎯</div>
+    <div style="font-size:14px;font-weight:500;color:var(--text-sec);margin-bottom:4px">Nenhum alerta agora</div>
+    <div style="font-size:12px">Sua conta está redonda — nada pedindo atenção no momento.</div>
+  </div>
+  <div id="radar-list"></div>
+</div>
+
+<script>
+// Radar do Corretor — mesmo motor de sinais do balão flutuante
+// (services/agenteProativo.js), mas mostrando TODOS os sinais ativos, não
+// só o mais urgente. Calculado ao vivo a cada abertura da aba (não fica
+// salvo em tabela) — some sozinho da lista assim que a causa é resolvida.
+let _radarCarregado = false;
+function abrirRadar(btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('pane-notif').style.display = 'none';
+  document.getElementById('pane-radar').style.display = 'block';
+  if (!_radarCarregado) carregarRadar();
+}
+async function carregarRadar() {
+  const carregando = document.getElementById('radar-carregando');
+  const vazio = document.getElementById('radar-vazio');
+  const lista = document.getElementById('radar-list');
+  try {
+    const r = await fetch('/api/agente/todos-sinais');
+    const d = await r.json();
+    _radarCarregado = true;
+    carregando.style.display = 'none';
+    const sinais = (d && d.sinais) || [];
+    if (!sinais.length) { vazio.style.display = 'block'; return; }
+    const rotulo = { crit: 'Urgente', atencao: 'Atenção', oportunidade: 'Oportunidade', info: 'Info' };
+    // Construção via DOM (não innerHTML) — título/texto do sinal podem
+    // carregar nome de lead/imóvel cadastrado por qualquer pessoa, então
+    // vão sempre por textContent, nunca concatenados como HTML.
+    lista.innerHTML = '';
+    sinais.forEach(function(s) {
+      const a = document.createElement('a');
+      a.className = 'radar-item';
+      a.href = s.link || '#';
+      const sev = document.createElement('div');
+      sev.className = 'radar-sev ' + s.severidade;
+      const body = document.createElement('div');
+      body.className = 'radar-body';
+      const titulo = document.createElement('div');
+      titulo.className = 'radar-titulo';
+      titulo.textContent = s.titulo || '';
+      const msg = document.createElement('div');
+      msg.className = 'radar-msg';
+      msg.textContent = s.texto || '';
+      body.appendChild(titulo);
+      body.appendChild(msg);
+      const tag = document.createElement('span');
+      tag.className = 'radar-tag ' + s.severidade;
+      tag.textContent = rotulo[s.severidade] || s.severidade;
+      a.appendChild(sev);
+      a.appendChild(body);
+      a.appendChild(tag);
+      lista.appendChild(a);
+    });
+  } catch(e) {
+    carregando.style.display = 'none';
+    vazio.style.display = 'block';
+  }
+}
+</script>
+
 <script>
 function filtrarNotif(filtro, btn) {
+  document.getElementById('pane-notif').style.display = '';
+  document.getElementById('pane-radar').style.display = 'none';
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   btn.classList.add('on');
   document.querySelectorAll('.notif-item').forEach(item => {

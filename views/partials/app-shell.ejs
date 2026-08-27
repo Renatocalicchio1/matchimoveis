@@ -285,6 +285,52 @@
   // criadas pelo cadastro padrão (essas não têm afiliadoRestrito=true).
   const _menuRestrito = !!(user && user.afiliadoRestrito === true);
 %>
+
+<!-- BOTÕES FIXOS TOPO DIREITO — fica direto em <body>, fora de .app/.content
+     de propósito (ago/2026): estava aninhado dentro de <main class="content">
+     e o Renato relatou que o badge "Radar" sumia ao rolar a tela em vez de
+     ficar fixo. position:fixed deveria ignorar ancestrais sem
+     transform/filter/perspective, mas não achei research 100% conclusiva
+     de qual ancestral estava causando isso em algum navegador/dispositivo
+     — mover pra fora de toda a árvore de layout (.app/.sidebar/.content)
+     elimina a possibilidade por completo, sem depender de achar a causa exata. -->
+<style>
+._btn-primeiros-passos{background:var(--brand-light)!important;color:var(--brand)!important}
+</style>
+<div style="position:fixed;top:12px;right:16px;z-index:9999;display:flex;align-items:center;gap:8px;">
+  <% if(user && !_menuRestrito){ %>
+  <a href="/app/notificacoes#radar" id="radarBadge" style="display:none;align-items:center;gap:5px;background:#fff1f3;border:1px solid #fecdd3;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#FF385C;text-decoration:none;white-space:nowrap">
+    🎯 Radar <span id="radarBadgeCount"></span>
+  </a>
+  <% } %>
+  <% const _temWABtn = !!(user && user.whatsappStatus === 'open'); %>
+  <% if(!_temWABtn && user && !_menuRestrito){ %>
+  <a href="/app/perfil#secao-whatsapp" style="display:inline-flex;align-items:center;gap:5px;background:#fef2f2;border:1px solid #fca5a5;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#b91c1c;text-decoration:none;white-space:nowrap">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    WhatsApp desconectado
+  </a>
+  <% } %>
+</div>
+<% if(user && !_menuRestrito){ %>
+<script>
+// Badge do Radar no cabeçalho fixo — mesmo motor de sinais do balão
+// flutuante e da aba Radar em /app/notificacoes, só mostrando a contagem
+// de alertas urgentes (crit/atenção) pra chamar mais atenção (pedido do
+// Renato, ago/2026: "precisa ficar mais visível").
+(function(){
+  fetch('/api/agente/todos-sinais').then(function(r){ return r.json(); }).then(function(d){
+    var sinais = (d && d.sinais) || [];
+    var urgentes = sinais.filter(function(s){ return s.severidade === 'crit' || s.severidade === 'atencao'; });
+    if (!urgentes.length) return;
+    var badge = document.getElementById('radarBadge');
+    var count = document.getElementById('radarBadgeCount');
+    if (badge) badge.style.display = 'inline-flex';
+    if (count) count.textContent = '(' + urgentes.length + ')';
+  }).catch(function(){});
+})();
+</script>
+<% } %>
+
 <div class="app">
 
 <aside class="sidebar">
@@ -541,44 +587,6 @@ function toggleMaisMenu(){
 }
 </script>
 <main class="content">
-<!-- BOTÕES FIXOS TOPO DIREITO -->
-<style>
-._btn-primeiros-passos{background:var(--brand-light)!important;color:var(--brand)!important}
-</style>
-<div style="position:fixed;top:12px;right:16px;z-index:9999;display:flex;align-items:center;gap:8px;">
-  <% if(user && !_menuRestrito){ %>
-  <a href="/app/notificacoes#radar" id="radarBadge" style="display:none;align-items:center;gap:5px;background:#fff1f3;border:1px solid #fecdd3;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#FF385C;text-decoration:none;white-space:nowrap">
-    🎯 Radar <span id="radarBadgeCount"></span>
-  </a>
-  <% } %>
-  <% const _temWABtn = !!(user && user.whatsappStatus === 'open'); %>
-  <% if(!_temWABtn && user && !_menuRestrito){ %>
-  <a href="/app/perfil#secao-whatsapp" style="display:inline-flex;align-items:center;gap:5px;background:#fef2f2;border:1px solid #fca5a5;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#b91c1c;text-decoration:none;white-space:nowrap">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    WhatsApp desconectado
-  </a>
-  <% } %>
-
-</div>
-<% if(user && !_menuRestrito){ %>
-<script>
-// Badge do Radar no cabeçalho fixo — mesmo motor de sinais do balão
-// flutuante e da aba Radar em /app/notificacoes, só mostrando a contagem
-// de alertas urgentes (crit/atenção) pra chamar mais atenção (pedido do
-// Renato, ago/2026: "precisa ficar mais visível").
-(function(){
-  fetch('/api/agente/todos-sinais').then(function(r){ return r.json(); }).then(function(d){
-    var sinais = (d && d.sinais) || [];
-    var urgentes = sinais.filter(function(s){ return s.severidade === 'crit' || s.severidade === 'atencao'; });
-    if (!urgentes.length) return;
-    var badge = document.getElementById('radarBadge');
-    var count = document.getElementById('radarBadgeCount');
-    if (badge) badge.style.display = 'inline-flex';
-    if (count) count.textContent = '(' + urgentes.length + ')';
-  }).catch(function(){});
-})();
-</script>
-<% } %>
 
 <!-- MODAL PRIMEIROS PASSOS — onboarding inteligente, guiado pelo estado real da conta -->
 <div id="modalPrimeirosPassos" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px">

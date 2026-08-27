@@ -16,6 +16,19 @@ async function main() {
   console.log('\n=== indicacoes_bonus (indicador_tipo=afiliado), por status ===');
   console.table(porStatus);
 
+  // Origem passou a importar de verdade (ago/2026): credito manual do admin
+  // NAO gera mais comissao daqui pra frente, e /pagamento/processar (rota
+  // sincrona) tambem parou de gerar - so o webhook do MP conta. Linhas com
+  // origem='admin' aqui sao "sujeira" de antes dessa mudanca.
+  const { rows: porOrigem } = await query(`
+    SELECT COALESCE(origem,'app') as origem, COUNT(*)::int as linhas, COALESCE(SUM(bonus_coins),0)::int as total_coins
+    FROM indicacoes_bonus
+    WHERE indicador_tipo = 'afiliado'
+    GROUP BY COALESCE(origem,'app')
+  `);
+  console.log('\n=== Por origem (app = compra real, admin = credito manual - NAO deveria mais existir daqui pra frente) ===');
+  console.table(porOrigem);
+
   const { rows: [datas] } = await query(`
     SELECT MIN(criado_em) as mais_antiga, MAX(criado_em) as mais_recente, COUNT(*)::int as total
     FROM indicacoes_bonus WHERE indicador_tipo = 'afiliado'

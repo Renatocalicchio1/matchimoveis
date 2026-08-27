@@ -3230,13 +3230,12 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
         _cacheUsuarios[_ci].matchCoinsTransacoes = _transacoes;
       }
     }
-    // Crédito manual pelo admin conta como recarga pra quem indicou esse
-    // usuário — mesma regra de qualquer recarga real (ver _processarBonusIndicacao):
-    // 10% pro corretor indicador, 30%/15% (1ª compra/recorrência, em
-    // comissão, ledger) pro sub-admin responsável (atendidoPorAdmin), se houver.
-    if (op === 'adicionar' && qtd > 0) {
-      await _processarBonusIndicacao(cod, qtd, 'admin');
-    }
+    // Crédito manual pelo admin NÃO gera comissão de afiliado (mudança
+    // explícita do Renato, ago/2026: "comissão só computa quando o usuário
+    // compra de verdade, crédito do admin não computa") — antes contava
+    // igual a uma recarga real, o que inflava a planilha de comissões com
+    // crédito de cortesia. Também não marca comprouEm (não é uma conversão
+    // de verdade pras métricas de campanha).
     // Aviso por email pro corretor quando o admin credita manualmente —
     // pedido do Renato (ago/2026): "sempre eu creditar pelo admin créditos
     // pra alguma conta, avise que ele recebeu novos créditos por email". Só
@@ -14556,7 +14555,10 @@ app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
           lida: false,
           criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
-        await _processarBonusIndicacao(userId, creditos);
+        // Comissão de afiliado só processa pelo webhook (/webhook/mercadopago),
+        // nunca por aqui (mudança explícita do Renato, ago/2026) — essa rota
+        // é a confirmação síncrona chamada pelo próprio front logo após criar
+        // o pagamento; o webhook é a fonte única de verdade pra comissão.
       } else {
         console.log('[MP] pagamento já processado antes, ignorando duplicata:', result.id);
       }

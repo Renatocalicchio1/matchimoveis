@@ -184,8 +184,14 @@ function normalizarBairroBR(cidadeCanonica, bairroBruto) {
   const chaveFallback = _chaveLocalidade(fallback);
   const daConfiavel = _casamentoAproximado(chaveFallback, _dicIBGE.bairrosPorCidade[chaveCidade]);
   if (daConfiavel) return daConfiavel;
+  // Tier 'interno' só serve pra CONFIRMAR que aquele texto já apareceu antes
+  // como bairro real dessa cidade (aproxima erro de digitação) — a
+  // grafia/acento gravado nessa linha não é confiável (bug histórico de
+  // _alimentarLocalidades gravando a chave sem acento/minúscula como valor,
+  // achado ago/2026), então nunca devolve o valor cru dessa camada: sempre
+  // reformata antes de retornar.
   const doAprendido = _casamentoAproximado(chaveFallback, _dicIBGE.bairrosPorCidadeTodos[chaveCidade]);
-  return doAprendido || fallback;
+  return doAprendido ? normalizarNomeLocalidade(doAprendido) : fallback;
 }
 
 // Alimenta `localidades` (fonte='interno') com bairro/cidade/estado reais
@@ -196,9 +202,14 @@ function normalizarBairroBR(cidadeCanonica, bairroBruto) {
 // nem quebra o salvamento do imóvel se a query falhar.
 async function _alimentarLocalidades(estadoBruto, cidadeBruta, bairroBruto) {
   const uf = _SIGLA_POR_CHAVE[_chaveLocalidade(estadoBruto)];
-  const cidade = _chaveLocalidade(cidadeBruta);
-  const bairro = _chaveLocalidade(bairroBruto);
-  if (!uf || !cidade || !bairro || bairro.length < 3) return;
+  const chaveCidade = _chaveLocalidade(cidadeBruta);
+  const chaveBairro = _chaveLocalidade(bairroBruto);
+  if (!uf || !chaveCidade || !chaveBairro || chaveBairro.length < 3) return;
+  // Grava o nome FORMATADO (não a chave em minúsculo/sem acento) — essa
+  // tabela é lida como fonte de exibição pelo fallback 'interno' de
+  // normalizarBairroBR, então tem que já vir com grafia decente.
+  const cidade = normalizarNomeLocalidade(cidadeBruta);
+  const bairro = normalizarNomeLocalidade(bairroBruto);
   try {
     await query(`INSERT INTO localidades(bairro,cidade,estado,fonte) VALUES($1,$2,$3,'interno') ON CONFLICT DO NOTHING`, [bairro, cidade, uf]);
   } catch (e) {}

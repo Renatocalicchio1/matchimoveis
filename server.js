@@ -23567,6 +23567,10 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         <input type="checkbox" id="ignorarHistorico" style="width:auto">
         Ignorar histórico — enviar mesmo pra quem já recebeu disparo antes (remarketing com template novo pros mesmos contatos)
       </label>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px">
+        <input type="checkbox" id="usarNomeHeader" style="width:auto">
+        Template usa o nome da pessoa no CABEÇALHO (ex: "Feliz Dia do Corretor, {{1}}!") — deixe desmarcado se a variável do template está no corpo
+      </label>
       <label>Coluna com o telefone</label>
       <select id="colTelefone"></select>
       <label>Coluna com o nome (opcional, só exibição)</label>
@@ -23618,8 +23622,16 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         <input type="checkbox" id="emailUsarNomeHeader" style="width:auto">
         Template usa o nome da pessoa no CABEÇALHO (ex: "Feliz Dia do Corretor, {{1}}!") — deixe desmarcado se a variável do template está no corpo
       </label>
+      <label>Quantidade de contatos pra esse disparo (deixe vazio pra todos os elegíveis)</label>
+      <input type="number" id="emailQuantidade" min="1" placeholder="Ex: 100 — deixe vazio pra mandar pra todo mundo elegível">
       <label>Delay entre envios (ms)</label>
       <input type="number" id="emailDelayMs" value="2500" min="500" max="30000">
+      <div class="box" style="background:#fff">
+        <label>Números para teste (1 a 3, separados por vírgula)</label>
+        <input type="text" id="emailNumerosTeste" placeholder="11999998888, 11999997777">
+        <button class="sec" onclick="testarDeEmail()">📨 Testar envio</button>
+        <div id="email-teste-resultado"></div>
+      </div>
       <button onclick="iniciarDeEmail()">🚀 Iniciar campanha de quem abriu o email</button>
       <div id="email-resultado"></div>
     </div>
@@ -23712,6 +23724,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         corretorUserId: document.getElementById('corretorUserId').value,
         usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
         ignorarHistorico: document.getElementById('ignorarHistorico').checked,
+        usarNomeHeader: document.getElementById('usarNomeHeader').checked,
         phoneNumberId: document.getElementById('phoneNumberId').value,
         delayMs: parseInt(document.getElementById('delayMs').value)||2500
       };
@@ -23730,6 +23743,25 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       window.location = '/admin/disparos/'+d.campanhaId;
     }
 
+    async function testarDeEmail(){
+      const numeros = document.getElementById('emailNumerosTeste').value.split(',').map(s=>s.trim()).filter(Boolean).slice(0,3);
+      if(!numeros.length){ alert('Informe ao menos 1 número'); return; }
+      const templateNome = document.getElementById('emailTemplateNome').value.trim();
+      if(!templateNome){ alert('Informe o nome do template aprovado'); return; }
+      document.getElementById('email-teste-resultado').innerHTML = '<p>⏳ Enviando teste...</p>';
+      const body = {
+        templateNome,
+        templateIdioma: document.getElementById('emailTemplateIdioma').value,
+        phoneNumberId: document.getElementById('emailPhoneNumberId').value,
+        usarNomeHeader: document.getElementById('emailUsarNomeHeader').checked,
+        numeros
+      };
+      const r = await fetch('/admin/disparos/teste-de-campanha-email', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('email-teste-resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      document.getElementById('email-teste-resultado').innerHTML = d.resultados.map(x=>'<p class="'+(x.ok?'green':'red')+'">'+x.numero+': '+(x.ok?'✅ enviado':'❌ '+x.erro)+'</p>').join('');
+    }
+
     async function iniciarDeEmail(){
       const nomeCampanha = document.getElementById('emailNomeCampanha').value.trim();
       const templateNome = document.getElementById('emailTemplateNome').value.trim();
@@ -23738,7 +23770,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       const subAdmins = [...document.querySelectorAll('.chk-subadmin:checked')].map(c=>c.value);
       if(!subAdmins.length){ alert('Marque ao menos 1 sub-admin'); return; }
       const templateIdioma = document.getElementById('emailTemplateIdioma').value;
-      const _abLinhas = document.getElementById('emailTemplatesAB').value.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+      const _abLinhas = document.getElementById('emailTemplatesAB').value.split('\\n').map(function(l){return l.trim();}).filter(Boolean);
       let templates = null;
       if(_abLinhas.length){
         templates = [{ nome: templateNome, idioma: templateIdioma }];
@@ -23747,7 +23779,8 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
           templates.push({ nome: partes[0], idioma: partes[1] || templateIdioma });
         });
       }
-      if(!confirm('Iniciar campanha pra quem já abriu o email, distribuindo entre '+subAdmins.length+' sub-admin(s)'+(templates ? ' e '+templates.length+' template(s) em teste A/B' : '')+'? Essa ação não pode ser desfeita.')) return;
+      const quantidade = document.getElementById('emailQuantidade').value.trim();
+      if(!confirm('Iniciar campanha pra quem já abriu o email'+(quantidade ? ' (limitado a '+quantidade+' contato(s))' : '')+', distribuindo entre '+subAdmins.length+' sub-admin(s)'+(templates ? ' e '+templates.length+' template(s) em teste A/B' : '')+'? Essa ação não pode ser desfeita.')) return;
       document.getElementById('email-resultado').innerHTML = '<p>⏳ Criando campanha...</p>';
       const body = {
         nomeCampanha,
@@ -23759,6 +23792,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         restringirHorario: document.getElementById('emailRestringirHorario').checked,
         ignorarHistorico: document.getElementById('emailIgnorarHistorico').checked,
         usarNomeHeader: document.getElementById('emailUsarNomeHeader').checked,
+        quantidade: quantidade ? parseInt(quantidade) : undefined,
         delayMs: parseInt(document.getElementById('emailDelayMs').value)||2500
       };
       const r = await fetch('/admin/disparos/criar-de-campanha-email', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -23868,7 +23902,7 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
 
 app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao, phoneNumberId, ignorarHistorico } = req.body;
+    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao, phoneNumberId, ignorarHistorico, usarNomeHeader } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
@@ -23883,6 +23917,7 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
       templateNome,
       templateIdioma: templateIdioma || 'pt_BR',
       mapeamentoVariaveis: mapeamento.variaveisOrdem || [],
+      usarNomeHeader: !!usarNomeHeader,
       delayMs: delayMs || 2500,
       criadoPor: 'admin',
       corretorUserId: corretorUserId || null,
@@ -23959,6 +23994,47 @@ app.post('/admin/disparos/criar-de-usuarios', authAdmin, express.json(), async (
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
+// Testar template ANTES de criar a campanha de verdade (fonte 3, "quem já
+// abriu o email") — não tem planilha aqui, então pega 1 contato real de
+// amostra (mesma query da campanha de verdade) só pra simular o nome no
+// cabeçalho igual ficaria no envio de produção. Botão de URL vai com um
+// valor de teste fixo (não é um contato de verdade, não precisa
+// funcionar de fato — o teste é sobre COMO a mensagem chega, não sobre
+// criar conta).
+app.post('/admin/disparos/teste-de-campanha-email', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { templateNome, templateIdioma, phoneNumberId, usarNomeHeader, numeros } = req.body;
+    if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
+    if (!numeros || !numeros.length) return res.json({ ok: false, erro: 'Informe ao menos 1 número' });
+    const { rows: _amostraRows } = await require('./services/db').query(`
+      SELECT nome FROM campanha_contatos
+      WHERE parece_corretor = true AND aberto_em IS NOT NULL AND celular IS NOT NULL AND celular != ''
+      LIMIT 1
+    `);
+    const _nomeAmostra = (_amostraRows[0] && _amostraRows[0].nome) || 'Corretor Teste';
+    const { nomeOuFallback } = require('./services/campanha');
+    const headerParametro = usarNomeHeader ? nomeOuFallback(_nomeAmostra).split(/\s+/)[0] : undefined;
+    const { enviarTemplate } = require('./services/metaWhatsapp');
+    const resultados = [];
+    for (const numero of numeros.slice(0, 3)) {
+      try {
+        await enviarTemplate({
+          telefone: numero,
+          templateNome,
+          templateIdioma: templateIdioma || 'pt_BR',
+          headerParametro,
+          botoesUrl: [{ index: 0, valor: 'teste-preview' }],
+          phoneNumberId: phoneNumberId || undefined
+        });
+        resultados.push({ numero, ok: true });
+      } catch (e) {
+        resultados.push({ numero, ok: false, erro: e.message });
+      }
+    }
+    res.json({ ok: true, resultados });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
 // Fonte 3: quem já abriu o email da campanha de aquisição (campanha_contatos),
 // parece corretor e tem celular — vira disparo de WhatsApp oficial com botão
 // de auto-cadastro (usarContatoIdBotao). Cada contato é distribuído em
@@ -23966,7 +24042,7 @@ app.post('/admin/disparos/criar-de-usuarios', authAdmin, express.json(), async (
 // 30%/15% (1ª compra/recorrência) quando essa conta comprar créditos (ver _processarBonusIndicacao).
 app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, templateNome, templateIdioma, templates, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins, usarNomeHeader } = req.body;
+    const { nomeCampanha, templateNome, templateIdioma, templates, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins, usarNomeHeader, quantidade } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
 
@@ -24021,7 +24097,7 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
 
     // Deduplica primeiro (mesmo telefone pode aparecer >1x na planilha) pra
     // só então saber o total real e montar a ordem ponderada certinha.
-    const _telsUnicos = [];
+    let _telsUnicos = [];
     const _vistos = new Set();
     linhas.forEach(l => {
       const telefone = _normalizarTelefone(l.celular);
@@ -24029,6 +24105,15 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
       _vistos.add(telefone);
       _telsUnicos.push({ nome: l.nome || '', telefone });
     });
+    // Quantidade (opcional, pedido explícito do Renato): limita o disparo a
+    // um lote menor em vez de mandar pra todo mundo elegível de uma vez —
+    // corta ANTES de montar a ordem ponderada, pra manter a proporção
+    // 35/35/30% certa mesmo no lote reduzido. Vazio/0/inválido = sem limite
+    // (comportamento de sempre).
+    const _quantidadeNum = parseInt(quantidade, 10);
+    if (_quantidadeNum > 0 && _quantidadeNum < _telsUnicos.length) {
+      _telsUnicos = _telsUnicos.slice(0, _quantidadeNum);
+    }
 
     const _ordemNiveis = _construirOrdemPonderada(_telsUnicos.length, _pesos, _niveisComConta);
     const _cursorNivel = { 1: 0, 2: 0, 3: 0 };

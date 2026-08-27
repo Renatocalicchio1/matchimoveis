@@ -120,35 +120,30 @@ async function _carregarDicIBGE() {
   const agora = Date.now();
   if (_dicIBGE && agora - _dicIBGEAt < 3600000) return;
   try {
-    const r = await query('SELECT bairro, cidade, estado, fonte FROM localidades WHERE cidade IS NOT NULL');
+    // Só lê fonte confiável (ibge/osm) — a tabela também guarda fonte='interno'
+    // (auto-aprendida de cadastro, ver _alimentarLocalidades), mas essa nunca é
+    // usada como fonte de grafia (ver normalizarBairroBR) então nem carrega aqui.
+    const r = await query(`SELECT bairro, cidade, estado FROM localidades WHERE cidade IS NOT NULL AND fonte IN ('ibge','osm')`);
     const cidadesPorEstado = {};
-    const bairrosPorCidade = {};       // só fonte confiável (ibge/osm)
-    const bairrosPorCidadeTodos = {};  // confiável + interno (fallback)
+    const bairrosPorCidade = {};
     for (const row of r.rows) {
       if (!row.cidade || !row.estado) continue;
-      const confiavel = row.fonte === 'ibge' || row.fonte === 'osm';
       const chaveEstado = _chaveLocalidade(normalizarEstadoBR(row.estado));
       const chaveCidade = _chaveLocalidade(row.cidade);
-      if (confiavel) {
-        if (!cidadesPorEstado[chaveEstado]) cidadesPorEstado[chaveEstado] = {};
-        if (!cidadesPorEstado[chaveEstado][chaveCidade]) cidadesPorEstado[chaveEstado][chaveCidade] = row.cidade;
-      }
+      if (!cidadesPorEstado[chaveEstado]) cidadesPorEstado[chaveEstado] = {};
+      if (!cidadesPorEstado[chaveEstado][chaveCidade]) cidadesPorEstado[chaveEstado][chaveCidade] = row.cidade;
       if (row.bairro) {
         const chaveBairro = _chaveLocalidade(row.bairro);
-        if (confiavel) {
-          if (!bairrosPorCidade[chaveCidade]) bairrosPorCidade[chaveCidade] = {};
-          if (!bairrosPorCidade[chaveCidade][chaveBairro]) bairrosPorCidade[chaveCidade][chaveBairro] = row.bairro;
-        }
-        if (!bairrosPorCidadeTodos[chaveCidade]) bairrosPorCidadeTodos[chaveCidade] = {};
-        if (!bairrosPorCidadeTodos[chaveCidade][chaveBairro]) bairrosPorCidadeTodos[chaveCidade][chaveBairro] = row.bairro;
+        if (!bairrosPorCidade[chaveCidade]) bairrosPorCidade[chaveCidade] = {};
+        if (!bairrosPorCidade[chaveCidade][chaveBairro]) bairrosPorCidade[chaveCidade][chaveBairro] = row.bairro;
       }
     }
-    _dicIBGE = { cidadesPorEstado, bairrosPorCidade, bairrosPorCidadeTodos };
+    _dicIBGE = { cidadesPorEstado, bairrosPorCidade };
     _dicIBGEAt = agora;
     console.log('[LOCALIDADES IBGE] cache carregado — estados:', Object.keys(cidadesPorEstado).length);
   } catch(e) {
     console.error('[LOCALIDADES IBGE] erro ao carregar:', e.message);
-    if (!_dicIBGE) _dicIBGE = { cidadesPorEstado: {}, bairrosPorCidade: {}, bairrosPorCidadeTodos: {} };
+    if (!_dicIBGE) _dicIBGE = { cidadesPorEstado: {}, bairrosPorCidade: {} };
   }
 }
 _carregarDicIBGE();
@@ -184,14 +179,16 @@ function normalizarBairroBR(cidadeCanonica, bairroBruto) {
   const chaveFallback = _chaveLocalidade(fallback);
   const daConfiavel = _casamentoAproximado(chaveFallback, _dicIBGE.bairrosPorCidade[chaveCidade]);
   if (daConfiavel) return daConfiavel;
-  // Tier 'interno' só serve pra CONFIRMAR que aquele texto já apareceu antes
-  // como bairro real dessa cidade (aproxima erro de digitação) — a
-  // grafia/acento gravado nessa linha não é confiável (bug histórico de
-  // _alimentarLocalidades gravando a chave sem acento/minúscula como valor,
-  // achado ago/2026), então nunca devolve o valor cru dessa camada: sempre
-  // reformata antes de retornar.
-  const doAprendido = _casamentoAproximado(chaveFallback, _dicIBGE.bairrosPorCidadeTodos[chaveCidade]);
-  return doAprendido ? normalizarNomeLocalidade(doAprendido) : fallback;
+  // Tier 'interno' só serve pra CONFIRMAR que aquele bairro já foi visto
+  // antes nessa cidade (evita rejeitar um bairro real que a raspagem OSM não
+  // cobre) — NUNCA fornece a grafia final. A grafia gravada ali pode ter
+  // vindo de um cadastro anterior que já tinha perdido acento/maiúscula
+  // (bug histórico de _alimentarLocalidades, achado ago/2026: reformatar o
+  // valor não resolve, porque o acento já tinha sido perdido na gravação —
+  // ex: "Aviação" virando "Aviacao"). Então mantém sempre o que o próprio
+  // corretor digitou (já formatado em Title Case) — só usa o tier interno
+  // pra decidir SE aceita, nunca pra decidir COMO escrever.
+  return fallback;
 }
 
 // Alimenta `localidades` (fonte='interno') com bairro/cidade/estado reais

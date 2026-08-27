@@ -546,6 +546,11 @@ function toggleMaisMenu(){
 ._btn-primeiros-passos{background:var(--brand-light)!important;color:var(--brand)!important}
 </style>
 <div style="position:fixed;top:12px;right:16px;z-index:9999;display:flex;align-items:center;gap:8px;">
+  <% if(user && !_menuRestrito){ %>
+  <a href="/app/notificacoes#radar" id="radarBadge" style="display:none;align-items:center;gap:5px;background:#fff1f3;border:1px solid #fecdd3;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#FF385C;text-decoration:none;white-space:nowrap">
+    🎯 Radar <span id="radarBadgeCount"></span>
+  </a>
+  <% } %>
   <% const _temWABtn = !!(user && user.whatsappStatus === 'open'); %>
   <% if(!_temWABtn && user && !_menuRestrito){ %>
   <a href="/app/perfil#secao-whatsapp" style="display:inline-flex;align-items:center;gap:5px;background:#fef2f2;border:1px solid #fca5a5;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#b91c1c;text-decoration:none;white-space:nowrap">
@@ -555,6 +560,25 @@ function toggleMaisMenu(){
   <% } %>
 
 </div>
+<% if(user && !_menuRestrito){ %>
+<script>
+// Badge do Radar no cabeçalho fixo — mesmo motor de sinais do balão
+// flutuante e da aba Radar em /app/notificacoes, só mostrando a contagem
+// de alertas urgentes (crit/atenção) pra chamar mais atenção (pedido do
+// Renato, ago/2026: "precisa ficar mais visível").
+(function(){
+  fetch('/api/agente/todos-sinais').then(function(r){ return r.json(); }).then(function(d){
+    var sinais = (d && d.sinais) || [];
+    var urgentes = sinais.filter(function(s){ return s.severidade === 'crit' || s.severidade === 'atencao'; });
+    if (!urgentes.length) return;
+    var badge = document.getElementById('radarBadge');
+    var count = document.getElementById('radarBadgeCount');
+    if (badge) badge.style.display = 'inline-flex';
+    if (count) count.textContent = '(' + urgentes.length + ')';
+  }).catch(function(){});
+})();
+</script>
+<% } %>
 
 <!-- MODAL PRIMEIROS PASSOS — onboarding inteligente, guiado pelo estado real da conta -->
 <div id="modalPrimeirosPassos" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px">

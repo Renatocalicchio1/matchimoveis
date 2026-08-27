@@ -158,6 +158,12 @@ async function carregarRadar() {
     vazio.style.display = 'block';
   }
 }
+// Chegou aqui pelo badge "🎯 Radar" do cabeçalho fixo (/app/notificacoes#radar)
+// — abre a aba certa direto, sem precisar clicar de novo.
+if (location.hash === '#radar') {
+  const btnRadar = document.getElementById('tab-radar');
+  if (btnRadar) abrirRadar(btnRadar);
+}
 </script>
 
 <script>

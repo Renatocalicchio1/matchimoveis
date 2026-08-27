@@ -50,6 +50,9 @@
 <div class="card">
   <h2 style="margin:0 0 4px">🤝 Programa de Afiliados MatchImóveis</h2>
   <p style="margin:0 0 16px;color:#6b7280;font-size:13px">Antes de acessar sua área de afiliado, leia e aceite o termo de adesão abaixo.</p>
+  <div style="background:#FFF6F0;border:1px solid #FDE0CC;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#374151;line-height:1.6">
+    💰 <strong>Como funciona, em resumo:</strong> você ganha comissão recorrente toda vez que alguém que você indicou <strong>compra créditos pra usar a plataforma MatchImóveis</strong> — não importa se essa pessoa vendeu ou alugou algum imóvel. A comissão é sobre o uso da plataforma (usuário pagante), <strong>nunca sobre venda de imóvel</strong>.
+  </div>
   <div class="af-contrato-box">
     <h3>1. Natureza da relação</h3>
     <p>Ao aderir ao Programa de Afiliados, você passa a atuar como <strong>afiliado/representante comercial autônomo</strong> da MatchImóveis, exclusivamente para fins de indicação e divulgação da plataforma a terceiros. Esta adesão <strong>não cria vínculo empregatício, societário, de parceria, consórcio ou associação</strong> com a MatchImóveis. Você não é sócio, não tem participação no capital, gestão ou resultados da empresa — sua remuneração se limita às comissões previstas neste termo. Não há subordinação, horário, meta obrigatória ou exclusividade impostos pela MatchImóveis.</p>
@@ -94,6 +97,10 @@ async function afAceitarContrato(){
 
 <% } else { %>
 
+<div style="background:#FFF6F0;border:1px solid #FDE0CC;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:#7c4a2d;line-height:1.5">
+  💰 Você ganha comissão toda vez que alguém que você indicou <strong>compra créditos pra usar a plataforma</strong> — nunca comissão de venda de imóvel.
+</div>
+
 <div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
   <div>
     <span class="af-nivel-badge af-nivel-<%= nivel %>">Nível <%= nivel %></span>
@@ -114,7 +121,7 @@ async function afAceitarContrato(){
       // do Renato, ago/2026). Texto neutro de propósito: não presume que
       // quem vai receber já é corretor, só convida a conhecer a plataforma
       // — o link de cadastro é o mesmo pra qualquer pessoa de qualquer jeito.
-      const _afMsgCompartilhar = 'Oi! Conheça a MatchImóveis — plataforma que cruza automaticamente leads com os imóveis certos pra corretores e imobiliárias, sem mensalidade. Tem também um programa de indicação que paga comissão recorrente. Cadastro é grátis e já vem com créditos de bônus: ' + dados.linkIndicacao;
+      const _afMsgCompartilhar = 'Oi! Conheça a MatchImóveis — plataforma que cruza automaticamente leads com os imóveis certos pra corretores e imobiliárias, sem mensalidade. Tem também um programa de indicação que paga comissão recorrente toda vez que quem você indicar comprar créditos pra usar a plataforma (não é comissão de venda de imóvel, é do sistema). Cadastro é grátis e já vem com créditos de bônus: ' + dados.linkIndicacao;
     %>
     <a href="https://wa.me/?text=<%= encodeURIComponent(_afMsgCompartilhar) %>" target="_blank" style="display:inline-flex;align-items:center;gap:6px;border:none;background:#25D366;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Compartilhar no WhatsApp</a>
     </div>

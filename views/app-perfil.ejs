@@ -448,7 +448,9 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
         overlay.classList.add('pf-celebra-ativo');
         setTimeout(() => overlay.classList.add('pf-celebra-sumindo'), 7000);
       }
-      setTimeout(() => location.reload(), overlay ? 7500 : 0);
+      // Depois da celebração, some o popup e cai direto no dashboard (pedido
+      // explícito do Renato) — não só recarrega o próprio /app/perfil.
+      setTimeout(() => { location.href = '/app-home'; }, overlay ? 7500 : 0);
     });
   }
 })();

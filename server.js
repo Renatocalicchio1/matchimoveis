@@ -2080,20 +2080,21 @@ app.get('/admin', authAdmin, async (req, res) => {
             <form method="POST" action="/admin/deletar/${u.codigo_usuario}" onsubmit="return confirm('Deletar ${u.nome}?')" style="display:inline">
               <button type="submit" style="font:inherit;font-size:10px;color:#e8404a;background:#fef2f2;padding:2px 6px;border-radius:4px;border:none;cursor:pointer">Deletar</button>
             </form>
+            ${solQAMap[u.codigo_usuario]!==undefined&&!solQAMap[u.codigo_usuario]?`<a href="/admin/quintoandar-liberar/${u.codigo_usuario}" style="font-size:10px;color:#00a86b;font-weight:600;text-decoration:none;background:#f0fdf9;padding:2px 6px;border-radius:4px">Liberar QA</a>`:''}
           </div>
         </td>
         <td>${_tipoContaBadge(u.tipo, u.afiliado_restrito)}</td>
         <td>${u.telefone ? `<a href="https://wa.me/55${(u.telefone||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:600;text-decoration:none;">📱 ${u.telefone}</a>` : '-'}</td>
-        <td><span title="${u.senha||''}" style="cursor:pointer;letter-spacing:2px;color:#9ca3af;" onclick="this.textContent=this.textContent==='••••••'?'${u.senha||''}':'••••••'">••••••</span></td>
+        <td class="col-extra"><span title="${u.senha||''}" style="cursor:pointer;letter-spacing:2px;color:#9ca3af;" onclick="this.textContent=this.textContent==='••••••'?'${u.senha||''}':'••••••'">••••••</span></td>
         <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${leadsMesMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${visitasMap[u.codigo_usuario]||0}</td>
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status==='open'?'open':u.whatsapp_status==='close'?'close':u.whatsapp_status==='connecting'?'conn...':'descon.'}</span></td>
-        <td style="text-align:center">${u.autoriza_quintoandar?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Ativo</span>':'<span style="color:#9ca3af;font-size:11px">Inativo</span>'}</td>
+        <td class="col-extra" style="text-align:center">${u.autoriza_quintoandar?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Ativo</span>':'<span style="color:#9ca3af;font-size:11px">Inativo</span>'}</td>
         <td style="text-align:center">${solQAMap[u.codigo_usuario]!==undefined?(solQAMap[u.codigo_usuario]?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-size:11px;font-weight:600">⏳ Aguard.</span>'):'-'}</td>
         <td>${u.indicado_por ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#f0fdfa;color:#0d9488">${_nomePorCodigo[u.indicado_por] || u.indicado_por}</span>` : '<span style="color:#9ca3af;font-size:11px">—</span>'}</td>
-        <td>${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
+        <td class="col-extra">${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
         <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
         <td style="text-align:center">
           <span style="font-size:12px;font-weight:700;color:#FF385C;">${(u.match_coins||0).toLocaleString('pt-BR')}</span>
@@ -2105,18 +2106,6 @@ app.get('/admin', authAdmin, async (req, res) => {
             <input type="hidden" name="operacao" value="adicionar">
             <button type="submit" style="font-size:10px;padding:3px 8px;background:#16a34a;color:#fff;border:none;border-radius:5px;cursor:pointer;">+</button>
           </form>
-        </td>
-        <td>
-          <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:11px;color:#2563eb;text-decoration:none;">Ver</a>
-          &nbsp;|&nbsp;
-          <a href="/admin/acessar/${u.codigo_usuario}" style="font-size:11px;color:#7c3aed;text-decoration:none;">Acessar</a>
-          &nbsp;|&nbsp;
-          <a href="/admin/regenerar-xml/${u.codigo_usuario}" style="font-size:11px;color:#16a34a;text-decoration:none;">XML</a>
-          &nbsp;|&nbsp;
-          <form method="POST" action="/admin/deletar/${u.codigo_usuario}" onsubmit="return confirm('Deletar ${u.nome}?')" style="display:inline">
-            <button type="submit" style="font:inherit;font-size:11px;color:#e8404a;background:none;border:none;text-decoration:underline;cursor:pointer;padding:0">Deletar</button>
-          </form>
-          ${solQAMap[u.codigo_usuario]!==undefined&&!solQAMap[u.codigo_usuario]?'&nbsp;|&nbsp;<a href="/admin/quintoandar-liberar/'+u.codigo_usuario+'" style="font-size:11px;color:#00a86b;font-weight:600;text-decoration:none;">Liberar QA</a>':''}
         </td>
       </tr>`).join('');
     res.send(`<!DOCTYPE html>
@@ -2136,6 +2125,13 @@ td{padding:7px 8px;border-bottom:1px solid #f0f0ee;border-right:1px solid #f0f0e
 td:last-child,th:last-child{border-right:none;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#fafafa;}
+/* Colunas menos usadas (Senha, Cart. QA, Último ac.) ficam escondidas por
+   padrão pra tabela caber melhor — botão "Mostrar mais colunas" revela
+   (ago/2026, pedido do Renato: "muita coisa na mesma linha"). */
+.col-extra{display:none}
+table.mostrar-extra .col-extra{display:table-cell}
+.btn-toggle-colunas{font-size:11px;font-weight:600;color:#374151;background:#f3f4f6;border:1px solid #e5e5e3;border-radius:6px;padding:5px 10px;cursor:pointer;margin-bottom:8px}
+.btn-toggle-colunas:hover{background:#e5e7eb}
 </style>
 </head>
 <body>
@@ -2168,9 +2164,10 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
   </form>
   <div class="card">
     ${(buscaT || subadminT || tipoT) ? `<div style="padding:10px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee;">${usuarios.rows.length} usuário(s) encontrado(s)</div>` : ''}
-    <div class="table-wrap"><table>
+    <div style="padding:10px 12px 0"><button type="button" class="btn-toggle-colunas" onclick="document.getElementById('tabela-usuarios').classList.toggle('mostrar-extra');this.textContent=document.getElementById('tabela-usuarios').classList.contains('mostrar-extra')?'▲ Esconder colunas (Senha, Cart. QA, Último ac.)':'▼ Mostrar mais colunas (Senha, Cart. QA, Último ac.)'">▼ Mostrar mais colunas (Senha, Cart. QA, Último ac.)</button></div>
+    <div class="table-wrap"><table id="tabela-usuarios">
       <thead><tr>
-        <th>Cód.</th><th>Nome</th><th>Tipo</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Indicado por</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
+        <th>Cód.</th><th>Nome</th><th>Tipo</th><th>Telefone</th><th class="col-extra">Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th class="col-extra">Cart. QA</th><th>XML QA</th><th>Indicado por</th><th class="col-extra">Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -4172,6 +4169,15 @@ Object.keys(_CONTEUDO_SEO).forEach(slug => {
   app.get('/' + slug, (req, res) => {
     res.render('conteudo-seo', { pagina: _CONTEUDO_SEO[slug] });
   });
+});
+
+// Página de vendas dos combos de crédito (ago/2026, pedido do Renato pra
+// disparo de campanha pra 1.000 corretores) — tom mais agressivo/urgência
+// que as páginas de conteúdo/SEO acima, mas preços e recursos são os
+// reais da plataforma (mesmos combos de app-perfil.ejs). Template próprio
+// (não usa conteudo-seo.ejs) por ter estrutura de pricing/FAQ diferente.
+app.get('/planos', (req, res) => {
+  res.render('planos');
 });
 
 // Esqueci minha senha — gera senha nova e manda por e-mail. Resposta é sempre

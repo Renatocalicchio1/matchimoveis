@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Planos MatchImóveis — Comece Grátis, Pague Só Pelo Que Usar</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="description" content="Cadastro grátis com 1.000 créditos de bônus. Sem mensalidade, sem fidelidade — você só paga quando recarrega. Veja os planos e o que cada um libera.">
+  <meta property="og:title" content="Planos MatchImóveis — Comece Grátis, Pague Só Pelo Que Usar">
+  <meta property="og:description" content="Cadastro grátis com 1.000 créditos de bônus. Sem mensalidade. A IA responde lead, faz o match e manda vitrine sozinha.">
+  <meta property="og:image" content="https://www.matchimoveis.ia.br/og-image.png">
+  <meta property="og:url" content="https://www.matchimoveis.ia.br/planos">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MatchImóveis">
+  <link rel="canonical" href="https://www.matchimoveis.ia.br/planos">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Planos MatchImóveis — Comece Grátis, Pague Só Pelo Que Usar">
+  <meta name="twitter:description" content="Cadastro grátis com 1.000 créditos de bônus. Sem mensalidade — você só paga quando recarrega.">
+  <meta name="twitter:image" content="https://www.matchimoveis.ia.br/og-image.png">
+  <script type="application/ld+json"><%- JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "MatchImóveis",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description: "Plataforma de match imobiliário com IA para corretores — CRM, resposta automática no WhatsApp e vitrine personalizada, sem mensalidade.",
+    url: "https://www.matchimoveis.ia.br/planos",
+    offers: [
+      { "@type": "Offer", name: "Cadastro grátis", price: "0", priceCurrency: "BRL", description: "1.000 créditos de bônus, sem cartão" },
+      { "@type": "Offer", name: "Combo R$200", price: "200", priceCurrency: "BRL", description: "5.000 créditos (+25% de bônus)" },
+      { "@type": "Offer", name: "Combo R$400", price: "400", priceCurrency: "BRL", description: "10.800 créditos (+35% de bônus)" },
+      { "@type": "Offer", name: "Combo R$700", price: "700", priceCurrency: "BRL", description: "18.900 créditos (+35% de bônus)" },
+      { "@type": "Offer", name: "Combo R$1.000", price: "1000", priceCurrency: "BRL", description: "27.000 créditos (+35% de bônus)" }
+    ]
+  }).replace(/</g, '\\u003c') %></script>
+  <script type="application/ld+json"><%- JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      { "@type": "Question", name: "Tem mensalidade?", acceptedAnswer: { "@type": "Answer", text: "Não. A MatchImóveis não cobra assinatura fixa — você recarrega créditos quando quiser e usa no seu ritmo. Se um mês você não precisar recarregar, não paga nada." } },
+      { "@type": "Question", name: "O que são os créditos?", acceptedAnswer: { "@type": "Answer", text: "É a moeda interna da plataforma — cada ação (cadastrar imóvel, a IA qualificar um lead, gerar um match, mandar vitrine no WhatsApp) consome uma quantidade fixa de créditos. Você só gasta no que realmente usa." } },
+      { "@type": "Question", name: "Preciso de cartão de crédito pra testar?", acceptedAnswer: { "@type": "Answer", text: "Não. O cadastro é grátis e os 1.000 créditos de bônus entram automaticamente, sem pedir cartão." } },
+      { "@type": "Question", name: "O que acontece se os créditos acabarem?", acceptedAnswer: { "@type": "Answer", text: "A plataforma avisa antes de zerar (alertas de saldo baixo) e bloqueia só as ações pagas até você recarregar — seus dados, imóveis e leads continuam salvos normalmente." } },
+      { "@type": "Question", name: "Tem contrato de fidelidade?", acceptedAnswer: { "@type": "Answer", text: "Não. Não tem contrato, não tem multa de cancelamento — é literalmente pay-as-you-go." } }
+    ]
+  }).replace(/</g, '\\u003c') %></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --rosa:#FF385C; --rosa-dark:#E22F51;
+      --teal:#00A699; --teal-dark:#00847A;
+      --laranja:#FC642D;
+      --dark:#0F0F0F; --ink:#17181A;
+      --text:#242628; --muted:#6B6660; --faint:#A39E97;
+      --bg:#FDFBF8; --panel:#FFFFFF; --panel-2:#F6F2EC;
+      --border:#EBE5DC; --border-soft:#F1ECE4;
+      --shadow-sm:0 1px 2px rgba(23,20,15,.05);
+      --shadow-md:0 8px 28px rgba(23,20,15,.08);
+      --shadow-lg:0 24px 60px rgba(23,20,15,.14);
+    }
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+    a{text-decoration:none;color:inherit}
+    .disp{font-family:'Manrope',-apple-system,sans-serif}
+    ::selection{background:var(--rosa);color:#fff}
+    img{max-width:100%}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:100;background:rgba(253,251,248,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:58px}
+    .logo{font-family:'Manrope';font-size:16px;font-weight:800;color:var(--dark);letter-spacing:-.3px}
+    .logo span{color:var(--rosa)}
+    .btn-entrar{background:var(--dark);color:#fff;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:600;border:none;cursor:pointer;white-space:nowrap}
+
+    main{max-width:920px;margin:0 auto;padding:0 20px}
+
+    /* HERO */
+    .hero{padding:46px 0 34px;text-align:center}
+    .hero-tag{display:inline-flex;align-items:center;gap:7px;background:#FFF1E9;color:var(--laranja);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:22px;border:1px solid #FDDCC4}
+    .hero-tag i{width:7px;height:7px;border-radius:50%;background:var(--laranja);flex-shrink:0;animation:pulse-dot 1.6s infinite}
+    @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+    h1{font-family:'Manrope';font-size:clamp(28px,5.5vw,44px);font-weight:800;line-height:1.08;letter-spacing:-1.4px;color:var(--dark);margin-bottom:18px;text-wrap:balance}
+    h1 em{font-style:normal;color:var(--rosa)}
+    .hero-sub{font-size:16.5px;color:var(--muted);max-width:560px;margin:0 auto 30px;line-height:1.65}
+    .btn-main{font-family:'Inter';display:inline-block;background:var(--rosa);color:#fff;padding:15px 30px;border-radius:11px;font-size:15px;font-weight:700;border:none;cursor:pointer;box-shadow:0 10px 24px rgba(255,56,92,.28)}
+    .hero-note{font-size:12.5px;color:var(--faint);margin-top:14px}
+    .hero-note b{color:var(--text)}
+
+    /* PROVA/URGÊNCIA */
+    .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:640px;margin:36px auto 0}
+    .stat-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 10px;text-align:center;min-width:0}
+    .stat-num{font-family:'Manrope';font-size:24px;font-weight:800;color:var(--rosa);letter-spacing:-.5px}
+    .stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.3}
+
+    /* SEÇÃO genérica */
+    section{padding:52px 0}
+    .sec-eyebrow{font-size:12px;font-weight:700;color:var(--rosa);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;text-align:center}
+    .sec-title{font-family:'Manrope';font-size:clamp(22px,4vw,30px);font-weight:800;color:var(--dark);letter-spacing:-.8px;text-align:center;margin-bottom:12px;text-wrap:balance}
+    .sec-sub{font-size:15px;color:var(--muted);text-align:center;max-width:520px;margin:0 auto 36px;line-height:1.6}
+
+    /* AGITAÇÃO (perda) */
+    .perda-list{display:flex;flex-direction:column;gap:12px;max-width:600px;margin:0 auto}
+    .perda-item{display:flex;gap:12px;align-items:flex-start;background:#FFF7F5;border:1px solid #FFDCD4;border-radius:12px;padding:14px 16px}
+    .perda-item .ic{flex-shrink:0;font-size:18px}
+    .perda-item .tx{min-width:0}
+    .perda-item .tx b{color:var(--dark);font-size:14px;display:block;margin-bottom:2px}
+    .perda-item .tx span{font-size:13px;color:var(--muted);line-height:1.5}
+
+    /* FEATURES */
+    .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+    .feat-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;min-width:0}
+    .feat-ic{width:38px;height:38px;border-radius:10px;background:var(--panel-2);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+    .feat-card h3{font-size:14.5px;font-weight:700;color:var(--dark);margin-bottom:5px;min-width:0}
+    .feat-card p{font-size:13px;color:var(--muted);line-height:1.55;min-width:0}
+
+    /* PRICING */
+    .price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media(max-width:760px){.price-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:460px){.price-grid{grid-template-columns:1fr}}
+    .price-card{background:var(--panel);border:1.5px solid var(--border);border-radius:16px;padding:22px 18px;text-align:center;position:relative;min-width:0}
+    .price-card.rec{border-color:var(--rosa);box-shadow:0 12px 28px rgba(255,56,92,.14)}
+    .price-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--rosa);color:#fff;font-size:10.5px;font-weight:700;padding:4px 12px;border-radius:999px;white-space:nowrap}
+    .price-val{font-family:'Manrope';font-size:26px;font-weight:800;color:var(--dark);letter-spacing:-.5px;margin:6px 0 2px}
+    .price-cred{font-size:12.5px;font-weight:700;color:var(--teal-dark);margin-bottom:4px}
+    .price-bonus{font-size:11px;color:var(--laranja);font-weight:700;margin-bottom:12px}
+    .price-use{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:14px;min-height:44px}
+    .price-btn{display:block;background:var(--dark);color:#fff;padding:10px;border-radius:9px;font-size:12.5px;font-weight:700;text-align:center}
+    .price-card.rec .price-btn{background:var(--rosa)}
+    .free-card{background:linear-gradient(135deg,var(--dark),#2A2320);color:#fff;border-radius:16px;padding:26px 24px;text-align:center;margin-bottom:20px}
+    .free-card h3{font-family:'Manrope';font-size:19px;font-weight:800;margin-bottom:6px}
+    .free-card p{font-size:13.5px;color:rgba(255,255,255,.7);margin-bottom:16px;max-width:400px;margin-left:auto;margin-right:auto}
+    .free-card .btn-main{box-shadow:0 10px 24px rgba(255,56,92,.4)}
+    .no-mensalidade{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:26px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+    .no-mensalidade span{display:flex;align-items:center;gap:5px}
+
+    /* FAQ */
+    .faq-item{border-bottom:1px solid var(--border);padding:16px 0}
+    .faq-item summary{cursor:pointer;font-size:14.5px;font-weight:600;color:var(--dark);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .faq-item summary::-webkit-details-marker{display:none}
+    .faq-item summary::after{content:'+';font-size:20px;color:var(--faint);flex-shrink:0}
+    .faq-item[open] summary::after{content:'–'}
+    .faq-item p{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:10px;padding-right:20px}
+
+    /* CTA FINAL */
+    .cta-final{text-align:center;padding:56px 0 70px}
+    .cta-final .sec-title{margin-bottom:10px}
+    .cta-final p{font-size:14.5px;color:var(--muted);margin-bottom:26px}
+
+    footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;font-size:12px;color:var(--faint)}
+    footer a{color:var(--muted);text-decoration:underline}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Match<span>Imóveis</span></div>
+  <a href="/entrar" class="btn-entrar">Entrar</a>
+</nav>
+
+<main>
+
+  <div class="hero">
+    <div class="hero-tag"><i></i>Sem mensalidade — pague só pelo que usar</div>
+    <h1>Enquanto você decide, <em>o lead já respondeu quem foi mais rápido</em></h1>
+    <p class="hero-sub">A MatchImóveis responde o WhatsApp, qualifica o lead e já sugere o imóvel certo — sozinha, na hora que a mensagem chega. Cadastro grátis, 1.000 créditos de bônus, sem cartão.</p>
+    <a href="/?cadastro=1" class="btn-main">Criar conta grátis agora →</a>
+    <div class="hero-note">Sem cartão de crédito · Sem contrato · <b>1.000 créditos</b> já entram na hora do cadastro</div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num">9x</div><div class="stat-lbl">mais chance de fechar respondendo em até 5 min¹</div></div>
+      <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">mensalidade — você só paga o que recarrega</div></div>
+      <div class="stat-card"><div class="stat-num">24h</div><div class="stat-lbl">a IA responde lead mesmo com você offline</div></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-eyebrow">O custo de não automatizar</div>
+    <h2 class="sec-title">Todo dia sem IA é lead saindo pela porta dos fundos</h2>
+    <p class="sec-sub">Não é falta de lead — é lead se perdendo antes de virar visita.</p>
+    <div class="perda-list">
+      <div class="perda-item"><div class="ic">⏱️</div><div class="tx"><b>Quem responde primeiro, fecha primeiro</b><span>Enquanto você termina uma ligação, a lead já mandou a mesma pergunta pra três corretores — e vai com quem respondeu na hora.</span></div></div>
+      <div class="perda-item"><div class="ic">🕳️</div><div class="tx"><b>Lead esfria sem ninguém notar</b><span>Sem follow-up automático, uma lead quente vira "esqueci de responder" em 48h — e você nem fica sabendo que perdeu.</span></div></div>
+      <div class="perda-item"><div class="ic">🔍</div><div class="tx"><b>O imóvel certo existe, só ninguém achou</b><span>Vasculhar a carteira imóvel por imóvel pra achar o que bate com o perfil da lead consome um tempo que devia ir pra fechar negócio.</span></div></div>
+    </div>
+  </section>
+
+  <section style="background:var(--panel-2);border-radius:24px;margin:0 0 8px">
+    <div class="sec-eyebrow">Como resolve</div>
+    <h2 class="sec-title">Tudo isso já entra automático</h2>
+    <p class="sec-sub">Você cadastra os imóveis, conecta o WhatsApp — o resto a plataforma faz sozinha.</p>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-ic">💬</div><h3>IA responde o WhatsApp</h3><p>A lead manda mensagem e já recebe resposta na hora, mesmo com você offline — a IA conversa até qualificar o que ela procura.</p></div>
+      <div class="feat-card"><div class="feat-ic">🎯</div><h3>Match automático</h3><p>Cruza o perfil da lead com toda a carteira (sua e da rede de parceiros) e já aponta o imóvel mais compatível, sem você filtrar manual.</p></div>
+      <div class="feat-card"><div class="feat-ic">📲</div><h3>Vitrine no WhatsApp</h3><p>Depois do match, os imóveis certos já chegam pra lead com foto e descrição — sem você montar nada na mão.</p></div>
+      <div class="feat-card"><div class="feat-ic">🔄</div><h3>Follow-up sem você lembrar</h3><p>Se a lead não responde, a plataforma volta a contatar sozinha, seguindo a regra certa por temperatura e fase do funil.</p></div>
+      <div class="feat-card"><div class="feat-ic">📥</div><h3>Leads de todo canal, num lugar só</h3><p>Portais (ZAP, OLX, VivaReal, ImovelWeb), captação de proprietário, indicação e planilha — tudo cai no mesmo funil.</p></div>
+      <div class="feat-card"><div class="feat-ic">🌐</div><h3>Divulgação automática</h3><p>Gera o XML pros portais e publica no Instagram sozinho — cadastrou uma vez, aparece em todo lugar.</p></div>
+    </div>
+  </section>
+
+  <section id="planos">
+    <div class="sec-eyebrow">Sem mensalidade</div>
+    <h2 class="sec-title">Comece de graça. Recarregue só quando crescer.</h2>
+    <p class="sec-sub">Créditos são a moeda da plataforma — cada ação (a IA qualificar um lead, gerar um match, mandar vitrine) consome uma quantidade fixa. Sem uso, sem gasto.</p>
+
+    <div class="free-card">
+      <h3>🎁 Cadastro grátis</h3>
+      <p>1.000 créditos de bônus na hora, sem cartão. Dá pra cadastrar imóveis, importar leads e já ver a IA funcionando antes de pensar em recarregar.</p>
+      <a href="/?cadastro=1" class="btn-main">Criar conta grátis →</a>
+    </div>
+
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-val">R$ 200</div>
+        <div class="price-cred">5.000 créditos</div>
+        <div class="price-bonus">+25% de bônus</div>
+        <div class="price-use">Dá pra ~166 leads qualificadas pela IA</div>
+        <a href="/?cadastro=1" class="price-btn">Começar</a>
+      </div>
+      <div class="price-card rec">
+        <div class="price-tag">Mais escolhido</div>
+        <div class="price-val">R$ 400</div>
+        <div class="price-cred">10.800 créditos</div>
+        <div class="price-bonus">+35% de bônus</div>
+        <div class="price-use">Dá pra ~360 leads qualificadas pela IA</div>
+        <a href="/?cadastro=1" class="price-btn">Começar</a>
+      </div>
+      <div class="price-card">
+        <div class="price-val">R$ 700</div>
+        <div class="price-cred">18.900 créditos</div>
+        <div class="price-bonus">+35% de bônus</div>
+        <div class="price-use">Dá pra ~630 leads qualificadas pela IA</div>
+        <a href="/?cadastro=1" class="price-btn">Começar</a>
+      </div>
+      <div class="price-card">
+        <div class="price-val">R$ 1.000</div>
+        <div class="price-cred">27.000 créditos</div>
+        <div class="price-bonus">+35% de bônus</div>
+        <div class="price-use">Dá pra ~900 leads qualificadas pela IA</div>
+        <a href="/?cadastro=1" class="price-btn">Começar</a>
+      </div>
+    </div>
+
+    <div class="no-mensalidade">
+      <span>✅ Sem mensalidade</span>
+      <span>✅ Sem fidelidade</span>
+      <span>✅ Sem cartão pra testar</span>
+      <span>✅ Créditos não vencem</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-eyebrow">Perguntas frequentes</div>
+    <h2 class="sec-title">Antes de você perguntar</h2>
+    <div>
+      <details class="faq-item">
+        <summary>Tem mensalidade?</summary>
+        <p>Não. A MatchImóveis não cobra assinatura fixa — você recarrega créditos quando quiser e usa no seu ritmo. Se um mês você não precisar recarregar, não paga nada.</p>
+      </details>
+      <details class="faq-item">
+        <summary>O que são os créditos?</summary>
+        <p>É a moeda interna da plataforma — cada ação (cadastrar imóvel, a IA qualificar um lead, gerar um match, mandar vitrine no WhatsApp) consome uma quantidade fixa de créditos. Você só gasta no que realmente usa.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Preciso de cartão de crédito pra testar?</summary>
+        <p>Não. O cadastro é grátis e os 1.000 créditos de bônus entram automaticamente, sem pedir cartão.</p>
+      </details>
+      <details class="faq-item">
+        <summary>O que acontece se os créditos acabarem?</summary>
+        <p>A plataforma avisa antes de zerar (alertas de saldo baixo) e bloqueia só as ações pagas até você recarregar — seus dados, imóveis e leads continuam salvos normalmente.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Tem contrato de fidelidade?</summary>
+        <p>Não. Não tem contrato, não tem multa de cancelamento — é literalmente pagar só pelo que usar.</p>
+      </details>
+    </div>
+  </section>
+
+  <div class="cta-final">
+    <h2 class="sec-title">Cada dia sem responder na hora é lead indo pro concorrente</h2>
+    <p>Leva 2 minutos pra criar a conta. Os 1.000 créditos já entram sozinhos.</p>
+    <a href="/?cadastro=1" class="btn-main">Criar conta grátis agora →</a>
+  </div>
+
+</main>
+
+<footer>
+  ¹ Estimativa baseada em pesquisas do setor sobre tempo de resposta e conversão de leads imobiliários.
+  <br>© <%= new Date().getFullYear() %> MatchImóveis · <a href="/politica-privacidade">Privacidade</a> · <a href="/termos-de-uso">Termos</a>
+</footer>
+
+</body>
+</html>

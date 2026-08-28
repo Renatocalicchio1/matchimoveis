@@ -111,7 +111,15 @@ function normalizeTipo(raw, titulo) {
   if (tit.includes('cobertura duplex') || t.includes('cobertura duplex')) return 'Cobertura Duplex';
   if (tit.includes('cobertura') || t.includes('cobertura') || t.includes('penthouse')) return 'Cobertura';
   if (t.includes('residential / home') || t.includes('residential/home')) return 'Casa';
-  if (t.includes('residential')) return 'Casa';
+  // Fallback genérico de portal ("Residential" sem subtipo, comum em feed de
+  // lançamento/empreendimento) — sem tipo específico, cravar Casa direto tá
+  // errado: lançamento é majoritariamente prédio/apartamento. Olha o título
+  // antes de decidir (bug real: apartamento de lançamento aparecendo como
+  // Casa no site do corretor, ago/2026).
+  if (t.includes('residential')) {
+    if (tit.includes('apartamento') || tit.includes('apto')) return 'Apartamento';
+    return 'Casa';
+  }
   if (t.includes('galpao') || t.includes('galpão') || t.includes('deposito') || t.includes('depósito') || t.includes('warehouse')) return 'Galpão / Depósito';
   if (t.includes('predio') || t.includes('prédio') || t.includes('building')) return 'Prédio Comercial';
   if (t.includes('conjunto')) return 'Conjunto Comercial';

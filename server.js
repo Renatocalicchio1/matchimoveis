@@ -3612,7 +3612,7 @@ app.get('/', (req,res)=>{
     const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
     return res.redirect(isMobile ? '/app/feed' : '/app/leads');
   }
-  res.render('landing', { error: req.query.erro || req.query.error || null, ref: (req.query.ref || '').trim(), msg: req.query.msg || null });
+  res.render('landing', { error: req.query.erro || req.query.error || null, ref: (req.query.ref || '').trim(), msg: req.query.msg || null, plano: (req.query.plano || '').trim() });
 });
 
 // ── Páginas de conteúdo SEO/AEO (ago/2026) ──────────────────────────────────
@@ -5065,6 +5065,18 @@ app.post('/login', async (req,res)=>{
       afiliadoRestrito: req.body.afiliadoRestrito === '1'
     };
 
+    // Cadastro vindo de /planos com um combo escolhido (ago/2026, pedido
+    // do Renato: "comprar e acessa plataforma" — a página de vendas não
+    // pode oferecer conta liberada de graça) — mesma trava que já existe
+    // pro fluxo de campanha via /entrar/:contatoId (precisaComprarPlano),
+    // só que disparada aqui pelo cadastro manual normal. Conta é criada
+    // igual, mas fica bloqueada (ver middleware logo no topo do arquivo)
+    // até o pagamento confirmar via webhook do Mercado Pago.
+    const _planoComprarNovo = String(req.body.planoComprar || '').trim();
+    if (_planoComprarNovo && PLANOS_LEADS[_planoComprarNovo]) {
+      novo.precisaComprarPlano = true;
+    }
+
     users.push(novo);
     try {
       await salvarTodosUsuarios(users);
@@ -5164,6 +5176,10 @@ app.post('/login', async (req,res)=>{
 
     req.session.user = novo;
     if (novo.afiliadoRestrito) return res.redirect('/app/afiliados');
+    // Combo escolhido em /planos: manda direto pro perfil já com
+    // ?combo=... — comboAuto (ver GET /app/perfil) dispara o checkout do
+    // Mercado Pago sozinho, sem precisar a pessoa escolher de novo.
+    if (novo.precisaComprarPlano) return res.redirect('/app/perfil?combo=' + encodeURIComponent(_planoComprarNovo));
     const _uaN = req.headers['user-agent']||'';
     return res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaN) ? '/app/feed' : '/app-home');
   }

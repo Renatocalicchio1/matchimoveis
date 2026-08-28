@@ -605,8 +605,12 @@
     <div id="form-cadastro" style="display:none">
       <form method="POST" action="/login" onsubmit="this.querySelector('button[type=submit]').disabled=true;this.querySelector('button[type=submit]').textContent='Criando conta...'">
         <input type="hidden" name="indicadoPor" value="<%= typeof ref !== 'undefined' ? ref : '' %>">
+        <input type="hidden" name="planoComprar" value="<%= typeof plano !== 'undefined' ? plano : '' %>">
         <% if(typeof ref !== 'undefined' && ref){ %>
         <div style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px">🎉 Você foi indicado por um parceiro MatchImóveis! Cadastre-se e ganhe <strong>500 créditos de bônus</strong>, além dos 1.000 iniciais.</div>
+        <% } %>
+        <% if(typeof plano !== 'undefined' && plano){ %>
+        <div style="background:#FFF1E9;border:1px solid #FDDCC4;color:#B4551A;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px">⚡ Cria a conta e você já vai direto pro pagamento do plano escolhido.</div>
         <% } %>
         <div class="m-field"><label>Nome completo</label><input name="nome" placeholder="Seu nome" required></div>
         <div class="m-field"><label>E-mail</label><input name="email" type="email" placeholder="seu@email.com" required></div>

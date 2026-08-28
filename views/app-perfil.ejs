@@ -86,6 +86,8 @@
   background:#111827;
   color:#fff;
   margin-top:14px;
+  box-sizing:border-box;
+  max-width:100%;
 }
 .pf-btn:hover{background:#1f2937}
 .pf-btn-outline{
@@ -622,8 +624,8 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     </div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-    <button type="button" id="btn-loc" class="pf-btn" style="margin-top:0;white-space:nowrap;background:#f3f4f6;color:#111827" onclick="pegarLocalizacao()">📍 Usar minha localização atual</button>
-    <button type="button" class="pf-btn" style="margin-top:0;white-space:nowrap" onclick="salvarEnderecoCep()">Salvar endereço</button>
+    <button type="button" id="btn-loc" class="pf-btn" style="margin-top:0;max-width:100%;background:#f3f4f6;color:#111827" onclick="pegarLocalizacao()">📍 Usar minha localização atual</button>
+    <button type="button" class="pf-btn" style="margin-top:0;max-width:100%" onclick="salvarEnderecoCep()">Salvar endereço</button>
   </div>
   <div id="cep-resultado-perfil" style="display:none;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px"></div>
   <form id="form-loc" method="POST" action="/app/perfil/localizacao" style="display:none">

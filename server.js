@@ -2994,6 +2994,20 @@ setInterval(async () => {
   } catch (e) { console.error('[JOB CONVITE PORTAL]', e.message); }
 }, 10000);
 
+// Job convite pra atualizar o perfil — mesmo padrão do job acima (convite de
+// portal), só que pra TODO corretor ativo com email cadastrado, reenviado a
+// cada 30 dias (services/emailAtualizarPerfil.js). Cadastro novo já entra na
+// 1ª passada (campo fica NULL até o primeiro envio).
+let _proximoEmailPerfil = Date.now() + (10 + Math.random() * 110) * 1000; // 10s a 120s
+setInterval(async () => {
+  if (Date.now() < _proximoEmailPerfil) return;
+  _proximoEmailPerfil = Date.now() + (10 + Math.random() * 110) * 1000;
+  try {
+    const { enviarUmEmailAtualizarPerfil } = require('./services/emailAtualizarPerfil');
+    await enviarUmEmailAtualizarPerfil();
+  } catch (e) { console.error('[JOB EMAIL ATUALIZAR PERFIL]', e.message); }
+}, 10000);
+
 app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');

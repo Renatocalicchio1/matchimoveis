@@ -44,6 +44,8 @@
     .visitado { border: 2px solid #10b981; }
     .visitado .score-badge { background: #10b981; }
     .tag-escolhido { display: inline-block; background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+    .card.ideal { position: relative; border: 2px solid #f59e0b; }
+    .ideal-ribbon { position: absolute; top: 12px; right: 12px; z-index: 2; background: #f59e0b; color: #fff; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
   </style>
 </head>
 <body>
@@ -114,8 +116,15 @@
       const valorFmt = valor ? 'R$ ' + Number(valor).toLocaleString('pt-BR') : '-';
       const isEscolhido = (lead.imoveisGostei||[]).some(g => String(g.idExterno||g.idInterno||g.id||'') === String(m.idExterno||m.idInterno||m.id||''));
       const isVisita = lead.imovelVisita && lead.imovelVisita.idExterno === m.idExterno;
+      // "Mais compatível pra você" — o imóvel ideal calculado pelo motor
+      // (lead.imovelIdeal, mesmo dado usado no Kanban/detalhe da lead pro
+      // corretor); nunca marca o imóvel âncora (destaque:true, o que a lead
+      // já clicou pra chegar aqui) — esse já é a escolha dela, não uma
+      // sugestão do sistema.
+      const isIdeal = !m.destaque && lead.imovelIdeal && String(lead.imovelIdeal.imovelId) === String(m.id);
     %>
-    <div class="card <%= isVisita ? 'visitado' : '' %>">
+    <div class="card <%= isVisita ? 'visitado' : '' %> <%= isIdeal ? 'ideal' : '' %>">
+      <% if(isIdeal) { %><span class="ideal-ribbon">⭐ Mais compatível pra você</span><% } %>
       <% if(foto) { %>
         <img class="card-img" src="<%= foto %>" alt="Foto do imóvel" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\'card-img-placeholder\'>🏠</div>'">
       <% } else { %>

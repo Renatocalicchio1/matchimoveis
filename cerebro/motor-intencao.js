@@ -228,6 +228,17 @@ function matchPorMapa(lead, imoveis) {
       for (const sinal of mapa.diferenciais) { const dv = _normalizar(sinal.valor||''); if (difsIm.some(d => d.includes(dv)||dv.includes(d))) hits++; }
       if (hits > 0) { pontos += Math.min(hits*2,5); motivos.push(`${hits} diferenciais ✓`); }
     }
+    // Recência (10pts) — imóvel parado há muito tempo perde prioridade,
+    // mas continua elegível (não é critério eliminatório, só desempate).
+    // 0-30 dias: pontos cheios | 30-90 dias: metade | 90+ dias: zero.
+    maxPontos += 10;
+    const _dataAtualizIm = im.atualizado_em || im.criado_em;
+    if (_dataAtualizIm) {
+      const _diasSemAtualizar = Math.floor((Date.now() - new Date(_dataAtualizIm).getTime()) / 86400000);
+      if (_diasSemAtualizar <= 30)      { pontos += 10; motivos.push('atualizado recentemente ✓'); }
+      else if (_diasSemAtualizar <= 90) { pontos += 5; }
+      // 90+ dias: 0 pontos, sem penalizar mais que isso
+    }
     if ((mapa.urgencia||0) > 50) pontos += 3;
     const scoreMatch = maxPontos > 0 ? Math.round((pontos/maxPontos)*100) : 50;
     resultados.push({ imovel: im, scoreMatch, motivos });

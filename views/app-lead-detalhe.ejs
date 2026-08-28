@@ -13,6 +13,8 @@
 .match-card:hover{border-color:var(--brand)}
 .match-foto{width:64px;height:50px;object-fit:cover;border-radius:7px}
 .match-ph{width:64px;height:50px;border-radius:7px;background:var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-ter);font-size:18px}
+.ld-ideal-card{background:#fffbeb;border-color:#fde68a}
+.ld-ideal-card:hover{border-color:#f59e0b}
 .tl-item{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--border-light)}
 .tl-item:last-child{border:none}
 .tl-ic{width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
@@ -278,6 +280,22 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% if(lead.bairro){%><div class="info-row"><span class="info-lbl">Bairro</span><span class="info-val"><%=lead.bairro%></span></div><%}%>
       <% if(lead.valor_imovel){%><div class="info-row"><span class="info-lbl">Valor</span><span class="info-val">R$ <%=Number(lead.valor_imovel).toLocaleString('pt-BR')%></span></div><%}%>
       <a href="/imovel/<%= lead.imovel_interesse %>" target="_blank" class="btn btn-outline btn-sm" style="margin-top:10px;display:inline-flex">Ver imóvel →</a>
+    </div>
+    <% } %>
+
+    <!-- Imóvel ideal — melhor match por score, calculado pelo motor e
+         persistido em lead.imovelIdeal (histórico de mudanças em lead.eventos) -->
+    <% if(lead.imovelIdeal && lead.imovelIdeal.imovelId) { %>
+    <div class="ld-card">
+      <div class="ld-title">⭐ Imóvel ideal pra essa lead</div>
+      <a href="/imovel/<%= lead.imovelIdeal.imovelId %>?userId=<%= encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'') %>" target="_blank" class="match-card ld-ideal-card">
+        <% if(lead.imovelIdeal.foto) { %><img class="match-foto" src="<%= lead.imovelIdeal.foto %>"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
+        <div style="min-width:0">
+          <div style="font-size:12px;font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= lead.imovelIdeal.titulo %></div>
+          <% if(lead.imovelIdeal.motivos && lead.imovelIdeal.motivos.length) { %><div style="font-size:11px;color:var(--text-sec);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= lead.imovelIdeal.motivos.slice(0,3).join(' · ') %></div><% } %>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#d97706;white-space:nowrap">Score <%= lead.imovelIdeal.score %></div>
+      </a>
     </div>
     <% } %>
 

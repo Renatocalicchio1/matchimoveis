@@ -4131,6 +4131,40 @@ const _CONTEUDO_SEO = {
       { slug: 'crm-imobiliario-sem-mensalidade', texto: 'CRM imobiliário sem mensalidade' },
       { slug: 'ia-para-corretores', texto: 'IA para corretores' },
     ]
+  },
+  'academia-para-corretores': {
+    slug: 'academia-para-corretores',
+    titulo: 'Academia MatchImóveis — Aprenda a Vender Mais Usando a Plataforma | MatchImóveis',
+    metaDescricao: 'A Academia MatchImóveis ensina cada função da plataforma em trilhas curtas, com pontos, medalhas e recompensa em créditos de verdade. Chegando em breve.',
+    tag: 'Academia MatchImóveis',
+    h1: 'A escola que ensina a vender mais com a MatchImóveis',
+    heroSub: 'Boa parte dos corretores usa só uma fração do que a plataforma faz — não por falta de recurso, é por não saber que ele existe. A Academia MatchImóveis ensina cada função em trilhas curtas, no seu ritmo, e recompensa em créditos de verdade a cada módulo concluído.',
+    doresTitulo: 'O problema não é falta de ferramenta — é não saber usar',
+    doresSub: 'Muito recurso poderoso da plataforma passa batido porque nunca teve um lugar ensinando pra que serve.',
+    dores: [
+      { titulo: 'Funcionalidade que ninguém usa', desc: 'Vitrine automática, Central Operacional, distribuição de lead por área — poderosas, mas fáceis de nunca descobrir sozinho.' },
+      { titulo: 'Aprender vendo tutorial genérico', desc: 'Vídeo solto no YouTube não ensina o fluxo real da sua conta — fica teórico, difícil de aplicar no dia a dia.' },
+      { titulo: 'Sem motivo pra voltar e aprender mais', desc: 'Sem progresso visível nem recompensa, estudar a plataforma sempre fica pra depois — e "depois" nunca chega.' },
+    ],
+    recursosTitulo: 'Como a Academia funciona',
+    recursos: [
+      { icone: '🎯', titulo: 'Trilhas por área', desc: 'Leads, Imóveis, WhatsApp, Portais, Redes Sociais, Meu Site — cada área do menu vira uma trilha com os módulos na ordem certa pra aprender.' },
+      { icone: '🎬', titulo: 'Módulos curtos, direto ao ponto', desc: 'Cada módulo é um vídeo de 1-3 minutos mostrando a função dentro da sua própria conta, sem enrolação.' },
+      { icone: '🪙', titulo: 'Recompensa em créditos reais', desc: 'Terminar um módulo ou uma trilha inteira credita coins de verdade na sua conta — não é só medalha decorativa.' },
+      { icone: '🏅', titulo: 'Conquistas de negócio', desc: 'Além de estudar, você desbloqueia medalhas por resultado real — primeira venda fechada, primeira indicação que virou cadastro, e por aí vai.' },
+      { icone: '⭐', titulo: 'Progresso e rank visíveis', desc: 'Suas estrelas e seu nível sobem conforme você avança — dá pra ver exatamente o que falta pro próximo patamar.' },
+    ],
+    faq: [
+      { q: 'A Academia MatchImóveis já está disponível?', a: 'Está em construção — quem se cadastra na plataforma agora já garante acesso assim que a Academia for liberada, sem precisar fazer nada extra.' },
+      { q: 'Preciso pagar pra estudar na Academia?', a: 'Não — o acesso às trilhas é gratuito pra qualquer corretor com conta na MatchImóveis. Os créditos são recompensa por completar módulos, não custo.' },
+      { q: 'A recompensa é só decorativa (medalha) ou vale alguma coisa?', a: 'As duas coisas: medalhas marcam seu progresso, e boa parte dos módulos credita coins de verdade — a mesma moeda usada pra qualificar lead, gerar XML, mandar vitrine, etc.' },
+      { q: 'As medalhas de negócio (venda, indicação) são automáticas?', a: 'Sim — são calculadas a partir do que você já faz na plataforma (visita marcada como fechada, corretor cadastrado pelo seu link de indicação), sem precisar preencher nada manualmente.' },
+    ],
+    relacionados: [
+      { slug: 'plataforma-para-corretores', texto: 'A plataforma completa' },
+      { slug: 'crm-para-corretores', texto: 'CRM para corretores' },
+      { slug: 'ia-para-corretores', texto: 'IA para corretores' },
+    ]
   }
 };
 

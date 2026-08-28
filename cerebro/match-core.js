@@ -562,6 +562,7 @@ class MatchCore {
       lead.matches     = matchesFiltrados;
       lead.matchesAuto = matchesFiltrados;
       lead.matchAutoEm = new Date().toISOString();
+      this._atualizarImovelIdeal(lead, matchesFiltrados, 'caso1');
       if (lead.temperatura === 'frio') lead.temperatura = 'morno';
       await this._debitarDivulgacaoVitrine(lead, matchesFiltrados.slice(0, 9));
 
@@ -720,6 +721,7 @@ class MatchCore {
         lead.matches     = matchesNovos;
         lead.matchesBase = matchesNovos;
         lead.matchAutoEm = new Date().toISOString();
+        this._atualizarImovelIdeal(lead, matchesNovos, 'caso2');
         await this._debitarDivulgacaoVitrine(lead, matchesNovos.slice(0, 9));
         // Debita match_encontrado
         if (matchesNovos.length > 0 && matchesNovos.length > matchesAntes.length) {
@@ -782,6 +784,42 @@ class MatchCore {
     if (!lead.eventos) lead.eventos = [];
     lead.eventos.push({ tipo:'mensagem_recebida', canal, resumo:(texto||'').slice(0,80), timestamp: new Date().toISOString() });
     if (lead.eventos.length > 100) lead.eventos = lead.eventos.slice(-100);
+    return lead;
+  }
+
+  // "Imóvel ideal" — o melhor match por score dentre os SUGERIDOS (não conta
+  // o imóvel âncora do Caso 1, que a lead já clicou por conta própria, não
+  // foi "encontrado" pelo motor). Persistido em lead.imovelIdeal pra exibir
+  // sem recalcular (Kanban, detalhe da lead, vitrine) e registrado em
+  // lead.eventos toda vez que muda, pra manter histórico (pedido explícito
+  // do Renato ago/2026: "tudo deve ficar registrado qualquer movimento").
+  _atualizarImovelIdeal(lead, matches, origemMatch) {
+    const candidatos = (matches || []).filter(m => !m.destaque);
+    const top = candidatos[0];
+    if (!top) return lead;
+    const idealAnterior = lead.imovelIdeal;
+    const mudou = !idealAnterior || String(idealAnterior.imovelId) !== String(top.id);
+    lead.imovelIdeal = {
+      imovelId: top.id,
+      titulo: top.titulo || top.tipo || 'Imóvel',
+      foto: (top.fotos && top.fotos[0]) || null,
+      score: top.score,
+      motivos: top.motivos || [],
+      calculadoEm: new Date().toISOString()
+    };
+    if (mudou) {
+      if (!lead.eventos) lead.eventos = [];
+      lead.eventos.push({
+        tipo: 'imovel_ideal_mudou',
+        resumo: `Imóvel ideal ${idealAnterior ? 'mudou' : 'definido'}: ${lead.imovelIdeal.titulo} (score ${top.score})`,
+        imovelIdAnterior: idealAnterior?.imovelId || null,
+        imovelIdNovo: top.id,
+        scoreNovo: top.score,
+        origemMatch,
+        timestamp: new Date().toISOString()
+      });
+      if (lead.eventos.length > 100) lead.eventos = lead.eventos.slice(-100);
+    }
     return lead;
   }
 

@@ -24,11 +24,17 @@
   grid-template-columns:1fr 1fr;
   gap:12px;
 }
+.pf-grid > *{min-width:0}
 @media(max-width:480px){.pf-grid{grid-template-columns:1fr}}
 .pf-grid-combos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .pf-grid-combos > div{min-width:0}
 @media(max-width:640px){.pf-grid-combos{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:380px){.pf-grid-combos{grid-template-columns:1fr}}
+/* Grids/flex com item de largura livre (texto) precisam de min-width:0 —
+   sem isso o item nunca encolhe abaixo do próprio conteúdo, estourando a
+   largura da página inteira (achado ago/2026, tela de perfil). */
+.pf-loc-grid > div{min-width:0}
+.pf-flex-header > div:first-child{min-width:0}
 .pf-field > label{
   display:block;
   font-size:11px;
@@ -564,7 +570,7 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     <% } %>
   </div>
   <% const _ufs=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']]; %>
-  <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+  <div class="pf-loc-grid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
     <div style="width:140px">
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">CEP</label>
       <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" value="<%= user.cep||'' %>"
@@ -620,7 +626,7 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
 
 <!-- WhatsApp -->
 <div class="pf-card" id="secao-whatsapp">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+  <div class="pf-flex-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
     <div>
       <p class="pf-card-title">WhatsApp</p>
       <p class="pf-card-sub" style="margin-bottom:0">Conecte seu número para receber leads automaticamente.</p>
@@ -649,7 +655,7 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
 
 <!-- Instagram -->
 <div class="pf-card" id="secao-instagram">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+  <div class="pf-flex-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
     <div>
       <p class="pf-card-title">📸 Conectar Instagram</p>
       <p class="pf-card-sub" style="margin-bottom:0">Publique seus imóveis direto no feed ou nos stories da sua conta comercial.</p>

@@ -137,7 +137,8 @@
     .price-leads{font-size:13.5px;font-weight:800;color:var(--dark)}
     .price-val{font-family:'Manrope';font-size:23px;font-weight:800;color:var(--dark);letter-spacing:-.5px;margin:4px 0 2px}
     .price-cred{font-size:12px;font-weight:700;color:var(--teal-dark)}
-    .price-bonus{font-size:11px;color:var(--laranja);font-weight:700;margin-bottom:14px}
+    .price-bonus{font-size:11px;color:var(--laranja);font-weight:700;margin-bottom:6px}
+    .price-imoveis{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:14px}
     .price-feats{list-style:none;text-align:left;margin:0 0 16px;flex:1}
     .price-feats li{font-size:11.5px;color:var(--text);line-height:1.7;display:flex;gap:6px;align-items:flex-start;min-width:0}
     .price-feats li::before{content:'✓';color:var(--teal-dark);font-weight:800;flex-shrink:0}
@@ -202,7 +203,7 @@
   <div class="hero">
     <div class="hero-tag"><i></i>Condição de lançamento — por tempo limitado</div>
     <h1>Cada lead parado é uma venda que <em>seu concorrente vai fechar primeiro</em></h1>
-    <p class="hero-sub">A MatchImóveis entrega o lead, a IA qualifica e sugere o imóvel certo, e você recebe pronto pra fechar — sozinha, 24h por dia. Escolha quantos leads quer por mês e comece hoje.</p>
+    <p class="hero-sub"><b style="color:var(--dark)">Sem lead, corretor não vende — é simples assim.</b> A MatchImóveis garante o volume de leads que você escolher, e a IA ajuda em tudo dali pra frente: qualifica, monta a vitrine e conversa até virar visita. Você só aparece pra fechar.</p>
     <a href="#planos" class="btn-main">Quero garantir meus leads →</a>
     <div class="hero-note">Pagamento único do combo · Acesso liberado <b>na hora que confirma</b> · Sem mensalidade escondida</div>
 
@@ -212,6 +213,11 @@
       <div class="stat-card"><div class="stat-num">24h</div><div class="stat-lbl">a IA responde lead mesmo com você offline</div></div>
     </div>
   </div>
+
+  <section style="padding:14px 0 4px">
+    <p class="disp" style="text-align:center;font-weight:800;font-size:clamp(20px,4.2vw,28px);color:var(--dark);max-width:680px;margin:0 auto;line-height:1.35;text-wrap:balance">Sem lead, corretor não vende. <span style="color:var(--rosa)">É simples assim.</span></p>
+    <p style="text-align:center;font-size:14.5px;color:var(--muted);max-width:500px;margin:14px auto 0;line-height:1.6">Não adianta ter o melhor imóvel da carteira se ninguém pergunta por ele. A MatchImóveis garante o lead — e a IA ajuda em tudo daí pra frente, sozinha.</p>
+  </section>
 
   <section>
     <div class="sec-eyebrow">O custo de não automatizar</div>
@@ -226,7 +232,7 @@
 
   <section style="background:var(--panel-2);border-radius:24px;margin:0 0 8px">
     <div class="sec-eyebrow">Como resolve</div>
-    <h2 class="sec-title">Tudo isso já entra automático</h2>
+    <h2 class="sec-title">A IA ajuda em tudo, do primeiro "oi" até a visita marcada</h2>
     <p class="sec-sub">Você cadastra os imóveis, conecta o WhatsApp — o resto a plataforma faz sozinha.</p>
     <div class="feat-grid">
       <div class="feat-card"><div class="feat-ic">💬</div><h3>IA responde o WhatsApp</h3><p>A lead manda mensagem e já recebe resposta na hora, mesmo com você offline — a IA conversa até qualificar o que ela procura.</p></div>
@@ -277,10 +283,10 @@
 
     <%
       const _planosCard = [
-        { id: 'r200', leads: '50 leads/mês', val: 'R$ 200', cred: '5.000 créditos', bonus: '+25% de bônus', rec: false },
-        { id: '100', leads: '100 leads/mês', val: 'R$ 400', cred: '10.800 créditos', bonus: '+35% de bônus', rec: true },
-        { id: '200', leads: '200 leads/mês', val: 'R$ 700', cred: '18.900 créditos', bonus: '+35% de bônus', rec: false },
-        { id: '300', leads: '300 leads/mês', val: 'R$ 1.000', cred: '27.000 créditos', bonus: '+35% de bônus', rec: false },
+        { id: 'r200', leads: '50 leads/mês', val: 'R$ 200', cred: '5.000 créditos', bonus: '+25% de bônus', imoveis: '🏠 Até 300 imóveis na carteira', rec: false },
+        { id: '100', leads: '100 leads/mês', val: 'R$ 400', cred: '10.800 créditos', bonus: '+35% de bônus', imoveis: '🏠 Até 600 imóveis na carteira', rec: true },
+        { id: '200', leads: '200 leads/mês', val: 'R$ 700', cred: '18.900 créditos', bonus: '+35% de bônus', imoveis: '🏠 Até 1.200 imóveis na carteira', rec: false },
+        { id: '300', leads: '300 leads/mês', val: 'R$ 1.000', cred: '27.000 créditos', bonus: '+35% de bônus', imoveis: '🏠 Imóveis ilimitados', rec: false },
       ];
       // Mesma lista em todo plano, de propósito — não é feature travada por
       // tier, é a plataforma inteira liberada desde o combo de entrada. O
@@ -302,6 +308,7 @@
         <div class="price-val"><%= p.val %></div>
         <div class="price-cred"><%= p.cred %></div>
         <div class="price-bonus"><%= p.bonus %></div>
+        <div class="price-imoveis"><%= p.imoveis %></div>
         <ul class="price-feats">
           <% _planosFeats.forEach(function(f){ %><li><%= f %></li><% }); %>
         </ul>
@@ -346,7 +353,7 @@
   </section>
 
   <div class="cta-final">
-    <h2 class="sec-title">Cada dia sem responder na hora é lead indo pro concorrente</h2>
+    <h2 class="sec-title">Sem lead, corretor não vende. Com a IA ajudando em tudo, você só fecha.</h2>
     <p>Escolhe o combo, paga, e sua conta já libera. É só isso.</p>
     <a href="#planos" class="btn-main">Ver os planos →</a>
   </div>

@@ -4820,11 +4820,16 @@ app.get('/entrar/:contatoId', async (req, res) => {
         codigoUsuario: codigo, senha: senhaHash,
         matchCoins: _bonusCadEntrar, matchCoinsTotal: _bonusCadEntrar, matchCoinsBonusInicial: _bonusCadEntrar,
         origemCadastro: 'campanha_' + (_campanhaEntrar?.nome_campanha || 'leads_garantidos'),
-        // Nome vindo da planilha é só provisório (ex: "Teste 1") — obriga
-        // trocar por um nome de verdade, junto com e-mail e localização,
-        // antes de liberar o resto da plataforma (ver middleware mais abaixo).
+        // precisaCompletarPerfil ainda exige e-mail e localização antes de
+        // liberar o resto da plataforma (ver middleware mais abaixo) — o nome
+        // vindo da planilha da campanha já é confiável (dado real de quem fez
+        // o disparo, não placeholder de import de XML), então NÃO seta
+        // nomeImportado aqui: setar igual a nome travava a conta pra sempre
+        // em "falta preencher: nome" mesmo com o campo já preenchido
+        // corretamente, porque o form-check compara nome com nomeImportado
+        // pra saber se a pessoa "confirmou" o nome (bug real, ago/2026 —
+        // contas via campanha nunca conseguiam completar o perfil).
         precisaCompletarPerfil: true,
-        nomeImportado: contato.nome || '',
         // Os 1.000 créditos de bônus são só pra poder mexer no sistema e ver
         // o valor — não substituem a compra. Só libera o resto da plataforma
         // depois de contratar um dos combos (ver middleware precisaComprarPlano).

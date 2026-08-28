@@ -7,6 +7,8 @@
   border-radius:16px;
   padding:20px;
   margin-bottom:12px;
+  max-width:100%;
+  overflow-x:hidden;
 }
 .pf-card-title{
   font-size:15px;
@@ -28,8 +30,8 @@
 @media(max-width:480px){.pf-grid{grid-template-columns:1fr}}
 .pf-grid-combos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .pf-grid-combos > div{min-width:0}
-@media(max-width:640px){.pf-grid-combos{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:380px){.pf-grid-combos{grid-template-columns:1fr}}
+@media(max-width:900px){.pf-grid-combos{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.pf-grid-combos{grid-template-columns:1fr}}
 /* Grids/flex com item de largura livre (texto) precisam de min-width:0 —
    sem isso o item nunca encolhe abaixo do próprio conteúdo, estourando a
    largura da página inteira (achado ago/2026, tela de perfil). */
@@ -570,8 +572,8 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     <% } %>
   </div>
   <% const _ufs=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']]; %>
-  <div class="pf-loc-grid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
-    <div style="width:140px">
+  <div class="pf-loc-grid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
+    <div>
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">CEP</label>
       <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" value="<%= user.cep||'' %>"
         oninput="fmtCEPPerfil(this)" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px">

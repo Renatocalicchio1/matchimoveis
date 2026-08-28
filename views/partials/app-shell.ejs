@@ -25,7 +25,7 @@
       --shadow:0 1px 4px rgba(0,0,0,.06);
       --shadow-md:0 4px 16px rgba(0,0,0,.08);
     }
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
     
     /* LAYOUT */
     .app{display:flex;min-height:100vh}
@@ -137,6 +137,15 @@
       min-height:100vh;
       padding:28px 36px;
       max-width:calc(1280px + var(--sidebar));
+      overflow-x:hidden;
+    }
+    /* Reforço geral (ago/2026): qualquer texto sem espaço em qualquer
+       página /app/* quebra no meio em vez de estourar a largura — mesma
+       trava que já tinha só em app-perfil.ejs, agora vale pra todo mundo,
+       pra esse bug parar de reaparecer tela por tela. */
+    .content, .content *{
+      overflow-wrap:break-word;
+      word-break:break-word;
     }
 
     /* PAGE HEAD */

@@ -125,6 +125,16 @@ async function afAceitarContrato(){
     %>
     <a href="https://wa.me/?text=<%= encodeURIComponent(_afMsgCompartilhar) %>" target="_blank" style="display:inline-flex;align-items:center;gap:6px;border:none;background:#25D366;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Compartilhar no WhatsApp</a>
     </div>
+
+    <p style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#111827">Ou divulgue a página de vendas (preços e recursos, tom mais direto)</p>
+    <div class="af-link-box">
+    <span id="af-link-planos"><%= dados.linkPlanos %></span>
+    <button onclick="navigator.clipboard.writeText('<%= dados.linkPlanos %>');this.textContent='✓ copiado'" style="border:none;background:#111827;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;white-space:nowrap">Copiar link</button>
+    <%
+      const _afMsgPlanos = `Oi! Passando o link dos planos da MatchImóveis — a IA responde lead no WhatsApp, faz o match e manda vitrine sozinha, sem mensalidade (você só paga se recarregar). Cadastro é grátis com 1.000 créditos de bônus: ` + dados.linkPlanos;
+    %>
+    <a href="https://wa.me/?text=<%= encodeURIComponent(_afMsgPlanos) %>" target="_blank" style="display:inline-flex;align-items:center;gap:6px;border:none;background:#25D366;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap">💬 Compartilhar no WhatsApp</a>
+    </div>
   </div>
 </div>
 

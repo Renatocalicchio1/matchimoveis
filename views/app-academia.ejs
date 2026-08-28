@@ -1,0 +1,144 @@
+<%- include('partials/app-shell',{active:'academia',title:'Academia MatchImóveis',subtitle:'Conquistas de negócio e trilhas de estudo.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+
+<style>
+.ac-card{margin-bottom:16px}
+.ac-track-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:6px}
+.ac-track-head h4{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.ac-track-head .ac-count{font-size:12px;color:var(--text-sec);font-variant-numeric:tabular-nums}
+.ac-track-head .ac-count b{color:var(--text)}
+
+.ac-ladder{display:flex;align-items:flex-start}
+.ac-node{display:flex;flex-direction:column;align-items:center;gap:9px;flex:1;position:relative;min-width:0}
+.ac-line{position:absolute;top:25px;left:-50%;width:100%;height:3px;background:var(--border);z-index:0}
+.ac-node:first-child .ac-line{display:none}
+.ac-node.earned .ac-line{background:#F5A623}
+
+.ac-medal{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;z-index:1;border:1.5px solid var(--border);background:#fff;color:var(--text-ter)}
+.ac-node.earned.bronze .ac-medal{background:linear-gradient(155deg,#E3A46E,#B4652C);border-color:transparent;color:#fff;box-shadow:0 6px 14px rgba(180,101,44,.35)}
+.ac-node.earned.prata .ac-medal{background:linear-gradient(155deg,#F1F3F5,#AEB4BC);border-color:transparent;color:#4B5563;box-shadow:0 6px 14px rgba(107,114,128,.3)}
+.ac-node.earned.ouro .ac-medal{background:linear-gradient(155deg,#FFE1A8,#F5A623);border-color:transparent;color:#7A4E00;box-shadow:0 6px 14px rgba(245,166,35,.35)}
+.ac-node.earned.diamante .ac-medal{background:linear-gradient(155deg,#D6E8FF,#4C8DFF);border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(76,141,255,.4)}
+.ac-node.locked .ac-medal{opacity:.55}
+
+.ac-node .ac-tier{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-ter)}
+.ac-node.earned .ac-tier{color:var(--text)}
+.ac-node .ac-goal{font-size:11px;color:var(--text-sec);text-align:center;white-space:nowrap}
+
+.ac-em-breve{display:flex;align-items:center;gap:16px;padding:8px 4px;margin-bottom:18px}
+.ac-em-breve .ic{width:52px;height:52px;border-radius:14px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;color:var(--text-ter)}
+.ac-em-breve .tx{min-width:0}
+.ac-em-breve .tx b{display:block;font-size:14px;color:var(--text);margin-bottom:3px}
+.ac-em-breve .tx span{font-size:12.5px;color:var(--text-sec);line-height:1.5}
+
+.ac-topico{border-top:1px solid var(--border);padding:16px 2px}
+.ac-topico:first-of-type{border-top:none}
+.ac-topico summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;color:var(--text)}
+.ac-topico summary::-webkit-details-marker{display:none}
+.ac-topico summary .ac-topico-ic{width:34px;height:34px;border-radius:9px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ac-topico summary .ac-topico-plus{margin-left:auto;font-size:18px;color:var(--text-ter);flex-shrink:0}
+.ac-topico[open] summary .ac-topico-plus{content:'–'}
+.ac-topico-body{padding:14px 2px 4px 46px}
+.ac-topico-body h6{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-ter);margin-bottom:4px}
+.ac-topico-body p{font-size:13px;color:var(--text-sec);line-height:1.6;margin-bottom:14px}
+.ac-topico-body p:last-child{margin-bottom:0}
+.ac-topico-body p.ac-ia b{color:var(--brand)}
+</style>
+
+<%
+  // Conquistas de negócio (ago/2026, pedido do Bruno) — tiers calculados
+  // direto de dado real, nada decorativo: venda fechada = visita com
+  // pipelineStatus='FECHADO' (mesmo estado gravado por
+  // POST /app/visitas/fechado/:id); indicação = usuario com
+  // dados.indicadoPor apontando pra esse código (mesmo mecanismo do
+  // programa de afiliados). Trilhas de estudo com vídeo ficam "em breve"
+  // até o material existir (projeto separado, ainda em planejamento) —
+  // sem botão fingindo funcionar sem conteúdo atrás.
+  const _vTiers = [
+    { min: 1, tier: 'bronze', medal: '🥉', label: 'Bronze', goal: '1ª venda fechada' },
+    { min: 3, tier: 'ouro',   medal: '🥇', label: 'Ouro',   goal: '3 vendas fechadas' },
+    { min: 5, tier: 'diamante', medal: '💎', label: 'Diamante', goal: '5 vendas fechadas' },
+  ];
+  const _iTiers = [
+    { min: 1, tier: 'bronze', medal: '🥉', label: 'Bronze', goal: '1º cadastro pelo link' },
+    { min: 5, tier: 'prata',  medal: '🥈', label: 'Prata',  goal: '5 cadastros pelo link' },
+  ];
+%>
+
+<div class="card ac-card">
+  <p style="font-size:15px;font-weight:600;margin-bottom:4px">🏅 Conquistas de negócio</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:20px">Medalhas por resultado real — calculadas sozinhas a partir do que você já faz na plataforma.</p>
+
+  <div class="ac-track-head">
+    <h4>💰 Vendas fechadas</h4>
+    <div class="ac-count">Você já fechou <b><%= vendasFechadas %></b> visita<%= vendasFechadas === 1 ? '' : 's' %></div>
+  </div>
+  <div class="ac-ladder">
+    <% _vTiers.forEach(function(t){ const earned = vendasFechadas >= t.min; %>
+    <div class="ac-node <%= earned ? 'earned' : 'locked' %> <%= t.tier %>">
+      <div class="ac-line"></div>
+      <div class="ac-medal"><%= t.medal %></div>
+      <div class="ac-tier"><%= t.label %></div>
+      <div class="ac-goal"><%= t.goal %></div>
+    </div>
+    <% }); %>
+  </div>
+</div>
+
+<div class="card ac-card">
+  <div class="ac-track-head">
+    <h4>🔗 Indicações (afiliados)</h4>
+    <div class="ac-count"><b><%= indicacoes %></b> corretor<%= indicacoes === 1 ? '' : 'es' %> cadastrado<%= indicacoes === 1 ? '' : 's' %> pelo seu link</div>
+  </div>
+  <div class="ac-ladder">
+    <% _iTiers.forEach(function(t){ const earned = indicacoes >= t.min; %>
+    <div class="ac-node <%= earned ? 'earned' : 'locked' %> <%= t.tier %>">
+      <div class="ac-line"></div>
+      <div class="ac-medal"><%= t.medal %></div>
+      <div class="ac-tier"><%= t.label %></div>
+      <div class="ac-goal"><%= t.goal %></div>
+    </div>
+    <% }); %>
+  </div>
+  <% if (!indicacoes) { %>
+  <p style="font-size:12px;color:var(--text-ter);margin-top:14px">Ainda não indicou ninguém? <a href="/app/afiliados" style="color:var(--brand);font-weight:600">Pegue seu link em Afiliados →</a></p>
+  <% } %>
+</div>
+
+<div class="card ac-card">
+  <p style="font-size:15px;font-weight:600;margin-bottom:4px">🎓 Trilhas de estudo</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">Vídeos curtos ensinando cada função da plataforma, com recompensa em coins.</p>
+  <div class="ac-em-breve">
+    <div class="ic">🎬</div>
+    <div class="tx">
+      <b>Vídeo em produção</b>
+      <span>As aulas em vídeo de cada tela ainda estão sendo gravadas — enquanto isso, o conteúdo em texto abaixo já ensina o essencial de cada área.</span>
+    </div>
+  </div>
+
+  <%
+    const _topicos = [
+      { ic:'🎯', titulo:'Leads', como:'Toda lead nova (de portal, WhatsApp, planilha ou indicação) entra no Kanban já classificada por fase (novo, interesse, qualificado) e temperatura (frio, morno, quente). Você acompanha tudo em /app/leads e abre o card pra ver histórico completo.', ia:'A IA calcula a temperatura sozinha pelo comportamento (quantas interações, tempo de resposta) e aponta o "imóvel ideal" pra cada lead — o melhor match, considerando inclusive quão recente é o imóvel na carteira.' },
+      { ic:'🏠', titulo:'Imóveis', como:'Cadastre manualmente ou importe uma carteira inteira via XML (até 2 feeds por conta, sincronizando sozinho a cada 24h). Cada imóvel some do funil de match se ficar sem foto ou com valor abaixo do piso — mesma regra que protege a vitrine pública.', ia:'A IA gera descrição do imóvel automaticamente a partir dos dados cadastrados, e é ela que decide quais imóveis pontuam mais alto pra cada lead na hora do match.' },
+      { ic:'💬', titulo:'WhatsApp & Assistente', como:'Conecte seu número (Evolution API) e toda mensagem nova de lead cai na Central. Dá pra responder manual ou deixar a automação seguir.', ia:'A IA faz a primeira triagem de qualquer mensagem nova — qualifica o perfil de busca, sugere o imóvel certo e já manda a vitrine, tudo sem você precisar estar online.' },
+      { ic:'📡', titulo:'Portais & XML', como:'Ativa o feed de portal (VivaReal, ZAP, OLX e outros) e a plataforma gera o XML automaticamente no formato de cada um, sincronizando os imóveis da sua carteira.', ia:'Não tem IA nessa parte especificamente — é automação de formato/sincronização; a IA entra depois, quando o lead desses portais chega e precisa ser qualificado.' },
+      { ic:'📸', titulo:'Redes Sociais', como:'Conecta o Instagram (conta profissional) e publica imóvel direto no feed ou stories, com carrossel de até 10 fotos. Meta Ads dá pra criar campanha de Clique-pro-WhatsApp direto da plataforma.', ia:'A IA ajuda a gerar a legenda/descrição do post a partir dos dados do imóvel, sem você escrever do zero.' },
+      { ic:'🌐', titulo:'Meu Site', como:'Cada corretor tem uma página pública própria com a carteira inteira — dá pra compartilhar em bio do Instagram, WhatsApp ou cartão de visita, sem precisar de site à parte.', ia:'A mesma IA que qualifica lead no WhatsApp também atende quem chega pelo Meu Site — o fluxo de match é o mesmo, não importa a porta de entrada.' },
+      { ic:'🤝', titulo:'Parceiros & Indicações', como:'Sua rede de parceiros amplia o match — mesmo sem ter o imóvel certo na sua carteira, o sistema pode sugerir um imóvel de um parceiro. Indicação de outro corretor gera comissão recorrente quando ele compra créditos.', ia:'Quando o match usa imóvel de um parceiro, é a IA que decide priorizar o seu antes do da rede — você sempre aparece primeiro quando tem opção equivalente.' },
+      { ic:'🪙', titulo:'Coins & Créditos', como:'É a moeda interna — cada ação (cadastrar imóvel, gerar XML, mandar vitrine) consome uma quantidade fixa. Sem mensalidade: você só gasta no que usa, e pode recarregar quando quiser.', ia:'Aqui não tem IA envolvida diretamente — é o sistema de créditos que sustenta o custo de rodar todas as automações acima.' },
+    ];
+  %>
+  <div style="margin-top:6px">
+    <% _topicos.forEach(function(t){ %>
+    <details class="ac-topico">
+      <summary><span class="ac-topico-ic"><%= t.ic %></span><%= t.titulo %><span class="ac-topico-plus">+</span></summary>
+      <div class="ac-topico-body">
+        <h6>Como funciona</h6>
+        <p><%= t.como %></p>
+        <h6>Como a IA ajuda</h6>
+        <p class="ac-ia"><%= t.ia %></p>
+      </div>
+    </details>
+    <% }); %>
+  </div>
+</div>
+<%- include('partials/app-end') %>

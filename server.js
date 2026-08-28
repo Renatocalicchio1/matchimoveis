@@ -4177,7 +4177,11 @@ Object.keys(_CONTEUDO_SEO).forEach(slug => {
 // reais da plataforma (mesmos combos de app-perfil.ejs). Template próprio
 // (não usa conteudo-seo.ejs) por ter estrutura de pricing/FAQ diferente.
 app.get('/planos', (req, res) => {
-  res.render('planos');
+  // ?ref= (link de afiliado, ver dados.linkPlanos em /app/afiliados) —
+  // propagado pra dentro de todo CTA da página igual o resto do site,
+  // não vira dono de conta no clique aqui (isso só acontece em /?cadastro=1
+  // de verdade, essa página só empurra o visitante pra lá já com o ref).
+  res.render('planos', { refCode: String(req.query.ref || '').trim() });
 });
 
 // Esqueci minha senha — gera senha nova e manda por e-mail. Resposta é sempre
@@ -7619,6 +7623,12 @@ app.get('/app/afiliados', auth, async (req, res) => {
       nivel,
       dados: {
         linkIndicacao: 'https://www.matchimoveis.ia.br/?ref=' + uid,
+        // Link da página de vendas (/planos, ago/2026) com o ref do
+        // afiliado embutido — mesmo mecanismo de atribuição do
+        // linkIndicacao, só que aponta pra página com tom de venda/preços
+        // em vez da landing genérica. Pedido do Renato pra divulgação em
+        // campanha de disparo.
+        linkPlanos: 'https://www.matchimoveis.ia.br/planos?ref=' + uid,
         historico,
         disponivelCoins,
         disponivelReais: (disponivelCoins / 20).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
@@ -19309,6 +19319,23 @@ app.get('/api/feed/novos', auth, async (req, res) => {
     console.error('[api/feed/novos]', e.message);
     res.json({ imoveis: [] });
   }
+});
+
+// Academia MatchImóveis (ago/2026) — só a parte "Conquistas de negócio" é
+// real por enquanto (medalha calculada de dado de verdade: venda fechada,
+// indicação virada cadastro); trilhas de vídeo ainda não têm conteúdo
+// gravado (projeto separado em planejamento), então a tela mostra
+// conteúdo em texto no lugar, não um player fingindo funcionar.
+app.get('/app/academia', auth, (req, res) => {
+  const uid = req.session.user.id || req.session.user.codigoUsuario;
+  const visitas = _cacheVisitas || [];
+  const vendasFechadas = visitas.filter(v =>
+    String(v.userId || v.ownerUserId || v.corretorId || '') === String(uid) &&
+    v.pipelineStatus === 'FECHADO'
+  ).length;
+  const usuarios = _cacheUsuarios || [];
+  const indicacoes = usuarios.filter(u => u.indicadoPor === uid).length;
+  res.render('app-academia', { user: req.session.user, vendasFechadas, indicacoes });
 });
 
 app.get('/app/parceiros', auth, async (req, res) => {

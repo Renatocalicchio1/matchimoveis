@@ -117,13 +117,16 @@
     .price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
     @media(max-width:760px){.price-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:460px){.price-grid{grid-template-columns:1fr}}
-    .price-card{background:var(--panel);border:1.5px solid var(--border);border-radius:16px;padding:22px 18px;text-align:center;position:relative;min-width:0}
+    .price-card{background:var(--panel);border:1.5px solid var(--border);border-radius:16px;padding:22px 18px 20px;text-align:center;position:relative;min-width:0;display:flex;flex-direction:column}
     .price-card.rec{border-color:var(--rosa);box-shadow:0 12px 28px rgba(255,56,92,.14)}
     .price-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--rosa);color:#fff;font-size:10.5px;font-weight:700;padding:4px 12px;border-radius:999px;white-space:nowrap}
-    .price-val{font-family:'Manrope';font-size:26px;font-weight:800;color:var(--dark);letter-spacing:-.5px;margin:6px 0 2px}
-    .price-cred{font-size:12.5px;font-weight:700;color:var(--teal-dark);margin-bottom:4px}
-    .price-bonus{font-size:11px;color:var(--laranja);font-weight:700;margin-bottom:12px}
-    .price-use{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:14px;min-height:44px}
+    .price-leads{font-size:13.5px;font-weight:800;color:var(--dark)}
+    .price-val{font-family:'Manrope';font-size:23px;font-weight:800;color:var(--dark);letter-spacing:-.5px;margin:4px 0 2px}
+    .price-cred{font-size:12px;font-weight:700;color:var(--teal-dark)}
+    .price-bonus{font-size:11px;color:var(--laranja);font-weight:700;margin-bottom:14px}
+    .price-feats{list-style:none;text-align:left;margin:0 0 16px;flex:1}
+    .price-feats li{font-size:11.5px;color:var(--text);line-height:1.7;display:flex;gap:6px;align-items:flex-start;min-width:0}
+    .price-feats li::before{content:'✓';color:var(--teal-dark);font-weight:800;flex-shrink:0}
     .price-btn{display:block;background:var(--dark);color:#fff;padding:10px;border-radius:9px;font-size:12.5px;font-weight:700;text-align:center}
     .price-card.rec .price-btn{background:var(--rosa)}
     .free-card{background:linear-gradient(135deg,var(--dark),#2A2320);color:#fff;border-radius:16px;padding:26px 24px;text-align:center;margin-bottom:20px}
@@ -146,11 +149,26 @@
     .cta-final .sec-title{margin-bottom:10px}
     .cta-final p{font-size:14.5px;color:var(--muted);margin-bottom:26px}
 
-    footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;font-size:12px;color:var(--faint)}
-    footer a{color:var(--muted);text-decoration:underline}
+    footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;font-size:12px;color:var(--faint);margin-bottom:0}
+
+    /* Barra fixa de CTA — só mobile, onde a maior parte do tráfego chega
+       (link disparado por WhatsApp). Reforça a ação sem precisar rolar
+       até o topo ou até o final da página. */
+    .sticky-cta{display:none}
+    @media(max-width:680px){
+      body{padding-bottom:72px}
+      .sticky-cta{
+        display:flex;position:fixed;left:0;right:0;bottom:0;z-index:200;
+        background:rgba(253,251,248,.95);backdrop-filter:blur(10px);
+        border-top:1px solid var(--border);padding:10px 16px;
+        box-shadow:0 -6px 20px rgba(23,20,15,.08);
+      }
+      .sticky-cta .btn-main{flex:1;text-align:center;padding:13px}
+    }
   </style>
 </head>
 <body>
+<% const _cta = '/?cadastro=1' + (typeof refCode !== 'undefined' && refCode ? '&ref=' + encodeURIComponent(refCode) : ''); %>
 
 <nav>
   <div class="logo">Match<span>Imóveis</span></div>
@@ -163,7 +181,7 @@
     <div class="hero-tag"><i></i>Sem mensalidade — pague só pelo que usar</div>
     <h1>Enquanto você decide, <em>o lead já respondeu quem foi mais rápido</em></h1>
     <p class="hero-sub">A MatchImóveis responde o WhatsApp, qualifica o lead e já sugere o imóvel certo — sozinha, na hora que a mensagem chega. Cadastro grátis, 1.000 créditos de bônus, sem cartão.</p>
-    <a href="/?cadastro=1" class="btn-main">Criar conta grátis agora →</a>
+    <a href="<%= _cta %>" class="btn-main">Criar conta grátis agora →</a>
     <div class="hero-note">Sem cartão de crédito · Sem contrato · <b>1.000 créditos</b> já entram na hora do cadastro</div>
 
     <div class="stat-row">
@@ -206,39 +224,42 @@
     <div class="free-card">
       <h3>🎁 Cadastro grátis</h3>
       <p>1.000 créditos de bônus na hora, sem cartão. Dá pra cadastrar imóveis, importar leads e já ver a IA funcionando antes de pensar em recarregar.</p>
-      <a href="/?cadastro=1" class="btn-main">Criar conta grátis →</a>
+      <a href="<%= _cta %>" class="btn-main">Criar conta grátis →</a>
     </div>
 
+    <%
+      const _planosCard = [
+        { leads: '50 leads/mês', val: 'R$ 200', cred: '5.000 créditos', bonus: '+25% de bônus', rec: false },
+        { leads: '100 leads/mês', val: 'R$ 400', cred: '10.800 créditos', bonus: '+35% de bônus', rec: true },
+        { leads: '200 leads/mês', val: 'R$ 700', cred: '18.900 créditos', bonus: '+35% de bônus', rec: false },
+        { leads: '300 leads/mês', val: 'R$ 1.000', cred: '27.000 créditos', bonus: '+35% de bônus', rec: false },
+      ];
+      // Mesma lista em todo plano, de propósito — não é feature travada por
+      // tier, é a plataforma inteira liberada desde o combo de entrada. O
+      // que muda entre planos é só o volume de leads/créditos.
+      const _planosFeats = [
+        'IA responde o WhatsApp sozinha',
+        'Match automático com toda a carteira',
+        'Vitrine personalizada por lead',
+        'CRM completo (Kanban, follow-up, histórico)',
+        'Divulgação automática (portais + Instagram)',
+        'Suporte direto com a equipe',
+      ];
+    %>
     <div class="price-grid">
-      <div class="price-card">
-        <div class="price-val">R$ 200</div>
-        <div class="price-cred">5.000 créditos</div>
-        <div class="price-bonus">+25% de bônus</div>
-        <div class="price-use">Dá pra ~166 leads qualificadas pela IA</div>
-        <a href="/?cadastro=1" class="price-btn">Começar</a>
+      <% _planosCard.forEach(function(p){ %>
+      <div class="price-card <%= p.rec ? 'rec' : '' %>">
+        <% if (p.rec) { %><div class="price-tag">Mais escolhido</div><% } %>
+        <div class="price-leads"><%= p.leads %></div>
+        <div class="price-val"><%= p.val %></div>
+        <div class="price-cred"><%= p.cred %></div>
+        <div class="price-bonus"><%= p.bonus %></div>
+        <ul class="price-feats">
+          <% _planosFeats.forEach(function(f){ %><li><%= f %></li><% }); %>
+        </ul>
+        <a href="<%= _cta %>" class="price-btn">Começar</a>
       </div>
-      <div class="price-card rec">
-        <div class="price-tag">Mais escolhido</div>
-        <div class="price-val">R$ 400</div>
-        <div class="price-cred">10.800 créditos</div>
-        <div class="price-bonus">+35% de bônus</div>
-        <div class="price-use">Dá pra ~360 leads qualificadas pela IA</div>
-        <a href="/?cadastro=1" class="price-btn">Começar</a>
-      </div>
-      <div class="price-card">
-        <div class="price-val">R$ 700</div>
-        <div class="price-cred">18.900 créditos</div>
-        <div class="price-bonus">+35% de bônus</div>
-        <div class="price-use">Dá pra ~630 leads qualificadas pela IA</div>
-        <a href="/?cadastro=1" class="price-btn">Começar</a>
-      </div>
-      <div class="price-card">
-        <div class="price-val">R$ 1.000</div>
-        <div class="price-cred">27.000 créditos</div>
-        <div class="price-bonus">+35% de bônus</div>
-        <div class="price-use">Dá pra ~900 leads qualificadas pela IA</div>
-        <a href="/?cadastro=1" class="price-btn">Começar</a>
-      </div>
+      <% }); %>
     </div>
 
     <div class="no-mensalidade">
@@ -279,7 +300,7 @@
   <div class="cta-final">
     <h2 class="sec-title">Cada dia sem responder na hora é lead indo pro concorrente</h2>
     <p>Leva 2 minutos pra criar a conta. Os 1.000 créditos já entram sozinhos.</p>
-    <a href="/?cadastro=1" class="btn-main">Criar conta grátis agora →</a>
+    <a href="<%= _cta %>" class="btn-main">Criar conta grátis agora →</a>
   </div>
 
 </main>
@@ -288,6 +309,10 @@
   ¹ Estimativa baseada em pesquisas do setor sobre tempo de resposta e conversão de leads imobiliários.
   <br>© <%= new Date().getFullYear() %> MatchImóveis · <a href="/politica-privacidade">Privacidade</a> · <a href="/termos-de-uso">Termos</a>
 </footer>
+
+<div class="sticky-cta">
+  <a href="<%= _cta %>" class="btn-main">Criar conta grátis →</a>
+</div>
 
 </body>
 </html>

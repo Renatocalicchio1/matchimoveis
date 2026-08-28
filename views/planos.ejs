@@ -119,6 +119,14 @@
     .tela-card img{display:block;width:100%;height:auto}
     .tela-card .tela-lbl{padding:12px 14px;font-size:12.5px;font-weight:700;color:var(--dark)}
 
+    .ia-acao-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+    @media(max-width:760px){.ia-acao-grid{grid-template-columns:1fr}}
+    .ia-acao-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md);display:flex;flex-direction:column}
+    .ia-acao-card img{display:block;width:100%;height:auto}
+    .ia-acao-txt{padding:16px 18px}
+    .ia-acao-txt h3{font-size:14.5px;font-weight:700;color:var(--dark);margin-bottom:4px}
+    .ia-acao-txt p{font-size:12.5px;color:var(--muted);line-height:1.55}
+
     /* PRICING */
     .price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
     @media(max-width:760px){.price-grid{grid-template-columns:repeat(2,1fr)}}
@@ -227,6 +235,22 @@
       <div class="feat-card"><div class="feat-ic">🔄</div><h3>Follow-up sem você lembrar</h3><p>Se a lead não responde, a plataforma volta a contatar sozinha, seguindo a regra certa por temperatura e fase do funil.</p></div>
       <div class="feat-card"><div class="feat-ic">📥</div><h3>Leads de todo canal, num lugar só</h3><p>Portais (ZAP, OLX, VivaReal, ImovelWeb), captação de proprietário, indicação e planilha — tudo cai no mesmo funil.</p></div>
       <div class="feat-card"><div class="feat-ic">🌐</div><h3>Divulgação automática</h3><p>Gera o XML pros portais e publica no Instagram sozinho — cadastrou uma vez, aparece em todo lugar.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-eyebrow">A IA trabalhando de verdade</div>
+    <h2 class="sec-title">Do "oi" da lead até a vitrine enviada — sem você tocar em nada</h2>
+    <p class="sec-sub">Isso acontece sozinho, em segundos, toda vez que uma lead nova aparece.</p>
+    <div class="ia-acao-grid">
+      <div class="ia-acao-card">
+        <img src="/planos-screens/tela-vitrine-enviada.png" alt="Vitrine de imóveis enviada automaticamente no WhatsApp">
+        <div class="ia-acao-txt"><h3>📲 A vitrine chega sozinha</h3><p>Assim que encontra o match, a IA já manda os imóveis certos pro WhatsApp da lead — foto, preço e specs, sem você montar nada.</p></div>
+      </div>
+      <div class="ia-acao-card">
+        <img src="/planos-screens/tela-ia-tempo-real.png" alt="Linha do tempo da IA — do lead chegando até a vitrine enviada">
+        <div class="ia-acao-txt"><h3>⚡ Do zero à vitrine em segundos</h3><p>Lead manda mensagem, a IA qualifica, cruza com a carteira e já responde — tudo isso enquanto você ainda nem viu a notificação.</p></div>
+      </div>
     </div>
   </section>
 

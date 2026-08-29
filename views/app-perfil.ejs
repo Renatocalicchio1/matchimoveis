@@ -49,7 +49,6 @@
    sem isso o item nunca encolhe abaixo do próprio conteúdo, estourando a
    largura da página inteira (achado ago/2026, tela de perfil). */
 .pf-loc-grid > div{min-width:0}
-.pf-flex-header > div:first-child{min-width:0}
 .pf-field > label{
   display:block;
   font-size:11px;
@@ -600,35 +599,35 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     <% } %>
   </div>
   <% const _ufs=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']]; %>
-  <div class="pf-loc-grid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px">
-    <div>
+  <div class="pf-loc-grid" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px">
+    <div style="flex:1 1 110px">
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">CEP</label>
       <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" value="<%= user.cep||'' %>"
-        oninput="fmtCEPPerfil(this)" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px">
+        oninput="fmtCEPPerfil(this)" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
     </div>
-    <div style="grid-column:span 2">
+    <div style="flex:2 1 220px">
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Rua</label>
       <input type="text" id="rua-input" placeholder="Rua das Flores" value="<%= user.rua||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px">
+        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
     </div>
-    <div>
+    <div style="flex:1 1 110px">
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Número</label>
       <input type="text" id="numero-input" placeholder="123" value="<%= user.numero||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px">
+        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
     </div>
-    <div>
+    <div style="flex:1 1 110px">
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Bairro</label>
       <input type="text" id="bairro-input" placeholder="Centro" value="<%= user.bairro||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px">
+        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
     </div>
-    <div>
+    <div style="flex:1 1 110px">
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Cidade</label>
       <input type="text" id="cidade-input" placeholder="Cidade" value="<%= user.cidade||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px">
+        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
     </div>
-    <div>
+    <div style="flex:1 1 110px">
       <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Estado</label>
-      <select id="estado-input" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px">
+      <select id="estado-input" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
         <option value="">Selecione</option>
         <% _ufs.forEach(function(uf){ %>
           <option value="<%= uf[0] %>" <%= user.estado===uf[0]?'selected':'' %>><%= uf[1] %></option>
@@ -656,15 +655,15 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
 
 <!-- WhatsApp -->
 <div class="pf-card" id="secao-whatsapp">
-  <div class="pf-flex-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-    <div>
-      <p class="pf-card-title">💬 WhatsApp</p>
-      <p class="pf-card-sub" style="margin-bottom:0">Conecte seu número para receber leads automaticamente.</p>
-      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;color:#92400e">
-        ⚠️ <strong>Use um número exclusivo para o MatchImóveis</strong> — de preferência um chip profissional dedicado. Isso evita bloqueios e garante melhor entrega das mensagens.
-      </div>
+  <div style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <p class="pf-card-title" style="margin-bottom:0">💬 WhatsApp</p>
+      <span id="wa-badge" class="wa-badge" style="background:#f3f4f6;color:#6b7280">Verificando...</span>
     </div>
-    <span id="wa-badge" class="wa-badge" style="background:#f3f4f6;color:#6b7280">Verificando...</span>
+    <p class="pf-card-sub" style="margin-bottom:0;margin-top:4px">Conecte seu número para receber leads automaticamente.</p>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;color:#92400e">
+      ⚠️ <strong>Use um número exclusivo para o MatchImóveis</strong> — de preferência um chip profissional dedicado. Isso evita bloqueios e garante melhor entrega das mensagens.
+    </div>
   </div>
 
   <div class="wa-qr-wrap" id="wa-qr-wrap">
@@ -685,19 +684,19 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
 
 <!-- Instagram -->
 <div class="pf-card" id="secao-instagram">
-  <div class="pf-flex-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-    <div>
-      <p class="pf-card-title">📸 Conectar Instagram</p>
-      <p class="pf-card-sub" style="margin-bottom:0">Publique seus imóveis direto no feed ou nos stories da sua conta comercial.</p>
-      <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;color:#b91c1c">
-        ⚠️ <strong>A conta do Instagram precisa ser Profissional (Empresa ou Criador de conteúdo)</strong> — conta pessoal comum não conecta. No app do Instagram: Perfil → menu ☰ → Configurações e privacidade → Tipo de conta e ferramentas → Mudar para conta profissional.
-      </div>
+  <div style="margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <p class="pf-card-title" style="margin-bottom:0">📸 Conectar Instagram</p>
+      <% if(user.instagramContaId){ %>
+        <span class="wa-badge" style="background:#dcfce7;color:#15803d">Conectado</span>
+      <% } else { %>
+        <span class="wa-badge" style="background:#fee2e2;color:#b91c1c">Desconectado</span>
+      <% } %>
     </div>
-    <% if(user.instagramContaId){ %>
-      <span class="wa-badge" style="background:#dcfce7;color:#15803d">Conectado</span>
-    <% } else { %>
-      <span class="wa-badge" style="background:#fee2e2;color:#b91c1c">Desconectado</span>
-    <% } %>
+    <p class="pf-card-sub" style="margin-bottom:0;margin-top:4px">Publique seus imóveis direto no feed ou nos stories da sua conta comercial.</p>
+    <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;color:#b91c1c">
+      ⚠️ <strong>A conta do Instagram precisa ser Profissional (Empresa ou Criador de conteúdo)</strong> — conta pessoal comum não conecta. No app do Instagram: Perfil → menu ☰ → Configurações e privacidade → Tipo de conta e ferramentas → Mudar para conta profissional.
+    </div>
   </div>
 
   <div id="ig-msg" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:12px"></div>

@@ -10,6 +10,14 @@
 .af-stat-num{font-size:26px;font-weight:800;color:#111827}
 .af-stat-label{font-size:12px;color:#6b7280;margin-top:2px}
 .af-link-box{display:flex;gap:8px;align-items:center;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-size:13px;font-family:monospace;overflow-x:auto}
+/* A URL não tem espaço nenhum (é 1 "palavra" só) — sem white-space:nowrap
+   aqui, o word-break:break-word global de app-shell.ejs (trava geral de
+   overflow de todo /app/*) quebra ela caractere por caractere, 1 por linha,
+   e a altura da caixa explode (bug real reportado no mobile, ago/2026). O
+   scroll horizontal do próprio .af-link-box (overflow-x:auto acima) já
+   resolve telas estreitas — não precisa quebrar linha. */
+.af-link-box span{white-space:nowrap;flex-shrink:0}
+.af-link-box button, .af-link-box a{flex-shrink:0}
 .af-table{width:100%;border-collapse:collapse;font-size:13px}
 .af-table th{text-align:left;color:#6b7280;font-weight:600;padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px}
 .af-table td{padding:8px;border-bottom:1px solid #f3f4f6}

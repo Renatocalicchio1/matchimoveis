@@ -42,6 +42,33 @@
 .ac-topico-body p{font-size:13px;color:var(--text-sec);line-height:1.6;margin-bottom:14px}
 .ac-topico-body p:last-child{margin-bottom:0}
 .ac-topico-body p.ac-ia b{color:var(--brand)}
+
+/* Trilhas de leitura (ago/2026) — 3 artigos por função, com trava de tempo
+   mínimo de leitura antes de liberar o próximo (pedido do Renato: "só muda
+   de tópico quando completar de ler", tipo capítulo de livro). */
+.ac-trilha{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.ac-trilha-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;min-width:0}
+.ac-trilha-head .ic{width:38px;height:38px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ac-trilha-head .tx{flex:1;min-width:0}
+.ac-trilha-head .tx b{font-size:14px;color:var(--text);display:block}
+.ac-trilha-head .tx span{font-size:11.5px;color:var(--text-sec)}
+.ac-trilha-head .tx span.done{color:#00847A;font-weight:600}
+.ac-trilha-head .seta{font-size:16px;color:var(--text-ter);flex-shrink:0}
+.ac-trilha-dots{display:flex;gap:4px;flex-shrink:0}
+.ac-trilha-dots i{width:7px;height:7px;border-radius:50%;background:var(--border)}
+.ac-trilha-dots i.lido{background:#00A699}
+
+.ac-leitor{display:none;border-top:1px solid var(--border);padding:18px 16px 20px;background:var(--bg)}
+.ac-leitor.on{display:block}
+.ac-leitor-cap{font-size:10.5px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.ac-leitor-titulo{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;text-wrap:balance}
+.ac-leitor-corpo p{font-size:13.5px;color:var(--text-sec);line-height:1.7;margin-bottom:12px}
+.ac-leitor-corpo p:last-child{margin-bottom:0}
+.ac-leitor-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.ac-leitor-voltar{font-size:12px;color:var(--text-sec);cursor:pointer;background:none;border:none;padding:8px 0}
+.ac-btn-prox{padding:10px 20px;border-radius:9px;border:none;background:var(--brand);color:#fff;font-weight:700;font-size:13px;cursor:pointer}
+.ac-btn-prox:disabled{background:var(--border);color:var(--text-ter);cursor:default}
+.ac-btn-prox .cd{font-variant-numeric:tabular-nums}
 </style>
 
 <%
@@ -106,39 +133,259 @@
 
 <div class="card ac-card">
   <p style="font-size:15px;font-weight:600;margin-bottom:4px">🎓 Trilhas de estudo</p>
-  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">Vídeos curtos ensinando cada função da plataforma, com recompensa em coins.</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">3 artigos por função da plataforma. Cada artigo tem um tempo mínimo de leitura — só libera o próximo depois que você realmente ficou na tela.</p>
   <div class="ac-em-breve">
     <div class="ic">🎬</div>
     <div class="tx">
       <b>Vídeo em produção</b>
-      <span>As aulas em vídeo de cada tela ainda estão sendo gravadas — enquanto isso, o conteúdo em texto abaixo já ensina o essencial de cada área.</span>
+      <span>As aulas em vídeo de cada tela ainda estão sendo gravadas — enquanto isso, essas trilhas em texto já ensinam a fundo cada área.</span>
     </div>
   </div>
 
   <%
-    const _topicos = [
-      { ic:'🎯', titulo:'Leads', como:'Toda lead nova (de portal, WhatsApp, planilha ou indicação) entra no Kanban já classificada por fase (novo, interesse, qualificado) e temperatura (frio, morno, quente). Você acompanha tudo em /app/leads e abre o card pra ver histórico completo.', ia:'A IA calcula a temperatura sozinha pelo comportamento (quantas interações, tempo de resposta) e aponta o "imóvel ideal" pra cada lead — o melhor match, considerando inclusive quão recente é o imóvel na carteira.' },
-      { ic:'🏠', titulo:'Imóveis', como:'Cadastre manualmente ou importe uma carteira inteira via XML (até 2 feeds por conta, sincronizando sozinho a cada 24h). Cada imóvel some do funil de match se ficar sem foto ou com valor abaixo do piso — mesma regra que protege a vitrine pública.', ia:'A IA gera descrição do imóvel automaticamente a partir dos dados cadastrados, e é ela que decide quais imóveis pontuam mais alto pra cada lead na hora do match.' },
-      { ic:'💬', titulo:'WhatsApp & Assistente', como:'Conecte seu número (Evolution API) e toda mensagem nova de lead cai na Central. Dá pra responder manual ou deixar a automação seguir.', ia:'A IA faz a primeira triagem de qualquer mensagem nova — qualifica o perfil de busca, sugere o imóvel certo e já manda a vitrine, tudo sem você precisar estar online.' },
-      { ic:'📡', titulo:'Portais & XML', como:'Ativa o feed de portal (VivaReal, ZAP, OLX e outros) e a plataforma gera o XML automaticamente no formato de cada um, sincronizando os imóveis da sua carteira.', ia:'Não tem IA nessa parte especificamente — é automação de formato/sincronização; a IA entra depois, quando o lead desses portais chega e precisa ser qualificado.' },
-      { ic:'📸', titulo:'Redes Sociais', como:'Conecta o Instagram (conta profissional) e publica imóvel direto no feed ou stories, com carrossel de até 10 fotos. Meta Ads dá pra criar campanha de Clique-pro-WhatsApp direto da plataforma.', ia:'A IA ajuda a gerar a legenda/descrição do post a partir dos dados do imóvel, sem você escrever do zero.' },
-      { ic:'🌐', titulo:'Meu Site', como:'Cada corretor tem uma página pública própria com a carteira inteira — dá pra compartilhar em bio do Instagram, WhatsApp ou cartão de visita, sem precisar de site à parte.', ia:'A mesma IA que qualifica lead no WhatsApp também atende quem chega pelo Meu Site — o fluxo de match é o mesmo, não importa a porta de entrada.' },
-      { ic:'🤝', titulo:'Parceiros & Indicações', como:'Sua rede de parceiros amplia o match — mesmo sem ter o imóvel certo na sua carteira, o sistema pode sugerir um imóvel de um parceiro. Indicação de outro corretor gera comissão recorrente quando ele compra créditos.', ia:'Quando o match usa imóvel de um parceiro, é a IA que decide priorizar o seu antes do da rede — você sempre aparece primeiro quando tem opção equivalente.' },
-      { ic:'🪙', titulo:'Coins & Créditos', como:'É a moeda interna — cada ação (cadastrar imóvel, gerar XML, mandar vitrine) consome uma quantidade fixa. Sem mensalidade: você só gasta no que usa, e pode recarregar quando quiser.', ia:'Aqui não tem IA envolvida diretamente — é o sistema de créditos que sustenta o custo de rodar todas as automações acima.' },
+    // Trilhas de leitura (ago/2026, pedido do Renato) — 3 artigos reais por
+    // função, mapeados no que a plataforma faz de verdade (mesma fonte de
+    // conhecimento que cerebro.js usa pro assistente, escrito aqui em texto
+    // corrido em vez de resposta de chat). Tempo mínimo de leitura por
+    // artigo é controlado no JS (_AC_SEGUNDOS_MIN), não aqui.
+    const _trilhas = [
+      { id:'leads', ic:'🎯', titulo:'Leads', artigos: [
+        { titulo:'De onde vêm as leads', corpo: [
+          'Uma lead pode chegar por seis caminhos diferentes, e a plataforma trata cada um de um jeito: portal imobiliário (ZAP, OLX, VivaReal, ImovelWeb, 123i, Chaves na Mão) manda a lead via webhook direto pro corretor dono do anúncio; WhatsApp é quando alguém manda mensagem pro seu número conectado e a IA já começa a conversa; captação de proprietário é quando alguém preenche o formulário público pra anunciar o próprio imóvel (essa vira um tipo especial de lead, "cliente vendedor"); indicação é quando outra pessoa se cadastra pelo seu link de afiliado; planilha é importação manual de uma lista que você já tinha; e Meta Ads é quando alguém clica num anúncio seu do Instagram/Facebook.',
+          'Cada uma dessas origens fica registrada no campo "origem" da lead — é por isso que no Kanban (/app/leads) você consegue filtrar e ver exatamente de onde veio cada uma. Isso importa na prática: uma lead de portal já chega sabendo qual imóvel ela clicou (o sistema já sabe o que ela quer), enquanto uma lead de WhatsApp direto chega "em branco" e precisa que a IA descubra o perfil dela conversando.',
+        ]},
+        { titulo:'Como a lead é tratada dentro da plataforma', corpo: [
+          'Toda lead entra classificada em duas dimensões: fase do funil (novo, interesse, qualificado) e temperatura (fria, morna, quente). A temperatura não é escolhida por você — é calculada sozinha a partir do comportamento real: quantas vezes ela interagiu, quão rápido respondeu, se já teve match. Isso significa que uma lead pode esfriar ou esquentar sozinha conforme o tempo passa, sem ninguém precisar mexer manualmente.',
+          'Tem um detalhe importante só do fluxo de WhatsApp: quando uma lead chega escrevendo sem ainda ter um perfil mínimo de busca definido, ela fica "oculta" — não aparece no Kanban, não conta nos números do dashboard, não gera notificação de sino. Ela só "nasce de verdade" pro sistema quando gera o primeiro match. Isso evita que sua tela de leads fique poluída com gente que ainda nem disse o que procura.',
+          'Por trás de cada lead existe um "mapa de intenção" — uma estrutura que guarda, campo por campo (tipo de imóvel, cidade, bairro, valor, quartos), o que já foi descoberto sobre o que ela quer, com um nível de confiança pra cada dado. Quanto mais completo esse mapa, mais preciso fica o match.',
+        ]},
+        { titulo:'Pra que serve e como aproveitar', corpo: [
+          'O objetivo de toda essa estrutura é uma coisa só: encontrar o imóvel certo pra cada lead o mais rápido possível. Assim que o mapa de intenção tem informação suficiente, o motor de match roda sozinho e a lead já ganha um "imóvel ideal" — o melhor candidato da sua carteira (ou da rede de parceiros), calculado com base em preço, localização, características e até em quão recente o imóvel foi atualizado.',
+          'Se a lead não responde, a plataforma não deixa ela esfriar sozinha — dispara follow-up automático seguindo regras por temperatura e fase (uma lead quente é cutucada com mais frequência que uma morna). Na prática, seu trabalho como corretor vira: acompanhar o Kanban, entrar na conversa quando a IA sinaliza que a lead está pronta pra negociar, e usar as recomendações que já vêm prontas em vez de vasculhar a carteira manualmente.',
+        ]},
+      ]},
+      { id:'imoveis', ic:'🏠', titulo:'Imóveis', artigos: [
+        { titulo:'Como cadastrar e importar sua carteira', corpo: [
+          'Tem dois jeitos de colocar imóvel na plataforma: cadastro manual (formulário completo, foto por foto) ou importação via XML — você conecta o feed que sua imobiliária já usa pra outros portais, e o sistema importa a carteira inteira de uma vez. Dá pra ter mais de um feed XML na mesma conta (por exemplo um feed de venda e outro de locação, ou de fontes diferentes), e cada um sincroniza sozinho a cada 24 horas, sem você precisar reimportar manualmente.',
+          'No cadastro manual, o endereço é geocodificado automaticamente a partir do CEP — isso é o que permite o imóvel aparecer certo no mapa da carteira e ser comparado por distância/região na hora do match.',
+        ]},
+        { titulo:'Como um imóvel entra e sai do match e da vitrine pública', corpo: [
+          'Nem todo imóvel cadastrado aparece pro público ou entra na disputa de match: existe uma regra de "visibilidade pública" que exige, no mínimo, ter foto e valor acima de um piso mínimo. Um imóvel sem foto, por exemplo, continua existindo no seu painel interno, mas fica de fora da vitrine que vai pro WhatsApp da lead — a plataforma não quer mandar pra um cliente algo que pareça abandonado ou incompleto.',
+          'Quando você reimporta um XML, a plataforma marca como inativo qualquer imóvel que sumiu daquele feed específico — mas protege automaticamente qualquer imóvel cadastrado manualmente ou vindo de outro feed diferente, pra uma importação nunca desligar por engano um imóvel que não tem nada a ver com aquele XML.',
+        ]},
+        { titulo:'Divulgação automática — o imóvel trabalhando sozinho', corpo: [
+          'Depois de cadastrado, o mesmo imóvel se espalha sozinho por vários canais sem retrabalho seu: a plataforma gera o XML no formato certo pra cada portal ativado, publica no Instagram (feed ou stories, com carrossel de até 10 fotos), aparece no feed estilo reels dentro do app, e entra na vitrine automática enviada pra qualquer lead compatível — seja pelo WhatsApp, seja pelo seu Meu Site.',
+          'A descrição de texto de cada imóvel também pode ser gerada por IA a partir dos dados cadastrados (tipo, quartos, bairro, diferenciais) — você não precisa escrever um texto de anúncio do zero pra cada imóvel novo.',
+        ]},
+      ]},
+      { id:'whatsapp', ic:'💬', titulo:'WhatsApp & Assistente', artigos: [
+        { titulo:'Conectando seu número', corpo: [
+          'A conexão do WhatsApp funciona via Evolution API — você escaneia um QR code (igual conectar o WhatsApp Web) e a plataforma passa a enviar e receber mensagens por esse número. A recomendação forte é usar um número exclusivo, de preferência um chip profissional dedicado só pra isso: um número pessoal misturado com uso comercial automatizado tem muito mais risco de ser bloqueado pelo WhatsApp, e isso derrubaria o atendimento de todas as suas leads de uma vez.',
+        ]},
+        { titulo:'Como a IA atende sozinha, sem você online', corpo: [
+          'Toda mensagem nova passa por até três camadas antes de virar resposta: primeiro uma checagem rápida de saudação/resumo; depois, se configurado, a IA de verdade (Groq) entra com um contexto rico sobre a sua carteira e as leads recentes; e por último existe um fallback fixo, caso a IA não esteja disponível no momento. Isso garante que a lead nunca fica sem nenhuma resposta, mesmo em uma falha de sistema.',
+          'A IA não só responde — ela extrai o perfil de busca da conversa (tipo de imóvel, bairro, valor, quartos) frase por frase, alimenta o mapa de intenção da lead, roda o match automaticamente assim que tem dado suficiente, e já manda a vitrine com os imóveis compatíveis, tudo isso em segundos e sem nenhuma ação manual sua.',
+        ]},
+        { titulo:'Central Operacional e Assistente — as duas formas de "conversar" com o sistema', corpo: [
+          'Além do atendimento automático da lead, você também tem duas ferramentas pra interagir com a própria plataforma em linguagem natural: o Assistente (chat completo, com contexto da sua carteira, pra tirar dúvida ou pedir sugestão) e a Central Operacional (comandos mais diretos e rápidos, tipo "quais leads quentes eu tenho hoje" ou "resumo do dia"). São dois motores diferentes — a Central usa reconhecimento de comando mais simples e direto, o Assistente usa a IA completa com mais contexto.',
+        ]},
+      ]},
+      { id:'portais', ic:'📡', titulo:'Portais & XML', artigos: [
+        { titulo:'O que é o feed XML e pra que ele serve', corpo: [
+          'Todo portal imobiliário grande (ZAP, VivaReal, OLX, ImovelWeb) espera receber a carteira de imóveis num arquivo XML com um formato específico — é assim que eles sabem quais imóveis existem, com qual preço, foto e descrição. Em vez de você cadastrar o mesmo imóvel manualmente em cada portal, a plataforma gera esse XML automaticamente a partir da sua carteira já cadastrada aqui dentro.',
+        ]},
+        { titulo:'Como ativar e manter sincronizado', corpo: [
+          'Em Portais (/app/portais) você ativa qual portal quer alimentar — a plataforma passa a gerar (e manter atualizado) o XML no formato daquele portal específico. A sincronização roda sozinha a cada 24 horas: se você mudar o preço de um imóvel ou tirar ele do ar, o portal reflete essa mudança no ciclo seguinte, sem você precisar reenviar nada manualmente.',
+        ]},
+        { titulo:'Webhooks — como o lead do portal chega até você', corpo: [
+          'Quando alguém clica em "tenho interesse" num anúncio seu dentro de um portal, o portal manda essa informação de volta pra plataforma através de um webhook (uma notificação automática entre sistemas). A plataforma usa o identificador do anúncio pra descobrir exatamente qual imóvel da sua carteira gerou aquele interesse, e já monta a lead com esse imóvel marcado como o "âncora" — ela chega no seu Kanban já sabendo o que a pessoa clicou, sem você ter que perguntar de novo.',
+        ]},
+      ]},
+      { id:'redes', ic:'📸', titulo:'Redes Sociais', artigos: [
+        { titulo:'Instagram conectado à sua conta', corpo: [
+          'A conexão usa o login profissional do próprio Instagram (Instagram Business Login) — não precisa ter uma Página do Facebook vinculada, que era uma exigência mais antiga e mais complicada. A conta do Instagram precisa ser Profissional (Empresa ou Criador de conteúdo); conta pessoal comum não consegue conectar.',
+        ]},
+        { titulo:'Publicando um imóvel automaticamente', corpo: [
+          'Com a conta conectada, você publica um imóvel direto da plataforma — feed normal (com carrossel de até 10 fotos) ou stories. A legenda/descrição do post pode ser gerada por IA a partir dos dados já cadastrados do imóvel, então você não precisa escrever um texto de divulgação do zero toda vez.',
+        ]},
+        { titulo:'Meta Ads — campanha de tráfego direto da plataforma', corpo: [
+          'Além de publicar orgânico, dá pra criar campanha paga (Meta Ads) sem sair da plataforma — inclusive campanha de "clique para WhatsApp", que já manda quem clicou direto pra conversa com a IA. Um lead vindo de uma campanha dessas chega marcado com uma origem própria, então dá pra medir separadamente quanto cada campanha está trazendo de gente de verdade.',
+        ]},
+      ]},
+      { id:'site', ic:'🌐', titulo:'Meu Site', artigos: [
+        { titulo:'Sua página pública própria', corpo: [
+          'Cada corretor tem uma página pública própria com a carteira inteira de imóveis, sem precisar contratar ou manter um site separado. Dá pra usar esse link na bio do Instagram, mandar direto no WhatsApp ou colocar num cartão de visita — é uma vitrine profissional pronta, gerada automaticamente a partir do que você já cadastrou.',
+        ]},
+        { titulo:'Como um visitante do site vira lead de verdade', corpo: [
+          'Quando alguém visitando o Meu Site demonstra interesse (clica num imóvel, preenche um formulário de contato), essa pessoa entra no mesmo motor de match que trata qualquer outra lead — não existe um fluxo "diferente" ou mais fraco pra quem chega pelo site. O imóvel que ela clicou vira a âncora do match dela, do mesmo jeito que aconteceria vindo de um portal.',
+        ]},
+        { titulo:'Domínio próprio', corpo: [
+          'Se você já tem (ou quer ter) um domínio próprio (tipo www.seunome.com.br) em vez do link padrão da plataforma, dá pra apontar esse domínio pro Meu Site via configuração de CNAME. Depois que a verificação do domínio é confirmada, sua página passa a responder nesse endereço próprio, mantendo a mesma vitrine por trás.',
+        ]},
+      ]},
+      { id:'parceiros', ic:'🤝', titulo:'Parceiros & Indicações', artigos: [
+        { titulo:'Rede de parceiros — o match não para na sua carteira', corpo: [
+          'Quando uma lead não encontra o imóvel ideal só na sua carteira, o sistema pode sugerir um imóvel de outro corretor parceiro — ampliando a chance de fechar negócio mesmo sem você ter o imóvel exato. Se preferir não usar imóveis de rede (por exemplo, se você quer garantir que a lead só veja imóveis que são realmente seus), existe uma preferência de perfil pra restringir a vitrine só à sua própria carteira.',
+        ]},
+        { titulo:'Como funciona quando o match usa imóvel de um parceiro', corpo: [
+          'Mesmo com a rede ativada, seus próprios imóveis sempre são priorizados primeiro no ranking de match — um imóvel de parceiro só entra na frente se não existir opção equivalente sua. Quando uma visita ou negócio nasce de um imóvel de parceiro, existe uma comissão de parceria configurável entre as duas partes envolvidas.',
+        ]},
+        { titulo:'Programa de afiliados — indicar outro corretor', corpo: [
+          'É um programa separado da rede de parceiros de imóveis: aqui você indica outro corretor ou imobiliária pra usar a plataforma, usando um link de indicação próprio. Existem níveis (1, 2 e 3) definidos pelo volume de vendas gerado, e a indicação rende uma comissão recorrente toda vez que a pessoa indicada compra créditos — além de um bônus imediato assim que ela se cadastra pelo seu link.',
+        ]},
+      ]},
+      { id:'coins', ic:'🪙', titulo:'Coins & Créditos', artigos: [
+        { titulo:'O que são os créditos', corpo: [
+          'Créditos (coins) são a moeda interna da plataforma — não existe mensalidade fixa. Cada ação relevante (cadastrar um imóvel, importar XML, a IA qualificar uma lead, gerar um match, mandar uma vitrine pelo WhatsApp) consome uma quantidade fixa e conhecida de créditos. Você só paga pelo que realmente usa, e o consumo é totalmente transparente — dá pra ver o histórico de cada débito.',
+        ]},
+        { titulo:'Como recarregar', corpo: [
+          'A recarga é feita comprando um dos combos disponíveis (com valores fixos e bônus de créditos crescente conforme o combo), via Pix ou cartão através do Mercado Pago. Assim que o pagamento é confirmado, os créditos entram na conta na hora — não tem espera nem aprovação manual.',
+        ]},
+        { titulo:'O que acontece quando os créditos acabam', corpo: [
+          'A plataforma avisa antes de zerar, com alertas de saldo baixo e depois crítico. Quando realmente chega a zero, só as ações que dependem de crédito ficam bloqueadas até a próxima recarga — seus dados, imóveis já cadastrados e histórico de leads continuam salvos e acessíveis normalmente, nada é perdido ou apagado por falta de saldo.',
+        ]},
+      ]},
     ];
   %>
-  <div style="margin-top:6px">
-    <% _topicos.forEach(function(t){ %>
-    <details class="ac-topico">
-      <summary><span class="ac-topico-ic"><%= t.ic %></span><%= t.titulo %><span class="ac-topico-plus">+</span></summary>
-      <div class="ac-topico-body">
-        <h6>Como funciona</h6>
-        <p><%= t.como %></p>
-        <h6>Como a IA ajuda</h6>
-        <p class="ac-ia"><%= t.ia %></p>
+  <div style="margin-top:6px" id="acTrilhas">
+    <% _trilhas.forEach(function(t, ti){ %>
+    <div class="ac-trilha" data-trilha="<%= t.id %>">
+      <div class="ac-trilha-head" onclick="acAbrirTrilha('<%= t.id %>')">
+        <span class="ic"><%= t.ic %></span>
+        <div class="tx">
+          <b><%= t.titulo %></b>
+          <span id="acStatus-<%= t.id %>">0 de <%= t.artigos.length %> lidos</span>
+        </div>
+        <div class="ac-trilha-dots" id="acDots-<%= t.id %>">
+          <% t.artigos.forEach(function(){ %><i></i><% }); %>
+        </div>
+        <span class="seta">→</span>
       </div>
-    </details>
+      <div class="ac-leitor" id="acLeitor-<%= t.id %>">
+        <div class="ac-leitor-cap" id="acCap-<%= t.id %>"></div>
+        <div class="ac-leitor-titulo" id="acTit-<%= t.id %>"></div>
+        <div class="ac-leitor-corpo" id="acCorpo-<%= t.id %>"></div>
+        <div class="ac-leitor-nav">
+          <button type="button" class="ac-leitor-voltar" onclick="acFecharTrilha('<%= t.id %>')">← Fechar</button>
+          <button type="button" class="ac-btn-prox" id="acBtn-<%= t.id %>" onclick="acProximoArtigo('<%= t.id %>')" disabled>Aguarde <span class="cd">60</span>s</button>
+        </div>
+      </div>
+    </div>
     <% }); %>
   </div>
 </div>
+
+<script>
+(function(){
+  // Dados das trilhas espelhados pro client-side (mesma fonte renderizada
+  // acima em EJS) — precisa estar em JS pra controlar navegação/trava sem
+  // recarregar a página.
+  const _AC_TRILHAS = <%- JSON.stringify(_trilhas) %>;
+  const _AC_SEGUNDOS_MIN = 60;
+  const _AC_USER = <%- JSON.stringify((user && (user.codigoUsuario || user.id)) || 'anon') %>;
+  const _AC_KEY = 'academia_progresso_' + _AC_USER;
+
+  function _acLerProgresso(){
+    try { return JSON.parse(localStorage.getItem(_AC_KEY) || '{}'); } catch(e) { return {}; }
+  }
+  function _acSalvarProgresso(p){
+    try { localStorage.setItem(_AC_KEY, JSON.stringify(p)); } catch(e) {}
+  }
+
+  let _acAberta = null;
+  let _acArtigoAtual = 0;
+  let _acTimer = null;
+
+  window.acAbrirTrilha = function(id){
+    if (_acAberta && _acAberta !== id) acFecharTrilha(_acAberta);
+    const trilha = _AC_TRILHAS.find(t => t.id === id);
+    if (!trilha) return;
+    const progresso = _acLerProgresso();
+    const lidos = progresso[id] || [];
+    // Retoma no primeiro artigo ainda não lido (ou reabre o último se já concluiu tudo).
+    let idx = trilha.artigos.findIndex((_, i) => !lidos[i]);
+    if (idx === -1) idx = trilha.artigos.length - 1;
+    _acAberta = id;
+    _acArtigoAtual = idx;
+    document.getElementById('acLeitor-' + id).classList.add('on');
+    _acRenderArtigo(id);
+    document.getElementById('acLeitor-' + id).scrollIntoView({ behavior:'smooth', block:'nearest' });
+  };
+
+  window.acFecharTrilha = function(id){
+    document.getElementById('acLeitor-' + id).classList.remove('on');
+    if (_acTimer) { clearInterval(_acTimer); _acTimer = null; }
+    if (_acAberta === id) _acAberta = null;
+  };
+
+  function _acRenderArtigo(id){
+    const trilha = _AC_TRILHAS.find(t => t.id === id);
+    const artigo = trilha.artigos[_acArtigoAtual];
+    const progresso = _acLerProgresso();
+    const lidos = progresso[id] || [];
+    const jaLido = !!lidos[_acArtigoAtual];
+
+    document.getElementById('acCap-' + id).textContent = 'Artigo ' + (_acArtigoAtual + 1) + ' de ' + trilha.artigos.length;
+    document.getElementById('acTit-' + id).textContent = artigo.titulo;
+    document.getElementById('acCorpo-' + id).innerHTML = artigo.corpo.map(p => '<p>' + p + '</p>').join('');
+
+    const btn = document.getElementById('acBtn-' + id);
+    const ultimo = _acArtigoAtual === trilha.artigos.length - 1;
+    if (_acTimer) { clearInterval(_acTimer); _acTimer = null; }
+
+    if (jaLido) {
+      // Já leu esse artigo antes — sem trava, libera na hora (não pune reler).
+      btn.disabled = false;
+      btn.textContent = ultimo ? 'Concluir ✓' : 'Próximo artigo →';
+    } else {
+      let restante = _AC_SEGUNDOS_MIN;
+      btn.disabled = true;
+      btn.innerHTML = 'Aguarde <span class="cd">' + restante + '</span>s';
+      _acTimer = setInterval(() => {
+        restante--;
+        if (restante <= 0) {
+          clearInterval(_acTimer);
+          _acTimer = null;
+          // Marca esse artigo como lido assim que o tempo mínimo passa.
+          const p = _acLerProgresso();
+          if (!p[id]) p[id] = [];
+          p[id][_acArtigoAtual] = true;
+          _acSalvarProgresso(p);
+          _acAtualizarCabecalho(id);
+          btn.disabled = false;
+          btn.textContent = ultimo ? 'Concluir ✓' : 'Próximo artigo →';
+        } else {
+          btn.innerHTML = 'Aguarde <span class="cd">' + restante + '</span>s';
+        }
+      }, 1000);
+    }
+  }
+
+  window.acProximoArtigo = function(id){
+    const trilha = _AC_TRILHAS.find(t => t.id === id);
+    if (_acArtigoAtual < trilha.artigos.length - 1) {
+      _acArtigoAtual++;
+      _acRenderArtigo(id);
+      document.getElementById('acLeitor-' + id).scrollIntoView({ behavior:'smooth', block:'nearest' });
+    } else {
+      acFecharTrilha(id);
+    }
+  };
+
+  function _acAtualizarCabecalho(id){
+    const trilha = _AC_TRILHAS.find(t => t.id === id);
+    const progresso = _acLerProgresso();
+    const lidos = progresso[id] || [];
+    const total = trilha.artigos.length;
+    const feitos = lidos.filter(Boolean).length;
+    const status = document.getElementById('acStatus-' + id);
+    status.textContent = feitos + ' de ' + total + ' lidos';
+    status.classList.toggle('done', feitos === total);
+    const dots = document.getElementById('acDots-' + id).children;
+    for (let i = 0; i < dots.length; i++) dots[i].classList.toggle('lido', !!lidos[i]);
+  }
+
+  _AC_TRILHAS.forEach(t => _acAtualizarCabecalho(t.id));
+})();
+</script>
 <%- include('partials/app-end') %>

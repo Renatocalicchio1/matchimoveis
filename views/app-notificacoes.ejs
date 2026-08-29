@@ -14,8 +14,14 @@
 .notif-msg{font-size:12px;color:var(--text-sec);line-height:1.5}
 .notif-tempo{font-size:11px;color:var(--text-ter);margin-top:4px}
 .notif-empty{text-align:center;padding:60px 20px;color:var(--text-ter)}
-.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg);border-radius:10px;padding:4px;width:fit-content}
-.tab{padding:6px 16px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer;border:none;background:transparent;transition:all .1s}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg);border-radius:10px;padding:4px;max-width:100%;overflow-x:auto}
+/* Botão de aba não tem espaço nenhum internamente pra quebrar — sem
+   white-space:nowrap aqui, o word-break:break-word global de app-shell.ejs
+   (trava geral de overflow de todo /app/*) quebra o texto caractere por
+   caractere quando a fila de abas fica espremida no mobile (mesmo bug do
+   link de afiliados, ago/2026). O overflow-x:auto do .tabs acima já resolve
+   telas estreitas — não precisa quebrar linha. */
+.tab{padding:6px 16px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer;border:none;background:transparent;transition:all .1s;white-space:nowrap;flex-shrink:0}
 .tab.on{background:#fff;color:var(--dark);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .radar-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:10px;border:1px solid var(--border);text-decoration:none;color:inherit;margin-bottom:8px}
 .radar-item:hover{background:var(--bg)}
@@ -34,7 +40,7 @@
 .radar-tag.info{background:#f3f4f6;color:#6b7280}
 </style>
 
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
   <div class="tabs">
     <button class="tab on" onclick="filtrarNotif('todas',this)">Todas</button>
     <button class="tab" onclick="filtrarNotif('nao_lida',this)">Não lidas</button>
@@ -43,7 +49,7 @@
     <button class="tab" id="tab-radar" onclick="abrirRadar(this)">🎯 Radar</button>
   </div>
   <% if(notificacoes && notificacoes.length) { %>
-  <button onclick="marcarTodasLidas()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer">
+  <button onclick="marcarTodasLidas()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer;white-space:nowrap;flex-shrink:0">
     Marcar todas como lidas
   </button>
   <% } %>

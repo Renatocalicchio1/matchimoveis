@@ -1,0 +1,249 @@
+<%- include('partials/app-shell',{active:'certidoes',title:'Certidões',subtitle:'Puxe certidão de imóvel, comprador ou vendedor direto na plataforma.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+
+<style>
+/* Painel de Certidões (ago/2026, em construção) — só tela por enquanto,
+   sem integração real com fornecedor (RevoluTI/Infosimples, ainda em
+   negociação). Reaproveita os tokens de cor de app-shell.ejs (--brand,
+   --text, --border etc.) em vez de inventar paleta nova. */
+.cert-aviso{display:flex;gap:10px;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:12.5px;color:#92400e;line-height:1.5}
+
+.cert-steps{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.cert-step-pill{display:flex;align-items:center;gap:7px;padding:7px 13px 7px 9px;border-radius:999px;background:#fff;border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-ter);cursor:pointer}
+.cert-step-pill .n{width:18px;height:18px;border-radius:50%;background:var(--bg);color:var(--text-sec);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex-shrink:0}
+.cert-step-pill.on{background:var(--text);color:#fff;border-color:var(--text)}
+.cert-step-pill.on .n{background:var(--brand);color:#fff}
+.cert-step-pill.done{color:#00847A}
+.cert-step-pill.done .n{background:#f0fdf4;color:#00847A}
+
+.cert-view{display:none}
+.cert-view.on{display:block}
+
+.cert-search-row{display:flex;gap:10px;flex-wrap:wrap}
+.cert-search-row input{flex:1 1 260px;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px}
+.cert-search-row input:focus{outline:none;border-color:var(--brand)}
+.cert-tipo-toggle{display:flex;gap:6px;margin-bottom:14px}
+.cert-tipo-toggle button{padding:6px 14px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text-sec);font-size:12px;font-weight:600;cursor:pointer}
+.cert-tipo-toggle button.on{background:var(--bg);color:var(--text);border-color:var(--text)}
+.cert-result-card{display:flex;gap:14px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:18px}
+.cert-result-card .av{width:40px;height:40px;border-radius:10px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.cert-result-card .info b{font-size:13.5px;color:var(--text);display:block}
+.cert-result-card .info span{font-size:12px;color:var(--text-sec)}
+
+.cert-pac-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:760px){.cert-pac-grid{grid-template-columns:1fr}}
+.cert-pac-card{border:1.5px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;position:relative;min-width:0}
+.cert-pac-card.sel{border-color:var(--brand);background:var(--bg)}
+.cert-pac-card .tag{position:absolute;top:-9px;left:16px;background:#FC642D;color:#fff;font-size:9.5px;font-weight:800;padding:3px 9px;border-radius:999px;text-transform:uppercase}
+.cert-pac-card h3{font-size:14.5px;font-weight:800;margin:0 0 3px;color:var(--text)}
+.cert-pac-card .preco{font-size:20px;font-weight:800;color:var(--text);margin:8px 0 2px}
+.cert-pac-card .preco small{font-size:11px;font-weight:600;color:var(--text-ter)}
+.cert-pac-card .desc{font-size:12px;color:var(--text-sec);line-height:1.5;margin-bottom:10px;min-height:48px}
+.cert-pac-card ul{list-style:none;margin:0;padding:0;font-size:11.5px;color:var(--text)}
+.cert-pac-card li{display:flex;gap:6px;padding:2px 0}
+.cert-pac-card li::before{content:'✓';color:#00847A;font-weight:800;flex-shrink:0}
+.cert-doc-count{font-size:11px;color:var(--text-ter);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+
+.cert-custom-box{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--bg);border:1px solid var(--border);display:none}
+.cert-custom-box.show{display:block}
+.cert-doc-chip-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.cert-doc-chip{font-size:11.5px;padding:6px 11px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer}
+.cert-doc-chip.sel{background:var(--text);color:#fff;border-color:var(--text)}
+
+.cert-checkout-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start}
+@media(max-width:720px){.cert-checkout-grid{grid-template-columns:1fr}}
+.cert-linha{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.cert-linha:last-child{border-bottom:none}
+.cert-linha b{color:var(--text)}
+.cert-linha .l1{color:var(--text);font-weight:600}
+.cert-linha .l2{color:var(--text-ter);font-size:11.5px}
+.cert-resumo-total{display:flex;justify-content:space-between;align-items:baseline;padding-top:14px;margin-top:6px;border-top:1.5px solid var(--text)}
+.cert-resumo-total .n{font-size:24px;font-weight:800;color:var(--text)}
+.cert-pay-opts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.cert-pay-opt{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text)}
+.cert-pay-opt.sel{border-color:var(--brand);background:var(--bg)}
+.cert-btn-confirmar{width:100%;padding:13px;border-radius:11px;border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;cursor:pointer;margin-top:16px}
+.cert-aviso-margem{font-size:11px;color:var(--text-ter);margin-top:10px;line-height:1.5}
+
+.cert-status-list{display:flex;flex-direction:column;gap:10px}
+.cert-status-item{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--border);border-radius:12px}
+.cert-status-item .ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.cert-status-item.pronto .ic{background:#f0fdf4;color:#15803d}
+.cert-status-item.processando .ic{background:#fffbeb;color:#92400e}
+.cert-status-item .info{flex:1;min-width:0}
+.cert-status-item .info b{font-size:13px;color:var(--text);display:block}
+.cert-status-item .info span{font-size:11.5px;color:var(--text-sec)}
+.cert-badge{font-size:10.5px;font-weight:800;padding:4px 10px;border-radius:999px;text-transform:uppercase;flex-shrink:0}
+.cert-badge.pronto{background:#f0fdf4;color:#15803d}
+.cert-badge.processando{background:#fffbeb;color:#92400e}
+.cert-btn-baixar{background:var(--text);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0}
+
+.cert-nav-btns{display:flex;justify-content:space-between;margin-top:14px}
+.cert-nav-btns button{padding:10px 18px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text)}
+.cert-nav-btns button.primary{background:var(--brand);color:#fff;border:none}
+</style>
+
+<div class="cert-aviso">
+  🚧 <div><strong>Em construção</strong> — essa tela ainda não está ligada a nenhum fornecedor de certidão de verdade. É só o fluxo/visual, pra validar antes de integrar a API (RevoluTI ou Infosimples, ainda em negociação de preço). Nenhum botão aqui cobra ou pede documento real ainda.</div>
+</div>
+
+<div class="cert-steps">
+  <div class="cert-step-pill on" data-goto="1"><span class="n">1</span>Buscar</div>
+  <div class="cert-step-pill" data-goto="2"><span class="n">2</span>Escolher certidões</div>
+  <div class="cert-step-pill" data-goto="3"><span class="n">3</span>Pagar</div>
+  <div class="cert-step-pill" data-goto="4"><span class="n">4</span>Minhas auditorias</div>
+</div>
+
+<!-- STEP 1 -->
+<div class="cert-view on card" id="cv1">
+  <p style="font-size:15px;font-weight:600;margin-bottom:4px">Quem ou o que você quer consultar?</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">CPF/CNPJ de comprador ou vendedor, ou o endereço/matrícula do imóvel.</p>
+  <div class="cert-tipo-toggle">
+    <button class="on" data-tipo="pessoa">👤 Pessoa (CPF/CNPJ)</button>
+    <button data-tipo="imovel">🏠 Imóvel</button>
+  </div>
+  <div class="cert-search-row">
+    <input type="text" placeholder="000.000.000-00">
+    <button class="btn btn-primary" id="certBtnBuscar">Buscar →</button>
+  </div>
+  <div class="cert-result-card" id="certResultCard" style="display:none">
+    <div class="av">CR</div>
+    <div class="info">
+      <b>Carlos Roberto Andrade</b>
+      <span>CPF 123.456.789-00 — exemplo (busca ainda não é real)</span>
+    </div>
+  </div>
+</div>
+<div class="cert-nav-btns"><span></span><button class="primary" onclick="certGoto(2)">Continuar →</button></div>
+
+<!-- STEP 2 -->
+<div class="cert-view card" id="cv2" style="margin-top:16px">
+  <p style="font-size:15px;font-weight:600;margin-bottom:4px">Escolha o pacote de certidões</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">Pra vendedor de imóvel, recomendamos a Completa. Pra inquilino/fiador, a Simples já resolve.</p>
+  <div class="cert-pac-grid">
+    <div class="cert-pac-card">
+      <h3>Simples</h3>
+      <div class="preco">R$ 30<small>/estado</small></div>
+      <div class="desc">Rápida — pra inquilino, fiador, aprovação de crédito ou captação de proprietário.</div>
+      <ul><li>Serasa</li><li>Distribuição cível estadual e federal</li><li>Trabalhista (TRT + TST)</li><li>CND Receita Federal</li></ul>
+      <div class="cert-doc-count">7 documentos</div>
+    </div>
+    <div class="cert-pac-card sel">
+      <span class="tag">Recomendado p/ venda</span>
+      <h3>Completa</h3>
+      <div class="preco">R$ 50<small>/estado</small></div>
+      <div class="desc">Due diligence de verdade — pra vendedor de imóvel e cônjuge, antes de fechar negócio.</div>
+      <ul><li>Tudo da Simples, mais:</li><li>Protesto de títulos (CENPROT)</li><li>Débitos municipais</li><li>Distribuição em todos os graus</li></ul>
+      <div class="cert-doc-count">16 documentos</div>
+    </div>
+    <div class="cert-pac-card" id="certPacPersonalizada">
+      <h3>Personalizada</h3>
+      <div class="preco">R$ 30<small>+R$3/doc extra</small></div>
+      <div class="desc">Você escolhe exatamente quais certidões precisa dessa vez.</div>
+      <ul><li>Até 6 documentos inclusos</li></ul>
+      <div class="cert-doc-count" id="certPersonalizadaCount">0 selecionados</div>
+    </div>
+  </div>
+  <div class="cert-custom-box" id="certCustomBox">
+    <b style="font-size:12.5px;color:var(--text)">Escolha os documentos:</b>
+    <div class="cert-doc-chip-grid">
+      <div class="cert-doc-chip sel">CND Receita Federal</div>
+      <div class="cert-doc-chip">Distribuição Cível (TJ)</div>
+      <div class="cert-doc-chip">Distribuição Federal (TRF)</div>
+      <div class="cert-doc-chip">Trabalhista (TST)</div>
+      <div class="cert-doc-chip">Protesto (CENPROT)</div>
+      <div class="cert-doc-chip">Certidão de Matrícula</div>
+      <div class="cert-doc-chip">Ônus Reais</div>
+      <div class="cert-doc-chip">Débito Municipal (IPTU)</div>
+      <div class="cert-doc-chip">FGTS (CNPJ)</div>
+      <div class="cert-doc-chip">Junta Comercial (CNPJ)</div>
+    </div>
+  </div>
+</div>
+<div class="cert-nav-btns"><button onclick="certGoto(1)">← Voltar</button><button class="primary" onclick="certGoto(3)">Continuar →</button></div>
+
+<!-- STEP 3 -->
+<div class="cert-view card" id="cv3" style="margin-top:16px">
+  <p style="font-size:15px;font-weight:600;margin-bottom:4px">Revisar e pagar</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">O custo da certidão é sempre repassado pra você — a MatchImóveis não banca esse valor.</p>
+  <div class="cert-checkout-grid">
+    <div>
+      <div class="cert-linha"><div><div class="l1">Pacote Completa</div><div class="l2">Carlos Roberto Andrade · CPF 123.456.789-00 · SP</div></div><b>R$ 50,00</b></div>
+      <div class="cert-linha"><div><div class="l1">Taxa da plataforma</div><div class="l2">Processamento + relatório consolidado MatchImóveis</div></div><b>R$ 8,00</b></div>
+      <div class="cert-resumo-total"><span style="font-size:13px;color:var(--text-sec);font-weight:700">Total</span><span class="n">R$ 58,00</span></div>
+    </div>
+    <div>
+      <b style="font-size:12.5px;color:var(--text)">Forma de pagamento</b>
+      <div class="cert-pay-opts">
+        <div class="cert-pay-opt sel">🔲 Pix — aprovação na hora</div>
+        <div class="cert-pay-opt">💳 Cartão de crédito</div>
+        <div class="cert-pay-opt">🪙 Usar meus créditos</div>
+      </div>
+      <button class="cert-btn-confirmar" onclick="certGoto(4)">Pagar R$ 58,00 →</button>
+      <p class="cert-aviso-margem">Preço de referência baseado na tabela pública do fornecedor (2026) — valor final depende do acordo de parceria fechado. Botão ainda não cobra nada de verdade.</p>
+    </div>
+  </div>
+</div>
+<div class="cert-nav-btns"><button onclick="certGoto(2)">← Voltar</button><span></span></div>
+
+<!-- STEP 4 -->
+<div class="cert-view card" id="cv4" style="margin-top:16px">
+  <p style="font-size:15px;font-weight:600;margin-bottom:4px">Minhas auditorias</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">Certidões pedidas nos últimos 30 dias.</p>
+  <div class="cert-status-list">
+    <div class="cert-status-item processando">
+      <div class="ic">⏳</div>
+      <div class="info"><b>Carlos Roberto Andrade — Pacote Completa</b><span>Pedido às 14:32 · previsão de 15 min</span></div>
+      <span class="cert-badge processando">Processando</span>
+    </div>
+    <div class="cert-status-item pronto">
+      <div class="ic">✓</div>
+      <div class="info"><b>Rua das Palmeiras, 210 — Certidão de Matrícula</b><span>Concluído às 11:07</span></div>
+      <span class="cert-badge pronto">Pronto</span>
+      <button class="cert-btn-baixar">Baixar PDF</button>
+    </div>
+  </div>
+</div>
+<div class="cert-nav-btns"><button onclick="certGoto(1)">← Nova consulta</button><span></span></div>
+
+<script>
+(function(){
+  window.certGoto = function(n){
+    document.querySelectorAll('.cert-view').forEach(v => v.classList.remove('on'));
+    document.getElementById('cv'+n).classList.add('on');
+    document.querySelectorAll('.cert-step-pill').forEach(p => {
+      const pn = Number(p.dataset.goto);
+      p.classList.toggle('on', pn === n);
+      p.classList.toggle('done', pn < n);
+    });
+  };
+  document.querySelectorAll('.cert-step-pill').forEach(p => p.addEventListener('click', () => certGoto(Number(p.dataset.goto))));
+
+  document.querySelectorAll('.cert-tipo-toggle button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.cert-tipo-toggle button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+  }));
+
+  document.querySelectorAll('.cert-pac-card').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.cert-pac-card').forEach(x => x.classList.remove('sel'));
+    c.classList.add('sel');
+    document.getElementById('certCustomBox').classList.toggle('show', c.id === 'certPacPersonalizada');
+  }));
+
+  document.querySelectorAll('.cert-doc-chip').forEach(ch => ch.addEventListener('click', () => {
+    ch.classList.toggle('sel');
+    const n = document.querySelectorAll('.cert-doc-chip.sel').length;
+    document.getElementById('certPersonalizadaCount').textContent = n + ' selecionado' + (n === 1 ? '' : 's');
+  }));
+
+  document.querySelectorAll('.cert-pay-opt').forEach(o => o.addEventListener('click', () => {
+    document.querySelectorAll('.cert-pay-opt').forEach(x => x.classList.remove('sel'));
+    o.classList.add('sel');
+  }));
+
+  document.getElementById('certBtnBuscar').addEventListener('click', () => {
+    document.getElementById('certResultCard').style.display = 'flex';
+  });
+})();
+</script>
+
+<%- include('partials/app-end') %>

@@ -44,6 +44,23 @@
 .af-contrato-box{max-height:420px;overflow-y:auto;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:13px;line-height:1.6;color:#374151}
 .af-contrato-box h3{font-size:14px;margin:14px 0 6px}
 .af-contrato-box h3:first-child{margin-top:0}
+
+/* Cabeçalho (nível + links de convite) e Inbox — min-width:0 nos filhos de
+   flex é obrigatório aqui: sem isso o item nunca encolhe abaixo do próprio
+   conteúdo, estourando a largura da tela em mobile (mesmo bug de overflow
+   já corrigido em outras telas do app, ago/2026). */
+.af-top-card{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.af-top-card > div{min-width:0}
+.af-inbox-corpo{gap:16px;align-items:flex-start;min-width:0}
+.af-inbox-list-col{flex:1;min-width:0}
+.af-inbox-lista-scroll{max-height:480px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:10px}
+.af-inbox-thread-col{flex:2;min-width:0;border:1px solid #e5e7eb;border-radius:10px;display:flex;flex-direction:column;height:520px}
+@media(max-width:720px){
+  .af-inbox-corpo{flex-direction:column}
+  .af-inbox-list-col, .af-inbox-thread-col{width:100%}
+  .af-inbox-lista-scroll{max-height:220px}
+  .af-inbox-thread-col{height:420px}
+}
 </style>
 
 <% if (!aceitouContrato) { %>
@@ -101,7 +118,7 @@ async function afAceitarContrato(){
   🎉 <strong><%= dados.bonusIndicacao %> coins na hora</strong> assim que quem você indicou se cadastra — e depois, comissão recorrente toda vez que essa pessoa <strong>compra créditos pra usar a plataforma</strong> (nunca comissão de venda de imóvel).
 </div>
 
-<div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+<div class="card af-top-card" style="margin-bottom:16px">
   <div>
     <span class="af-nivel-badge af-nivel-<%= nivel %>">Nível <%= nivel %></span>
     <% if (dados.faltaProximoNivel > 0) { %>
@@ -148,7 +165,9 @@ async function afAceitarContrato(){
   <button class="af-tab-btn active" onclick="afTab('comissoes',this)">💰 Minhas comissões</button>
   <button class="af-tab-btn" onclick="afTab('indicados',this)">👥 Meus afiliados</button>
   <button class="af-tab-btn" onclick="afTab('campanha',this)">📧 Convidar novos</button>
+  <% if (user && ['BRU-8MPC','REN-G9K6'].includes(user.codigoUsuario||user.id)) { %>
   <button class="af-tab-btn" onclick="afTab('inbox',this)">📥 Inbox</button>
+  <% } %>
   <button class="af-tab-btn" onclick="afTab('arvore',this)">🌳 Árvore</button>
   <button class="af-tab-btn" onclick="afTab('niveis',this)">📖 Como funciona</button>
 </div>
@@ -382,15 +401,16 @@ async function afAceitarContrato(){
   </div>
 </div>
 
+<% if (user && ['BRU-8MPC','REN-G9K6'].includes(user.codigoUsuario||user.id)) { %>
 <div id="af-pane-inbox" class="af-tab-pane card">
   <h3 style="margin-top:0">Inbox — WhatsApp oficial</h3>
   <p style="font-size:12.5px;color:#6b7280;margin-top:-8px">Contatos de campanha de disparo oficial vinculados a você. Só dá pra conversar livremente com quem já te respondeu pelo menos 1x (regra do WhatsApp oficial: a janela de texto livre só abre depois que a pessoa fala primeiro).</p>
   <div id="af-inbox-carregando" style="padding:20px 0;color:#6b7280;font-size:13px">Carregando...</div>
-  <div id="af-inbox-corpo" style="display:none;gap:16px;align-items:flex-start">
-    <div style="flex:1;min-width:220px">
+  <div id="af-inbox-corpo" class="af-inbox-corpo" style="display:none">
+    <div class="af-inbox-list-col">
       <div style="display:flex;gap:6px;margin-bottom:8px">
-        <input type="text" id="af-inbox-busca" placeholder="Buscar nome ou telefone..." oninput="afInboxFiltrar()" style="flex:1;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:12.5px">
-        <select id="af-inbox-filtro-status" onchange="afInboxFiltrar()" style="padding:8px 6px;border:1px solid #d1d5db;border-radius:8px;font-size:12px;max-width:118px">
+        <input type="text" id="af-inbox-busca" placeholder="Buscar nome ou telefone..." oninput="afInboxFiltrar()" style="flex:1;min-width:0;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:12.5px">
+        <select id="af-inbox-filtro-status" onchange="afInboxFiltrar()" style="padding:8px 6px;border:1px solid #d1d5db;border-radius:8px;font-size:12px;max-width:118px;flex-shrink:0">
           <option value="">Todos</option>
           <option value="comprou">💰 Comprou</option>
           <option value="cadastrou">✅ Cadastrou</option>
@@ -398,12 +418,12 @@ async function afAceitarContrato(){
           <option value="excluido">🚫 Bloqueado</option>
         </select>
       </div>
-      <div style="max-height:480px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:10px">
+      <div class="af-inbox-lista-scroll">
         <div id="af-inbox-lista"></div>
         <p id="af-inbox-lista-vazia" style="display:none;padding:16px;color:#9ca3af;font-size:12.5px;text-align:center">Nenhum contato bate com esse filtro.</p>
       </div>
     </div>
-    <div style="flex:2;min-width:260px;border:1px solid #e5e7eb;border-radius:10px;display:flex;flex-direction:column;height:520px">
+    <div class="af-inbox-thread-col">
       <div id="af-inbox-thread-header" style="padding:12px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:700;color:#111827;display:flex;justify-content:space-between;align-items:center;gap:8px">
         <span id="af-inbox-thread-titulo" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Selecione uma conversa</span>
         <span id="af-inbox-thread-acoes" style="display:none;gap:10px;font-size:11px;font-weight:600;flex-shrink:0">
@@ -428,6 +448,7 @@ async function afAceitarContrato(){
   </div>
   <p id="af-inbox-vazio" style="display:none;color:#6b7280;font-size:13px">Nenhum contato de campanha de disparo vinculado a você ainda.</p>
 </div>
+<% } %>
 
 <script>
 function afTab(nome, btn){

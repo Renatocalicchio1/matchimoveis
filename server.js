@@ -7843,9 +7843,16 @@ async function _telefoneAfiliadoPertence(uid, telefone) {
   return meusContatos.some(c => String(c.telefone || '').replace(/\D/g, '').slice(-8) === alvo);
 }
 
+// Inbox de afiliado (ago/2026) — restrito aos 2 super admin (Bruno, dono da
+// campanha, e Renato) por pedido explícito dele: "não deve aparecer em
+// todas as contas", mesmo a rota já filtrando por refAdmin (cada afiliado só
+// veria os próprios contatos de qualquer forma) — trava é de produto, não
+// só de dado. Mesma lista usada na aba do menu (ver app-afiliados.ejs).
+const _INBOX_AFILIADOS_LIBERADO = ['BRU-8MPC', 'REN-G9K6'];
 app.get('/api/afiliados/inbox/lista', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_INBOX_AFILIADOS_LIBERADO.includes(uid)) return res.status(403).json({ ok: false, erro: 'Acesso restrito.', conversas: [], aguardando: [] });
     const { listarContatosPorRefAdmin, listarOptout } = require('./services/salvarDisparo');
     const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
     const meusContatos = await listarContatosPorRefAdmin(uid, 1000);
@@ -7909,6 +7916,7 @@ app.get('/api/afiliados/inbox/lista', auth, async (req, res) => {
 app.get('/api/afiliados/inbox/:telefone/mensagens', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_INBOX_AFILIADOS_LIBERADO.includes(uid)) return res.status(403).json({ ok: false, erro: 'Acesso restrito.' });
     if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
     const { listarMensagens, marcarLidas } = require('./services/salvarWhatsappCloudMsg');
     const mensagens = await listarMensagens(req.params.telefone);
@@ -7922,6 +7930,7 @@ app.get('/api/afiliados/inbox/:telefone/mensagens', auth, async (req, res) => {
 app.post('/api/afiliados/inbox/:telefone/responder', auth, express.json(), async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_INBOX_AFILIADOS_LIBERADO.includes(uid)) return res.status(403).json({ ok: false, erro: 'Acesso restrito.' });
     if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
     const telefone = req.params.telefone;
     const texto = (req.body.texto || '').trim();
@@ -7960,6 +7969,7 @@ app.post('/api/afiliados/inbox/:telefone/responder', auth, express.json(), async
 app.get('/api/afiliados/inbox/:telefone/novas', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_INBOX_AFILIADOS_LIBERADO.includes(uid)) return res.status(403).json([]);
     if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json([]);
     const apos = req.query.apos || new Date(0).toISOString();
     const { listarMensagensApos, marcarLidas } = require('./services/salvarWhatsappCloudMsg');
@@ -7981,6 +7991,7 @@ app.get('/api/afiliados/inbox/:telefone/novas', auth, async (req, res) => {
 app.post('/api/afiliados/inbox/:telefone/responder-audio', auth, multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } }).single('audio'), async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_INBOX_AFILIADOS_LIBERADO.includes(uid)) return res.status(403).json({ ok: false, erro: 'Acesso restrito.' });
     if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
     const telefone = req.params.telefone;
     if (!req.file) return res.status(400).json({ ok: false, erro: 'Nenhum áudio recebido' });
@@ -8012,6 +8023,7 @@ app.post('/api/afiliados/inbox/:telefone/responder-audio', auth, multer({ storag
 app.post('/api/afiliados/inbox/:telefone/bloquear', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_INBOX_AFILIADOS_LIBERADO.includes(uid)) return res.status(403).json({ ok: false, erro: 'Acesso restrito.' });
     if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
     const { marcarOptout } = require('./services/salvarDisparo');
     await marcarOptout(req.params.telefone, 'bloqueado_pelo_afiliado_' + uid);
@@ -8028,6 +8040,7 @@ app.post('/api/afiliados/inbox/:telefone/bloquear', auth, async (req, res) => {
 app.post('/api/afiliados/inbox/:telefone/excluir', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;
+    if (!_INBOX_AFILIADOS_LIBERADO.includes(uid)) return res.status(403).json({ ok: false, erro: 'Acesso restrito.' });
     if (!(await _telefoneAfiliadoPertence(uid, req.params.telefone))) return res.status(403).json({ ok: false, erro: 'Esse contato não é seu.' });
     const { query: _qExcluirContatoAf } = require('./services/db');
     const suf = String(req.params.telefone || '').replace(/\D/g, '').slice(-8);
@@ -19358,6 +19371,9 @@ app.get('/api/feed/novos', auth, async (req, res) => {
 // conteúdo em texto no lugar, não um player fingindo funcionar.
 app.get('/app/academia', auth, (req, res) => {
   const uid = req.session.user.id || req.session.user.codigoUsuario;
+  // TEMP (ago/2026): liberado só na conta de teste — remover essa trava
+  // quando liberar geral (mesma trava do menu em app-shell.ejs).
+  if (uid !== 'REN-G9K6') return res.redirect('/app-home');
   const visitas = _cacheVisitas || [];
   const vendasFechadas = visitas.filter(v =>
     String(v.userId || v.ownerUserId || v.corretorId || '') === String(uid) &&
@@ -19366,6 +19382,18 @@ app.get('/app/academia', auth, (req, res) => {
   const usuarios = _cacheUsuarios || [];
   const indicacoes = usuarios.filter(u => u.indicadoPor === uid).length;
   res.render('app-academia', { user: req.session.user, vendasFechadas, indicacoes });
+});
+
+// Painel de Certidões (ago/2026, em construção) — busca CPF/CNPJ/imóvel e
+// compra certidões (matrícula, CND, trabalhista, protesto etc.) via
+// fornecedor terceiro (RevoluTI ou Infosimples — API e preço de parceiro
+// ainda em negociação, ver conversa com o Renato). Por enquanto só a tela,
+// sem integração real nenhuma — liberado só na conta de teste (mesma trava
+// do menu em app-shell.ejs) até fechar o fornecedor.
+app.get('/app/certidoes', auth, (req, res) => {
+  const uid = req.session.user.id || req.session.user.codigoUsuario;
+  if (uid !== 'REN-G9K6') return res.redirect('/app-home');
+  res.render('app-certidoes', { user: req.session.user });
 });
 
 app.get('/app/parceiros', auth, async (req, res) => {
@@ -21201,6 +21229,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
   .pagina-footer .footer-empresa{font-size:11px;color:var(--sec);margin-top:14px}
   .pagina-footer .footer-note{font-size:11px;color:var(--sec);opacity:.8;margin-top:2px}
   .por-lead{font-size:11px;color:var(--sec);margin-top:2px}
+  .combo-imoveis{font-size:11px;color:var(--sec);font-weight:600;margin-top:6px}
   .combo-features{list-style:none;margin:10px 0 0;padding:10px 0 0;border-top:1px solid var(--border);text-align:left;display:flex;flex-direction:column;gap:5px}
   .combo-features li{font-size:11.5px;color:var(--sec);display:flex;align-items:flex-start;gap:6px}
   .combo-features li::before{content:'✓';color:var(--babu);font-weight:bold;flex-shrink:0}
@@ -21987,8 +22016,13 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     let recomendado = PLANOS_ORDEM.find(function(k){ return PLANOS[k].qtd >= total; });
     if(!recomendado) recomendado = PLANO_ILIMITADO;
     const ordemExibida = PLANOS_ORDEM.concat([PLANO_ILIMITADO]);
-    const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp', 'Suba seus imóveis (XML ou manual) e comece a gerar leads pra eles também'];
+    // Mesma descrição da /planos e de app-perfil.ejs (literal em cada um dos
+    // 3 lugares, não tem service compartilhado) — o corretor vê os combos
+    // em 3 telas diferentes e o texto precisa bater igual, pedido do Renato
+    // (ago/2026).
+    const FEATURES_COMBO = ['A IA responde o WhatsApp por você', 'O sistema acha o imóvel certo sozinho', 'Vitrine automática pro cliente', 'Nenhum lead esquecido (Kanban + follow-up)', 'Imóvel divulgado sozinho (portais + Instagram)', 'Suporte direto com a equipe'];
     const featuresHtml = '<ul class="combo-features">' + FEATURES_COMBO.map(function(f){ return '<li>'+escHtml(f)+'</li>'; }).join('') + '</ul>';
+    const IMOVEIS_POR_PLANO = { r200: 'Até 300 imóveis na carteira', '100': 'Até 600 imóveis na carteira', '200': 'Até 1.200 imóveis na carteira', '300': 'Imóveis ilimitados', ilimitado: 'Imóveis ilimitados' };
     // Cards não mostram mais quantidade de leads em lugar nenhum (nem o
     // número grande, nem o label "X leads/mês", nem "R$ X por lead" — esse
     // também dava pra descobrir a quantidade fazendo a conta valor÷taxa, nem
@@ -22002,10 +22036,12 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       const restante = p.ilimitado ? 0 : Math.max(0, total - p.qtd);
       const entramHtml = '<div class="entram-conta">🎁 + <strong>'+p.creditos.toLocaleString('pt-BR')+' créditos</strong> de bônus</div>'
         + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais leads além desse combo. Selecione um combo maior pra levar todas agora, ou deixe a plataforma te entregar o restante diariamente enquanto você tiver créditos.</div>' : '');
+      const imoveisHtml = '<div class="combo-imoveis">🏠 ' + (IMOVEIS_POR_PLANO[k] || '') + '</div>';
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
         + entramHtml
+        + imoveisHtml
         + featuresHtml
         + '<button type="button" data-escolher="'+k+'">Quero esse →</button>'
         + '</div>';

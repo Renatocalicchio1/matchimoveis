@@ -18,6 +18,27 @@
 .cert-view{display:none}
 .cert-view.on{display:block}
 
+/* Cobertura por estado — visão de progresso, fora do wizard de compra (fica
+   sempre visível, não é uma etapa que "conclui"). ago/2026. */
+.cert-cov-resumo{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.cert-cov-stat{flex:1;min-width:120px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.cert-cov-stat .n{font-size:20px;font-weight:800;color:var(--text)}
+.cert-cov-stat .l{font-size:11px;color:var(--text-sec)}
+.cert-cov-ufs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.cert-cov-uf-btn{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text-sec);font-size:12px;font-weight:600;cursor:pointer}
+.cert-cov-uf-btn.on{background:var(--text);color:#fff;border-color:var(--text)}
+.cert-cov-uf-btn.prioridade{border-color:var(--brand);color:var(--brand)}
+.cert-cov-uf-btn.prioridade.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.cert-cov-busca{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:10px;font-size:13px;margin-bottom:12px}
+.cert-cov-lista{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto}
+.cert-cov-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;font-size:12.5px}
+.cert-cov-item .nome{flex:1;min-width:0;color:var(--text)}
+.cert-cov-item .tipo{font-size:10px;color:var(--text-ter);flex-shrink:0}
+.cert-cov-badge{font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;text-transform:uppercase;flex-shrink:0}
+.cert-cov-badge.disponivel{background:#f0fdf4;color:#15803d}
+.cert-cov-badge.em_construcao{background:#fffbeb;color:#92400e}
+.cert-cov-badge.planejado{background:var(--bg);color:var(--text-ter)}
+
 .cert-search-row{display:flex;gap:10px;flex-wrap:wrap}
 .cert-search-row input{flex:1 1 260px;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px}
 .cert-search-row input:focus{outline:none;border-color:var(--brand)}
@@ -204,6 +225,71 @@
   </div>
 </div>
 <div class="cert-nav-btns"><button onclick="certGoto(1)">← Nova consulta</button><span></span></div>
+
+<div class="card" style="margin-top:16px">
+  <p style="font-size:15px;font-weight:600;margin-bottom:4px">🗺️ Cobertura — o que já buscamos, estado por estado</p>
+  <p style="font-size:13px;color:var(--text-sec);margin-bottom:16px">Vamos ligando certidão por certidão, começando por São Paulo, depois Rio de Janeiro e Santa Catarina. Essa lista mostra as <%= _certCatalogo.length %> certidões do catálogo completo e o status real de cada uma — nada aqui é fictício, é o progresso de verdade.</p>
+  <div class="cert-cov-resumo">
+    <div class="cert-cov-stat"><div class="n" id="certCovNDisp">0</div><div class="l">✅ Disponível</div></div>
+    <div class="cert-cov-stat"><div class="n" id="certCovNConstr">0</div><div class="l">🚧 Em construção</div></div>
+    <div class="cert-cov-stat"><div class="n" id="certCovNPlan">0</div><div class="l">⏳ Planejado</div></div>
+    <div class="cert-cov-stat"><div class="n"><%= _certCatalogo.length %></div><div class="l">Total no catálogo</div></div>
+  </div>
+  <div class="cert-cov-ufs" id="certCovUfs"></div>
+  <input type="text" class="cert-cov-busca" id="certCovBusca" placeholder="Buscar certidão pelo nome...">
+  <div class="cert-cov-lista" id="certCovLista"></div>
+</div>
+
+<script>
+window._certCatalogo = <%- JSON.stringify(_certCatalogo) %>;
+(function(){
+  const dados = window._certCatalogo;
+  document.getElementById('certCovNDisp').textContent = dados.filter(d => d.status === 'disponivel').length;
+  document.getElementById('certCovNConstr').textContent = dados.filter(d => d.status === 'em_construcao').length;
+  document.getElementById('certCovNPlan').textContent = dados.filter(d => d.status === 'planejado').length;
+
+  // Ordem de prioridade combinada (pedido do Renato): SP, RJ, SC primeiro,
+  // depois o resto por volume decrescente, Nacional por último.
+  const _prioridade = ['SP', 'RJ', 'SC'];
+  const _contagem = {};
+  dados.forEach(d => { _contagem[d.uf] = (_contagem[d.uf] || 0) + 1; });
+  const _ufs = Object.keys(_contagem).filter(u => u !== 'NACIONAL');
+  _ufs.sort((a, b) => {
+    const pa = _prioridade.indexOf(a), pb = _prioridade.indexOf(b);
+    if (pa !== -1 || pb !== -1) return (pa === -1 ? 99 : pa) - (pb === -1 ? 99 : pb);
+    return _contagem[b] - _contagem[a];
+  });
+  _ufs.push('NACIONAL');
+
+  let _ufAtiva = 'SP';
+  const ufsBox = document.getElementById('certCovUfs');
+  ufsBox.innerHTML = _ufs.map(uf =>
+    '<button type="button" class="cert-cov-uf-btn' + (_prioridade.includes(uf) ? ' prioridade' : '') + (uf === _ufAtiva ? ' on' : '') + '" data-uf="' + uf + '">'
+    + (uf === 'NACIONAL' ? '🇧🇷 Nacional' : uf) + ' (' + _contagem[uf] + ')</button>'
+  ).join('');
+
+  function render(){
+    const termo = document.getElementById('certCovBusca').value.trim().toLowerCase();
+    const lista = dados.filter(d => d.uf === _ufAtiva && (!termo || d.nome.toLowerCase().includes(termo)));
+    const box = document.getElementById('certCovLista');
+    if (!lista.length) { box.innerHTML = '<p style="color:var(--text-ter);font-size:12.5px;text-align:center;padding:16px">Nenhuma certidão encontrada.</p>'; return; }
+    const _label = { disponivel: '✅ Disponível', em_construcao: '🚧 Em construção', planejado: '⏳ Planejado' };
+    box.innerHTML = lista.map(d =>
+      '<div class="cert-cov-item"><span class="nome">' + d.nome + '</span><span class="tipo">' + d.tipo + '</span><span class="cert-cov-badge ' + d.status + '">' + _label[d.status] + '</span></div>'
+    ).join('');
+  }
+
+  ufsBox.addEventListener('click', function(e){
+    const btn = e.target.closest('.cert-cov-uf-btn');
+    if (!btn) return;
+    _ufAtiva = btn.dataset.uf;
+    ufsBox.querySelectorAll('.cert-cov-uf-btn').forEach(b => b.classList.toggle('on', b === btn));
+    render();
+  });
+  document.getElementById('certCovBusca').addEventListener('input', render);
+  render();
+})();
+</script>
 
 <script>
 (function(){

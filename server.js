@@ -19393,7 +19393,8 @@ app.get('/app/academia', auth, (req, res) => {
 app.get('/app/certidoes', auth, (req, res) => {
   const uid = req.session.user.id || req.session.user.codigoUsuario;
   if (uid !== 'REN-G9K6') return res.redirect('/app-home');
-  res.render('app-certidoes', { user: req.session.user });
+  const _certCatalogo = require('./services/certidoesCatalogo');
+  res.render('app-certidoes', { user: req.session.user, _certCatalogo });
 });
 
 app.get('/app/parceiros', auth, async (req, res) => {

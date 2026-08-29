@@ -2886,9 +2886,10 @@ _agendarMatchPendentes();
 // (enviarProximoEmail() já checa o flag "ativo" e não faz nada se pausada).
 // Intervalo entre envios é ALEATÓRIO, nunca fixo — um padrão robótico de
 // "exatamente a cada X segundos" é um sinal clássico de spam pros
-// provedores de email. 30s-5min (ago/2026) — mesma cadência da campanha
-// geral de corretor, revertida junto depois do aviso de reputação no SES
-// (taxa de devolução/reclamação subiram pra "Aviso").
+// provedores de email. 30s-5min (ago/2026, período em que a campanha ficou
+// pausada) → 30s-2min (ago/2026, pedido explícito do Renato ao reativar:
+// "um dispara com 30s, outro com 1min, outro com 40s, outro com 2min,
+// bem rotativo") — cadência mais rápida, mas ainda variando a cada envio.
 // setInterval fixo (checa a cada 10s se já passou do horário sorteado) em vez
 // do padrão antigo de setTimeout que se auto-agendava recursivamente — esse
 // padrão tinha uma falha real: se por qualquer motivo uma rodada não
@@ -2899,10 +2900,10 @@ _agendarMatchPendentes();
 // nenhum erro visível). setInterval não depende de nada dentro do próprio
 // callback pra continuar — é registrado 1x e o Node continua chamando pra
 // sempre, então uma rodada travada nunca mata as próximas.
-let _proximoEnvioCampanha = Date.now() + (30 + Math.random() * 270) * 1000; // 30s a 5min (como sempre foi)
+let _proximoEnvioCampanha = Date.now() + (30 + Math.random() * 90) * 1000; // 30s a 2min
 setInterval(async () => {
   if (Date.now() < _proximoEnvioCampanha) return;
-  _proximoEnvioCampanha = Date.now() + (30 + Math.random() * 270) * 1000;
+  _proximoEnvioCampanha = Date.now() + (30 + Math.random() * 90) * 1000;
   try {
     const { enviarProximoEmail } = require('./services/campanhaCaptacao');
     await enviarProximoEmail();
@@ -23583,7 +23584,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     params.push(_CAMPANHA_TAMANHO_PAGINA); params.push(offset);
     // "comprou": não tem sinal direto de compra de combo, então usa como
     // proxy o saldo total (match_coins_total) passar do bônus de boas-vindas
-    // (BONUS_CADASTRO, services/creditos.js — 5.000, era 1.000) — se passou,
+    // (BONUS_CADASTRO, services/creditos.js — 2.500, já foi 1.000 e 5.000) — se passou,
     // recarregou em algum momento (ver conversa jul/2026, decidido usar esse
     // critério em vez de cruzar com Mercado Pago por ora).
     // "celular": se o contato virou usuário cadastrado, mostra o celular DA

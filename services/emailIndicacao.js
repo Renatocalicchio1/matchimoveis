@@ -150,7 +150,7 @@ function _montarHtml(nome, v, link, linkWa, codigo) {
     <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin:20px 0;font-family:monospace;font-size:13px;color:#374151;word-break:break-all">${link}</div>
     <a href="${BASE_URL}/app/afiliados" style="display:inline-block;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">${v.botao} →</a>
     <p style="margin-top:16px"><a href="${linkWa}" style="color:#25D366;font-weight:bold;text-decoration:none">💬 Convidar pelo WhatsApp</a></p>
-    <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+    <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.ia.br</p>
     <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="${BASE_URL}/email/cancelar?u=${codigo}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="${BASE_URL}/conta/excluir?u=${codigo}" style="color:#9ca3af">Excluir minha conta</a></p>
   </div>`;
 }

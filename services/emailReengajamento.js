@@ -34,7 +34,7 @@ async function enviarEmailReengajamento() {
               <li>📅 Solicitações de visita pendentes</li>
             </ul>
             <a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Voltar ao sistema →</a>
-            <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+            <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.ia.br</p>
             <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="https://matchimoveis.ia.br/email/cancelar?u=${u.codigo_usuario}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="https://matchimoveis.ia.br/conta/excluir?u=${u.codigo_usuario}" style="color:#9ca3af">Excluir minha conta</a></p>
           </div>`,
           texto: `Olá ${u.nome}! Faz ${diasSemAcesso} dias que você não acessa o MatchImóveis. Volte agora: https://matchimoveis.ia.br`,

@@ -179,8 +179,8 @@ const _bemvindoPresenteAfiliado = locals.bemvindo && user.precisaComprarPlano ==
 // "Receber meu presente". O popup NUNCA diz o que é o presente — só a
 // celebração de balões (depois do clique) revela, com uma mensagem maior
 // parabenizando pelo Dia do Corretor (ago/2026, 2ª mudança, pedido
-// explícito do Renato: "mensagem mais completa"), os 5.000 créditos
-// (BONUS_CADASTRO, services/creditos.js) — texto sobre receber leads
+// explícito do Renato: "mensagem mais completa"), os créditos de boas-vindas
+// (BONUS_CADASTRO, services/creditos.js — 2.500) — texto sobre receber leads
 // automaticamente removido a pedido do Renato (3ª mudança), fica só o
 // crédito. Só mostra enquanto o cadastro ainda está incompleto
 // (locals.completarPerfil) — depois de completar, a página volta ao normal
@@ -232,7 +232,7 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
   <div class="pf-conteudo">
     <h2>🎉 Feliz Dia do Corretor de Imóveis!</h2>
     <p>Hoje, 27 de agosto, é a data que celebra oficialmente a sua profissão desde 1962. Corretor é quem transforma sonho em endereço — é a ponte entre uma família e a casa onde ela vai construir suas memórias, entrega depois de entrega, chave depois de chave. Hoje o dia é seu, e a MatchImóveis quer comemorar junto.</p>
-    <p class="pf-celebra-destaque">Você acabou de receber <strong>5.000 créditos</strong> na plataforma 🪙</p>
+    <p class="pf-celebra-destaque">Você acabou de receber <strong>2.500 créditos</strong> na plataforma 🪙</p>
   </div>
 </div>
 <% } %>
@@ -431,7 +431,7 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
 
   // Botão "🎁 Receber meu presente" — salva, mostra a celebração (bexiga
   // subindo + mensagem completa parabenizando pelo Dia do Corretor + revela
-  // os 5.000 créditos) segurando tempo suficiente pra dar pra ler, e só
+  // os créditos de boas-vindas) segurando tempo suficiente pra dar pra ler, e só
   // DEPOIS recarrega a página, revelando o formulário/fluxo normal por
   // baixo já liberado. Pedido explícito do Renato: "tem que dar tempo de o
   // usuário ler a mensagem, aí sim vai pra tela do sistema" — mensagem

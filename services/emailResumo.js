@@ -82,7 +82,7 @@ async function enviarEmailResumo() {
             </tr>
           </table>
           <a href="${BASE_URL}/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a>
-          <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+          <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.ia.br</p>
           <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="${BASE_URL}/email/cancelar?u=${uid}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="${BASE_URL}/conta/excluir?u=${uid}" style="color:#9ca3af">Excluir minha conta</a></p>
         </div>`;
 

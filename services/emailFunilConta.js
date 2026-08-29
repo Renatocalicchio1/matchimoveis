@@ -62,7 +62,7 @@ function _montarHtmlConvertido(nome, v, codigo) {
     <p>Olá, <strong>${nome}</strong>!</p>
     ${corpoHtml}
     <a href="${BASE_URL}/app/cadastro" style="display:inline-block;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">${v.botao} →</a>
-    <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+    <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.ia.br</p>
     <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="${BASE_URL}/email/cancelar?u=${codigo}" style="color:#9ca3af">Cancelar recebimento</a></p>
   </div>`;
 }

@@ -29,7 +29,7 @@ function _emailPasso(u, passo, pendentes) {
       <p>Faltam ${pendentes.length} de 6 passos pra você aproveitar o MatchImóveis por completo:</p>
       <ul style="padding-left:4px;list-style:none">${_listaHtml(u._dadosParaLista)}</ul>
       <a href="${BASE_URL}${pendentes[0].link}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Continuar agora →</a>
-      <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+      <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.ia.br</p>
     </div>`,
     texto: `Passo concluído: ${passo.nome}. Ainda faltam: ${pendentes.map(p=>p.nome).join(', ')}. Acesse: ${BASE_URL}`
   };
@@ -43,7 +43,7 @@ function _emailCompleto(u) {
       <p>Você completou os 6 passos iniciais — XML importado, WhatsApp e Instagram conectados, lead manual cadastrada, assistente testado e perfil configurado.</p>
       <p>Agora é só deixar o MatchImóveis trabalhar: matches e vitrines automáticas já estão rodando pra você.</p>
       <a href="${BASE_URL}/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar meu painel →</a>
-      <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+      <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.ia.br</p>
     </div>`,
     texto: `Parabéns, ${u.nome}! Você completou os 6 passos do MatchImóveis. Acesse: ${BASE_URL}/app-home`
   };

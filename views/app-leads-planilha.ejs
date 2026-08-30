@@ -75,10 +75,16 @@
     <option value="qualificando" <%= filtros.status==='qualificando'?'selected':'' %>>Qualificando</option>
     <option value="captacao" <%= filtros.status==='captacao'?'selected':'' %>>Captação</option>
   </select>
+  <select name="propensao" onchange="this.form.submit()">
+    <option value="">Toda propensão</option>
+    <option value="alta" <%= filtros.propensao==='alta'?'selected':'' %>>🔥 Alta</option>
+    <option value="media" <%= filtros.propensao==='media'?'selected':'' %>>🌤 Média</option>
+    <option value="baixa" <%= filtros.propensao==='baixa'?'selected':'' %>>🧊 Baixa</option>
+  </select>
   <input type="date" name="de" value="<%= filtros.de %>" title="De">
   <input type="date" name="ate" value="<%= filtros.ate %>" title="Até">
   <button type="submit" class="btn btn-dark btn-sm">Filtrar</button>
-  <% if(filtros.origem||filtros.status||filtros.busca||filtros.de||filtros.ate){ %>
+  <% if(filtros.origem||filtros.status||filtros.busca||filtros.de||filtros.ate||filtros.propensao){ %>
     <a href="/app/leads/planilha" class="btn btn-outline btn-sm">Limpar</a>
   <% } %>
 </form>

@@ -38,6 +38,12 @@
 .radar-tag.atencao{background:#fffbeb;color:#b45309}
 .radar-tag.oportunidade{background:#f0fdfa;color:#00847A}
 .radar-tag.info{background:#f3f4f6;color:#6b7280}
+.radar-prop{display:inline-block;margin-top:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.radar-prop.alta{background:#fff1f3;color:#FF385C}
+.radar-prop.media{background:#fffbeb;color:#b45309}
+.radar-prop.baixa{background:#f3f4f6;color:#6b7280}
+.rf-chip{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--text-sec);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.rf-chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
 </style>
 
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
@@ -103,7 +109,16 @@
     <div style="font-size:14px;font-weight:500;color:var(--text-sec);margin-bottom:4px">Nenhum alerta agora</div>
     <div style="font-size:12px">Sua conta está redonda — nada pedindo atenção no momento.</div>
   </div>
+  <div id="radar-filtro" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+    <button class="rf-chip on" data-tier="" onclick="filtrarRadarPropensao('',this)">Todos</button>
+    <button class="rf-chip" data-tier="alta" onclick="filtrarRadarPropensao('alta',this)">🔥 Propensão alta</button>
+    <button class="rf-chip" data-tier="media" onclick="filtrarRadarPropensao('media',this)">🌤 Propensão média</button>
+    <button class="rf-chip" data-tier="baixa" onclick="filtrarRadarPropensao('baixa',this)">🧊 Propensão baixa</button>
+  </div>
   <div id="radar-list"></div>
+  <div id="radar-filtro-vazio" class="notif-empty" style="display:none;padding:30px 20px">
+    <div style="font-size:12px">Nenhum lead com essa propensão no radar agora.</div>
+  </div>
 </div>
 
 <script>
@@ -112,6 +127,7 @@
 // só o mais urgente. Calculado ao vivo a cada abertura da aba (não fica
 // salvo em tabela) — some sozinho da lista assim que a causa é resolvida.
 let _radarCarregado = false;
+let _radarFiltroPropensao = '';
 function abrirRadar(btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   btn.classList.add('on');
@@ -123,6 +139,7 @@ async function carregarRadar() {
   const carregando = document.getElementById('radar-carregando');
   const vazio = document.getElementById('radar-vazio');
   const lista = document.getElementById('radar-list');
+  const filtroRow = document.getElementById('radar-filtro');
   try {
     const r = await fetch('/api/agente/todos-sinais');
     const d = await r.json();
@@ -130,7 +147,9 @@ async function carregarRadar() {
     carregando.style.display = 'none';
     const sinais = (d && d.sinais) || [];
     if (!sinais.length) { vazio.style.display = 'block'; return; }
+    filtroRow.style.display = 'flex';
     const rotulo = { crit: 'Urgente', atencao: 'Atenção', oportunidade: 'Oportunidade', info: 'Info' };
+    const rotuloProp = { alta: '🔥 Propensão alta', media: '🌤 Propensão média', baixa: '🧊 Propensão baixa' };
     // Construção via DOM (não innerHTML) — título/texto do sinal podem
     // carregar nome de lead/imóvel cadastrado por qualquer pessoa, então
     // vão sempre por textContent, nunca concatenados como HTML.
@@ -139,6 +158,8 @@ async function carregarRadar() {
       const a = document.createElement('a');
       a.className = 'radar-item';
       a.href = s.link || '#';
+      a.dataset.categoria = s.categoria || '';
+      a.dataset.propensao = s.propensaoTier || '';
       const sev = document.createElement('div');
       sev.className = 'radar-sev ' + s.severidade;
       const body = document.createElement('div');
@@ -151,6 +172,12 @@ async function carregarRadar() {
       msg.textContent = s.texto || '';
       body.appendChild(titulo);
       body.appendChild(msg);
+      if (s.propensaoTier && rotuloProp[s.propensaoTier]) {
+        const prop = document.createElement('div');
+        prop.className = 'radar-prop ' + s.propensaoTier;
+        prop.textContent = rotuloProp[s.propensaoTier];
+        body.appendChild(prop);
+      }
       const tag = document.createElement('span');
       tag.className = 'radar-tag ' + s.severidade;
       tag.textContent = rotulo[s.severidade] || s.severidade;
@@ -163,6 +190,25 @@ async function carregarRadar() {
     carregando.style.display = 'none';
     vazio.style.display = 'block';
   }
+}
+// Filtro por propensão dentro do Radar — só afeta sinais categoria "leads"
+// (que agora chegam com propensaoTier anexado, ver /api/agente/todos-sinais
+// em server.js); sinais de visitas/imóveis/financeiro etc continuam sempre
+// visíveis, não fazem sentido escondidos atrás de um filtro de lead.
+function filtrarRadarPropensao(tier, btn) {
+  _radarFiltroPropensao = tier;
+  document.querySelectorAll('.rf-chip').forEach(c => c.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  let visiveis = 0;
+  const itens = document.querySelectorAll('#radar-list .radar-item');
+  itens.forEach(item => {
+    const cat = item.dataset.categoria || '';
+    const prop = item.dataset.propensao || '';
+    const ok = !tier || cat !== 'leads' || prop === tier;
+    item.style.display = ok ? '' : 'none';
+    if (ok) visiveis++;
+  });
+  document.getElementById('radar-filtro-vazio').style.display = (tier && visiveis === 0 && itens.length > 0) ? 'block' : 'none';
 }
 // Chegou aqui pelo badge "🎯 Radar" do cabeçalho fixo (/app/notificacoes#radar)
 // — abre a aba certa direto, sem precisar clicar de novo.

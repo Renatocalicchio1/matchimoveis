@@ -9419,10 +9419,11 @@ async function _leadsParaPlanilha(user, query) {
 }
 
 app.get('/app/leads/planilha', auth, async (req,res)=>{
-  const { origem, status, busca, de, ate } = req.query;
-  const { leads, canaisDisponiveis } = await _leadsParaPlanilha(req.session.user, req.query);
+  const { origem, status, busca, de, ate, propensao } = req.query;
+  let { leads, canaisDisponiveis } = await _leadsParaPlanilha(req.session.user, req.query);
   await _anexarPropensao(leads);
-  const filtros = { origem: origem||'', status: status||'', busca: busca||'', de: de||'', ate: ate||'' };
+  if (propensao) leads = leads.filter(l => l.propensao && l.propensao.tier === propensao);
+  const filtros = { origem: origem||'', status: status||'', busca: busca||'', de: de||'', ate: ate||'', propensao: propensao||'' };
   const filtrosQS = new URLSearchParams(Object.fromEntries(Object.entries(filtros).filter(([,v]) => v))).toString();
   res.render('app-leads-planilha', {
     user: req.session.user,
@@ -9437,7 +9438,11 @@ app.get('/app/leads/planilha', auth, async (req,res)=>{
 app.get('/app/leads/planilha/exportar-excel', auth, async (req,res)=>{
   try {
     const XLSX = require('xlsx');
-    const { leads } = await _leadsParaPlanilha(req.session.user, req.query);
+    let { leads } = await _leadsParaPlanilha(req.session.user, req.query);
+    if (req.query.propensao) {
+      await _anexarPropensao(leads);
+      leads = leads.filter(l => l.propensao && l.propensao.tier === req.query.propensao);
+    }
     const linhas = leads.map(l => {
       const p = l.perfilIA || {};
       const d = l.criadoEm ? new Date(l.criadoEm) : null;
@@ -15580,8 +15585,21 @@ app.get('/api/agente/todos-sinais', auth, async (req, res) => {
     const user = (_cacheUsuarios || []).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario) || req.session.user;
     if (user && user.afiliadoRestrito === true) return res.json({ ok: true, sinais: [] });
     const { imoveis, leads, visitas, d } = _montarContextoAssistente(user);
+    await _anexarPropensao(leads);
     const { calcularSinais } = require('./services/agenteProativo');
     const sinais = await calcularSinais({ usuario: user, imoveis, leads, visitas, estagioConta: d.estagioConta });
+    // Sinais de categoria "leads" sempre linkam pra /app/lead/:id (ver
+    // agenteProativo.js) — usa isso pra anexar a propensão já calculada da
+    // lead, sem precisar tocar em cada função de sinal (services/
+    // agenteProativo.js fica sem saber de propensão, só server.js sabe).
+    const _leadsPorId = {};
+    leads.forEach(l => { _leadsPorId[String(l.id)] = l; });
+    sinais.forEach(s => {
+      if (s.categoria !== 'leads') return;
+      const m = /^\/app\/lead\/(.+)$/.exec(s.link || '');
+      const l = m && _leadsPorId[m[1]];
+      if (l && l.propensao) { s.propensaoTier = l.propensao.tier; s.propensaoScore = l.propensao.score; }
+    });
     res.json({ ok: true, sinais });
   } catch (e) {
     console.error('[api/agente/todos-sinais]', e.message);

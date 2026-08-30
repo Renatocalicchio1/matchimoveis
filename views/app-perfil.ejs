@@ -1,6 +1,7 @@
 <%- include('partials/app-shell',{active:'perfil',title:'Meu perfil',subtitle:'Dados da sua conta.',perfil:(user && user.tipo)||'corretor',user:user}) %>
 
 <style>
+/* ── Base do card ────────────────────────────────────────────────────── */
 .pf-card{
   background:#fff;
   border:0.5px solid rgba(0,0,0,.08);
@@ -8,17 +9,30 @@
   padding:22px;
   margin-bottom:16px;
   max-width:100%;
+  box-sizing:border-box;
   overflow-x:hidden;
 }
 /* Reforço: qualquer texto sem espaço (endereço geocodificado, URL solta
-   etc) que não coubesse na largura do card agora quebra no meio da
-   palavra em vez de forçar a página a ficar mais larga — cinturão e
-   suspensório junto com o overflow-x:hidden acima (ago/2026, mesmo bug
-   de overflow horizontal reaparecendo mesmo depois do primeiro fix). */
+   etc) que não coubesse na largura do card quebra no meio da palavra em
+   vez de forçar a página a ficar mais larga. Regra perigosa em elementos
+   flex sem white-space:nowrap explícito — por isso todo título/badge que
+   fica lado a lado (.pf-card-head) declara nowrap nos próprios itens
+   curtos, só o texto livre (parágrafos) herda a quebra daqui. */
 .pf-card, .pf-card *{
   overflow-wrap:break-word;
   word-break:break-word;
+  min-width:0;
 }
+
+/* ── Cabeçalho de card: título + badge de status na mesma linha ────────
+   Padrão único reaproveitado em WhatsApp/Instagram/Combos — antes cada
+   seção tinha sua própria combinação de flex/div inline, e badge sem
+   white-space:nowrap dentro de container espremido é o bug clássico desse
+   arquivo (texto quebrando letra por letra). Título e badge NUNCA quebram
+   entre si; se não couberem lado a lado, o badge desce pra própria linha
+   inteiro (flex-wrap no container), nunca quebra palavra. */
+.pf-card-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.pf-card-head .pf-card-title{margin-bottom:0;white-space:nowrap}
 .pf-card-title{
   font-size:15px;
   font-weight:600;
@@ -31,24 +45,43 @@
 .pf-card-sub{
   font-size:13px;
   color:#9ca3af;
-  margin:0 0 16px;
+  margin:4px 0 16px;
   line-height:1.5;
 }
+.pf-card-head + .pf-card-sub{margin-top:4px}
+
+/* ── Caixa de aviso (âmbar/vermelha) — WhatsApp e Instagram ───────────── */
+.pf-aviso{border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;line-height:1.5}
+.pf-aviso-amber{background:#fffbeb;border:1px solid #fcd34d;color:#92400e}
+.pf-aviso-red{background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c}
+
+/* ── Badge de status (pill) ─────────────────────────────────────────── */
+.pf-badge{display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500}
+.pf-badge-gray{background:#f3f4f6;color:#6b7280}
+.pf-badge-green{background:#dcfce7;color:#15803d}
+.pf-badge-red{background:#fee2e2;color:#b91c1c}
+
+/* ── Grid de campos (formulário de dados do usuário) ───────────────────── */
 .pf-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:12px;
 }
-.pf-grid > *{min-width:0}
 @media(max-width:480px){.pf-grid{grid-template-columns:1fr}}
+
+/* ── Grid de combos de crédito ──────────────────────────────────────── */
 .pf-grid-combos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.pf-grid-combos > div{min-width:0}
 @media(max-width:900px){.pf-grid-combos{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.pf-grid-combos{grid-template-columns:1fr}}
-/* Grids/flex com item de largura livre (texto) precisam de min-width:0 —
-   sem isso o item nunca encolhe abaixo do próprio conteúdo, estourando a
-   largura da página inteira (achado ago/2026, tela de perfil). */
-.pf-loc-grid > div{min-width:0}
+.pf-combo-card{border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center;display:flex;flex-direction:column}
+.pf-combo-val{margin:0 0 4px;font-size:22px;font-weight:700;color:#111827}
+.pf-combo-cred{margin:0 0 8px;font-size:12px;color:#15803d}
+.pf-combo-imoveis{margin:0 0 10px;font-size:11px;color:#6b7280;font-weight:600}
+.pf-combo-feats{list-style:none;margin:0 0 12px;padding:10px 0 0;border-top:1px solid rgba(0,0,0,.08);text-align:left;display:flex;flex-direction:column;gap:5px;flex:1}
+.pf-combo-feats li{font-size:11px;color:#374151;display:flex;align-items:flex-start;gap:6px}
+.pf-combo-feats li span{color:#00A699;font-weight:bold;flex-shrink:0}
+
+/* ── Campo de formulário ────────────────────────────────────────────── */
 .pf-field > label{
   display:block;
   font-size:11px;
@@ -58,7 +91,7 @@
   letter-spacing:.03em;
   margin-bottom:4px;
 }
-.pf-field > input{
+.pf-field > input, .pf-field > select{
   width:100%;
   padding:9px 12px;
   border:0.5px solid rgba(0,0,0,.12);
@@ -69,9 +102,22 @@
   box-sizing:border-box;
   outline:none;
 }
-.pf-field > input:focus{border-color:rgba(0,0,0,.3)}
+.pf-field > input:focus, .pf-field > select:focus{border-color:rgba(0,0,0,.3)}
 .pf-field > input[readonly]{background:#f9fafb;color:#9ca3af}
 .pf-field > input[readonly].strong{color:#111827;font-weight:500}
+
+/* ── Grid de localização (CEP/Rua/Número/Bairro/Cidade/Estado) ─────────
+   Flexbox, não CSS Grid — Grid com auto-fit + item de span:2 (Rua) deixava
+   buraco vazio ao lado do CEP em telas médias (Grid não recua pra
+   preencher célula anterior). Flex nunca cria esse buraco: cada linha
+   preenche o espaço disponível e sobra vira quebra de linha normal. */
+.pf-loc-grid{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px}
+.pf-loc-field{flex:1 1 110px}
+.pf-loc-field.pf-loc-wide{flex:2 1 220px}
+.pf-loc-field label{font-size:12px;color:#6b7280;display:block;margin-bottom:4px}
+.pf-loc-field input, .pf-loc-field select{width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box}
+
+/* ── Botões ──────────────────────────────────────────────────────────── */
 .pf-btn{
   display:inline-flex;
   align-items:center;
@@ -88,18 +134,24 @@
   margin-top:14px;
   box-sizing:border-box;
   max-width:100%;
+  text-decoration:none;
 }
 .pf-btn:hover{background:#1f2937}
-.pf-btn-outline{
-  background:#fff;
-  color:#374151;
-  border-color:rgba(0,0,0,.12);
-}
+.pf-btn-full{width:100%;margin-top:0}
+.pf-btn-flush{margin-top:0}
+.pf-btn-outline{background:#fff;color:#374151;border-color:rgba(0,0,0,.12)}
 .pf-btn-outline:hover{background:#f9fafb}
 .pf-btn-green{background:#22c55e;color:#fff;border-color:#16a34a}
 .pf-btn-green:hover{background:#16a34a}
 .pf-btn-red{background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)}
 .pf-btn-red:hover{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}
+.pf-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pf-btn-row .pf-btn{margin-top:0}
+
+/* ── Preferências de vitrine (radio cards) ──────────────────────────── */
+.pf-radio-list{display:flex;flex-direction:column;gap:14px;margin-bottom:16px}
+.pf-radio-card{display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px}
+.pf-radio-card input{width:18px;height:18px;flex-shrink:0}
 
 .pf-loc-status{
   display:flex;
@@ -114,13 +166,6 @@
   margin-bottom:12px;
 }
 
-.wa-badge{
-  display:inline-block;
-  padding:4px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:500;
-}
 .wa-qr-wrap{
   display:none;
   text-align:center;
@@ -350,11 +395,10 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
       </div>
       <% } %>
     </div>
-    <button class="pf-btn" type="submit" id="pf-btn-salvar-perfil" style="<%= _mostrarPopupPresente ? 'width:100%;justify-content:center' : '' %>"><%= _mostrarPopupPresente ? '🎁 Receber meu presente' : 'Salvar perfil' %></button>
+    <button class="pf-btn<%= _mostrarPopupPresente ? ' pf-btn-full' : '' %>" type="submit" id="pf-btn-salvar-perfil"><%= _mostrarPopupPresente ? '🎁 Receber meu presente' : 'Salvar perfil' %></button>
   </form>
 </div>
 <% if (_mostrarPopupPresente) { %></div><% } %>
-</div>
 <% if (!_afiliadoSimples) { %><script src="/area-atuacao-widget.js"></script><% } %>
 <script>
 (function(){
@@ -508,16 +552,16 @@ const _mostrarPopupPresente = _bemvindoPresenteAfiliado && !!locals.completarPer
   %>
   <div class="pf-grid-combos">
     <% _pfPlanosCard.forEach(function(p){ %>
-    <div style="border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center;display:flex;flex-direction:column">
-      <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827"><%= p.val %></p>
-      <p style="margin:0 0 8px;font-size:12px;color:#15803d"><%= p.cred %></p>
-      <p style="margin:0 0 10px;font-size:11px;color:#6b7280;font-weight:600">🏠 <%= p.imoveis %></p>
-      <ul style="list-style:none;margin:0 0 12px;padding:10px 0 0;border-top:1px solid rgba(0,0,0,.08);text-align:left;display:flex;flex-direction:column;gap:5px;flex:1">
+    <div class="pf-combo-card">
+      <p class="pf-combo-val"><%= p.val %></p>
+      <p class="pf-combo-cred"><%= p.cred %></p>
+      <p class="pf-combo-imoveis">🏠 <%= p.imoveis %></p>
+      <ul class="pf-combo-feats">
         <% _pfPlanosFeats.forEach(function(f){ %>
-        <li style="font-size:11px;color:#374151;display:flex;align-items:flex-start;gap:6px"><span style="color:#00A699;font-weight:bold;flex-shrink:0">✓</span><%= f %></li>
+        <li><span>✓</span><%= f %></li>
         <% }); %>
       </ul>
-      <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('<%= p.id %>')">Contratar</button>
+      <button class="pf-btn pf-btn-full" onclick="contratarPlano('<%= p.id %>')">Contratar</button>
     </div>
     <% }); %>
   </div>
@@ -572,14 +616,14 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
   <p class="pf-card-title">🏠 Preferências de Vitrine</p>
   <p class="pf-card-sub">Escolha quais imóveis aparecem na vitrine enviada aos seus leads.</p>
   <form method="POST" action="/app/perfil/vitrine">
-    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px">
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px">
-        <input type="radio" name="vitrineApenasPropriosImoveis" value="false" style="width:18px;height:18px;flex-shrink:0"
+    <div class="pf-radio-list">
+      <label class="pf-radio-card">
+        <input type="radio" name="vitrineApenasPropriosImoveis" value="false"
           <%= (user.vitrineApenasPropriosImoveis===true) ? '' : 'checked' %>>
         <span>🌐 <strong>Meus imóveis + rede</strong> — inclui imóveis de parceiros na vitrine</span>
       </label>
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px">
-        <input type="radio" name="vitrineApenasPropriosImoveis" value="true" style="width:18px;height:18px;flex-shrink:0"
+      <label class="pf-radio-card">
+        <input type="radio" name="vitrineApenasPropriosImoveis" value="true"
           <%= (user.vitrineApenasPropriosImoveis===true) ? 'checked' : '' %>>
         <span>🔒 <strong>Apenas meus imóveis</strong> — somente minha carteira na vitrine</span>
       </label>
@@ -599,35 +643,30 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     <% } %>
   </div>
   <% const _ufs=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']]; %>
-  <div class="pf-loc-grid" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px">
-    <div style="flex:1 1 110px">
-      <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">CEP</label>
-      <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" value="<%= user.cep||'' %>"
-        oninput="fmtCEPPerfil(this)" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
+  <div class="pf-loc-grid">
+    <div class="pf-loc-field">
+      <label>CEP</label>
+      <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" value="<%= user.cep||'' %>" oninput="fmtCEPPerfil(this)">
     </div>
-    <div style="flex:2 1 220px">
-      <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Rua</label>
-      <input type="text" id="rua-input" placeholder="Rua das Flores" value="<%= user.rua||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
+    <div class="pf-loc-field pf-loc-wide">
+      <label>Rua</label>
+      <input type="text" id="rua-input" placeholder="Rua das Flores" value="<%= user.rua||'' %>">
     </div>
-    <div style="flex:1 1 110px">
-      <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Número</label>
-      <input type="text" id="numero-input" placeholder="123" value="<%= user.numero||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
+    <div class="pf-loc-field">
+      <label>Número</label>
+      <input type="text" id="numero-input" placeholder="123" value="<%= user.numero||'' %>">
     </div>
-    <div style="flex:1 1 110px">
-      <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Bairro</label>
-      <input type="text" id="bairro-input" placeholder="Centro" value="<%= user.bairro||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
+    <div class="pf-loc-field">
+      <label>Bairro</label>
+      <input type="text" id="bairro-input" placeholder="Centro" value="<%= user.bairro||'' %>">
     </div>
-    <div style="flex:1 1 110px">
-      <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Cidade</label>
-      <input type="text" id="cidade-input" placeholder="Cidade" value="<%= user.cidade||'' %>"
-        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
+    <div class="pf-loc-field">
+      <label>Cidade</label>
+      <input type="text" id="cidade-input" placeholder="Cidade" value="<%= user.cidade||'' %>">
     </div>
-    <div style="flex:1 1 110px">
-      <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:4px">Estado</label>
-      <select id="estado-input" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;box-sizing:border-box">
+    <div class="pf-loc-field">
+      <label>Estado</label>
+      <select id="estado-input">
         <option value="">Selecione</option>
         <% _ufs.forEach(function(uf){ %>
           <option value="<%= uf[0] %>" <%= user.estado===uf[0]?'selected':'' %>><%= uf[1] %></option>
@@ -635,9 +674,9 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
       </select>
     </div>
   </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-    <button type="button" id="btn-loc" class="pf-btn" style="margin-top:0;max-width:100%;background:#f3f4f6;color:#111827" onclick="pegarLocalizacao()">📍 Usar minha localização atual</button>
-    <button type="button" class="pf-btn" style="margin-top:0;max-width:100%" onclick="salvarEnderecoCep()">Salvar endereço</button>
+  <div class="pf-btn-row">
+    <button type="button" id="btn-loc" class="pf-btn pf-btn-outline" onclick="pegarLocalizacao()">📍 Usar minha localização atual</button>
+    <button type="button" class="pf-btn" onclick="salvarEnderecoCep()">Salvar endereço</button>
   </div>
   <div id="cep-resultado-perfil" style="display:none;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px"></div>
   <form id="form-loc" method="POST" action="/app/perfil/localizacao" style="display:none">
@@ -656,12 +695,12 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
 <!-- WhatsApp -->
 <div class="pf-card" id="secao-whatsapp">
   <div style="margin-bottom:14px">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <p class="pf-card-title" style="margin-bottom:0">💬 WhatsApp</p>
-      <span id="wa-badge" class="wa-badge" style="background:#f3f4f6;color:#6b7280">Verificando...</span>
+    <div class="pf-card-head">
+      <p class="pf-card-title">💬 WhatsApp</p>
+      <span id="wa-badge" class="pf-badge pf-badge-gray">Verificando...</span>
     </div>
-    <p class="pf-card-sub" style="margin-bottom:0;margin-top:4px">Conecte seu número para receber leads automaticamente.</p>
-    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;color:#92400e">
+    <p class="pf-card-sub" style="margin-bottom:0">Conecte seu número para receber leads automaticamente.</p>
+    <div class="pf-aviso pf-aviso-amber">
       ⚠️ <strong>Use um número exclusivo para o MatchImóveis</strong> — de preferência um chip profissional dedicado. Isso evita bloqueios e garante melhor entrega das mensagens.
     </div>
   </div>
@@ -675,26 +714,26 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     Conectado — <span id="wa-num"></span>
   </div>
 
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button id="btn-wa" onclick="conectarWA()" class="pf-btn pf-btn-green" style="margin-top:0">Conectar WhatsApp</button>
-    <div id="wa-aviso" style="display:none;margin-top:10px;padding:10px 14px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca;font-size:12px;color:#dc2626"></div>
-    <button id="btn-wa-off" onclick="desconectarWA()" class="pf-btn pf-btn-red" style="display:none;margin-top:0">Desconectar</button>
+  <div class="pf-btn-row">
+    <button id="btn-wa" onclick="conectarWA()" class="pf-btn pf-btn-green">Conectar WhatsApp</button>
+    <div id="wa-aviso" style="display:none;margin-top:10px;padding:10px 14px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca;font-size:12px;color:#dc2626;flex-basis:100%"></div>
+    <button id="btn-wa-off" onclick="desconectarWA()" class="pf-btn pf-btn-red" style="display:none">Desconectar</button>
   </div>
 </div>
 
 <!-- Instagram -->
 <div class="pf-card" id="secao-instagram">
   <div style="margin-bottom:14px">
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <p class="pf-card-title" style="margin-bottom:0">📸 Conectar Instagram</p>
+    <div class="pf-card-head">
+      <p class="pf-card-title">📸 Conectar Instagram</p>
       <% if(user.instagramContaId){ %>
-        <span class="wa-badge" style="background:#dcfce7;color:#15803d">Conectado</span>
+        <span class="pf-badge pf-badge-green">Conectado</span>
       <% } else { %>
-        <span class="wa-badge" style="background:#fee2e2;color:#b91c1c">Desconectado</span>
+        <span class="pf-badge pf-badge-red">Desconectado</span>
       <% } %>
     </div>
-    <p class="pf-card-sub" style="margin-bottom:0;margin-top:4px">Publique seus imóveis direto no feed ou nos stories da sua conta comercial.</p>
-    <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;color:#b91c1c">
+    <p class="pf-card-sub" style="margin-bottom:0">Publique seus imóveis direto no feed ou nos stories da sua conta comercial.</p>
+    <div class="pf-aviso pf-aviso-red">
       ⚠️ <strong>A conta do Instagram precisa ser Profissional (Empresa ou Criador de conteúdo)</strong> — conta pessoal comum não conecta. No app do Instagram: Perfil → menu ☰ → Configurações e privacidade → Tipo de conta e ferramentas → Mudar para conta profissional.
     </div>
   </div>
@@ -704,10 +743,10 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
   <% if(user.instagramContaId){ %>
     <p style="font-size:14px;color:#111827;margin-bottom:14px">@<%= user.instagramUsername || user.instagramContaId %></p>
     <form method="POST" action="/app/instagram/desconectar">
-      <button type="submit" class="pf-btn pf-btn-red" style="margin-top:0">Desconectar</button>
+      <button type="submit" class="pf-btn pf-btn-red">Desconectar</button>
     </form>
   <% } else { %>
-    <a href="/app/instagram/conectar" class="pf-btn pf-btn-green" style="margin-top:0;text-decoration:none">Conectar Instagram</a>
+    <a href="/app/instagram/conectar" class="pf-btn pf-btn-green">Conectar Instagram</a>
   <% } %>
 </div>
 <% } %>
@@ -891,7 +930,7 @@ async function checkWA() {
     const d = await (await fetch('/app/whatsapp/status')).json();
     const badge = document.getElementById('wa-badge');
     if (d.status === 'open') {
-      badge.style.cssText = 'padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;background:#dcfce7;color:#15803d';
+      badge.className = 'pf-badge pf-badge-green';
       badge.textContent = 'Conectado';
       document.getElementById('wa-ok').style.display = 'block';
       document.getElementById('wa-num').textContent = d.numero || '';
@@ -900,7 +939,7 @@ async function checkWA() {
       document.getElementById('btn-wa-off').style.display = 'inline-flex';
       if (_waTimer) { clearInterval(_waTimer); _waTimer = null; }
     } else {
-      badge.style.cssText = 'padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;background:#fee2e2;color:#b91c1c';
+      badge.className = 'pf-badge pf-badge-red';
       badge.textContent = 'Desconectado';
       document.getElementById('wa-ok').style.display = 'none';
       document.getElementById('btn-wa').style.display = 'inline-flex';

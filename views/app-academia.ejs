@@ -67,7 +67,10 @@
 .ac-leitor-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
 .ac-leitor-voltar{font-size:12px;color:var(--text-sec);cursor:pointer;background:none;border:none;padding:8px 0}
 .ac-btn-prox{padding:10px 20px;border-radius:9px;border:none;background:var(--brand);color:#fff;font-weight:700;font-size:13px;cursor:pointer}
-.ac-btn-prox:disabled{background:var(--border);color:var(--text-ter);cursor:default}
+/* Enquanto conta o tempo mínimo de leitura, o botão fica desabilitado mas
+   continua na cor da marca (pedido do Renato) — só um pouco mais apagado
+   (opacity) pra ainda dar pra perceber que não é clicável ainda. */
+.ac-btn-prox:disabled{background:var(--brand);color:#fff;opacity:.75;cursor:default}
 .ac-btn-prox .cd{font-variant-numeric:tabular-nums}
 </style>
 
@@ -267,7 +270,7 @@
         <div class="ac-leitor-corpo" id="acCorpo-<%= t.id %>"></div>
         <div class="ac-leitor-nav">
           <button type="button" class="ac-leitor-voltar" onclick="acFecharTrilha('<%= t.id %>')">← Fechar</button>
-          <button type="button" class="ac-btn-prox" id="acBtn-<%= t.id %>" onclick="acProximoArtigo('<%= t.id %>')" disabled>Aguarde <span class="cd">60</span>s</button>
+          <button type="button" class="ac-btn-prox" id="acBtn-<%= t.id %>" onclick="acProximoArtigo('<%= t.id %>')" disabled>Aguarde <span class="cd">30</span>s</button>
         </div>
       </div>
     </div>
@@ -281,7 +284,7 @@
   // acima em EJS) — precisa estar em JS pra controlar navegação/trava sem
   // recarregar a página.
   const _AC_TRILHAS = <%- JSON.stringify(_trilhas) %>;
-  const _AC_SEGUNDOS_MIN = 60;
+  const _AC_SEGUNDOS_MIN = 30;
   const _AC_USER = <%- JSON.stringify((user && (user.codigoUsuario || user.id)) || 'anon') %>;
   const _AC_KEY = 'academia_progresso_' + _AC_USER;
 

@@ -4938,6 +4938,14 @@ app.get('/entrar/:contatoId', async (req, res) => {
           lida: false,
           criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
+        // Apresentação de mão dupla do programa de afiliados (mesmo mecanismo
+        // do cadastro manual via POST /login) — aqui o e-mail pro "novo" só
+        // sai se ele já tiver e-mail (não é coletado nesse fluxo de campanha
+        // WhatsApp, só depois ao completar o perfil), a função já lida com
+        // isso sozinha (no-op sem destinatário).
+        const { enviarApresentacaoNovoAfiliado, enviarApresentacaoAfiliadoAcima } = require('./services/emailApresentacaoAfiliado');
+        enviarApresentacaoNovoAfiliado({ paraEmail: user.email, novoNome: user.nome, acimaNome: _afiliadoAtendente.nome }).catch(e=>console.error('[apresentacao-afiliado-novo-entrar]', e.message));
+        enviarApresentacaoAfiliadoAcima({ paraEmail: _afiliadoAtendente.email, acimaNome: _afiliadoAtendente.nome, novoNome: user.nome, userId: _codIndicadorEntrar }).catch(e=>console.error('[apresentacao-afiliado-acima-entrar]', e.message));
       }
       (async () => {
         try {
@@ -5144,6 +5152,13 @@ app.post('/login', async (req,res)=>{
         lida: false,
         criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
       });
+      // Apresentação de mão dupla do programa de afiliados (ago/2026, pedido
+      // explícito do Renato) — e-mail pro que ACABOU de entrar apresentando
+      // quem está acima dele na rede, e e-mail pro que JÁ estava avisando
+      // que alguém entrou embaixo. Fire-and-forget, nunca trava o cadastro.
+      const { enviarApresentacaoNovoAfiliado, enviarApresentacaoAfiliadoAcima } = require('./services/emailApresentacaoAfiliado');
+      enviarApresentacaoNovoAfiliado({ paraEmail: novo.email, novoNome: novo.nome, acimaNome: _indicador.nome }).catch(e=>console.error('[apresentacao-afiliado-novo]', e.message));
+      enviarApresentacaoAfiliadoAcima({ paraEmail: _indicador.email, acimaNome: _indicador.nome, novoNome: novo.nome, userId: _codIndicador }).catch(e=>console.error('[apresentacao-afiliado-acima]', e.message));
     }
 
     // Notificar admin sobre novo cadastro

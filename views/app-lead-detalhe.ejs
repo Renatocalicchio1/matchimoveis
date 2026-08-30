@@ -390,6 +390,72 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     </div>
     <% } %>
 
+    <!-- Atividade da lead (rastro real na plataforma — o que ela viu, quanto
+         tempo ficou, se abriu mapa/vitrine/e-mail — alimentado por
+         cerebro/motor-intencao.js via /api/comportamento-lead. Pedido do
+         Renato (ago/2026): "tudo que engloba a lead... tem que colocar no
+         detalhe da lead... valorizar essa lead pro corretor saber onde que
+         ele tem que ir". Resumo aqui em cima (visão rápida), granular
+         entrando na Timeline de eventos logo abaixo. -->
+    <% const _comp = lead.comportamento || {};
+       const _visualizados = (_comp.imoveisVisualizados || []).slice().sort((a,b)=>new Date(b.em||0)-new Date(a.em||0));
+       const _ultimoVisto = _visualizados[0] || null; %>
+    <div class="ld-card">
+      <div class="ld-title">📊 Atividade da lead na plataforma</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:12px">
+        <div style="text-align:center;padding:10px 6px;background:var(--bg);border-radius:8px">
+          <div style="font-size:18px;font-weight:700;color:var(--dark)"><%= _visualizados.length %></div>
+          <div style="font-size:10px;color:var(--text-sec)">Imóveis vistos</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--bg);border-radius:8px">
+          <div style="font-size:18px;font-weight:700;color:var(--dark)"><%= Math.round((_comp.tempoTotalSegundos||0)/60) %>min</div>
+          <div style="font-size:10px;color:var(--text-sec)">Tempo total</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--bg);border-radius:8px">
+          <div style="font-size:18px;font-weight:700;color:var(--dark)"><%= _comp.vitrineVistas||0 %></div>
+          <div style="font-size:10px;color:var(--text-sec)">Vitrine vista</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--bg);border-radius:8px">
+          <div style="font-size:18px;font-weight:700;color:var(--dark)"><%= _comp.mapaAcessado||0 %></div>
+          <div style="font-size:10px;color:var(--text-sec)">Mapa aberto</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:var(--bg);border-radius:8px">
+          <div style="font-size:18px;font-weight:700;color:var(--dark)"><%= _comp.cliquesContato||0 %></div>
+          <div style="font-size:10px;color:var(--text-sec)">Cliques em contato</div>
+        </div>
+      </div>
+      <% if(_ultimoVisto) { %>
+      <div style="padding:10px 12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:12px;color:#9a3412;margin-bottom:<%= _comp.ultimaAtividade ? '10px' : '0' %>">
+        🏠 <b>Último imóvel visto:</b> <%= _ultimoVisto.tipo||'Imóvel' %><% if(_ultimoVisto.bairro){ %> em <%= _ultimoVisto.bairro %><% } %><% if(_ultimoVisto.preco){ %> — R$ <%= Number(_ultimoVisto.preco).toLocaleString('pt-BR') %><% } %>
+        <div style="margin-top:2px;color:#c2410c">Ficou <%= _ultimoVisto.duracao||0 %>s olhando · <%= new Date(_ultimoVisto.em).toLocaleString('pt-BR') %></div>
+      </div>
+      <% } %>
+      <% if(_comp.ultimaAtividade) { %>
+      <div style="font-size:11px;color:var(--text-ter)">Última atividade na plataforma: <%= new Date(_comp.ultimaAtividade).toLocaleString('pt-BR') %></div>
+      <% } %>
+      <% if(!_visualizados.length && !_comp.ultimaAtividade) { %>
+      <div style="font-size:12px;color:var(--text-ter);text-align:center;padding:8px 0">Essa lead ainda não navegou pela plataforma.</div>
+      <% } %>
+    </div>
+
+    <!-- E-mails enviados pra essa lead (email_envios, filtrado por lead_id) -->
+    <% if(typeof emailsLead !== 'undefined' && emailsLead.length) { %>
+    <div class="ld-card">
+      <div class="ld-title">✉️ E-mails enviados pra essa lead (<%= emailsLead.length %>)</div>
+      <% emailsLead.forEach(function(_e){ %>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)">
+        <div style="min-width:0">
+          <div style="font-size:12px;color:var(--dark);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= _e.assunto||_e.tipo %></div>
+          <div style="font-size:11px;color:var(--text-ter)"><%= _e.enviado_em ? new Date(_e.enviado_em).toLocaleString('pt-BR') : '' %></div>
+        </div>
+        <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;<%= _e.clicado_em ? 'background:#f0fdf4;color:#16a34a' : (_e.aberto_em ? 'background:#eff6ff;color:#2563eb' : 'background:#f3f4f6;color:#9ca3af') %>">
+          <%= _e.clicado_em ? 'Clicou' : (_e.aberto_em ? 'Abriu' : 'Não abriu') %>
+        </span>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
     <!-- Timeline -->
     <div class="ld-card">
       <div class="ld-title">Timeline de eventos</div>
@@ -407,6 +473,13 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       if(lead.tipoLead && lead.tipoLeadAtualizadoEm) tlEventos.push({ ic:'🏷️', acao:'Lead classificada', det:lead.tipoLead==='vendedor'?'Tem imóvel para vender':lead.tipoLead==='corretor'?'Corretor parceiro':'Buscando imóvel', data:lead.tipoLeadAtualizadoEm });
       if(lead.imovelVendedor&&lead.imovelVendedor.cadastradoEm) tlEventos.push({ ic:'🏠', acao:'Imóvel do cliente cadastrado', det:(lead.imovelVendedor.tipo||'')+' em '+(lead.imovelVendedor.bairro||'-'), data:lead.imovelVendedor.cadastradoEm });
       if(lead.cicloAnterior) tlEventos.push({ ic:'🔄', acao:'Novo ciclo de busca', det:'Continuação de lead anterior', data:lead.criadoEm||'' });
+      // Rastro real de comportamento na plataforma (visualizações, compartilhamentos,
+      // e-mails abertos/clicados) — mesmo pedido do card "Atividade da lead" acima,
+      // só que aqui entra granular, misturado cronologicamente com o resto.
+      (_comp.imoveisVisualizados||[]).forEach(v => tlEventos.push({ ic:'👀', acao:'Viu o imóvel', det:(v.tipo||'Imóvel')+(v.bairro?' em '+v.bairro:'')+(v.duracao?' — ficou '+v.duracao+'s':''), data:v.em||'' }));
+      (_comp.imoveisCompartilhados||[]).forEach(c => tlEventos.push({ ic:'📤', acao:'Compartilhou um imóvel', det:c.preco?('R$ '+Number(c.preco).toLocaleString('pt-BR')):'', data:c.em||'' }));
+      if(lead.vitrineVisualizadaEm) tlEventos.push({ ic:'🏪', acao:'Viu a vitrine', det:_comp.vitrineVistas?('Total: '+_comp.vitrineVistas+' vez(es)'):'', data:lead.vitrineVisualizadaEm });
+      (typeof emailsLead!=='undefined'?emailsLead:[]).forEach(e => tlEventos.push({ ic: e.clicado_em?'📧✅':(e.aberto_em?'📧👁':'📧'), acao:(e.clicado_em?'Clicou no e-mail':(e.aberto_em?'Abriu o e-mail':'E-mail enviado'))+': '+(e.assunto||e.tipo||''), det:'', data:e.clicado_em||e.aberto_em||e.enviado_em||'' }));
       (lead.historico||[]).filter(h=>h.acao!=='visualizou_detalhes_lead').forEach(h => tlEventos.push({ ic:'📋', acao:h.acao, det:'', data:h.data||'' }));
       if(lead.criadoEm||lead.data_cadastro) tlEventos.push({ ic:'🆕', acao:'Lead criada', det:'Origem: '+(lead.origem||'manual'), data:lead.criadoEm||lead.data_cadastro||'' });
       if(lead.vitrineEnviadaEm) tlEventos.push({ ic:'🏪', acao:'Vitrine enviada', det:(lead.matchCount||0)+' imóveis na vitrine', data:lead.vitrineEnviadaEm });

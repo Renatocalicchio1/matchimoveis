@@ -14137,7 +14137,22 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     });
   });
 
-  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados });
+  // E-mails enviados pra essa lead (convite de captação, portal global etc)
+  // e se ela abriu/clicou — mesma tabela email_envios que já rastreia toda
+  // campanha (services/email.js), só filtrando por lead_id. Pedido do
+  // Renato: "se ele abrir o email, se ele não abrir" tem que aparecer no
+  // detalhe da lead junto do resto do rastro.
+  let emailsLead = [];
+  try {
+    const { query: _qEmailsLead } = require('./services/db');
+    const _rEmailsLead = await _qEmailsLead(
+      `SELECT tipo, assunto, enviado_em, aberto_em, clicado_em FROM email_envios WHERE lead_id=$1 ORDER BY enviado_em DESC LIMIT 20`,
+      [String(lead.id)]
+    );
+    emailsLead = _rEmailsLead.rows;
+  } catch (eEmailsLead) { console.error('[lead-detalhe] emails:', eEmailsLead.message); }
+
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados, emailsLead });
 });
 // Dono real do imóvel = mesmo critério usado em lerImoveis()/salvarImovel.js — userId/usuarioId/codigoUsuario/corretorId
 function _ehDonoDoImovel(imovel, user) {

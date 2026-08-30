@@ -829,8 +829,24 @@ class MatchCore {
   _followUp(lead) {
     if (!lead.followUps) lead.followUps = [];
     const agora = Date.now();
+    // Trava contra loop de reenvio (achado ago/2026, Renato reportou lead
+    // recebendo o mesmo email "Encontramos imóveis para você!" a cada 5min,
+    // dezenas de vezes): o guard antigo só olhava followUps 'pendente' — uma
+    // vez que o JOB_FOLLOWUPS (server.js) executa e marca 'executado', esse
+    // guard para de enxergar o followUp antigo. Se a flag que deveria travar
+    // o reenvio (vitrineEnviada/vitrineEmailEnviada) não persistir de volta
+    // a tempo (ex: outro processamento concorrente dessa mesma lead salva
+    // uma cópia desatualizada por cima, sobrescrevendo a flag — objeto
+    // completo sendo regravado, padrão de bug já visto antes nesse
+    // código), _followUp() enfileira um NOVO 'enviar_vitrine' toda vez que
+    // roda de novo pra essa lead, e o job de 5 em 5 min dispara cada um —
+    // loop infinito de email/WhatsApp pro mesmo lead. Trava: não reenfileira
+    // o mesmo tipo se já foi executado há menos de 1h, dá tempo da flag real
+    // persistir e ainda cobre o caso legítimo (enviar só o canal que faltou).
     const add = (tipo, prazoHoras) => {
-      if (!lead.followUps.some(f => f.tipo===tipo && f.status==='pendente')) {
+      const jaTemPendente = lead.followUps.some(f => f.tipo===tipo && f.status==='pendente');
+      const jaTemExecutadoRecente = lead.followUps.some(f => f.tipo===tipo && f.status==='executado' && f.executadoEm && (agora - new Date(f.executadoEm).getTime()) < 3600000);
+      if (!jaTemPendente && !jaTemExecutadoRecente) {
         lead.followUps.push({ id: agora.toString(), tipo, status:'pendente', criadoEm: new Date(agora).toISOString(), prazo: new Date(agora+prazoHoras*3600000).toISOString() });
       }
     };

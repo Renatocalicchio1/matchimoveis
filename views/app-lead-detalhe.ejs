@@ -600,6 +600,42 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       </form>
     </div>
 
+    <!-- Automação de mensagens (ago/2026, pedido do Renato) — pausa e-mail
+         e/ou WhatsApp automático pra essa lead específica, ex: quando o
+         corretor já está falando direto com o cliente e não precisa mais
+         do sistema mandando sozinho. Não afeta o botão manual de
+         WhatsApp/vitrine acima — só o disparo automático (JOB_FOLLOWUPS e
+         JOB_PROPENSAO em server.js). -->
+    <div class="ld-card">
+      <div class="ld-title">🔕 Automação de mensagens</div>
+      <p style="font-size:11.5px;color:var(--text-ter);margin:0 0 12px;line-height:1.5">Pausa os envios automáticos pra essa lead — não afeta você mandar mensagem manual.</p>
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-light);cursor:pointer">
+        <span style="font-size:13px;color:var(--dark)">✉️ E-mail automático</span>
+        <input type="checkbox" id="chk-automacao-email" onchange="toggleAutomacaoLead('email', this.checked)" <%= lead.automacaoEmailPausada ? '' : 'checked' %> style="width:18px;height:18px;cursor:pointer;accent-color:var(--brand)">
+      </label>
+      <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;cursor:pointer">
+        <span style="font-size:13px;color:var(--dark)">💬 WhatsApp automático</span>
+        <input type="checkbox" id="chk-automacao-whatsapp" onchange="toggleAutomacaoLead('whatsapp', this.checked)" <%= lead.automacaoWhatsappPausada ? '' : 'checked' %> style="width:18px;height:18px;cursor:pointer;accent-color:var(--brand)">
+      </label>
+      <div id="automacao-lead-status" style="font-size:11px;color:var(--text-ter);margin-top:8px"></div>
+    </div>
+    <script>
+    async function toggleAutomacaoLead(canal, ligado) {
+      const status = document.getElementById('automacao-lead-status');
+      status.textContent = 'Salvando...';
+      try {
+        const r = await fetch('/app/lead/<%= lead.id %>/automacao', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ canal, pausado: !ligado })
+        });
+        const d = await r.json();
+        status.textContent = d.ok
+          ? (ligado ? ((canal==='email'?'E-mail':'WhatsApp') + ' automático reativado.') : ((canal==='email'?'E-mail':'WhatsApp') + ' automático pausado pra essa lead.'))
+          : 'Erro ao salvar.';
+      } catch(e) { status.textContent = 'Erro ao salvar.'; }
+    }
+    </script>
+
     <!-- Status comercial -->
     <div class="ld-card">
       <div class="ld-title">Status comercial</div>

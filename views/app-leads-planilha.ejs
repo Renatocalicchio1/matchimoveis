@@ -10,19 +10,26 @@
    tela mesmo quando não cabe (texto quebrando letra por letra no mobile) —
    min-width garante um tamanho mínimo legível; abaixo dele quem rola é o
    wrapper (overflow-x acima), não o texto de dentro da célula. */
-.pl-tablewrap table{width:100%;min-width:880px;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.pl-tablewrap table{width:100%;min-width:980px;border-collapse:collapse;font-size:12px;table-layout:fixed}
 .pl-tablewrap th{text-align:left;padding:10px 10px;font-size:10px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border-light);background:var(--bg);position:sticky;top:0;overflow-wrap:break-word}
 .pl-tablewrap td{padding:10px 10px;border-bottom:1px solid var(--border-light);color:var(--text);vertical-align:top;overflow-wrap:break-word;word-break:break-word}
 .pl-tablewrap tr:last-child td{border-bottom:none}
 .pl-tablewrap tr:hover td{background:var(--bg)}
 .pl-tablewrap tr.pl-atendida td{background:#fef2f2}
 .pl-col-data{width:8%}
-.pl-col-lead{width:15%}
-.pl-col-origem{width:10%}
-.pl-col-perfil{width:20%}
-.pl-col-vitrine{width:16%}
-.pl-col-imovel{width:17%}
-.pl-col-acoes{width:14%}
+.pl-col-lead{width:14%}
+.pl-col-prop{width:9%}
+.pl-col-origem{width:9%}
+.pl-col-perfil{width:18%}
+.pl-col-vitrine{width:15%}
+.pl-col-imovel{width:15%}
+.pl-col-acoes{width:12%}
+.pl-prop{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.pl-prop.alta{background:#fff1f3;color:#FF385C}
+.pl-prop.media{background:#fff4ec;color:#FC642D}
+.pl-prop.baixa{background:var(--border-light);color:var(--text-ter)}
+.pl-prop-motivo{display:block;font-size:10px;color:var(--text-ter);margin-top:3px;overflow-wrap:break-word}
+.pl-tablewrap tr.pl-quente td{background:#fff1f3}
 .pl-data{color:var(--text-sec);font-variant-numeric:tabular-nums}
 .pl-data b{display:block;color:var(--text);font-weight:600;font-size:12px}
 .pl-nome{font-weight:600;color:var(--text);text-decoration:none}
@@ -82,6 +89,7 @@
       <tr>
         <th class="pl-col-data">Data</th>
         <th class="pl-col-lead">Lead</th>
+        <th class="pl-col-prop">Propensão</th>
         <th class="pl-col-origem">Origem</th>
         <th class="pl-col-perfil">Perfil do imóvel</th>
         <th class="pl-col-vitrine">Vitrine</th>
@@ -91,7 +99,7 @@
     </thead>
     <tbody>
       <% if(!leads.length){ %>
-        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-ter)">Nenhuma lead encontrada com esses filtros.</td></tr>
+        <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-ter)">Nenhuma lead encontrada com esses filtros.</td></tr>
       <% } %>
       <% leads.forEach(function(l){ %>
         <% const p = l.perfilIA || {}; %>
@@ -99,11 +107,20 @@
         <% const transacaoLabel = p.intencao==='comprar'?'Comprar':p.intencao==='alugar'?'Alugar':p.intencao||''; %>
         <% const _matPl = (l.matchesAuto||l.matches||[]).length; %>
         <% const _vitrineLinkPl = _matPl>0 ? (l.vitrineLink || ('/cliente/oferta/'+(l.leadId||l.id)+'?userId='+encodeURIComponent(l.userId||l.usuarioId||l.corretorId||''))) : ''; %>
-        <tr class="<%= l.emAtendimento?'pl-atendida':'' %>" title="<%= l.emAtendimento?'Lead em atendimento (já viu detalhes)':'Clique em ver detalhes' %>">
+        <% const _propPl = l.propensao || null; %>
+        <tr class="<%= l.emAtendimento?'pl-atendida':(_propPl&&_propPl.tier==='alta'?'pl-quente':'') %>" title="<%= l.emAtendimento?'Lead em atendimento (já viu detalhes)':'Clique em ver detalhes' %>">
           <td class="pl-data"><b><%= d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}) %></b><%= d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}) %></td>
           <td>
             <a href="/app/lead/<%= l.id %>" class="pl-nome"><%= l.nome || 'Sem nome' %></a><br>
             <span class="pl-tel"><%= l.telefone || l.whatsapp || l.contato || '-' %></span>
+          </td>
+          <td>
+            <% if(_propPl && _propPl.score > 0){ %>
+              <span class="pl-prop <%= _propPl.tier %>"><%= _propPl.tier==='alta'?'🔥':(_propPl.tier==='media'?'🌤':'🧊') %> <%= _propPl.score %></span>
+              <% if(_propPl.motivo){ %><span class="pl-prop-motivo"><%= _propPl.motivo %><% if(_propPl.tempoRelativo){ %> · <%= _propPl.tempoRelativo %><% } %></span><% } %>
+            <% } else { %>
+              <span style="color:var(--text-ter);font-size:11px">—</span>
+            <% } %>
           </td>
           <td><span class="pl-chip"><%= l.origem || l.origemEntrada || '-' %></span></td>
           <td class="pl-perfil">

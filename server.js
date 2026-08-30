@@ -9230,6 +9230,36 @@ function _ehLeadCaptacao(l) {
   return l.tipoLead === 'cliente_vendedor' || l.tipo_lead === 'cliente_vendedor' || l.origem === 'captacao_link' || (l.dados && l.dados.temImovelParaCaptar === true);
 }
 
+// "Fale agora" (ago/2026, pedido do Renato) — calcula cerebro/propensao.js
+// pra cada lead em lote (1 query só de e-mails pra todas, não 1 por lead) e
+// anexa `.propensao` em cada objeto. Usada tanto no Kanban quanto na
+// planilha de leads, pra não duplicar a lógica de busca de e-mails.
+async function _anexarPropensao(leads) {
+  if (!leads || !leads.length) return leads;
+  try {
+    const { calcularPropensao } = require('./cerebro/propensao');
+    const { query: _qPropEmails } = require('./services/db');
+    const ids = leads.map(l => String(l.id || l.leadId || '')).filter(Boolean);
+    const emailsPorLead = {};
+    if (ids.length) {
+      const { rows } = await _qPropEmails(
+        `SELECT lead_id, assunto, enviado_em, aberto_em, clicado_em FROM email_envios WHERE lead_id = ANY($1)`,
+        [ids]
+      );
+      rows.forEach(r => {
+        const lid = String(r.lead_id || '');
+        if (!emailsPorLead[lid]) emailsPorLead[lid] = [];
+        emailsPorLead[lid].push(r);
+      });
+    }
+    leads.forEach(l => {
+      const lid = String(l.id || l.leadId || '');
+      l.propensao = calcularPropensao(l, emailsPorLead[lid] || []);
+    });
+  } catch (e) { console.error('[propensao] erro ao anexar:', e.message); }
+  return leads;
+}
+
 app.get('/app/leads', auth, async (req,res)=>{
   const { lerLeads: _lerLeadsService } = require('./services/salvarLead');
   const raw = await _lerLeadsService(req.session.user.id);
@@ -9272,11 +9302,32 @@ app.get('/app/leads', auth, async (req,res)=>{
     return db - da;
   });
   const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);
+  await _anexarPropensao(leads);
+  const faleAgora = leads
+    .filter(l => l.propensao && l.propensao.tier !== 'baixa')
+    .sort((a, b) => b.propensao.score - a.propensao.score)
+    .slice(0, 5);
+  // Mensagem de WhatsApp já pronta e segmentada pelo motivo, só pras top 5
+  // do painel (não vale a pena gerar pra toda a lista) — pedido do Renato:
+  // "quando ele for conversar com o cliente já tinha que estar com a
+  // mensagem pronta". Reaproveita o mesmo link de vitrine usado no resto
+  // da plataforma.
+  try {
+    const { gerarMensagem: _gerarMsgFaleAgora } = require('./cerebro/propensao');
+    const _uidFaleAgora = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    faleAgora.forEach(l => {
+      const _linkFA = BASE_URL + '/cliente/oferta/' + (l.leadId || l.id) + '?userId=' + encodeURIComponent(_uidFaleAgora);
+      const _msgFA = _gerarMsgFaleAgora(l.propensao, { leadNome: l.nome, corretorNome: req.session.user.nome, link: _linkFA });
+      l.propensao.whatsappTexto = _msgFA.whatsapp;
+      l.propensao.whatsappLink = 'https://wa.me/' + (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g, '') + '?text=' + encodeURIComponent(_msgFA.whatsapp);
+    });
+  } catch (e) { console.error('[fale-agora] erro ao gerar mensagens:', e.message); }
   res.render('app-leads', {
     user: req.session.user,
     userId: req.session.user ? req.session.user.id : '',
     active: 'leads',
     leads,
+    faleAgora,
     stats: {
       totalLeads: leads.length,
       comMatch: leads.filter(i => i.matches && i.matches.length).length,
@@ -9370,6 +9421,7 @@ async function _leadsParaPlanilha(user, query) {
 app.get('/app/leads/planilha', auth, async (req,res)=>{
   const { origem, status, busca, de, ate } = req.query;
   const { leads, canaisDisponiveis } = await _leadsParaPlanilha(req.session.user, req.query);
+  await _anexarPropensao(leads);
   const filtros = { origem: origem||'', status: status||'', busca: busca||'', de: de||'', ate: ate||'' };
   const filtrosQS = new URLSearchParams(Object.fromEntries(Object.entries(filtros).filter(([,v]) => v))).toString();
   res.render('app-leads-planilha', {
@@ -10660,7 +10712,14 @@ setInterval(async () => {
     const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
     let _salvou = false;
 
-    async function _enviarWA(instancia, numero, texto) {
+    // `leadParaChecar` opcional — se a lead tiver automacaoWhatsappPausada
+    // (POST /app/lead/:id/automacao), pula o envio automático em silêncio
+    // (o followUp ainda é marcado executado normalmente, só não manda nada).
+    async function _enviarWA(instancia, numero, texto, leadParaChecar) {
+      if (leadParaChecar && leadParaChecar.automacaoWhatsappPausada) {
+        console.log('[JOB FU] WhatsApp automático pausado pra essa lead, pulando:', leadParaChecar.nome || numero);
+        return;
+      }
       try {
         await fetch(EU + '/message/sendText/' + instancia, {
           method: 'POST',
@@ -10719,7 +10778,7 @@ setInterval(async () => {
               + _matches + ' imove' + (_matches === 1 ? 'l' : 'is')
               + ' que combinam com o seu perfil.\n\nAcesse sua selecao personalizada:\n'
               + _link + '\n\nEscolha o imovel que mais gostou e agende sua visita! \n\n' + ((_user && _user.nome) ? _user.nome : 'Seu corretor') + ' - MatchImoveis';
-            await _enviarWA(_instancia, _contato, _msg);
+            await _enviarWA(_instancia, _contato, _msg, _leads[i]);
             _leads[i].vitrineEnviada = true;
             consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
             _leads[i].vitrineEnviadaEm = new Date().toISOString();
@@ -10741,7 +10800,7 @@ setInterval(async () => {
             console.log('[JOB FU] vitrine WhatsApp já enviada por outro caminho, pulando:', lead.nome || _contato);
           }
 
-          const _emailLead = lead.email || lead.dados?.email || '';
+          const _emailLead = (!lead.automacaoEmailPausada) ? (lead.email || lead.dados?.email || '') : '';
           if (_emailLead) {
             let _claimEmail = null;
             try {
@@ -10791,8 +10850,8 @@ setInterval(async () => {
             + _link + '\n\n'
             + 'Caso ja esteja conversando com ' + _nomeCorretor + ', pode desconsiderar esta mensagem. '
             + 'Mas se quiser, pode entrar no link e agendar diretamente por la! 😊';
-          await _enviarWA(_instancia, _contato, _msg);
-          const _emailFU = lead.email || '';
+          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+          const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
           if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Seus imóveis estão esperando por você!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'qualificar_lead') {
@@ -10805,21 +10864,21 @@ setInterval(async () => {
           const _msg = 'Olá ' + (lead.nome || '') + '! Que tal agendarmos uma visita? 🏠\n\n'
             + (_imovel ? 'Temos ' + _imovel.tipo + ' em ' + _imovel.bairro + ' disponível.\n\n' : '')
             + 'Qual dia e horário ficaria melhor para você?';
-          await _enviarWA(_instancia, _contato, _msg);
-          const _emailFU = lead.email || '';
+          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+          const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
           if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '📅 Que tal agendar uma visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'followup_visita') {
           _leads[i].waFollowupVisitaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Como foi a visita? Gostou do imóvel? 🏠\n\nPosso te ajudar com alguma dúvida ou mostrar outras opções?';
-          await _enviarWA(_instancia, _contato, _msg);
-          const _emailFU = lead.email || '';
+          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+          const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
           if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Como foi a visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'proposta_negocio') {
           _leads[i].waPropostaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Ótimo momento para darmos o próximo passo! 🎯\n\nVocê tem interesse em fazer uma proposta? Posso te ajudar com todo o processo.';
-          await _enviarWA(_instancia, _contato, _msg);
+          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
         }
 
         console.log('[JOB FU] ✓ tipo:', fu.tipo, '| lead:', lead.nome || _contato);
@@ -10837,6 +10896,110 @@ setInterval(async () => {
   }
 }, 5 * 60 * 1000); // roda a cada 5 minutos
 // ── FIM JOB_FOLLOWUPS ────────────────────────────────────────────────────────
+
+// ── JOB_PROPENSAO — "Fale agora" automático (ago/2026, pedido do Renato) ─────
+// Quando uma lead cruza pra "alta chance" (cerebro/propensao.js) com um sinal
+// recente, manda e-mail automático sempre, e WhatsApp automático só se o
+// corretor já tem a instância conectada (se não tiver, fica só o botão manual
+// "Falar agora" no painel — não força nada sem WhatsApp integrado). Mensagem
+// já vem segmentada pelo motivo exato (gerarMensagem), sempre puxando pra
+// solicitar visita.
+//
+// Duas travas anti-spam aplicadas desde o início (lição direta do bug do
+// enviar_vitrine que reenviava a cada 5min pro mesmo lead, corrigido ago/2026
+// em cerebro/match-core.js): (1) dedup por sinal EXATO — só dispara de novo
+// se o motivo mudou (motivoTipo + timestamp do evento, não só "ainda tá
+// quente"); (2) cooldown de 30min entre disparos pra mesma lead, mesmo que o
+// motivo tenha mudado no meio do caminho — nunca manda rajada.
+//
+// Persistência sempre via atualizarLead() individual (SELECT fresco + merge
+// + save), nunca salvarTodosLeads() em lote com o array inteiro carregado no
+// início do ciclo — é exatamente essa sobrescrita de objeto inteiro
+// desatualizado que causou o bug do enviar_vitrine.
+setInterval(async () => {
+  try {
+    const leads = await lerLeadsData();
+    const users = _cacheUsuarios || [];
+    if (!leads.length || !users.length) return;
+
+    const { calcularPropensao, gerarMensagem } = require('./cerebro/propensao');
+    const { atualizarLead: _atualizarLeadProp } = require('./services/salvarLead');
+    const { query: _qPropDisparo } = require('./services/db');
+    const { enviarEmail: _envPropEmail } = require('./services/email');
+    const BASE_URL_PROP = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    const EU_PROP = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EK_PROP = process.env.EVOLUTION_KEY || 'match2025evolution';
+
+    // 1 query só de e-mails pra todas as leads (mesmo padrão de _anexarPropensao).
+    const ids = leads.map(l => String(l.id || '')).filter(Boolean);
+    const emailsPorLead = {};
+    if (ids.length) {
+      const { rows } = await _qPropDisparo(
+        `SELECT lead_id, assunto, enviado_em, aberto_em, clicado_em FROM email_envios WHERE lead_id = ANY($1)`,
+        [ids]
+      );
+      rows.forEach(r => { const lid = String(r.lead_id || ''); (emailsPorLead[lid] = emailsPorLead[lid] || []).push(r); });
+    }
+
+    const { decidirDisparo } = require('./cerebro/propensao');
+    for (const lead of leads) {
+      try {
+        if (lead.tipoLead === 'corretor') continue;
+        const propensao = calcularPropensao(lead, emailsPorLead[String(lead.id)] || []);
+        const { deveDisparar } = decidirDisparo(lead, propensao);
+        if (!deveDisparar) continue;
+
+        const userId = lead.userId || lead.corretorId || lead.codigoUsuario || '';
+        const user = users.find(u => u.id === userId);
+        if (!user) continue;
+
+        const link = BASE_URL_PROP + '/cliente/oferta/' + lead.id + '?userId=' + userId;
+        const msg = gerarMensagem(propensao, { leadNome: lead.nome, corretorNome: user.nome, link });
+
+        let enviouAlgo = false;
+
+        if (!lead.automacaoEmailPausada && lead.email) {
+          try {
+            await _envPropEmail({
+              para: lead.email,
+              assunto: msg.assuntoEmail,
+              html: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><p style="font-size:15px;line-height:1.7;color:#222;white-space:pre-wrap">' + msg.corpoEmail + '</p></div>',
+              texto: msg.corpoEmail,
+              tipo: 'propensao_alta',
+              leadId: lead.id,
+              userId
+            });
+            consumir(userId, 'email_lead').catch(() => {});
+            enviouAlgo = true;
+          } catch (eEmailProp) { console.error('[JOB PROPENSAO] erro email:', eEmailProp.message); }
+        }
+
+        const contatoProp = (lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g, '');
+        if (!lead.automacaoWhatsappPausada && user.whatsappInstance && user.whatsappStatus === 'open' && contatoProp) {
+          try {
+            await fetch(EU_PROP + '/message/sendText/' + user.whatsappInstance, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'apikey': EK_PROP },
+              body: JSON.stringify({ number: contatoProp, text: msg.whatsapp })
+            });
+            consumir(userId, 'followup_auto').catch(() => {});
+            enviouAlgo = true;
+          } catch (eWaProp) { console.error('[JOB PROPENSAO] erro WA:', eWaProp.message); }
+        }
+
+        if (enviouAlgo) {
+          await _atualizarLeadProp(lead.id, {
+            propensaoUltimoDisparo: { motivoTipo: propensao.motivoTipo, em: propensao.atualizadoEm, disparadoEm: new Date().toISOString(), score: propensao.score }
+          });
+          console.log('[JOB PROPENSAO] disparado:', lead.nome || lead.id, '| motivo:', propensao.motivo, '| score:', propensao.score);
+        }
+      } catch (eLeadProp) { console.error('[JOB PROPENSAO] erro lead', lead.id, ':', eLeadProp.message); }
+    }
+  } catch (e) {
+    console.error('[JOB PROPENSAO] erro geral:', e.message);
+  }
+}, 5 * 60 * 1000); // roda a cada 5 minutos
+// ── FIM JOB_PROPENSAO ────────────────────────────────────────────────────────
 
 // ── JOB_JOBS_TRAVADOS — relança import de XML/leads e disparos WhatsApp que ──
 // ficaram presos em "processando"/"enviando" (worker_thread morto no meio de um
@@ -19033,6 +19196,31 @@ app.post('/app/lead/:id/comportamento', auth, async (req, res) => {
   } catch(e) {
     console.error('[COMPORTAMENTO] erro:', e.message);
     res.status(500).json({ erro: e.message });
+  }
+});
+
+// Pausar/retomar envio automático (e-mail e/ou WhatsApp) pra uma lead
+// específica (ago/2026, pedido do Renato: "o cliente não quer mais receber
+// o WhatsApp e o email, ele já está falando com o cliente, não tem mais
+// necessidade"). Guarda em dados JSONB (automacaoEmailPausada/
+// automacaoWhatsappPausada) — todo disparo automático (JOB_FOLLOWUPS e o
+// disparo por propensão) tem que checar essas 2 flags antes de mandar
+// qualquer coisa. Não afeta o botão manual "Falar agora" do painel — isso é
+// ação explícita do corretor, não automação.
+app.post('/app/lead/:id/automacao', auth, async (req, res) => {
+  try {
+    const { atualizarLead, lerLeads } = require('./services/salvarLead');
+    const leads = await lerLeads(req.session.user.id);
+    const lead = leads.find(l => String(l.id) === String(req.params.id));
+    if (!lead) return res.status(404).json({ ok: false, erro: 'lead nao encontrada' });
+    const canal = req.body.canal === 'whatsapp' ? 'whatsapp' : 'email';
+    const pausado = !!req.body.pausado;
+    const campo = canal === 'whatsapp' ? 'automacaoWhatsappPausada' : 'automacaoEmailPausada';
+    await atualizarLead(lead.id, { [campo]: pausado });
+    res.json({ ok: true, canal, pausado });
+  } catch (e) {
+    console.error('[automacao-lead] erro:', e.message);
+    res.status(500).json({ ok: false, erro: e.message });
   }
 });
 

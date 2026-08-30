@@ -123,7 +123,42 @@
 .comment-write-box{display:none;padding:10px 12px;background:#fffbeb;border-radius:10px;border:1px solid #fde68a;margin-top:8px}
 
 .empty-col{text-align:center;padding:24px 12px;color:#d1d5db;font-size:12px}
+
+/* ── Fale agora (ago/2026) ── */
+.fa-panel{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.fa-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f3f4f6}
+.fa-head h3{font-size:13px;font-weight:700;color:#111827;margin:0}
+.fa-head span{font-size:11px;color:#9ca3af}
+.fa-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f9fafb;text-decoration:none;color:inherit}
+.fa-row:last-child{border-bottom:none}
+.fa-row:hover{background:#fafafa}
+.fa-score{flex-shrink:0;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:#fff}
+.fa-score.alta{background:#FF385C}
+.fa-score.media{background:#FC642D}
+.fa-body{flex:1;min-width:0}
+.fa-nome{font-size:13px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fa-motivo{font-size:11.5px;color:#6b7280;margin-top:1px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fa-tempo{font-size:10px;font-weight:700;color:#FF385C;background:#fff1f3;padding:1px 8px;border-radius:20px;flex-shrink:0}
+.fa-cta{flex-shrink:0;font-size:11px;font-weight:700;color:#fff;background:#25D366;padding:7px 12px;border-radius:20px;white-space:nowrap;text-decoration:none}
+.fa-empty{padding:20px 16px;text-align:center;color:#9ca3af;font-size:12px}
 </style>
+
+<!-- Fale agora — leads com maior propensão a fechar agora (cerebro/propensao.js) -->
+<% if(typeof faleAgora !== 'undefined' && faleAgora.length) { %>
+<div class="fa-panel">
+  <div class="fa-head"><h3>🎯 Fale agora</h3><span><%= faleAgora.length %> lead<%= faleAgora.length===1?'':'s' %> com sinal forte</span></div>
+  <% faleAgora.forEach(l => { const p = l.propensao; %>
+  <div class="fa-row" onclick="location.href='/app/lead/<%= l.id %>'" style="cursor:pointer">
+    <div class="fa-score <%= p.tier %>"><%= p.score %></div>
+    <div class="fa-body">
+      <div class="fa-nome"><%= l.nome||l.telefone||'Lead' %></div>
+      <div class="fa-motivo"><%= p.motivo %><% if(p.tempoRelativo){ %><span class="fa-tempo"><%= p.tempoRelativo %></span><% } %></div>
+    </div>
+    <% if(p.whatsappLink){ %><a href="<%= p.whatsappLink %>" target="_blank" onclick="event.stopPropagation()" class="fa-cta">💬 Falar agora</a><% } %>
+  </div>
+  <% }) %>
+</div>
+<% } %>
 
 <!-- KPIs -->
 <div class="kpi-row">

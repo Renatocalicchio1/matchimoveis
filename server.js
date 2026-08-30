@@ -1362,7 +1362,7 @@ ${_adminSidebarHtml('buscar-imovel', _sidebarPerm(req), req)}
         <div style="font-weight:700">${imoveis.length} imóvel(is) encontrado(s)</div>
         ${imoveis.length ? `<button type="submit" style="background:#dc2626;color:#fff;padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">🗑️ Excluir selecionados (de todas as contas)</button>` : ''}
       </div>
-      <div class="table-wrap"><table>
+      <div class="table-wrap"><table class="no-mobile-scroll">
         <thead><tr>
           <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c=>c.checked=this.checked)"></th>
           <th>Código</th><th>Endereço</th><th>Bairro/Cidade</th><th>Proprietário</th><th>Celular</th><th>Conta</th>
@@ -1506,7 +1506,7 @@ ${_adminSidebarHtml('buscar-lead', _sidebarPerm(req), req)}
         <div style="font-weight:700">${leads.length} lead(s) encontrada(s)${contaT && !nomeT && !celularT && !emailT ? ' — marque todas pra excluir a conta inteira' : ''}</div>
         ${leads.length ? `<button type="submit" style="background:#dc2626;color:#fff;padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">🗑️ Excluir selecionadas e bloquear</button>` : ''}
       </div>
-      <div class="table-wrap"><table>
+      <div class="table-wrap"><table class="no-mobile-scroll">
         <thead><tr>
           <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c=>c.checked=this.checked)"></th>
           <th>Nome</th><th>Telefone</th><th>Email</th><th>Conta</th><th>Origem</th><th>Fase</th>
@@ -1698,7 +1698,7 @@ ${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req), req)}
   <div id="erro-busca"></div>
   <div class="card">
     <div id="titulo-resultado" style="font-weight:700;margin-bottom:12px">${temFiltro && !origemNaoAchada ? imoveis.length + ' imóvel(is) encontrado(s)' : 'Busque uma conta de origem acima'}</div>
-    <div class="table-wrap"><table>
+    <div class="table-wrap"><table class="no-mobile-scroll">
       <thead><tr>
         <th><input type="checkbox" id="chk-todos-visiveis" onclick="_marcarTodosVisiveis(this.checked)"></th>
         <th>Id externo</th><th>Título</th><th>Tipo/Condição</th><th>Bairro/Cidade/UF</th><th>Qtos</th><th>Valor</th>
@@ -2165,7 +2165,7 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
   <div class="card">
     ${(buscaT || subadminT || tipoT) ? `<div style="padding:10px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee;">${usuarios.rows.length} usuário(s) encontrado(s)</div>` : ''}
     <div style="padding:10px 12px 0"><button type="button" class="btn-toggle-colunas" onclick="document.getElementById('tabela-usuarios').classList.toggle('mostrar-extra');this.textContent=document.getElementById('tabela-usuarios').classList.contains('mostrar-extra')?'▲ Esconder colunas (Senha, Cart. QA, Último ac.)':'▼ Mostrar mais colunas (Senha, Cart. QA, Último ac.)'">▼ Mostrar mais colunas (Senha, Cart. QA, Último ac.)</button></div>
-    <div class="table-wrap"><table id="tabela-usuarios">
+    <div class="table-wrap"><table id="tabela-usuarios" class="no-mobile-scroll">
       <thead><tr>
         <th>Cód.</th><th>Nome</th><th>Tipo</th><th>Telefone</th><th class="col-extra">Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th class="col-extra">Cart. QA</th><th>XML QA</th><th>Indicado por</th><th class="col-extra">Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th>
       </tr></thead>
@@ -20931,7 +20931,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     <div id="resumo"></div>
     <button id="btnImportar" class="sec" onclick="importar()" style="display:none">🚀 Distribuir leads pras contas</button>
     <div id="import-status"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Observações</th><th>Data no portal</th><th>Minerado em</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div style="overflow-x:auto"><table id="tabela" class="no-mobile-scroll"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Observações</th><th>Data no portal</th><th>Minerado em</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -21406,7 +21406,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
     <div class="scroll-hint">👉 Arraste a tabela pro lado pra ver todas as colunas</div>
-    <div id="tabela-scroll" style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div id="tabela-scroll" style="overflow-x:auto"><table id="tabela" class="no-mobile-scroll"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
     <div style="text-align:center;margin:20px 0">
       <button type="button" id="btnCustoLeads" onclick="avancarParaPlanos()" style="display:none;animation:scrollHintPulso 1.5s infinite">💰 Quanto me custa essas leads?</button>
@@ -23415,7 +23415,7 @@ https://www.matchimoveis.ia.br
     const d = await r.json();
     if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
     _ultimosContatos = d.contatos;
-    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1180px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Comprou</th><th style="padding:8px;text-align:left">F.up 1</th><th style="padding:8px;text-align:left">F.up 2</th><th style="padding:8px;text-align:left">F.up 3</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">E-mail</th></tr>';
+    let html = '<div style="overflow-x:auto"><table class="no-mobile-scroll" style="width:100%;border-collapse:collapse;font-size:13px;min-width:1180px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Comprou</th><th style="padding:8px;text-align:left">F.up 1</th><th style="padding:8px;text-align:left">F.up 2</th><th style="padding:8px;text-align:left">F.up 3</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">E-mail</th></tr>';
     for(const c of d.contatos){
       // Status de envio (pendente/enviado/erro) some de vista assim que o
       // contato já virou cadastro na plataforma — a coluna "Status" passa a

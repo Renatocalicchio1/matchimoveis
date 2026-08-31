@@ -710,12 +710,15 @@ async function _sortearVariante(tipo) {
   return lista[lista.length - 1];
 }
 
-// afiliado com peso maior (40%) — pedido explícito do Renato (ago/2026) pra
-// focar a reativação da campanha geral no ganhar-indicando, sem tirar
-// pagina/demanda de circulação (30% cada).
+// 'afiliado' PAUSADO da fila (ago/2026, pedido do Renato: pouca abertura,
+// esforço realocado 100% pra pagina/demanda por enquanto). NÃO é remoção —
+// as 10 variações e toda a lógica de 'afiliado' (CTA_POR_TIPO, _STATS_CAMPOS
+// etc.) continuam intactas, só não é mais sorteado aqui. Reverter é só
+// voltar esse peso pra como era antes (afiliado 40%, pagina/demanda 30%
+// cada).
 async function _sortearModelo() {
   const r = Math.random();
-  const tipo = r < 0.4 ? 'afiliado' : r < 0.7 ? 'pagina' : 'demanda';
+  const tipo = r < 0.5 ? 'pagina' : 'demanda';
   return { tipo, ...(await _sortearVariante(tipo)) };
 }
 

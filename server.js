@@ -2856,9 +2856,17 @@ const _agendarReengajamento = () => {
 _agendarReengajamento();
 
 // Job rematch de leads sem match — roda todo dia às 6h (services/matchPendentes.js).
-// Restrito às leads criadas nos últimos 2 dias pra não pesar no servidor
-// reprocessando a base toda todo dia (backfill de leads mais antigas é
-// manual: node rodarMatchLeadsSemMatch.js no Render Shell).
+// Antes só reprocessava leads criadas nos últimos 2 dias (backfill de leads
+// mais antigas dependia do admin lembrar de rodar node
+// rodarMatchLeadsSemMatch.js manual no Render Shell) — uma lead sem match
+// que passasse desses 2 dias ficava órfã pra sempre, mesmo que um imóvel
+// compatível entrasse na carteira meses depois (achado ago/2026: Radar do
+// Corretor mostrando "lead sem imóvel compatível" em lead antiga, sem
+// nenhum job rodando pra ela — sinal 07 dispara com >=3 dias, 1 dia depois
+// do job já ter desistido). Sem `diasAtras` agora, roda sem restrição de
+// data — mesma chamada que o script manual já usava, só que automática
+// todo dia; a query já se autolimita (lead que gera match sai da lista no
+// próximo run), então não deve pesar mais que o script manual já pesava.
 const _agendarMatchPendentes = () => {
   const agora = new Date();
   const amanha6h = new Date(agora);
@@ -2868,12 +2876,12 @@ const _agendarMatchPendentes = () => {
   setTimeout(async () => {
     try {
       const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
-      await rodarMatchLeadsSemMatch({ diasAtras: 2 });
+      await rodarMatchLeadsSemMatch({});
     } catch(e) { console.error('[JOB MATCH PENDENTES]', e.message); }
     setInterval(async () => {
       try {
         const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
-        await rodarMatchLeadsSemMatch({ diasAtras: 2 });
+        await rodarMatchLeadsSemMatch({});
       } catch(e) { console.error('[JOB MATCH PENDENTES]', e.message); }
     }, 24 * 3600 * 1000);
   }, msAte6h);

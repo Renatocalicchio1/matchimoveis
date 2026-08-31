@@ -16,7 +16,17 @@ async function enviarWhatsApp(instancia, numero, texto) {
       headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
       body: JSON.stringify({ number: numero, text: texto })
     });
-    const d = await r.json();
+    const d = await r.json().catch(() => ({}));
+    // Antes só checava se o fetch não deu erro de rede — uma resposta de
+    // erro da Evolution API (instância desconectada, número inválido etc.)
+    // ainda vem como JSON válido, então isso sempre "funcionava" mesmo sem
+    // mandar nada de verdade (achado ago/2026: lead marcada "vitrine
+    // enviada" sem o WhatsApp ter chegado). Agora só considera sucesso com
+    // status HTTP 2xx.
+    if (!r.ok) {
+      console.error('[MATCH CORE] falha ao enviar WhatsApp →', numero, '| status', r.status, '|', JSON.stringify(d).slice(0, 300));
+      return false;
+    }
     console.log('[MATCH CORE] WhatsApp enviado →', numero);
     return true;
   } catch(e) {
@@ -178,11 +188,33 @@ class MatchCore {
               + ' que combinam com o seu perfil.\n\nAcesse sua seleção personalizada:\n'
               + linkVitrine
               + '\n\n' + nomeCorretor + ' - MatchImóveis';
-            setImmediate(() => enviarWhatsApp(instancia, lead.contato, msgVitrine));
-            lead.vitrineEnviada = true;
-            lead.vitrineEnviadaEm = new Date().toISOString();
-            lead.vitrineLink = linkVitrine;
-            console.log('[MATCH CORE] vitrine enviada para', lead.contato, linkVitrine);
+            // Antes disparava via setImmediate (fire-and-forget, sem aguardar
+            // nem checar o resultado) e já marcava vitrineEnviada=true logo
+            // em seguida — se o envio falhasse de verdade (WhatsApp
+            // desconectado, número inválido), a lead ficava marcada como
+            // "vitrine enviada" pra sempre sem ter recebido nada, e nenhum
+            // job de retry tentava de novo (achado ago/2026, reportado pelo
+            // Renato). Agora aguarda o resultado real antes de marcar.
+            const _enviouComSucesso = await enviarWhatsApp(instancia, lead.contato, msgVitrine);
+            if (_enviouComSucesso) {
+              lead.vitrineEnviada = true;
+              lead.vitrineEnviadaEm = new Date().toISOString();
+              lead.vitrineLink = linkVitrine;
+              console.log('[MATCH CORE] vitrine enviada para', lead.contato, linkVitrine);
+            } else {
+              console.error('[MATCH CORE] falha ao enviar vitrine — lead', lead.id, 'fica elegível pra nova tentativa');
+              // Só desfaz o claim quando foi ESSE caminho que gravou
+              // vitrine_enviada=true no banco (claim atômico acima) — no
+              // caminho de resend por mudança de perfil (_mapaAtualizado) o
+              // banco já tinha true de um envio anterior bem-sucedido, e
+              // desfazer aqui apagaria esse histórico real à toa.
+              if (!_mapaAtualizado) {
+                try {
+                  const { query: _qVitrineRollback } = require('../services/db');
+                  await _qVitrineRollback('UPDATE leads SET vitrine_enviada=false WHERE id=$1', [lead.id]);
+                } catch(eRollback) { console.error('[MATCH CORE] erro ao desfazer claim de vitrine:', eRollback.message); }
+              }
+            }
           }
         }
       }

@@ -17,9 +17,14 @@
  */
 
 const PONTOS = {
-  visualizacao: 5,
-  tempoPorSegundo: 1 / 30, // +1 a cada 30s de uma visualização
-  tempoCapPorEvento: 5,    // no máx +5 de bônus de tempo por visualização
+  // visualizacao/vitrineVista subiram e navegouImoveis passou a existir
+  // (ago/2026, pedido do Renato: "detalhes do imóvel, abriu vitrine,
+  // navegou por imóveis tem que ter peso maior") — são as 3 ações de
+  // engajamento ativo mais comuns na jornada do lead na vitrine pública,
+  // estavam pesando menos que ações pontuais (ex: 1 clique em salvar).
+  visualizacao: 10,
+  tempoPorSegundo: 1 / 30,  // +1 a cada 30s de uma visualização
+  tempoCapPorEvento: 8,     // no máx +8 de bônus de tempo por visualização
   salvou: 15,
   compartilhou: 20,
   voltouVerMesmoImovel: 25,
@@ -27,17 +32,21 @@ const PONTOS = {
   emailAberto: 5,
   emailClicado: 10,
   mensagemWhatsapp: 3,
-  vitrineVista: 5,
+  vitrineVista: 10,
+  navegouImoveis: 15,        // navegou por 2+ imóveis distintos na vitrine (comparação ativa)
+  navegouBonusPorImovel: 1,  // +1 por imóvel visto além do 2º
+  navegouBonusCap: 10,       // no máx +10 de bônus por navegação
   mapaAberto: 3,
 };
 
 // Tetos por TIPO de sinal (evita 1 tipo sozinho dominar o score todo — ex:
 // 50 visualizações não pode valer mais que 1 compartilhamento de verdade).
 const TETOS = {
-  visualizacao: 25,
+  visualizacao: 30,
   salvou: 30,
   cliqueContato: 15,
   mensagemWhatsapp: 15,
+  navegouImoveis: 20,
 };
 
 function _pesoRecencia(msDesde) {
@@ -126,6 +135,16 @@ function _eventos(lead, emailsLead) {
   if ((comp.mapaAcessado || 0) > 0 && comp.ultimaAtividade) {
     eventos.push({ tipo: 'mapaAberto', pontosBase: PONTOS.mapaAberto, em: comp.ultimaAtividade });
   }
+
+  // Navegou por vários imóveis na vitrine (scroll ativo pelos cards) — 1
+  // entrada por sessão de navegação (evento 'navegou_imoveis', ver
+  // cerebro/motor-intencao.js), com bônus proporcional a quantos imóveis
+  // distintos passaram pela tela.
+  (comp.navegacoesImoveis || []).forEach(n => {
+    if (!n || !n.em) return;
+    const bonus = Math.min(Math.max((n.qtd || 0) - 2, 0) * PONTOS.navegouBonusPorImovel, PONTOS.navegouBonusCap);
+    eventos.push({ tipo: 'navegouImoveis', pontosBase: PONTOS.navegouImoveis + bonus, em: n.em, qtd: n.qtd });
+  });
 
   (lead.mensagens || []).filter(m => m && m.de === 'cliente' && m.em).forEach(m => {
     eventos.push({ tipo: 'mensagemWhatsapp', pontosBase: PONTOS.mensagemWhatsapp, em: m.em });
@@ -219,6 +238,8 @@ function _fraseMotivo(ev) {
       return 'Mandou mensagem no WhatsApp';
     case 'vitrineVista':
       return 'Viu a vitrine de imóveis';
+    case 'navegouImoveis':
+      return 'Navegou por ' + (ev.qtd || 'vários') + ' imóveis na vitrine';
     case 'mapaAberto':
       return 'Abriu o mapa da região';
     default:
@@ -273,6 +294,9 @@ function gerarMensagem(propensao, { leadNome, corretorNome, link }) {
       break;
     case 'vitrineVista':
       corpo = 'Vi que você deu uma olhada na seleção de imóveis que separei pra você. O que achou?' + cta;
+      break;
+    case 'navegouImoveis':
+      corpo = 'Vi que você deu uma olhada em vários imóveis que separei pra você.' + cta;
       break;
     case 'mapaAberto':
       corpo = 'Vi que você deu uma olhada no mapa da região. Posso te ajudar a decidir o bairro certo?' + cta;

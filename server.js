@@ -5483,7 +5483,7 @@ app.post('/api/comportamento-lead', async (req, res) => {
   try {
     const leadId = String(req.body.leadId || '').trim();
     const tipo = String(req.body.tipo || '').trim();
-    const TIPOS_VALIDOS = ['visualizou_imovel', 'salvou_imovel', 'compartilhou', 'abriu_mapa', 'clicou_contato', 'viu_vitrine'];
+    const TIPOS_VALIDOS = ['visualizou_imovel', 'salvou_imovel', 'compartilhou', 'abriu_mapa', 'clicou_contato', 'viu_vitrine', 'navegou_imoveis'];
     if (!leadId || !TIPOS_VALIDOS.includes(tipo)) return res.json({ ok: false });
     const leads = (_cacheLeads || []);
     const idx = leads.findIndex(l => String(l.id || l.leadId || '') === leadId);
@@ -5495,6 +5495,10 @@ app.post('/api/comportamento-lead', async (req, res) => {
       // Trava de 30min — evita duração absurda de uma aba esquecida aberta
       // virando sinal de intenção falso.
       duracao_segundos: Math.min(Math.max(Number(req.body.duracao_segundos) || 0, 0), 1800),
+      // qtd só é usada por 'navegou_imoveis' (nº de imóveis distintos que
+      // passaram pela tela na vitrine) — trava de 100 pelo mesmo motivo da
+      // duração acima, número absurdo indica payload malformado/forjado.
+      qtd: Math.min(Math.max(Number(req.body.qtd) || 0, 0), 100),
       em: new Date().toISOString(),
       imovel: {
         id: String(im.id || ''),

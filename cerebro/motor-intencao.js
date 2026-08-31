@@ -385,9 +385,10 @@ function inferirOcultos(lead) {
  * com os sinais extraídos do comportamento.
  *
  * evento = {
- *   tipo: 'visualizou_imovel' | 'salvou_imovel' | 'compartilhou' | 'abriu_mapa' | 'clicou_contato' | 'viu_vitrine'
+ *   tipo: 'visualizou_imovel' | 'salvou_imovel' | 'compartilhou' | 'abriu_mapa' | 'clicou_contato' | 'viu_vitrine' | 'navegou_imoveis'
  *   imovel: { id, tipo, bairro, preco, quartos, area }
  *   duracao_segundos: 45   // tempo na página
+ *   qtd: 5                 // só 'navegou_imoveis' — nº de imóveis distintos vistos na vitrine
  *   em: ISO timestamp
  * }
  *
@@ -404,6 +405,7 @@ function registrarComportamento(lead, evento) {
     mapaAcessado: 0,
     cliquesContato: 0,
     vitrineVistas: 0,
+    navegacoesImoveis: [],
     tempoTotalSegundos: 0,
     sessoes: 0,
     ultimaAtividade: null
@@ -495,6 +497,22 @@ function registrarComportamento(lead, evento) {
         lead.mapaIntencao.urgencia = Math.min(100, (lead.mapaIntencao.urgencia || 0) + 5);
       }
       break;
+
+    // Navegou por vários imóveis dentro da vitrine (scroll ativo pelos
+    // cards, não só abriu a página) — sinal de comparação ativa entre
+    // opções, pedido do Renato (ago/2026) pra pesar mais que só "abriu a
+    // vitrine" uma vez. `navegacoesImoveis` pode não existir ainda em lead
+    // com comportamento criado antes dessa mudança — inicializa defensivo.
+    case 'navegou_imoveis': {
+      const qtd = evento.qtd || 0;
+      if (qtd < 2) break; // 1 imóvel só não é "navegar", é a mesma visualização de sempre
+      lead.comportamento.navegacoesImoveis = lead.comportamento.navegacoesImoveis || [];
+      lead.comportamento.navegacoesImoveis.push({ qtd, em: evento.em || new Date().toISOString() });
+      if (lead.mapaIntencao) {
+        lead.mapaIntencao.urgencia = Math.min(100, (lead.mapaIntencao.urgencia || 0) + 10);
+      }
+      break;
+    }
   }
 
   // Recalcula intenções ocultas após comportamento

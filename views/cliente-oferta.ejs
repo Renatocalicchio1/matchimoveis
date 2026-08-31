@@ -348,6 +348,51 @@ document.addEventListener('DOMContentLoaded', () => {
 </html>
 
 
+<!-- NAVEGOU POR IMÓVEIS (ago/2026) — mede quantos cards distintos da vitrine
+     passaram pela tela do lead (scroll ativo comparando opções, não só abrir
+     a página) e manda pro Motor de Intenção quando ele sai — mesmo padrão de
+     sendBeacon/pagehide já usado em imovel-publico.ejs pra "visualizou_imovel",
+     pra garantir o envio mesmo quando a aba fecha. Só conta card visto por
+     pelo menos 600ms (evita contar scroll rápido de passagem) e só envia se
+     viu 2+ imóveis distintos (ver cerebro/motor-intencao.js, 1 só não é
+     "navegar", é a mesma visualização de sempre). -->
+<script>
+(function(){
+  const _leadIdNav = <%- JSON.stringify(String(lead.id || lead.leadId || '')) %>;
+  if (!_leadIdNav) return;
+  const _cards = document.querySelectorAll('.card');
+  if (!_cards.length) return;
+  const _vistos = new Set();
+  const _timers = new WeakMap();
+  const _obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        const t = setTimeout(function(){ _vistos.add(entry.target); }, 600);
+        _timers.set(entry.target, t);
+      } else {
+        const t = _timers.get(entry.target);
+        if (t) clearTimeout(t);
+      }
+    });
+  }, { threshold: 0.4 });
+  _cards.forEach(function(c){ _obs.observe(c); });
+
+  let _navJaEnviado = false;
+  function _enviarNavegacao(){
+    if (_navJaEnviado || _vistos.size < 2) return;
+    _navJaEnviado = true;
+    const payload = JSON.stringify({ leadId: _leadIdNav, tipo: 'navegou_imoveis', qtd: _vistos.size });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/comportamento-lead', new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch('/api/comportamento-lead', { method: 'POST', headers: {'Content-Type':'application/json'}, body: payload, keepalive: true }).catch(function(){});
+    }
+  }
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') _enviarNavegacao(); });
+  window.addEventListener('pagehide', _enviarNavegacao);
+})();
+</script>
+
 <script>
 function abrirModalOferta(el){
   const card = el.closest('.card');

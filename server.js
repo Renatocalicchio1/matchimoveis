@@ -15807,22 +15807,63 @@ function _buscarAncestralNivel(codigoInicial, nivelAlvo, _profundidade) {
   return _buscarAncestralNivel(u.indicadoPor, nivelAlvo, _profundidade + 1);
 }
 
+// Downline COMPLETA (direto + todas as gerações abaixo, via indicadoPor) —
+// usada só pra medir volume de promoção de Nível 3 (ver
+// _volumeVendasAfiliado abaixo), nunca pra decidir comissão — quem recebe
+// comissão continua sendo só a cadeia oficial de override (_lancar em
+// _processarComissaoAfiliado). Mesmo padrão de travessia de _montarArvore
+// (/app/afiliados) e mesmo limite de profundidade de _buscarAncestralNivel.
+function _downlineCompleta(codigo, _profundidade) {
+  _profundidade = _profundidade || 0;
+  if (_profundidade > 25) return [];
+  const filhos = (_cacheUsuarios || []).filter(u => u.indicadoPor === codigo);
+  let resultado = filhos.map(f => f.codigoUsuario || f.id);
+  filhos.forEach(f => {
+    resultado = resultado.concat(_downlineCompleta(f.codigoUsuario || f.id, _profundidade + 1));
+  });
+  return resultado;
+}
+
 // Volume de venda pra fins de promoção depende do nível de quem tá sendo
-// medido (regra combinada com o Renato): Nível 3 conta só a venda dele
-// mesmo (papel='propria'); Nível 2 conta a própria + a dos afiliados dele
-// que estão no Nível 3 (papel='override_n2', criado exatamente quando um
-// Nível 3 descendente vende — ver _lancar em _processarComissaoAfiliado);
-// Nível 1 soma tudo (própria + override de N2 + override de N1 que ele
-// recebeu), pra manter o número coerente mesmo sem mais promoção acima dele.
+// medido (regra combinada com o Renato): Nível 2 conta a própria + a dos
+// afiliados dele que estão no Nível 3 (papel='override_n2', criado
+// exatamente quando um Nível 3 descendente vende — ver _lancar em
+// _processarComissaoAfiliado); Nível 1 soma tudo (própria + override de N2 +
+// override de N1 que ele recebeu), pra manter o número coerente mesmo sem
+// mais promoção acima dele.
+// Nível 3 é o caso especial (ago/2026, pedido explícito do Renato — opção B
+// discutida): antes contava só `papel='propria'` do próprio indicador, ou
+// seja, só quem ELE indicou direto — um afiliado tipo "coach" que constrói
+// rede via sub-indicação (o indicado dele indica outros, e assim por diante)
+// nunca acumulava esse volume de 2ª geração pra baixo, porque comissão só é
+// paga ao indicador DIRETO de cada compra (não existe override pra Nível 3,
+// só N2/N1 recebem). Ficava um ovo-e-galinha: pra crescer via rede de
+// verdade (não só indicação 1:1) ele precisava primeiro já ser N2 — mas só
+// vira N2 contando indicação direta. Fix conta a REDE INTEIRA abaixo dele
+// (via _downlineCompleta) só pra decidir a promoção — isso NÃO muda quem
+// recebe comissão nem cria pagamento novo, só o critério de quando alguém
+// sobe de Nível 3 pra 2. Depois de promovido, ele passa a receber
+// override_n2 de verdade dali em diante, igual todo mundo.
 // nivelParaFiltro é passado explicitamente (não lido do cadastro) pra dar
 // pra recalcular sob um nível hipotético dentro de _checarPromocaoAfiliado,
 // sem precisar gravar o nível antes de saber se a segunda faixa também bateu.
 async function _volumeVendasAfiliado(codigo, nivelParaFiltro) {
   try {
-    const papeis = nivelParaFiltro === 3 ? ['propria']
-      : nivelParaFiltro === 2 ? ['propria', 'override_n2']
-      : ['propria', 'override_n2', 'override_n1'];
     const { query: _qVolAfil } = require('./services/db');
+    if (nivelParaFiltro === 3) {
+      const downline = _downlineCompleta(codigo);
+      if (!downline.length) return 0;
+      // Cada compra gera exatamente 1 linha papel='propria' (pro indicador
+      // DIRETO de quem comprou) — filtrar por indicado_codigo (quem comprou)
+      // em vez de indicador_codigo pega toda compra de qualquer um da rede,
+      // direto ou não, sem contar a mesma compra 2x.
+      const { rows } = await _qVolAfil(
+        `SELECT COALESCE(SUM(valor_compra_coins),0) as total FROM indicacoes_bonus WHERE indicado_codigo = ANY($1) AND indicador_tipo='afiliado' AND papel='propria'`,
+        [downline]
+      );
+      return parseInt(rows[0]?.total || 0) / 20;
+    }
+    const papeis = nivelParaFiltro === 2 ? ['propria', 'override_n2'] : ['propria', 'override_n2', 'override_n1'];
     const { rows } = await _qVolAfil(
       `SELECT COALESCE(SUM(valor_compra_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo='afiliado' AND papel = ANY($2)`,
       [codigo, papeis]

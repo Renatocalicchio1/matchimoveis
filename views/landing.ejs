@@ -64,10 +64,6 @@
     .cta-path-label{font-size:11.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
     .btn-main{font-family:'Inter';background:var(--rosa);color:#fff;padding:14px 26px;border-radius:10px;font-size:14.5px;font-weight:700;border:none;cursor:pointer;box-shadow:0 10px 24px rgba(255,56,92,.28);transition:transform .15s,box-shadow .15s}
     .btn-main:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(255,56,92,.36)}
-    .btn-sec{background:#fff;color:var(--teal-dark);padding:13px 24px;border-radius:10px;font-size:14px;font-weight:700;border:1.5px solid var(--teal);cursor:pointer;transition:background .15s,transform .15s;display:inline-block}
-    .btn-sec:hover{background:#EFFBF9;transform:translateY(-2px)}
-    .afiliado-note{font-size:13px;color:var(--muted);max-width:460px;line-height:1.6;background:#FFF6F0;border:1px solid #FDE0CC;padding:12px 14px;border-radius:10px}
-    .afiliado-note b{color:var(--laranja)}
     .hero-links{font-size:12.5px;color:var(--faint);text-decoration:underline;margin-top:2px}
     .hero-note{font-size:12px;color:var(--faint);margin-top:18px}
 
@@ -183,13 +179,26 @@
     .btn-cta:hover{transform:translateY(-2px)}
     .cta-note{font-size:12.5px;color:rgba(255,255,255,.68);margin-top:16px}
 
-    /* ── AFILIADOS ───────────────────────────────────────────────── */
-    .afiliados-sec{background:var(--bg);padding:80px 48px;text-align:center;border-top:1px solid var(--border)}
-    .afiliados-inner{max-width:640px;margin:0 auto;background:#fff;border:1px solid #FDE0CC;border-radius:20px;padding:44px 40px;box-shadow:var(--shadow-sm)}
-    .afiliados-inner h2{font-family:'Manrope';font-size:25px;font-weight:800;color:var(--dark);margin-bottom:12px;line-height:1.28}
-    .afiliados-inner p{font-size:14.5px;color:var(--muted);line-height:1.7;margin-bottom:24px}
-    .btn-laranja{display:inline-block;background:var(--laranja);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:14px 30px;border-radius:10px;box-shadow:0 10px 24px rgba(252,100,45,.28);transition:transform .15s}
-    .btn-laranja:hover{transform:translateY(-2px)}
+    /* ── QUEM USA (segmentação por persona, ago/2026) ───────────────
+       Pesquisa de mercado (Asana/Pipedrive/SupportNinja etc): segmentar por
+       audiência numa seção dedicada converte mais que 1 CTA genérico
+       tentando falar com todo mundo ao mesmo tempo — mas mantém 1 único CTA
+       principal (criar conta), só a mensagem de cada card muda. */
+    .quemusa{padding:80px 48px;max-width:1080px;margin:0 auto}
+    .quemusa-head{text-align:center;margin:0 auto 44px;max-width:640px}
+    .quemusa-head .sec-sub{margin:0 auto}
+    .qu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .qu-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:26px 22px;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s,border-color .2s}
+    .qu-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:transparent}
+    .qu-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:16px;background:#FFE9EC}
+    .qu-card:nth-child(2) .qu-ic{background:#E4F5F3}
+    .qu-card:nth-child(3) .qu-ic{background:#FFE6DA}
+    .qu-card:nth-child(4) .qu-ic{background:#FFE9EC}
+    .qu-title{font-family:'Manrope';font-size:16px;font-weight:700;color:var(--dark);margin-bottom:8px;letter-spacing:-.2px}
+    .qu-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px;flex:1}
+    .qu-link{font-size:12.5px;font-weight:700;color:var(--rosa)}
+    @media(max-width:900px){ .qu-grid{grid-template-columns:1fr 1fr} }
+    @media(max-width:640px){ .qu-grid{grid-template-columns:1fr} }
 
     /* ── FOOTER ──────────────────────────────────────────────────── */
     footer{background:#0A0A0A;padding:52px 48px 28px;display:flex;flex-direction:column;gap:28px}
@@ -225,8 +234,6 @@
       .hero-wrap{grid-template-columns:1fr;padding:52px 24px 44px;gap:36px;text-align:center}
       .hero-ctas{align-items:center;margin:0 auto}
       .cta-row{justify-content:center}
-      .cta-path{align-items:center}
-      .afiliado-note{margin:0 auto}
       .hero-sub{margin:0 auto 30px}
       h1{font-size:38px;letter-spacing:-1.3px}
       .numeros-inner{grid-template-columns:1fr 1fr;gap:20px 0}
@@ -237,7 +244,7 @@
     @media(max-width:768px){
       nav{padding:0 18px}
       .nav-links{display:none}
-      .problema,.como,.features,.depos,.cta-final,.afiliados-sec{padding:60px 22px}
+      .problema,.como,.features,.depos,.cta-final,.quemusa{padding:60px 22px}
       .dores,.depos-grid{grid-template-columns:1fr}
       .bento{grid-template-columns:1fr}
       .feat.big,.feat.small{grid-column:span 1}
@@ -276,15 +283,7 @@
     <h1>A IA que trabalha<br>enquanto você <em>dorme.</em></h1>
     <p class="hero-sub">Lead chega, IA qualifica, match acontece, vitrine é enviada, visita confirmada. Você só aparece para fechar o negócio.</p>
     <div class="hero-ctas">
-      <div class="cta-path">
-        <div class="cta-path-label">Trabalha com mercado imobiliário</div>
-        <button class="btn-main" onclick="openModal('cadastro')">Sou corretor, imobiliária, construtor ou agência — começar agora →</button>
-      </div>
-      <div class="cta-path">
-        <div class="cta-path-label">Quer uma renda extra, sem atender lead nenhuma</div>
-        <a href="/afiliados<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" class="btn-sec">Sou afiliado, quero indicar e ganhar comissão →</a>
-      </div>
-      <div class="afiliado-note">💰 <b>As duas coisas não se excluem.</b> Se você é corretor, imobiliária, construtor ou agência, sua conta já vem com o programa de afiliados liberado — indique o MatchImóveis pra outros profissionais e ganhe comissão toda vez que eles recarregarem créditos na plataforma (não é comissão de venda de imóvel). E se você não trabalha com imóveis e só quer essa renda extra, dá pra ser só afiliado — sem precisar atender ninguém.</div>
+      <button class="btn-main" onclick="openModal('cadastro')">Criar conta grátis agora →</button>
       <a href="#como-funciona" class="hero-links">Como funciona a plataforma →</a>
     </div>
     <p class="hero-note">Sem mensalidade fixa · Só pague o que usar · Cancele quando quiser</p>
@@ -311,6 +310,40 @@
     <div><div class="num-val">4min</div><div class="num-lbl">Tempo até o match</div></div>
   </div>
 </div>
+
+<section class="quemusa" id="quem-usa">
+  <div class="quemusa-head">
+    <div class="sec-tag"><i></i>Pra quem é</div>
+    <h2 class="sec-title">Feito pra cada ponta<br>do mercado imobiliário.</h2>
+    <p class="sec-sub">O mesmo motor de match e automação, adaptado pra quem atende sozinho e pra quem gerencia uma operação inteira.</p>
+  </div>
+  <div class="qu-grid">
+    <a class="qu-card" href="/matchimoveis-para-corretor-autonomo">
+      <div class="qu-ic">🧑‍💼</div>
+      <div class="qu-title">Corretor autônomo</div>
+      <div class="qu-desc">Você atende sozinho — a IA não deixa nenhuma lead esfriar. Match, follow-up e vitrine automáticos, sem virar refém do celular.</div>
+      <span class="qu-link">Ver como funciona →</span>
+    </a>
+    <a class="qu-card" href="/matchimoveis-para-imobiliaria">
+      <div class="qu-ic">🏢</div>
+      <div class="qu-title">Imobiliária</div>
+      <div class="qu-desc">Organize a carteira e distribua lead pra equipe inteira sem perder ninguém no meio do caminho — cada corretor vê só o que é dele.</div>
+      <span class="qu-link">Ver como funciona →</span>
+    </a>
+    <a class="qu-card" href="#" onclick="openModal('cadastro');return false">
+      <div class="qu-ic">🏗️</div>
+      <div class="qu-title">Construtora</div>
+      <div class="qu-desc">Divulgue lançamentos e gerencie o volume de interessados sem depender de planilha — cada lead chega classificado e pronto pra atendimento.</div>
+      <span class="qu-link">Começar agora →</span>
+    </a>
+    <a class="qu-card" href="#" onclick="openModal('cadastro');return false">
+      <div class="qu-ic">📣</div>
+      <div class="qu-title">Agência de marketing</div>
+      <div class="qu-desc">Gerencie campanha, Instagram e Meta Ads de vários clientes corretores num só lugar, com o lead chegando já qualificado.</div>
+      <span class="qu-link">Começar agora →</span>
+    </a>
+  </div>
+</section>
 
 <section class="problema" id="problema">
   <div class="problema-head">
@@ -509,17 +542,6 @@
   </div>
 </section>
 
-<!-- PROGRAMA DE AFILIADOS (ago/2026) -->
-<section class="afiliados-sec">
-  <div class="afiliados-inner">
-    <div class="sec-tag laranja" style="justify-content:center;margin-bottom:14px"><i></i>Programa de afiliados</div>
-    <h2>Uma renda extra,<br>só por indicar</h2>
-    <p>Não precisa ser corretor, nem entender de imóvel. Você indica o MatchImóveis pra corretores, imobiliárias, construtoras ou agências — e toda vez que essa conta compra créditos pra usar a plataforma, uma parte vira comissão pra você, em dinheiro ou crédito. Não é comissão de venda de imóvel: é comissão do sistema, recorrente, enquanto a conta indicada continuar usando.</p>
-    <p style="font-size:13px;color:var(--faint);margin-top:-14px;margin-bottom:24px">Já trabalha com imóveis? Sua conta de corretor, imobiliária, construtor ou agência já vem com esse programa liberado — não precisa de um cadastro à parte.</p>
-    <a href="/afiliados<%= (typeof ref !== 'undefined' && ref) ? ('?ref='+ref) : '' %>" class="btn-laranja">Como funciona o programa de afiliados →</a>
-  </div>
-</section>
-
 <footer>
   <div class="footer-top">
     <div>
@@ -531,7 +553,6 @@
         <a href="#como-funciona">Como funciona</a>
         <a href="#depoimentos">Depoimentos</a>
         <a href="#preco">Preço</a>
-        <a href="/afiliados">Programa de afiliados</a>
         <a href="https://wa.me/5511951131609?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20MatchIm%C3%B3veis." target="_blank">Fale Conosco</a>
         <a href="/politica-privacidade">Política de Privacidade</a>
         <a href="/termos-de-uso">Termos de Uso</a>

@@ -472,13 +472,23 @@ app.post('/api/presenca/heartbeat', (req, res) => {
 // Antes só bloqueava POST (ações que mudam estado); leitura (GET) continuava
 // livre com saldo zerado. Agora bloqueia navegação inteira sob /app — as
 // únicas rotas que continuam acessíveis são /app/coins (senão a pessoa fica
-// sem como comprar mais créditos) e /app/afiliados (ago/2026, pedido
+// sem como comprar mais créditos), /app/afiliados (ago/2026, pedido
 // explícito do Renato — mesmo sem saldo de plataforma, o afiliado precisa
 // continuar acessando pra ver/resgatar comissão, que é uma forma de
-// justamente conseguir mais crédito). Login/logout não são afetados por não
-// estarem sob /app. Isso vale pra QUALQUER usuário que zere o saldo, não só
-// quem entrou pela campanha de leads garantidos.
-const _rotasLivresSaldo = ['/app/coins', '/app/afiliados'];
+// justamente conseguir mais crédito), /app/lead (ago/2026, pedido explícito
+// do Renato — Leads/Planilha de Leads continuam liberados sem saldo, senão o
+// corretor perde visão da carteira inteira de leads só por ficar sem
+// crédito; cobre /app/lead/:id, /app/leads e /app/leads/planilha, mesmo
+// prefixo) e /app/perfil (idem — corretor precisa continuar acessando os
+// próprios dados/preferências mesmo pausado; cobre /app/perfil/senha,
+// /vitrine, /localizacao, /quintoandar). Ações que de fato custam crédito
+// (ex: enviar vitrine por WhatsApp) continuam bloqueadas por dentro —
+// consumir() (services/creditos.js) recusa qualquer débito com saldo <=0,
+// então não abre brecha de usar crédito de graça, só destrava a
+// NAVEGAÇÃO/leitura. Login/logout não são afetados por não estarem sob
+// /app. Isso vale pra QUALQUER usuário que zere o saldo, não só quem entrou
+// pela campanha de leads garantidos.
+const _rotasLivresSaldo = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil'];
 app.use('/app', async (req, res, next) => {
   if (!req.session || !req.session.user) return next();
   const _rota = req.path;

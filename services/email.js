@@ -191,7 +191,22 @@ async function contarCadastradosUnicos() {
   return rows[0]?.total || 0;
 }
 
+// PAUSA GERAL DE EMAIL (ago/2026, pedido explícito do Renato: "para o envio
+// de todos os emails do sistema, tudo que envia email") — enviarEmail() é o
+// único ponto de saída de email da plataforma (confirmado: nenhum outro
+// arquivo instancia SESClient/SendEmailCommand direto), então esse boolean
+// sozinho pausa TODO tipo de envio (transacional, notificação, campanha,
+// follow-up, convite de portal etc) sem precisar mexer em cada fluxo. Não é
+// remoção — quem chama continua recebendo um retorno normal ({skipped:true}),
+// nenhum caller precisa saber que está pausado, nem quebra por causa disso.
+// Reverter é só voltar pra false.
+const _EMAILS_PAUSADOS = true;
+
 async function enviarEmail({ para, assunto, html, texto, tipo, variante, botaoTexto, leadId, userId }) {
+  if (_EMAILS_PAUSADOS) {
+    console.log('[EMAIL] pausado (envio geral desligado) — não enviado pra:', para, tipo ? ('| tipo: ' + tipo + (variante ? '/' + variante : '')) : '');
+    return { skipped: true, pausado: true };
+  }
   if (await emailDescadastrado(para).catch(() => false)) {
     console.log('[EMAIL] pulado (descadastrado):', para);
     return { skipped: true };

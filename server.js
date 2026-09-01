@@ -7939,7 +7939,7 @@ async function _telefoneAfiliadoPertence(uid, telefone) {
 // todas as contas", mesmo a rota já filtrando por refAdmin (cada afiliado só
 // veria os próprios contatos de qualquer forma) — trava é de produto, não
 // só de dado. Mesma lista usada na aba do menu (ver app-afiliados.ejs).
-const _INBOX_AFILIADOS_LIBERADO = ['BRU-8MPC', 'REN-G9K6'];
+const _INBOX_AFILIADOS_LIBERADO = ['BRU-8MPC', 'REN-G9K6', 'LUI-VCNE'];
 app.get('/api/afiliados/inbox/lista', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.id;

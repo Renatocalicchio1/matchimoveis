@@ -173,7 +173,7 @@ async function afAceitarContrato(){
   <button class="af-tab-btn active" onclick="afTab('comissoes',this)">💰 Minhas comissões</button>
   <button class="af-tab-btn" onclick="afTab('indicados',this)">👥 Meus afiliados</button>
   <button class="af-tab-btn" onclick="afTab('campanha',this)">📧 Convidar novos</button>
-  <% if (user && ['BRU-8MPC','REN-G9K6'].includes(user.codigoUsuario||user.id)) { %>
+  <% if (user && ['BRU-8MPC','REN-G9K6','LUI-VCNE'].includes(user.codigoUsuario||user.id)) { %>
   <button class="af-tab-btn" onclick="afTab('inbox',this)">📥 Inbox</button>
   <% } %>
   <button class="af-tab-btn" onclick="afTab('arvore',this)">🌳 Árvore</button>
@@ -409,7 +409,7 @@ async function afAceitarContrato(){
   </div>
 </div>
 
-<% if (user && ['BRU-8MPC','REN-G9K6'].includes(user.codigoUsuario||user.id)) { %>
+<% if (user && ['BRU-8MPC','REN-G9K6','LUI-VCNE'].includes(user.codigoUsuario||user.id)) { %>
 <div id="af-pane-inbox" class="af-tab-pane card">
   <h3 style="margin-top:0">Inbox — WhatsApp oficial</h3>
   <p style="font-size:12.5px;color:#6b7280;margin-top:-8px">Contatos de campanha de disparo oficial vinculados a você. Só dá pra conversar livremente com quem já te respondeu pelo menos 1x (regra do WhatsApp oficial: a janela de texto livre só abre depois que a pessoa fala primeiro).</p>

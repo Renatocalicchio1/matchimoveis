@@ -170,7 +170,8 @@ async function excluirLeadCap(leadId, nomeEnc){
       <% const _semFoto = !im.fotos || !im.fotos.length; %>
       <% const _linkCadastro = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+'?imovelId='+(im.id_interno||im.id); %>
       <% const _msgCadastro = encodeURIComponent('Oi '+(l.nome||'')+'! Veja como está ficando o cadastro do seu imóvel: '+_linkCadastro); %>
-      <% const _dataEntrada = im.criado_em ? new Date(im.criado_em).toLocaleDateString('pt-BR') : null; %>
+      <% const _dataEntradaObj = im.criado_em ? new Date(im.criado_em) : null; %>
+      <% const _dataEntrada = _dataEntradaObj ? _dataEntradaObj.toLocaleDateString('pt-BR', {timeZone:'America/Sao_Paulo'}) + ' às ' + _dataEntradaObj.toLocaleTimeString('pt-BR', {timeZone:'America/Sao_Paulo', hour:'2-digit', minute:'2-digit'}) : null; %>
       <div class="lc-imovel-row">
         <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %><% if(_dataEntrada) { %> · <span style="color:#9ca3af">entrou em <%= _dataEntrada %></span><% } %></span>
         <% if(_semFoto) { %><span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap">⚠️ Sem foto</span><% } %>

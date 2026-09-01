@@ -59,7 +59,16 @@ const CUSTO = {
 // saldo cruza pra zero — dispara só 1x nesse débito exato, não fica tentando
 // de novo enquanto o saldo continuar zerado (a próxima recarga reconecta
 // normalmente pelo fluxo manual de reconexão).
+// Pausado (set/2026, pedido explícito do Renato): não desconectar mais o
+// WhatsApp quando o saldo zera — manter o celular conectado mesmo sem
+// crédito. Kill-switch aqui (mesmo padrão do _EMAILS_PAUSADOS em
+// services/email.js) em vez de apagar a função: fácil reverter, e o resto
+// do bloqueio por saldo zero (painel web, IA não responder/gerar match)
+// continua valendo normalmente — só a desconexão do WhatsApp foi desligada.
+const _DESCONEXAO_WHATSAPP_PAUSADA = true;
+
 async function _desconectarWhatsappSeZerado(codigoUsuario) {
+  if (_DESCONEXAO_WHATSAPP_PAUSADA) return;
   try {
     const { query: _qWA } = require('./db');
     const r = await _qWA('SELECT whatsapp_instance, whatsapp_status FROM usuarios WHERE codigo_usuario=$1 LIMIT 1', [codigoUsuario]);

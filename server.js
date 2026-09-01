@@ -5726,7 +5726,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         await _enviarWA(_telCliente, _msg);
         consumir(_v.userId || _v.corretorId || '', 'confirmacao_auto').catch(e=>console.error('[creditos] confirmacao_auto falhou:', e.message));
         const _emailC1 = _v.email || _v.emailCliente || '';
-        if (_emailC1) { try { const { enviarEmail: _eE1 } = require('./services/email'); await _eE1({ para: _emailC1, assunto: '✅ Sua visita foi confirmada!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_e1){} }
+        if (_emailC1) { try { const { enviarEmail: _eE1 } = require('./services/email'); await _eE1({ para: _emailC1, assunto: '✅ Sua visita foi confirmada!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'visita_confirmada_cliente' }); } catch(_e1){} }
       }
     } else if (resposta === 'indisponivel') {
       todas[idx].status = 'imovel_indisponivel';
@@ -5752,7 +5752,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         await _enviarWA(_telCliente, _msg);
         consumir(_v.userId || _v.corretorId || '', 'notificacao_prop').catch(e=>console.error('[creditos] notificacao_prop falhou:', e.message));
         const _emailC2 = _v.email || _v.emailCliente || '';
-        if (_emailC2) { try { const { enviarEmail: _eE2 } = require('./services/email'); await _eE2({ para: _emailC2, assunto: '❌ Imóvel indisponível', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_e2){} }
+        if (_emailC2) { try { const { enviarEmail: _eE2 } = require('./services/email'); await _eE2({ para: _emailC2, assunto: '❌ Imóvel indisponível', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'visita_imovel_indisponivel' }); } catch(_e2){} }
       }
     } else if (resposta === 'remarcar') {
       todas[idx].status = 'pendente_remarcar';
@@ -10956,7 +10956,7 @@ setInterval(async () => {
             + 'Mas se quiser, pode entrar no link e agendar diretamente por la! 😊';
           await _enviarWA(_instancia, _contato, _msg, _leads[i]);
           const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
-          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Seus imóveis estão esperando por você!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
+          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Seus imóveis estão esperando por você!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'followup_vitrine_email' }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'qualificar_lead') {
           // DESATIVADO — qualificação agora é imediata no webhook
@@ -10970,14 +10970,14 @@ setInterval(async () => {
             + 'Qual dia e horário ficaria melhor para você?';
           await _enviarWA(_instancia, _contato, _msg, _leads[i]);
           const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
-          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '📅 Que tal agendar uma visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
+          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '📅 Que tal agendar uma visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'followup_agendar_visita_email' }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'followup_visita') {
           _leads[i].waFollowupVisitaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Como foi a visita? Gostou do imóvel? 🏠\n\nPosso te ajudar com alguma dúvida ou mostrar outras opções?';
           await _enviarWA(_instancia, _contato, _msg, _leads[i]);
           const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
-          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Como foi a visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
+          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Como foi a visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'followup_pos_visita_email' }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'proposta_negocio') {
           _leads[i].waPropostaEnviadoEm = new Date().toISOString();
@@ -26187,7 +26187,8 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
             para: _emailProp,
             assunto: '📋 Seu anúncio está pronto (' + _pctRevisao + '% preenchido) — dá uma olhada',
             html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + _nomePropEmail + '!</h2><p>Recebemos os dados do seu imóvel e o anúncio já está no ar. Dá uma olhada em como ficou:</p><p style="margin:16px 0"><span style="display:inline-block;background:' + _corPct + ';color:#fff;padding:6px 14px;border-radius:20px;font-weight:bold;font-size:14px">Seu imóvel está ' + _pctRevisao + '% preenchido</span></p><a href="' + _linkVerAnuncio + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver meu anúncio →</a><p style="margin-top:20px">Se faltou alguma informação ou você quiser completar/corrigir algo, é só continuar o cadastro por aqui:</p><a href="' + _linkEditar + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Revisar / completar cadastro →</a></div>',
-            texto: 'Seu imóvel está ' + _pctRevisao + '% preenchido. Seu anúncio: ' + _linkVerAnuncio + ' | Revisar/completar: ' + _linkEditar
+            texto: 'Seu imóvel está ' + _pctRevisao + '% preenchido. Seu anúncio: ' + _linkVerAnuncio + ' | Revisar/completar: ' + _linkEditar,
+            tipo: 'revisao_anuncio_captacao'
           }).then(()=>{
             console.log('[EMAIL REVISAO ANUNCIO] enviado para:', _emailProp);
             consumir(_uidCap, 'email_lead').catch(()=>{});

@@ -195,16 +195,29 @@ async function contarCadastradosUnicos() {
 // de todos os emails do sistema, tudo que envia email") — enviarEmail() é o
 // único ponto de saída de email da plataforma (confirmado: nenhum outro
 // arquivo instancia SESClient/SendEmailCommand direto), então esse boolean
-// sozinho pausa TODO tipo de envio (transacional, notificação, campanha,
-// follow-up, convite de portal etc) sem precisar mexer em cada fluxo. Não é
-// remoção — quem chama continua recebendo um retorno normal ({skipped:true}),
-// nenhum caller precisa saber que está pausado, nem quebra por causa disso.
-// Reverter é só voltar pra false.
-const _EMAILS_PAUSADOS = true;
+// sozinho pausava TODO tipo de envio sem precisar mexer em cada fluxo.
+// Reduzido (set/2026, pedido explícito do Renato) depois de investigar a
+// origem real do bounce rate alto: só a campanha geral de corretor/imobiliária
+// (`services/campanha.js`, /admin/campanha — nunca passa `tipo` pro
+// enviarEmail(), ver comentário em statsPorModeloEmail()) e a campanha de
+// captação de imóvel (`services/campanhaCaptacao.js`, tipo sempre prefixado
+// `campanha_captacao_`) e o convite periódico pro portal global
+// (`services/emailPortalGlobal.js`, tipo `convite_portal_global` — também é
+// disparo em massa pra toda a base de leads, mesmo não sendo chamado de
+// "campanha") continuam pausados — foram, de longe, a maior fonte de bounce
+// (~847 de 1.910 só a de captação). Todo o resto — email disparado por ação
+// do próprio app (nova lead, resumo, convite de indicação, vitrine,
+// onboarding etc) — foi reativado. Não é remoção — quem chama continua
+// recebendo um retorno normal ({skipped:true}) quando pausado, nenhum
+// caller precisa saber, nem quebra por causa disso.
+function _emailPausado(tipo) {
+  if (!tipo) return true; // campanha.js (admin/campanha) nunca passa tipo
+  return tipo.indexOf('campanha_captacao_') === 0 || tipo === 'convite_portal_global';
+}
 
 async function enviarEmail({ para, assunto, html, texto, tipo, variante, botaoTexto, leadId, userId }) {
-  if (_EMAILS_PAUSADOS) {
-    console.log('[EMAIL] pausado (envio geral desligado) — não enviado pra:', para, tipo ? ('| tipo: ' + tipo + (variante ? '/' + variante : '')) : '');
+  if (_emailPausado(tipo)) {
+    console.log('[EMAIL] pausado (campanha geral/captação desligada) — não enviado pra:', para, tipo ? ('| tipo: ' + tipo + (variante ? '/' + variante : '')) : '| tipo: (sem tipo, campanha geral)');
     return { skipped: true, pausado: true };
   }
   if (await emailDescadastrado(para).catch(() => false)) {

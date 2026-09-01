@@ -749,6 +749,59 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     <a href="/app/instagram/conectar" class="pf-btn pf-btn-green">Conectar Instagram</a>
   <% } %>
 </div>
+
+<!-- Conector do Claude (MCP, ago/2026) — token pessoal pra autenticar
+     ferramentas privadas (minhas_leads) no servidor MCP já existente
+     (POST /mcp). Token gerado sob demanda na rota GET /app/perfil. -->
+<div class="pf-card" id="secao-mcp">
+  <div style="margin-bottom:14px">
+    <div class="pf-card-head">
+      <p class="pf-card-title">🤖 Conectar ao Claude</p>
+    </div>
+    <p class="pf-card-sub" style="margin-bottom:0">Peça dados da sua conta — tipo "quais são minhas leads mais recentes?" — direto numa conversa no Claude, usando o token abaixo.</p>
+  </div>
+
+  <div class="pf-field" style="margin-bottom:10px">
+    <label>Endereço do conector</label>
+    <input type="text" id="mcp-url" value="https://www.matchimoveis.ia.br/mcp" readonly class="strong" onclick="this.select()">
+  </div>
+  <div class="pf-field" style="margin-bottom:14px">
+    <label>Seu token pessoal</label>
+    <input type="text" id="mcp-token" value="<%= user.mcpToken||'' %>" readonly class="strong" onclick="this.select()">
+  </div>
+
+  <div class="pf-btn-row">
+    <button type="button" class="pf-btn pf-btn-outline" onclick="copiarMcpCampo('mcp-url', this)">Copiar endereço</button>
+    <button type="button" class="pf-btn pf-btn-outline" onclick="copiarMcpCampo('mcp-token', this)">Copiar token</button>
+  </div>
+
+  <details style="margin-top:16px;font-size:12.5px;color:#6b7280">
+    <summary style="cursor:pointer;font-weight:600;color:#111827">Como conectar no Claude</summary>
+    <ol style="margin:10px 0 0;padding-left:18px;line-height:1.85">
+      <li>No Claude, vá em <strong>Configurações → Conectores</strong></li>
+      <li>Clique em <strong>Adicionar conector personalizado</strong></li>
+      <li>Cole o endereço do conector acima</li>
+      <li>Adicione um cabeçalho: <code style="background:#f3f4f6;padding:1px 5px;border-radius:4px">Authorization</code> com valor <code style="background:#f3f4f6;padding:1px 5px;border-radius:4px">Bearer &lt;seu token&gt;</code></li>
+      <li>Salve — já dá pra perguntar sobre suas leads numa conversa nova</li>
+    </ol>
+  </details>
+
+  <form method="POST" action="/app/perfil/mcp-token/regenerar" onsubmit="return confirm('Gerar um token novo? O token atual deixa de funcionar imediatamente.')" style="margin-top:14px">
+    <button type="submit" class="pf-btn pf-btn-outline" style="font-size:12px">🔄 Gerar novo token</button>
+  </form>
+</div>
+
+<script>
+function copiarMcpCampo(id, btn) {
+  var campo = document.getElementById(id);
+  if (!campo) return;
+  navigator.clipboard.writeText(campo.value).then(function(){
+    var textoOriginal = btn.textContent;
+    btn.textContent = 'Copiado ✓';
+    setTimeout(function(){ btn.textContent = textoOriginal; }, 1500);
+  }).catch(function(){ campo.select(); });
+}
+</script>
 <% } %>
 
 <script>

@@ -6944,7 +6944,12 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   const _fBairro = _bairrosArr.join(',');
   const _fBusca  = (q.busca||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const _norm = s => (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
-  if (_fEstado) imoveis = imoveis.filter(i => _chaveLoc(i.estado) === _chaveLoc(_fEstado));
+  // Achado ao testar o conector MCP no Claude (ago/2026): filtro de estado
+  // comparava a chave crua ("sp" vs "sao paulo"), nunca batia quando o
+  // chamador manda sigla (o MCP até documenta aceitar sigla, mas não
+  // funcionava). normalizarEstadoBR já resolve sigla<->nome canônico —
+  // faltava aplicar dos dois lados antes de comparar.
+  if (_fEstado) imoveis = imoveis.filter(i => _chaveLoc(_normEstadoDisp(i.estado)) === _chaveLoc(_normEstadoDisp(_fEstado)));
   if (_fCidade) imoveis = imoveis.filter(i => _chaveLoc(i.cidade) === _chaveLoc(_fCidade));
   if (_bairrosArr.length) { const _chavesBairro = _bairrosArr.map(_chaveLoc); imoveis = imoveis.filter(i => _chavesBairro.includes(_chaveLoc(i.bairro))); }
   if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
@@ -7196,6 +7201,22 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const { query: _qPerfil } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
 
+    // Token pessoal pro conector MCP do Claude (ver POST /mcp) — gerado sob
+    // demanda na 1ª vez que a tela carrega sem ele. Confere o cache antes de
+    // gerar de novo (sessão pode estar desatualizada de um login anterior).
+    if (!req.session.user.mcpToken) {
+      const _uAtualPerfil = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === uid);
+      if (_uAtualPerfil && _uAtualPerfil.mcpToken) {
+        req.session.user.mcpToken = _uAtualPerfil.mcpToken;
+      } else {
+        const _novoTokenMcp = require('crypto').randomBytes(24).toString('hex');
+        const { atualizarUsuario: _auMcpToken } = require('./services/salvarUsuario');
+        await _auMcpToken(uid, { mcpToken: _novoTokenMcp });
+        req.session.user.mcpToken = _novoTokenMcp;
+        if (_uAtualPerfil) _uAtualPerfil.mcpToken = _novoTokenMcp;
+      }
+    }
+
     // ?ref= chegando aqui (ex: link do e-mail de recarga, services/jobCreditos.js
     // enviarEmailsRecarga) — trava a atribuição pro sub-admin na hora do clique,
     // mesmo padrão de /entrar e /demanda, só que pra conta que JÁ existe (não
@@ -7273,6 +7294,24 @@ app.get('/app/perfil', auth, async (req,res)=>{
     res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || '') });
   } catch(e) {
     res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || '') });
+  }
+});
+
+// Gera um novo token MCP, invalidando o anterior — pro caso do corretor
+// suspeitar que vazou (ex: colou em algum lugar público sem querer).
+app.post('/app/perfil/mcp-token/regenerar', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const _novoTokenMcp = require('crypto').randomBytes(24).toString('hex');
+    const { atualizarUsuario: _auMcpTokenRegen } = require('./services/salvarUsuario');
+    await _auMcpTokenRegen(uid, { mcpToken: _novoTokenMcp });
+    req.session.user.mcpToken = _novoTokenMcp;
+    const _uCacheMcp = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === uid);
+    if (_uCacheMcp) _uCacheMcp.mcpToken = _novoTokenMcp;
+    res.redirect('/app/perfil#secao-mcp');
+  } catch(e) {
+    console.error('[app/perfil/mcp-token/regenerar]', e.message);
+    res.redirect('/app/perfil#secao-mcp');
   }
 });
 
@@ -13540,8 +13579,18 @@ app.get('/portal/:uf/:cidadeSlug/:bairroSlug', (req, res) => _paginaLocalizacaoP
 // Transporte: JSON-RPC 2.0 por POST simples (sem streaming/SSE) — modo
 // "Streamable HTTP" válido no protocolo MCP pra servidor que só responde,
 // nunca inicia mensagem por conta própria (não precisamos disso aqui, é só
-// busca). Sem autenticação — os dados expostos já são públicos, mesma
-// informação que qualquer visitante vê em /portal ou /imovel/:id.
+// busca). As 2 ferramentas públicas (buscar_imoveis/detalhes_imovel) seguem
+// sem autenticação — dado já público, mesma informação que qualquer
+// visitante vê em /portal ou /imovel/:id.
+//
+// Autenticação por token pessoal (ago/2026, pedido explícito do Renato: "eu
+// quero mandar um comando aqui no Claude que acesse minha conta") — mesmo
+// padrão de token por conta já usado nos feeds XML (/feed-xml/:portal/:token),
+// não é OAuth completo. Corretor gera o token em /app/perfil, cola como
+// header "Authorization: Bearer <token>" ao adicionar o MatchImóveis como
+// custom connector no Claude. Com token válido, a ferramenta extra
+// minhas_leads aparece no tools/list e passa a funcionar — sem token, o
+// servidor continua exatamente como antes (só as 2 ferramentas públicas).
 //
 // ⚠️ Implementa o protocolo MCP genérico (testável com qualquer cliente MCP
 // padrão/inspector) — as extensões específicas do Apps SDK da OpenAI (ex:
@@ -13554,11 +13603,45 @@ app.get('/portal/:uf/:cidadeSlug/:bairroSlug', (req, res) => _paginaLocalizacaoP
 // gente puder ver os erros/avisos reais do portal de revisão.
 const MCP_PROTOCOL_VERSION = '2025-06-18';
 
-function _mcpTools() {
-  return [
+function _mcpResolverConta(req) {
+  const auth = req.headers['authorization'] || '';
+  const m = /^Bearer\s+(.+)$/i.exec(auth.trim());
+  if (!m) return null;
+  const token = m[1].trim();
+  if (!token) return null;
+  return (_cacheUsuarios || []).find(u => u.mcpToken && u.mcpToken === token) || null;
+}
+
+async function _mcpMinhasLeads(usuario, args) {
+  const { query: _qMcpLeads } = require('./services/db');
+  const { rowToLead: _rowToLeadMcp } = require('./services/salvarLead');
+  const uid = usuario.codigoUsuario || usuario.id;
+  const limite = Math.min(Math.max(parseInt(args.limite, 10) || 5, 1), 20);
+  const { rows } = await _qMcpLeads(
+    `SELECT * FROM leads WHERE (user_id=$1 OR codigo_usuario=$1) ORDER BY criado_em DESC LIMIT $2`,
+    [uid, limite]
+  );
+  return rows.map(row => {
+    const l = _rowToLeadMcp(row);
+    const p = l.perfilIA || {};
+    return {
+      nome: l.nome || '(sem nome)',
+      telefone: l.telefone || l.whatsapp || l.contato || '',
+      origem: l.origem || l.origemEntrada || '',
+      criado_em: l.criadoEm || '',
+      fase_funil: l.faseFunil || '',
+      temperatura: l.temperatura || '',
+      perfil_buscado: [p.tipo, p.intencao, p.bairro, p.cidade].filter(Boolean).join(' · '),
+      matches: (l.matchesAuto || l.matches || l.matchesBase || []).length
+    };
+  });
+}
+
+function _mcpTools(contaAutenticada) {
+  const ferramentas = [
     {
       name: 'buscar_imoveis',
-      description: 'Busca imóveis à venda ou aluguel na MatchImóveis por cidade, bairro, tipo, valor e outros filtros. Use quando o usuário perguntar sobre imóveis disponíveis numa região do Brasil.',
+      description: 'Busca imóveis à venda ou aluguel na MatchImóveis por cidade, bairro, tipo, valor e outros filtros. Retorna até 10 imóveis por chamada, mas o campo "total" no resultado diz quantos existem no total pra esses filtros (útil pra responder "quantos imóveis tem em tal lugar", mesmo sem listar todos). Use quando o usuário perguntar sobre imóveis disponíveis numa região do Brasil.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -13567,8 +13650,10 @@ function _mcpTools() {
           bairro: { type: 'string', description: 'Nome do bairro (opcional)' },
           transacao: { type: 'string', enum: ['venda', 'aluguel'], description: 'Tipo de transação' },
           tipo: { type: 'string', description: 'Tipo de imóvel, ex: "Apartamento", "Casa"' },
+          valor_min: { type: 'number', description: 'Valor mínimo em reais' },
           valor_max: { type: 'number', description: 'Valor máximo em reais' },
-          quartos_min: { type: 'number', description: 'Número mínimo de quartos' }
+          quartos_min: { type: 'number', description: 'Número mínimo de quartos' },
+          suites_min: { type: 'number', description: 'Número mínimo de suítes' }
         }
       }
     },
@@ -13582,6 +13667,22 @@ function _mcpTools() {
       }
     }
   ];
+  // Só aparece com token pessoal válido (Authorization: Bearer <token>,
+  // gerado em /app/perfil) — dado de lead é privado da conta, não pode
+  // ficar exposto igual busca de imóvel.
+  if (contaAutenticada) {
+    ferramentas.push({
+      name: 'minhas_leads',
+      description: 'Retorna as leads mais recentes da SUA conta MatchImóveis (nome, telefone, origem, fase do funil, temperatura, perfil buscado, nº de matches). Só funciona com conexão autenticada por token pessoal.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          limite: { type: 'number', description: 'Quantas leads retornar (padrão 5, máximo 20)' }
+        }
+      }
+    });
+  }
+  return ferramentas;
 }
 
 function _mcpBuscarImoveis(args) {
@@ -13590,17 +13691,25 @@ function _mcpBuscarImoveis(args) {
   const q = {
     cidade: args.cidade || '', estado: args.estado || '', bairro: args.bairro || '',
     operacao: args.transacao || '', tipo: args.tipo || '',
-    valorMax: args.valor_max || '', quartosMin: args.quartos_min || ''
+    valorMin: args.valor_min || '', valorMax: args.valor_max || '',
+    quartosMin: args.quartos_min || '', suitesMin: args.suites_min || ''
   };
+  // _filtrarEPaginarImoveis já suporta valorMin/suitesMin há tempos (usado
+  // por /app/imoveis, /portal etc) — só faltava expor no schema do MCP
+  // (achado ago/2026 testando o conector no Claude: busca de 3-4 milhões
+  // sempre trazia imóvel abaixo de 1 milhão, não tinha como pedir piso).
   const _r = _filtrarEPaginarImoveis(imoveisSemDuplicata, q, 10);
-  return _r.imoveisPagina.map(i => ({
-    id: i.id,
-    titulo: i.titulo || ([i.tipo, i.bairro].filter(Boolean).join(' em ')),
-    tipo: i.tipo, transacao: i.transacao,
-    bairro: i.bairro, cidade: i.cidade, estado: i.estado,
-    valor: Number(i.valor_imovel) || 0, quartos: i.quartos || 0, area_m2: i.area_m2 || 0,
-    link: 'https://www.matchimoveis.ia.br/imovel/' + (i.idInterno || i.id)
-  }));
+  return {
+    total: _r.totalImoveis,
+    imoveis: _r.imoveisPagina.map(i => ({
+      id: i.id,
+      titulo: i.titulo || ([i.tipo, i.bairro].filter(Boolean).join(' em ')),
+      tipo: i.tipo, transacao: i.transacao,
+      bairro: i.bairro, cidade: i.cidade, estado: i.estado,
+      valor: Number(i.valor_imovel) || 0, quartos: i.quartos || 0, suites: i.suites || 0, area_m2: i.area_m2 || 0,
+      link: 'https://www.matchimoveis.ia.br/imovel/' + (i.idInterno || i.id)
+    }))
+  };
 }
 
 async function _mcpDetalhesImovel(args) {
@@ -13634,15 +13743,18 @@ app.post('/mcp', async (req, res) => {
     }
     // Notificação (sem id) — não espera resposta JSON-RPC, só um 202.
     if (method === 'notifications/initialized') return res.status(202).end();
-    if (method === 'tools/list') return reply({ tools: _mcpTools() });
+    // Resolve 1x por request — usada tanto no tools/list (decide se
+    // minhas_leads aparece) quanto no tools/call (decide se pode executar).
+    const _contaMcp = _mcpResolverConta(req);
+    if (method === 'tools/list') return reply({ tools: _mcpTools(_contaMcp) });
     if (method === 'tools/call') {
       const nomeFerramenta = params.name;
       const args = params.arguments || {};
       if (nomeFerramenta === 'buscar_imoveis') {
-        const resultados = _mcpBuscarImoveis(args);
+        const { total, imoveis: resultados } = _mcpBuscarImoveis(args);
         return reply({
-          content: [{ type: 'text', text: resultados.length ? JSON.stringify(resultados) : 'Nenhum imóvel encontrado com esses critérios.' }],
-          structuredContent: { imoveis: resultados },
+          content: [{ type: 'text', text: resultados.length ? JSON.stringify({ total, imoveis: resultados }) : 'Nenhum imóvel encontrado com esses critérios (total: 0).' }],
+          structuredContent: { total, imoveis: resultados },
           isError: false
         });
       }
@@ -13650,6 +13762,15 @@ app.post('/mcp', async (req, res) => {
         const detalhe = await _mcpDetalhesImovel(args);
         if (!detalhe) return reply({ content: [{ type: 'text', text: 'Imóvel não encontrado ou não disponível publicamente.' }], isError: true });
         return reply({ content: [{ type: 'text', text: JSON.stringify(detalhe) }], structuredContent: detalhe, isError: false });
+      }
+      if (nomeFerramenta === 'minhas_leads') {
+        if (!_contaMcp) return reply({ content: [{ type: 'text', text: 'Não autenticado — gere seu token pessoal em /app/perfil e conecte o MatchImóveis com o header "Authorization: Bearer <token>" pra acessar dados da sua conta.' }], isError: true });
+        const leads = await _mcpMinhasLeads(_contaMcp, args);
+        return reply({
+          content: [{ type: 'text', text: leads.length ? JSON.stringify(leads) : 'Nenhuma lead encontrada nessa conta.' }],
+          structuredContent: { leads },
+          isError: false
+        });
       }
       return replyErr(-32602, 'Ferramenta desconhecida: ' + nomeFerramenta);
     }

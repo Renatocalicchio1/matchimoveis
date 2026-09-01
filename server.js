@@ -13603,13 +13603,24 @@ app.get('/portal/:uf/:cidadeSlug/:bairroSlug', (req, res) => _paginaLocalizacaoP
 // gente puder ver os erros/avisos reais do portal de revisão.
 const MCP_PROTOCOL_VERSION = '2025-06-18';
 
-function _mcpResolverConta(req) {
+async function _mcpResolverConta(req) {
   const auth = req.headers['authorization'] || '';
   const m = /^Bearer\s+(.+)$/i.exec(auth.trim());
   if (!m) return null;
   const token = m[1].trim();
   if (!token) return null;
-  return (_cacheUsuarios || []).find(u => u.mcpToken && u.mcpToken === token) || null;
+  // Token pessoal estático (gerado em /app/perfil) — checa primeiro, é só
+  // olhar o cache em memória, sem ida ao banco.
+  const contaPorTokenPessoal = (_cacheUsuarios || []).find(u => u.mcpToken && u.mcpToken === token);
+  if (contaPorTokenPessoal) return contaPorTokenPessoal;
+  // Token OAuth emitido pelo fluxo /oauth/* (conector nativo do app do
+  // Claude — ver services/mcpOAuth.js).
+  try {
+    const { resolverAccessToken } = require('./services/mcpOAuth');
+    const codigoUsuario = await resolverAccessToken(token);
+    if (codigoUsuario) return (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === codigoUsuario) || null;
+  } catch (e) { console.error('[mcp oauth resolve]', e.message); }
+  return null;
 }
 
 async function _mcpMinhasLeads(usuario, args) {
@@ -13726,6 +13737,180 @@ async function _mcpDetalhesImovel(args) {
   };
 }
 
+// ── OAuth 2.1 + PKCE pro conector MCP (ago/2026) ────────────────────────────
+// A tela nativa "Adicionar conector personalizado" do app do Claude só
+// aceita autenticação via OAuth de verdade (toggle "Requer login" + Dynamic
+// Client Registration), não um cabeçalho customizado simples — daí esse
+// fluxo completo, além do token pessoal estático que já existe (ver
+// _mcpResolverConta mais abaixo, que aceita os dois). Lógica de
+// registro/código/token mora em services/mcpOAuth.js; aqui só os endpoints
+// HTTP + a telinha de login (reaproveita a MESMA checagem de senha do
+// POST /login, só que devolve um código OAuth em vez de criar sessão).
+function _paginaLoginOAuth({ erro, client_id, redirect_uri, response_type, code_challenge, code_challenge_method, state, nomeApp }) {
+  const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar — MatchImóveis</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#FDFBF8;color:#242628;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{background:#fff;border:1px solid #EBE5DC;border-radius:18px;padding:36px 32px;width:100%;max-width:380px;box-shadow:0 8px 28px rgba(23,20,15,.08)}
+.logo{font-weight:800;font-size:17px;margin-bottom:4px}
+.logo span{color:#FF385C}
+h1{font-size:18px;font-weight:700;margin:18px 0 6px}
+.sub{font-size:13px;color:#6B6660;margin-bottom:22px;line-height:1.5}
+label{display:block;font-size:11px;font-weight:600;color:#6B6660;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+input{width:100%;padding:11px 13px;border:1.5px solid #EBE5DC;border-radius:9px;font-size:14px;margin-bottom:14px;outline:none}
+input:focus{border-color:#FF385C}
+button{width:100%;background:#FF385C;color:#fff;border:none;padding:12px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer}
+.erro{background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.nota{font-size:11.5px;color:#A39E97;margin-top:16px;line-height:1.5}
+</style></head><body>
+<div class="box">
+  <div class="logo">Match<span>Imóveis</span></div>
+  <h1>Autorizar ${esc(nomeApp || 'aplicativo')}</h1>
+  <p class="sub">Entre com sua conta MatchImóveis pra autorizar o acesso aos seus dados (leads da sua conta).</p>
+  ${erro ? `<div class="erro">⚠️ ${esc(erro)}</div>` : ''}
+  <form method="POST" action="/oauth/authorize">
+    <input type="hidden" name="client_id" value="${esc(client_id)}">
+    <input type="hidden" name="redirect_uri" value="${esc(redirect_uri)}">
+    <input type="hidden" name="response_type" value="${esc(response_type)}">
+    <input type="hidden" name="code_challenge" value="${esc(code_challenge)}">
+    <input type="hidden" name="code_challenge_method" value="${esc(code_challenge_method)}">
+    <input type="hidden" name="state" value="${esc(state)}">
+    <label>Celular</label>
+    <input name="telefone" placeholder="47999999999" required autofocus>
+    <label>Senha</label>
+    <input name="senha" type="password" placeholder="••••••" required>
+    <button type="submit">Entrar e autorizar →</button>
+  </form>
+  <p class="nota">Isso dá acesso só às SUAS leads (nome, telefone, perfil buscado) — não dá acesso a senha, pagamento nem dado de outra conta.</p>
+</div>
+</body></html>`;
+}
+
+app.get('/.well-known/oauth-authorization-server', (req, res) => {
+  const base = 'https://www.matchimoveis.ia.br';
+  res.json({
+    issuer: base,
+    authorization_endpoint: base + '/oauth/authorize',
+    token_endpoint: base + '/oauth/token',
+    registration_endpoint: base + '/oauth/register',
+    response_types_supported: ['code'],
+    grant_types_supported: ['authorization_code', 'refresh_token'],
+    code_challenge_methods_supported: ['S256', 'plain'],
+    token_endpoint_auth_methods_supported: ['none']
+  });
+});
+
+app.get('/.well-known/oauth-protected-resource', (req, res) => {
+  const base = 'https://www.matchimoveis.ia.br';
+  res.json({ resource: base + '/mcp', authorization_servers: [base] });
+});
+
+// Dynamic Client Registration (RFC 7591) — o Claude se auto-registra aqui
+// na hora de conectar (é por isso que "ID do cliente"/"Segredo do cliente"
+// podem ficar em branco na tela do app: "deixe em branco se o servidor
+// oferecer suporte ao registro automático de cliente", que é exatamente
+// isso). Cliente público (sem segredo) — segurança é via PKCE no /authorize
+// e /token, não segredo compartilhado.
+app.post('/oauth/register', express.json(), async (req, res) => {
+  try {
+    const redirectUris = Array.isArray(req.body.redirect_uris) ? req.body.redirect_uris.filter(u => typeof u === 'string' && u) : [];
+    if (!redirectUris.length) return res.status(400).json({ error: 'invalid_redirect_uri', error_description: 'redirect_uris é obrigatório' });
+    const { registrarCliente } = require('./services/mcpOAuth');
+    const clientId = await registrarCliente({ redirectUris, clientName: (req.body.client_name || '').toString().slice(0, 120) });
+    res.status(201).json({
+      client_id: clientId,
+      client_name: req.body.client_name || '',
+      redirect_uris: redirectUris,
+      token_endpoint_auth_method: 'none',
+      grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code']
+    });
+  } catch (e) {
+    console.error('[oauth/register]', e.message);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+app.get('/oauth/authorize', async (req, res) => {
+  try {
+    const { client_id, redirect_uri, response_type, code_challenge, code_challenge_method, state } = req.query;
+    if (response_type !== 'code' || !client_id || !redirect_uri || !code_challenge) {
+      return res.status(400).send('Parâmetros OAuth inválidos (faltou client_id, redirect_uri ou code_challenge).');
+    }
+    const { buscarCliente } = require('./services/mcpOAuth');
+    const cliente = await buscarCliente(client_id);
+    if (!cliente || !cliente.redirect_uris.includes(redirect_uri)) {
+      return res.status(400).send('Cliente OAuth ou redirect_uri desconhecido — reconecte o conector pra registrar de novo.');
+    }
+    res.send(_paginaLoginOAuth({
+      erro: null, client_id, redirect_uri, response_type,
+      code_challenge, code_challenge_method: code_challenge_method || 'S256',
+      state: state || '', nomeApp: cliente.client_name || 'Claude'
+    }));
+  } catch (e) {
+    console.error('[oauth/authorize GET]', e.message);
+    res.status(500).send('Erro ao carregar tela de login.');
+  }
+});
+
+app.post('/oauth/authorize', express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    const { client_id, redirect_uri, response_type, code_challenge, code_challenge_method, state, telefone, senha } = req.body;
+    const { buscarCliente, criarCodigoAutorizacao } = require('./services/mcpOAuth');
+    const cliente = await buscarCliente(client_id);
+    if (!cliente || !cliente.redirect_uris.includes(redirect_uri)) {
+      return res.status(400).send('Cliente OAuth ou redirect_uri desconhecido.');
+    }
+    const _reexibir = erro => res.send(_paginaLoginOAuth({ erro, client_id, redirect_uri, response_type, code_challenge, code_challenge_method, state, nomeApp: cliente.client_name || 'Claude' }));
+    const { lerUsuarios } = require('./services/salvarUsuario');
+    const users = await lerUsuarios();
+    const tel = (telefone || '').replace(/\D/g, '');
+    const user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g, '') === tel);
+    if (!user) return _reexibir('Celular não encontrado.');
+    const _senhaSalva = (user.senha || '').trim();
+    const _senhaValida = _senhaSalva ? (_senhaSalva.startsWith('$2b$') ? await bcrypt.compare((senha || '').trim(), _senhaSalva) : (senha || '').trim() === _senhaSalva) : true;
+    if (!_senhaValida) return _reexibir('Senha incorreta.');
+    const code = await criarCodigoAutorizacao({
+      clientId: client_id, redirectUri: redirect_uri,
+      codeChallenge: code_challenge, codeChallengeMethod: code_challenge_method || 'S256',
+      codigoUsuario: user.codigoUsuario || user.id
+    });
+    const urlRedirect = new URL(redirect_uri);
+    urlRedirect.searchParams.set('code', code);
+    if (state) urlRedirect.searchParams.set('state', state);
+    res.redirect(urlRedirect.toString());
+  } catch (e) {
+    console.error('[oauth/authorize POST]', e.message);
+    res.status(500).send('Erro ao processar login.');
+  }
+});
+
+app.post('/oauth/token', express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    const { grant_type } = req.body;
+    const { trocarCodigoPorToken, renovarToken } = require('./services/mcpOAuth');
+    if (grant_type === 'authorization_code') {
+      const { code, client_id, redirect_uri, code_verifier } = req.body;
+      const tok = await trocarCodigoPorToken({ code, clientId: client_id, redirectUri: redirect_uri, codeVerifier: code_verifier });
+      if (!tok) return res.status(400).json({ error: 'invalid_grant' });
+      return res.json({ access_token: tok.accessToken, refresh_token: tok.refreshToken, token_type: 'Bearer', expires_in: tok.expiresIn });
+    }
+    if (grant_type === 'refresh_token') {
+      const { refresh_token, client_id } = req.body;
+      const tok = await renovarToken({ refreshToken: refresh_token, clientId: client_id });
+      if (!tok) return res.status(400).json({ error: 'invalid_grant' });
+      return res.json({ access_token: tok.accessToken, refresh_token: tok.refreshToken, token_type: 'Bearer', expires_in: tok.expiresIn });
+    }
+    res.status(400).json({ error: 'unsupported_grant_type' });
+  } catch (e) {
+    console.error('[oauth/token]', e.message);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
 app.post('/mcp', async (req, res) => {
   const corpo = req.body || {};
   const id = corpo.id;
@@ -13745,7 +13930,7 @@ app.post('/mcp', async (req, res) => {
     if (method === 'notifications/initialized') return res.status(202).end();
     // Resolve 1x por request — usada tanto no tools/list (decide se
     // minhas_leads aparece) quanto no tools/call (decide se pode executar).
-    const _contaMcp = _mcpResolverConta(req);
+    const _contaMcp = await _mcpResolverConta(req);
     if (method === 'tools/list') return reply({ tools: _mcpTools(_contaMcp) });
     if (method === 'tools/call') {
       const nomeFerramenta = params.name;

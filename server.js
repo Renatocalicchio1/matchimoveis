@@ -9422,7 +9422,7 @@ async function _leadsParaPlanilha(user, query) {
     .filter(l => !_ehLeadCaptacao(l))
     .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)));
 
-  const { origem, status, busca, de, ate } = query || {};
+  const { origem, status, busca, de, ate, estado, cidade, bairro, valorMin, valorMax } = query || {};
   let leads = base;
   if (origem) leads = leads.filter(l => (l.origem || l.origemEntrada || '') === origem);
   if (status) leads = leads.filter(l => (l.faseFunil || 'novo') === status);
@@ -9437,6 +9437,30 @@ async function _leadsParaPlanilha(user, query) {
   }
   if (de) leads = leads.filter(l => new Date(l.criadoEm||l.data_cadastro||0) >= new Date(de+'T00:00:00'));
   if (ate) leads = leads.filter(l => new Date(l.criadoEm||l.data_cadastro||0) <= new Date(ate+'T23:59:59'));
+  // Filtro por estado/cidade/bairro/valor do PERFIL DE BUSCA da lead (não é
+  // imóvel, é o que ela está procurando — perfilIA.{estado,cidade,bairro,
+  // valorMax}, mesmo campo já usado no export Excel). Estado normalizado via
+  // normalizarEstadoBR (mesma correção sigla<->nome aplicada em
+  // _filtrarEPaginarImoveis, ago/2026 — "SP" tem que bater com "São Paulo").
+  const _chaveLocPlan = s => (s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+  const { normalizarEstadoBR: _normEstadoPlan } = require('./services/salvarImovel');
+  if (estado) {
+    const _eChave = _chaveLocPlan(_normEstadoPlan(estado));
+    leads = leads.filter(l => _chaveLocPlan(_normEstadoPlan((l.perfilIA||{}).estado || l.estado || '')) === _eChave);
+  }
+  if (cidade) {
+    const _cChave = _chaveLocPlan(cidade);
+    leads = leads.filter(l => _chaveLocPlan((l.perfilIA||{}).cidade || l.cidade || '').includes(_cChave));
+  }
+  if (bairro) {
+    const _bChave = _chaveLocPlan(bairro);
+    leads = leads.filter(l => _chaveLocPlan((l.perfilIA||{}).bairro || l.bairro || '').includes(_bChave));
+  }
+  // Valor = teto que a lead disse que paga (perfilIA.valorMax), não preço de
+  // imóvel — valorMin filtra quem pode pagar pelo menos isso, valorMax quem
+  // não passa disso.
+  if (valorMin) { const _vMin = parseFloat(valorMin) || 0; leads = leads.filter(l => (Number((l.perfilIA||{}).valorMax) || 0) >= _vMin); }
+  if (valorMax) { const _vMax = parseFloat(valorMax) || 0; leads = leads.filter(l => { const v = Number((l.perfilIA||{}).valorMax) || 0; return v > 0 && v <= _vMax; }); }
 
   leads = leads.slice().sort((a,b) => new Date(b.criadoEm||b.data_cadastro||0) - new Date(a.criadoEm||a.data_cadastro||0));
 
@@ -9494,11 +9518,11 @@ async function _leadsParaPlanilha(user, query) {
 }
 
 app.get('/app/leads/planilha', auth, async (req,res)=>{
-  const { origem, status, busca, de, ate, propensao } = req.query;
+  const { origem, status, busca, de, ate, propensao, estado, cidade, bairro, valorMin, valorMax } = req.query;
   let { leads, canaisDisponiveis } = await _leadsParaPlanilha(req.session.user, req.query);
   await _anexarPropensao(leads);
   if (propensao) leads = leads.filter(l => l.propensao && l.propensao.tier === propensao);
-  const filtros = { origem: origem||'', status: status||'', busca: busca||'', de: de||'', ate: ate||'', propensao: propensao||'' };
+  const filtros = { origem: origem||'', status: status||'', busca: busca||'', de: de||'', ate: ate||'', propensao: propensao||'', estado: estado||'', cidade: cidade||'', bairro: bairro||'', valorMin: valorMin||'', valorMax: valorMax||'' };
   const filtrosQS = new URLSearchParams(Object.fromEntries(Object.entries(filtros).filter(([,v]) => v))).toString();
   res.render('app-leads-planilha', {
     user: req.session.user,

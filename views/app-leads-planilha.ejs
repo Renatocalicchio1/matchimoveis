@@ -83,8 +83,13 @@
   </select>
   <input type="date" name="de" value="<%= filtros.de %>" title="De">
   <input type="date" name="ate" value="<%= filtros.ate %>" title="Até">
+  <input type="text" name="estado" placeholder="Estado" value="<%= filtros.estado %>" style="min-width:90px">
+  <input type="text" name="cidade" placeholder="Cidade" value="<%= filtros.cidade %>" style="min-width:120px">
+  <input type="text" name="bairro" placeholder="Bairro" value="<%= filtros.bairro %>" style="min-width:120px">
+  <input type="number" name="valorMin" placeholder="Valor mín." value="<%= filtros.valorMin %>" style="min-width:110px">
+  <input type="number" name="valorMax" placeholder="Valor máx." value="<%= filtros.valorMax %>" style="min-width:110px">
   <button type="submit" class="btn btn-dark btn-sm">Filtrar</button>
-  <% if(filtros.origem||filtros.status||filtros.busca||filtros.de||filtros.ate||filtros.propensao){ %>
+  <% if(filtros.origem||filtros.status||filtros.busca||filtros.de||filtros.ate||filtros.propensao||filtros.estado||filtros.cidade||filtros.bairro||filtros.valorMin||filtros.valorMax){ %>
     <a href="/app/leads/planilha" class="btn btn-outline btn-sm">Limpar</a>
   <% } %>
 </form>

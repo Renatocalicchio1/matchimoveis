@@ -21656,38 +21656,29 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     <button id="btnImportar" class="sec" onclick="importar()" style="display:none">🚀 Distribuir leads pras contas</button>
     <div id="import-status"></div>
     <div style="overflow-x:auto"><table id="tabela" class="no-mobile-scroll"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Observações</th><th>Data no portal</th><th>Minerado em</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div id="paginacao" style="margin-top:12px"></div>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  let _paginaAtual = 1, _totalPaginas = 1;
 
-  // Renderiza a tela acumulada (todas as leituras já feitas, persistidas no
-  // banco) — usada tanto no carregamento da página quanto depois de subir
-  // uma planilha nova ou distribuir leads.
-  function renderTabela(linhas, extraStats){
-    const comMatch = linhas.filter(l => l.corretores.length > 0 && !l.importado).length;
-    const semMatch = linhas.filter(l => l.corretores.length === 0).length;
-    const jaImportadas = linhas.filter(l => l.importado).length;
-    const comBairro = linhas.filter(l => l.Bairro).length;
-    const comQuartos = linhas.filter(l => l.Quartos).length;
-    const comBairroEQuartos = linhas.filter(l => l.Bairro && l.Quartos).length;
-    const comValor = linhas.filter(l => l.Valor_max).length;
-    const completudeMedia = linhas.length ? Math.round(100 * linhas.reduce(function(s,l){ return s + (l.Completude||0)/(l.CompletudeTotal||1); }, 0) / linhas.length) : 0;
+  // Renderiza só a PÁGINA atual (o servidor já pagina e já manda as
+  // estatísticas do acumulado inteiro — antes isso vinha tudo de uma vez,
+  // sem LIMIT, e travava a tela quando a base ficou grande).
+  function renderTabela(linhas, stats, extraStats){
+    stats = stats || {};
     document.getElementById('resumo').innerHTML =
       (extraStats || '') +
-      '<div class="stat"><strong>'+linhas.length+'</strong>Total acumulado</div>'+
-      '<div class="stat green"><strong>'+comMatch+'</strong>Com corretor (a distribuir)</div>'+
-      '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>'+
-      '<div class="stat gray"><strong>'+jaImportadas+'</strong>Já distribuídas</div>'+
-      '<div class="stat"><strong>'+comBairro+'</strong>Com bairro</div>'+
-      '<div class="stat"><strong>'+comQuartos+'</strong>Com quartos</div>'+
-      '<div class="stat"><strong>'+comBairroEQuartos+'</strong>Com bairro + quartos</div>'+
-      '<div class="stat"><strong>'+comValor+'</strong>Com valor</div>'+
-      '<div class="stat"><strong>'+completudeMedia+'%</strong>Completude média</div>';
-    // Mais completas primeiro; entre as com mesma completude, com corretor primeiro
-    const linhasOrdenadas = linhas.slice().sort(function(a, b){
-      return (b.Completude||0) - (a.Completude||0) || ((b.corretores.length>0) - (a.corretores.length>0));
-    });
-    document.getElementById('tabela-body').innerHTML = linhasOrdenadas.map(function(l){
+      '<div class="stat"><strong>'+(stats.total||0)+'</strong>Total acumulado</div>'+
+      '<div class="stat green"><strong>'+(stats.com_match||0)+'</strong>Com corretor (a distribuir)</div>'+
+      '<div class="stat red"><strong>'+(stats.sem_match||0)+'</strong>Sem match</div>'+
+      '<div class="stat gray"><strong>'+(stats.ja_importadas||0)+'</strong>Já distribuídas</div>'+
+      '<div class="stat"><strong>'+(stats.com_bairro||0)+'</strong>Com bairro</div>'+
+      '<div class="stat"><strong>'+(stats.com_quartos||0)+'</strong>Com quartos</div>'+
+      '<div class="stat"><strong>'+(stats.com_bairro_e_quartos||0)+'</strong>Com bairro + quartos</div>'+
+      '<div class="stat"><strong>'+(stats.com_valor||0)+'</strong>Com valor</div>'+
+      '<div class="stat"><strong>'+(stats.completude_media||0)+'%</strong>Completude média</div>';
+    document.getElementById('tabela-body').innerHTML = linhas.map(function(l){
       const temMatch = l.corretores.length > 0;
       const corretoresTxt = l.importado ? '<span class="gray">✅ já distribuída</span>'
         : (temMatch ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>');
@@ -21701,17 +21692,32 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       return '<tr class="'+(temMatch&&!l.importado?'':'sem-match')+'"><td>'+nomeTd+'</td>' + tds + tdObs + tdDatas + '<td class="wrap">'+corretoresTxt+'</td></tr>';
     }).join('');
     document.getElementById('resultado-box').style.display = 'block';
-    document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';
+    document.getElementById('btnImportar').style.display = (stats.com_match||0)>0 ? 'inline-block' : 'none';
   }
 
-  async function carregarAcumulado(){
+  function renderPaginacao(){
+    const el = document.getElementById('paginacao');
+    if(_totalPaginas <= 1){ el.innerHTML = ''; return; }
+    el.innerHTML =
+      '<button '+(_paginaAtual<=1?'disabled':'')+' onclick="carregarAcumulado('+(_paginaAtual-1)+')">← Anterior</button>'+
+      '<span class="gray" style="margin:0 8px;font-size:12px">Página '+_paginaAtual+' de '+_totalPaginas+'</span>'+
+      '<button '+(_paginaAtual>=_totalPaginas?'disabled':'')+' onclick="carregarAcumulado('+(_paginaAtual+1)+')">Próxima →</button>';
+  }
+
+  async function carregarAcumulado(pagina){
+    pagina = pagina || 1;
     try {
-      const r = await fetch('/admin/interesados/lista');
+      const r = await fetch('/admin/interesados/lista?page=' + pagina);
       const d = await r.json();
-      if(d.ok && d.linhas.length) renderTabela(d.linhas);
+      if(d.ok){
+        _paginaAtual = d.page || 1;
+        _totalPaginas = d.totalPaginas || 1;
+        if(d.linhas.length || (d.stats && d.stats.total)) renderTabela(d.linhas, d.stats);
+        renderPaginacao();
+      }
     } catch(e){}
   }
-  carregarAcumulado();
+  carregarAcumulado(1);
 
   async function limparTudo(){
     if(!confirm('Apaga TODO o acumulado de Interessados de Portal (não afeta leads já distribuídas pras contas). Confirma?')) return;
@@ -21736,7 +21742,10 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       if(!d.ok){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
       document.getElementById('preview-status').innerHTML =
         '<p class="green">✅ Planilha lida: '+d.totalLinhasArquivo+' linhas, '+d.linhasNestaLeitura+' processadas (fora Rankim) — <strong>'+d.novas+' novas</strong> adicionadas ao acumulado, '+d.duplicadas+' já existiam (descartadas, linha idêntica em todas as colunas) e não entraram de novo.</p>';
-      renderTabela(d.linhas);
+      _paginaAtual = 1;
+      _totalPaginas = Math.max(1, Math.ceil((d.total||0) / (d.linhas.length || 200)));
+      renderTabela(d.linhas, d.stats);
+      renderPaginacao();
     } catch(e){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro ao analisar.</p>'; }
   }
   async function rodarDistribuicaoArea(){
@@ -21817,9 +21826,13 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
 
 app.get('/admin/interesados/lista', authAdmin, async (req, res) => {
   try {
-    const { listarLinhasSalvas } = require('./services/interesadosPortal');
-    const linhas = await listarLinhasSalvas();
-    res.json({ ok: true, linhas });
+    const { listarLinhasSalvas, statsAcumulado } = require('./services/interesadosPortal');
+    const page = parseInt(req.query.page, 10) || 1;
+    const [{ linhas, total, limit }, stats] = await Promise.all([
+      listarLinhasSalvas({ page, limit: 200 }),
+      statsAcumulado()
+    ]);
+    res.json({ ok: true, linhas, total, page, limit, totalPaginas: Math.max(1, Math.ceil(total / limit)), stats });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
@@ -21830,8 +21843,8 @@ app.post('/admin/interesados/preview', authAdmin, upload.single('arquivo'), asyn
     const XLSX = require('xlsx');
     const wb = XLSX.readFile(req.file.path);
     const totalLinhasArquivo = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }).length;
-    const { novas, duplicadas, linhasNestaLeitura, linhas } = await processarEArmazenar(req.file.path);
-    res.json({ ok: true, linhas, totalLinhasArquivo, linhasNestaLeitura, novas, duplicadas });
+    const { novas, duplicadas, linhasNestaLeitura, linhas, total, stats } = await processarEArmazenar(req.file.path);
+    res.json({ ok: true, linhas, total, stats, totalLinhasArquivo, linhasNestaLeitura, novas, duplicadas });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 

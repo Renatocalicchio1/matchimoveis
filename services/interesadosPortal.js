@@ -243,19 +243,51 @@ async function _salvarLinhasNovas(linhas) {
   return { novas, duplicadas };
 }
 
-async function listarLinhasSalvas() {
+// Paginado (set/2026 — a tabela cresceu demais e SELECT * sem LIMIT + jogar
+// tudo pro navegador de uma vez travava a tela /admin/interesados). `page`
+// 1-based, `limit` linhas por página; devolve também `total` pra montar a
+// paginação. Mantém a mesma ordenação de sempre (mais completa primeiro).
+async function listarLinhasSalvas({ page = 1, limit = 200 } = {}) {
   await _garantirTabelaInteresados();
-  const { rows } = await query('SELECT * FROM interessados_portal ORDER BY completude DESC, id DESC');
-  return rows.map(_rowDBParaLinha);
+  const _limit = Math.min(Math.max(parseInt(limit, 10) || 200, 1), 1000);
+  const _page = Math.max(parseInt(page, 10) || 1, 1);
+  const _offset = (_page - 1) * _limit;
+  const [{ rows }, { rows: rowsTotal }] = await Promise.all([
+    query('SELECT * FROM interessados_portal ORDER BY completude DESC, id DESC LIMIT $1 OFFSET $2', [_limit, _offset]),
+    query('SELECT COUNT(*)::int as total FROM interessados_portal')
+  ]);
+  return { linhas: rows.map(_rowDBParaLinha), total: rowsTotal[0].total, page: _page, limit: _limit };
 }
 
-// Processa 1 upload + salva no acumulado (dedup) + devolve a TELA inteira
-// já acumulada (todas as leituras anteriores + o que entrou de novo agora).
+// Estatísticas do acumulado inteiro (não só da página carregada) — 1 query
+// agregada em vez de somar/filtrar em JS sobre a base toda.
+async function statsAcumulado() {
+  await _garantirTabelaInteresados();
+  const { rows } = await query(`
+    SELECT
+      COUNT(*)::int as total,
+      COUNT(*) FILTER (WHERE jsonb_array_length(COALESCE(corretores,'[]'::jsonb)) > 0 AND importado_em IS NULL)::int as com_match,
+      COUNT(*) FILTER (WHERE jsonb_array_length(COALESCE(corretores,'[]'::jsonb)) = 0)::int as sem_match,
+      COUNT(*) FILTER (WHERE importado_em IS NOT NULL)::int as ja_importadas,
+      COUNT(*) FILTER (WHERE bairro IS NOT NULL AND bairro != '')::int as com_bairro,
+      COUNT(*) FILTER (WHERE quartos IS NOT NULL)::int as com_quartos,
+      COUNT(*) FILTER (WHERE bairro IS NOT NULL AND bairro != '' AND quartos IS NOT NULL)::int as com_bairro_e_quartos,
+      COUNT(*) FILTER (WHERE valor_max IS NOT NULL)::int as com_valor,
+      COALESCE(ROUND(AVG(completude::numeric / NULLIF(completude_total,0)) * 100), 0)::int as completude_media
+    FROM interessados_portal
+  `);
+  return rows[0];
+}
+
+// Processa 1 upload + salva no acumulado (dedup) + devolve a 1ª página já
+// acumulada (todas as leituras anteriores + o que entrou de novo agora) +
+// as estatísticas do total (não só dessa página).
 async function processarEArmazenar(filePath) {
   const processadas = await processarInteresados(filePath);
   const { novas, duplicadas } = await _salvarLinhasNovas(processadas);
-  const linhas = await listarLinhasSalvas();
-  return { novas, duplicadas, linhasNestaLeitura: processadas.length, linhas };
+  const { linhas, total } = await listarLinhasSalvas({ page: 1 });
+  const stats = await statsAcumulado();
+  return { novas, duplicadas, linhasNestaLeitura: processadas.length, linhas, total, stats };
 }
 
 // Nunca depende de abrir o link do anúncio (o portal usa Cloudflare pra
@@ -384,4 +416,4 @@ async function limparTudo() {
   return { apagadas: r.rowCount || 0 };
 }
 
-module.exports = { processarInteresados, processarEArmazenar, listarLinhasSalvas, importarInteresados, limparTudo, classificarCategoria, normalizarTransacao };
+module.exports = { processarInteresados, processarEArmazenar, listarLinhasSalvas, statsAcumulado, importarInteresados, limparTudo, classificarCategoria, normalizarTransacao };

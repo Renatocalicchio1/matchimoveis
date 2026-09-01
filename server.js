@@ -6064,8 +6064,16 @@ app.get('/logout', (req,res)=> res.redirect('/'));
 
 function auth(req,res,next){
   if(!req.session || !req.session.user) return res.redirect('/');
-  // rotas liberadas mesmo sem saldo
-  const _rotasLivres = ['/app/coins', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
+  // rotas liberadas mesmo sem saldo — precisa bater com _rotasLivresSaldo
+  // (linha ~494, o middleware global app.use('/app', ...)); são 2 checagens
+  // separadas na mesma navegação (achado ago/2026: corretor sem saldo
+  // continuava sendo bloqueado em /app/leads e /app/afiliados mesmo depois
+  // de liberado no middleware global, porque essa função auth() — chamada
+  // por rota, ex: app.get('/app/leads', auth, ...) — tinha sua própria
+  // lista, mais curta, sem afiliados/lead). Duas cópias idênticas dessa
+  // função existem no arquivo (bug de duplicação de rotas já documentado no
+  // topo do CLAUDE.md) — mantém as duas em sincronia.
+  const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
   const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
   if(!_isLivre){
     const _userId = req.session.user.codigoUsuario || req.session.user.codigo || req.session.user.id;
@@ -21352,8 +21360,16 @@ app.get('/logout', (req,res)=> res.redirect('/'));
 
 function auth(req,res,next){
   if(!req.session || !req.session.user) return res.redirect('/');
-  // rotas liberadas mesmo sem saldo
-  const _rotasLivres = ['/app/coins', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
+  // rotas liberadas mesmo sem saldo — precisa bater com _rotasLivresSaldo
+  // (linha ~494, o middleware global app.use('/app', ...)); são 2 checagens
+  // separadas na mesma navegação (achado ago/2026: corretor sem saldo
+  // continuava sendo bloqueado em /app/leads e /app/afiliados mesmo depois
+  // de liberado no middleware global, porque essa função auth() — chamada
+  // por rota, ex: app.get('/app/leads', auth, ...) — tinha sua própria
+  // lista, mais curta, sem afiliados/lead). Duas cópias idênticas dessa
+  // função existem no arquivo (bug de duplicação de rotas já documentado no
+  // topo do CLAUDE.md) — mantém as duas em sincronia.
+  const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
   const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
   if(!_isLivre){
     const _userId = req.session.user.codigoUsuario || req.session.user.codigo || req.session.user.id;

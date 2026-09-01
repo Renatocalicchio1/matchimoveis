@@ -30,15 +30,15 @@ function _sigla(s) {
 }
 
 // Estado/cidade/bairro do seletor só mostram onde tem demanda de verdade
-// minerada do portal (Interessados de Portal, últimos 30 dias — mesmo teto
-// da própria busca) — lista de todo o Brasil só teria opção vazia na
-// esmagadora maioria dos casos. Sem filtro de vendido: comprar uma lead não
-// tira ela da base — outro corretor pode comprar a mesma, ela só some
-// depois de passar do teto de dias (30).
+// minerada do portal (Interessados de Portal, últimos 90 dias — mesmo teto
+// da própria busca, set/2026: era 30) — lista de todo o Brasil só teria
+// opção vazia na esmagadora maioria dos casos. Sem filtro de vendido:
+// comprar uma lead não tira ela da base — outro corretor pode comprar a
+// mesma, ela só some depois de passar do teto de dias (90).
 async function _coletarSinaisRecentes() {
   try {
     const { rows } = await query(
-      `SELECT estado, cidade, bairro FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
+      `SELECT estado, cidade, bairro FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 90)`
     );
     return rows.map(r => ({ estado: r.estado || '', cidade: r.cidade || '', bairro: r.bairro || '' }));
   } catch (e) {
@@ -114,7 +114,7 @@ async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo
       // só como fallback pra linhas antigas onde a data não deu pra parsear.
       // Sem filtro de vendido: comprar não tira a lead da base, ela fica
       // disponível pra outros corretores comprarem também — só desaparece
-      // quando passa do teto de dias escolhido na busca (até 30).
+      // quando passa do teto de dias escolhido na busca (até 90).
       `SELECT * FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => $1::int) ORDER BY COALESCE(data_lead, criado_em) DESC`,
       [horas]
     ));
@@ -176,8 +176,8 @@ function _mascararNome(v) {
   return partes[0] + ' ' + partes[partes.length - 1].slice(0, 1) + '.';
 }
 
-// horas: janela de tempo em horas (dias escolhidos na tela × 24, máx. 30
-// dias = 720h). Fonte única: Interessados de Portal.
+// horas: janela de tempo em horas (dias escolhidos na tela × 24, de 0 a 90
+// dias = 0 a 2160h, set/2026 — era máx. 30). Fonte única: Interessados de Portal.
 // pares: [{cidade, bairro}] — sem limite de quantidade nem de quantas
 // cidades diferentes; casa por par exato (evita, ex., "Centro" de uma
 // cidade bater com "Centro" de outra quando o usuário só marcou uma delas).

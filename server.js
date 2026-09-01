@@ -22107,7 +22107,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     <div style="display:flex;flex-wrap:wrap;gap:32px;margin-top:14px;align-items:flex-start">
       <div class="campo" style="max-width:320px;flex:1;min-width:220px">
         <label>Data — <span id="diasBuscaValor" style="font-size:15px;color:var(--rausch);font-weight:bold">7</span> dias</label>
-        <input type="range" id="diasBusca" min="1" max="30" value="7" step="1" style="width:100%;max-width:none" oninput="document.getElementById('diasBuscaValor').textContent = this.value">
+        <input type="range" id="diasBusca" min="0" max="90" value="7" step="1" style="width:100%;max-width:none" oninput="document.getElementById('diasBuscaValor').textContent = this.value">
         <p class="gray" style="font-size:11.5px;margin-top:4px">Quanto mais você aumenta a data, mais leads você recebe. Quanto mais diminui, menos leads.</p>
       </div>
       <div class="campo">
@@ -22623,7 +22623,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     if(document.getElementById('chkVenda').checked) transacoes.push('venda');
     if(document.getElementById('chkAluguel').checked) transacoes.push('aluguel');
     const diasSel = document.getElementById('diasBusca');
-    const dias = diasSel ? Math.min(30, Math.max(1, parseInt(diasSel.value, 10) || 30)) : 30;
+    const dias = diasSel ? Math.min(90, Math.max(0, parseInt(diasSel.value, 10))) : 30;
     const valorMin = parseInt(document.getElementById('valorMinBusca').value, 10) || 0;
     const valorMax = parseInt(document.getElementById('valorMaxBusca').value, 10) || 0;
     document.getElementById('resultado-box').style.display = 'none';
@@ -23148,7 +23148,8 @@ async function _handlerDemandaBuscar(req, res) {
     if (!estado || !Array.isArray(pares) || !pares.length) {
       return res.json({ ok: false, erro: 'Informe estado e ao menos 1 bairro' });
     }
-    const diasFinal = Math.min(30, Math.max(1, parseInt(dias, 10) || 7));
+    const _diasParsed = parseInt(dias, 10);
+    const diasFinal = Math.min(90, Math.max(0, Number.isNaN(_diasParsed) ? 7 : _diasParsed));
     const { buscarDemanda } = require('./services/buscaDemanda');
     const leads = await buscarDemanda({
       estado, pares, transacoes: transacoes || [], horas: diasFinal * 24,
@@ -23208,7 +23209,8 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
     const { rows: _contaRows } = await _qTD('SELECT codigo_usuario, nome FROM usuarios WHERE codigo_usuario=$1 LIMIT 1', [contaDestino]);
     if (!_contaRows.length) return res.json({ ok: false, erro: 'Conta de destino não encontrada' });
 
-    const diasFinal = Math.min(30, Math.max(1, parseInt(dias, 10) || 30));
+    const _diasParsed = parseInt(dias, 10);
+    const diasFinal = Math.min(90, Math.max(0, Number.isNaN(_diasParsed) ? 30 : _diasParsed));
     const { buscarDemandaParaEntrega, montarPerfilEMapaDemanda } = require('./services/buscaDemanda');
     const { salvarLead: _slTransf } = require('./services/salvarLead');
     const matchCoreTransf = require('./cerebro/match-core');
@@ -23498,7 +23500,8 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
       emailVal = resultado.user.email;
     }
 
-    const diasFinal = Math.min(30, Math.max(1, parseInt(criterios.dias, 10) || 7));
+    const _diasParsed = parseInt(criterios.dias, 10);
+    const diasFinal = Math.min(90, Math.max(0, Number.isNaN(_diasParsed) ? 7 : _diasParsed));
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
 

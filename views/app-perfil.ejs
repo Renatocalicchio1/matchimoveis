@@ -752,7 +752,11 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
 
 <!-- Conector do Claude (MCP, ago/2026) — token pessoal pra autenticar
      ferramentas privadas (minhas_leads) no servidor MCP já existente
-     (POST /mcp). Token gerado sob demanda na rota GET /app/perfil. -->
+     (POST /mcp). Token gerado sob demanda na rota GET /app/perfil.
+     Restrito a REN-G9K6 por enquanto (pedido explícito do Renato) — oculto
+     nas outras contas até decidir liberar geral, mesmo padrão de
+     Academia/Certidões. -->
+<% if (user.codigoUsuario === 'REN-G9K6') { %>
 <div class="pf-card" id="secao-mcp">
   <div style="margin-bottom:14px">
     <div class="pf-card-head">
@@ -790,6 +794,7 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     <button type="submit" class="pf-btn pf-btn-outline" style="font-size:12px">🔄 Gerar novo token</button>
   </form>
 </div>
+<% } %>
 
 <script>
 function copiarMcpCampo(id, btn) {

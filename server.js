@@ -470,24 +470,27 @@ app.post('/api/presenca/heartbeat', (req, res) => {
 
 // ── SEGURANÇA: BLOQUEIA TUDO QUANDO SALDO ZERADO ────────────────────────────
 // Antes só bloqueava POST (ações que mudam estado); leitura (GET) continuava
-// livre com saldo zerado. Agora bloqueia navegação inteira sob /app — as
-// únicas rotas que continuam acessíveis são /app/coins (senão a pessoa fica
-// sem como comprar mais créditos), /app/afiliados (ago/2026, pedido
-// explícito do Renato — mesmo sem saldo de plataforma, o afiliado precisa
-// continuar acessando pra ver/resgatar comissão, que é uma forma de
-// justamente conseguir mais crédito), /app/lead (ago/2026, pedido explícito
-// do Renato — Leads/Planilha de Leads continuam liberados sem saldo, senão o
-// corretor perde visão da carteira inteira de leads só por ficar sem
-// crédito; cobre /app/lead/:id, /app/leads e /app/leads/planilha, mesmo
-// prefixo) e /app/perfil (idem — corretor precisa continuar acessando os
-// próprios dados/preferências mesmo pausado; cobre /app/perfil/senha,
-// /vitrine, /localizacao, /quintoandar). Ações que de fato custam crédito
-// (ex: enviar vitrine por WhatsApp) continuam bloqueadas por dentro —
-// consumir() (services/creditos.js) recusa qualquer débito com saldo <=0,
-// então não abre brecha de usar crédito de graça, só destrava a
-// NAVEGAÇÃO/leitura. Login/logout não são afetados por não estarem sob
-// /app. Isso vale pra QUALQUER usuário que zere o saldo, não só quem entrou
-// pela campanha de leads garantidos.
+// livre com saldo zerado. Bloqueia navegação inteira sob /app — as rotas que
+// continuam acessíveis com saldo <=0 são /app/coins (senão a pessoa fica sem
+// como comprar mais créditos), /app/afiliados (mesmo sem saldo de
+// plataforma, o afiliado precisa continuar acessando pra ver/resgatar
+// comissão, que é uma forma de justamente conseguir mais crédito),
+// /app/lead (cobre /app/lead/:id, /app/leads e /app/leads/planilha, mesmo
+// prefixo — corretor sem crédito não perde a visão da carteira de leads que
+// já tinha) e /app/perfil (cobre /senha, /vitrine, /localizacao,
+// /quintoandar — continua acessando os próprios dados/preferências mesmo
+// pausado). Decisão final confirmada de novo pelo Renato (ago/2026, depois
+// de uma volta curta pra uma lista mais estreita — voltou pra essa versão
+// mais ampla). Ações que de fato custam crédito (ex: enviar vitrine por
+// WhatsApp) continuam bloqueadas por dentro — consumir() (services/
+// creditos.js) recusa qualquer débito com saldo <=0, então essa lista aqui
+// só destrava NAVEGAÇÃO/leitura, nunca abre brecha de gastar crédito de
+// graça. Login/logout não são afetados por não estarem sob /app. Isso vale
+// pra QUALQUER usuário que zere o saldo, não só quem entrou pela campanha
+// de leads garantidos. Distribuição automática de lead nova pra corretor
+// sem saldo já é bloqueada em outro lugar (services/
+// distribuicaoAreaAtuacao.js, filtro de saldo próprio), não depende dessa
+// lista aqui.
 const _rotasLivresSaldo = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil'];
 app.use('/app', async (req, res, next) => {
   if (!req.session || !req.session.user) return next();
@@ -7204,7 +7207,10 @@ app.get('/app/perfil', auth, async (req,res)=>{
     // Token pessoal pro conector MCP do Claude (ver POST /mcp) — gerado sob
     // demanda na 1ª vez que a tela carrega sem ele. Confere o cache antes de
     // gerar de novo (sessão pode estar desatualizada de um login anterior).
-    if (!req.session.user.mcpToken) {
+    // Restrito a REN-G9K6 por enquanto (ago/2026, pedido explícito do
+    // Renato) — mesmo padrão já usado pra Academia/Certidões, oculto pras
+    // outras contas até decidir liberar geral.
+    if (uid === 'REN-G9K6' && !req.session.user.mcpToken) {
       const _uAtualPerfil = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === uid);
       if (_uAtualPerfil && _uAtualPerfil.mcpToken) {
         req.session.user.mcpToken = _uAtualPerfil.mcpToken;
@@ -13648,6 +13654,53 @@ async function _mcpMinhasLeads(usuario, args) {
   });
 }
 
+// Primeira ferramenta de ESCRITA do MCP (ago/2026, pedido explícito do
+// Renato) — reaproveita o MESMO objeto/campos de POST /app/imovel/cadastrar
+// (não duplica regra de negócio), só monta o objeto a partir do `usuario`
+// resolvido pelo token/OAuth em vez de req.session.user. Sem upload de foto
+// (tool call é texto/JSON, não multipart) — imóvel entra 'nao_publicado',
+// mesmo default do form manual quando status não vem preenchido; o app já
+// deixa isso visível no card "sem foto" quando o corretor for completar.
+async function _mcpCadastrarImovel(usuario, args) {
+  const uid = usuario.id || usuario.codigoUsuario;
+  const codigoUsuario = usuario.codigoUsuario || usuario.id;
+  const saldoAtual = await saldoCreditos(codigoUsuario).catch(() => usuario.matchCoins || 0);
+  if (saldoAtual < 15) return { ok: false, erro: 'Saldo insuficiente — cadastrar um imóvel custa 15 coins, saldo atual: ' + saldoAtual + '.' };
+  if (!args.numero || !String(args.numero).trim()) return { ok: false, erro: 'Número do endereço é obrigatório.' };
+  const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+  const novo = {
+    idInterno, codigoImovel: idInterno, idExterno: '',
+    titulo: args.titulo || '', tipo: args.tipo || 'Apartamento', transacao: args.transacao || 'venda',
+    condicao: '', fase: '', status: 'nao_publicado',
+    cep: args.cep || '', endereco: args.endereco || '', numero: String(args.numero), complemento: args.complemento || '',
+    bairro: args.bairro || '', cidade: args.cidade || '', estado: args.estado || '',
+    latitude: null, longitude: null,
+    valor_imovel: Number(args.valor_imovel) || 0, condominio: Number(args.condominio) || 0, iptu: 0,
+    aceita_financiamento: 'a_combinar', aceita_permuta: 'nao',
+    area_m2: Number(args.area_m2) || 0, area_total: 0, area_construida: 0,
+    andar: 0, total_andares: 0, unidades_por_andar: 0, posicao_solar: '',
+    quartos: Number(args.quartos) || 0, suites: Number(args.suites) || 0, banheiros: Number(args.banheiros) || 0, vagas: Number(args.vagas) || 0,
+    diferenciais: [], portais: [],
+    proprietario: {}, captador: {},
+    descricao: args.descricao || '', fotos: [],
+    usuarioId: uid, usuarioNome: usuario.nome || '', usuarioPerfil: usuario.tipo || '', usuarioTelefone: usuario.telefone || usuario.celular || '',
+    source: 'mcp', lastUpdate: new Date().toISOString(),
+    user_id: uid, userId: uid,
+    condominio_nome: args.condominio_nome || '', torre: args.torre || '', unidade: args.unidade || '', ano_construcao: '',
+    corretor_nome: usuario.nome || '', corretor_email: usuario.email || '', corretor_telefone: usuario.telefone || usuario.celular || '', corretor_id: uid,
+    id: idInterno, usuario_id: uid, codigo_usuario: codigoUsuario,
+    usuario_nome: usuario.nome || '', usuario_perfil: usuario.tipo || 'corretor', usuario_telefone: usuario.telefone || usuario.celular || '',
+    categoria: 'residencial', salas: 0, descricao_editada: false, fonte: 'mcp', url: '', url_publica: '/imovel/' + idInterno, tour_virtual: '',
+    corretor: { id: uid, nome: usuario.nome || '', email: usuario.email || '', telefone: usuario.telefone || usuario.celular || '' }
+  };
+  const { salvarImovel: _salvarImovelMcp } = require('./services/salvarImovel');
+  await _salvarImovelMcp(novo);
+  if (_cacheImoveis) _cacheImoveis.push(novo);
+  await consumir(codigoUsuario, 'cadastrar_imovel').catch(e => console.error('[mcp cadastrar_imovel] erro consumir:', e.message));
+  setTimeout(() => regenerarXMLUsuario(uid).catch(e => console.error('[mcp cadastrar_imovel] erro xml:', e.message)), 1000);
+  return { ok: true, id: idInterno, link: 'https://www.matchimoveis.ia.br/imovel/' + idInterno, aviso: 'Cadastrado como rascunho, sem foto — fica invisível pro público até adicionar pelo menos 1 foto no app (Meus Imóveis → editar).' };
+}
+
 function _mcpTools(contaAutenticada) {
   const ferramentas = [
     {
@@ -13690,6 +13743,37 @@ function _mcpTools(contaAutenticada) {
         properties: {
           limite: { type: 'number', description: 'Quantas leads retornar (padrão 5, máximo 20)' }
         }
+      }
+    });
+    ferramentas.push({
+      name: 'cadastrar_imovel',
+      description: 'Cadastra um NOVO imóvel na carteira da SUA conta MatchImóveis. Custa 15 coins do seu saldo. O imóvel entra como rascunho (não publicado) — sem foto ele fica invisível pro público até alguém entrar no app e subir pelo menos 1 foto, então sempre avise que falta esse passo. Só funciona com conexão autenticada.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          titulo: { type: 'string', description: 'Título do anúncio (opcional)' },
+          tipo: { type: 'string', description: 'Ex: Apartamento, Casa, Terreno, Sala Comercial' },
+          transacao: { type: 'string', enum: ['venda', 'aluguel'] },
+          cep: { type: 'string' },
+          endereco: { type: 'string', description: 'Nome da rua/avenida' },
+          numero: { type: 'string', description: 'Número do endereço — OBRIGATÓRIO' },
+          complemento: { type: 'string' },
+          bairro: { type: 'string' },
+          cidade: { type: 'string' },
+          estado: { type: 'string', description: 'Sigla ou nome do estado' },
+          valor_imovel: { type: 'number', description: 'Valor em reais' },
+          condominio: { type: 'number' },
+          area_m2: { type: 'number' },
+          quartos: { type: 'number' },
+          suites: { type: 'number' },
+          banheiros: { type: 'number' },
+          vagas: { type: 'number' },
+          descricao: { type: 'string' },
+          condominio_nome: { type: 'string', description: 'Nome do condomínio/empreendimento, ex: "One Tower"' },
+          torre: { type: 'string' },
+          unidade: { type: 'string' }
+        },
+        required: ['tipo', 'transacao', 'numero', 'bairro', 'cidade', 'estado', 'valor_imovel']
       }
     });
   }
@@ -13949,11 +14033,21 @@ app.post('/mcp', async (req, res) => {
         return reply({ content: [{ type: 'text', text: JSON.stringify(detalhe) }], structuredContent: detalhe, isError: false });
       }
       if (nomeFerramenta === 'minhas_leads') {
-        if (!_contaMcp) return reply({ content: [{ type: 'text', text: 'Não autenticado — gere seu token pessoal em /app/perfil e conecte o MatchImóveis com o header "Authorization: Bearer <token>" pra acessar dados da sua conta.' }], isError: true });
+        if (!_contaMcp) return reply({ content: [{ type: 'text', text: 'Não autenticado — conecte com login pra acessar dados da sua conta.' }], isError: true });
         const leads = await _mcpMinhasLeads(_contaMcp, args);
         return reply({
           content: [{ type: 'text', text: leads.length ? JSON.stringify(leads) : 'Nenhuma lead encontrada nessa conta.' }],
           structuredContent: { leads },
+          isError: false
+        });
+      }
+      if (nomeFerramenta === 'cadastrar_imovel') {
+        if (!_contaMcp) return reply({ content: [{ type: 'text', text: 'Não autenticado — conecte com login pra cadastrar imóvel na sua conta.' }], isError: true });
+        const resultado = await _mcpCadastrarImovel(_contaMcp, args);
+        if (!resultado.ok) return reply({ content: [{ type: 'text', text: resultado.erro }], isError: true });
+        return reply({
+          content: [{ type: 'text', text: 'Imóvel cadastrado: ' + resultado.link + '. ' + resultado.aviso }],
+          structuredContent: resultado,
           isError: false
         });
       }

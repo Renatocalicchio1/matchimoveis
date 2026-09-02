@@ -7247,19 +7247,26 @@ app.get('/app/cadastro', auth, async (req,res)=>{
 
 // Onboarding inteligente — status ao vivo dos 6 passos, consultado em
 // qualquer página (evita depender de cada rota passar dado pro shell)
+// Lista dos 6 passos de onboarding, calculada ao vivo a partir do estado
+// real da conta — extraída pra função própria (set/2026) pra ser reaproveitada
+// também pelos cards de "primeiros passos" de /app/resumo, sem duplicar a
+// lista (fonte única, igual o resto da plataforma já faz).
+function _passosOnboarding(user) {
+  const leadsDoUser = filtrarPorUsuario(_cacheLeads || [], user);
+  const temLeadManual = leadsDoUser.some(l => (l.origemEntrada || l.origem || '') === 'manual');
+  return [
+    { key: 'xml', label: 'Importar XML de imóveis', desc: 'Suba um arquivo XML padrão do seu sistema pra trazer sua carteira de uma vez.', feito: !!user.xmlUrl, acao: 'Ir para Imóveis', link: '/app/imoveis', bonusCoins: 100 },
+    { key: 'whatsapp', label: 'Conectar WhatsApp', desc: 'Escaneie o QR Code pra capturar leads e enviar vitrines automaticamente.', feito: user.whatsappStatus === 'open', acao: 'Conectar agora', link: '/app/perfil#secao-whatsapp' },
+    { key: 'instagram', label: 'Conectar Instagram', desc: 'Publique seus imóveis direto no feed/stories do Instagram.', feito: !!user.instagramContaId, acao: 'Conectar agora', link: '/app/perfil#secao-instagram' },
+    { key: 'leadManual', label: 'Cadastrar uma lead manual', desc: 'Cadastre uma lead direto no app pra ver o match acontecendo.', feito: temLeadManual, acao: 'Ir para Leads', link: '/app/leads' },
+    { key: 'assistente', label: 'Tirar uma dúvida com o assistente', desc: 'Pergunte qualquer coisa sobre o sistema — ele responde na hora.', feito: (user.historicoAssistente||[]).length > 0, acao: 'Abrir assistente', link: '/app/assistente' },
+    { key: 'perfil', label: 'Conhecer sua área de perfil', desc: 'Veja onde configurar seus dados, WhatsApp, Instagram e mais.', feito: !!user.onboardingPerfilVisto, acao: 'Ir para Perfil', link: '/app/perfil' },
+  ];
+}
+
 app.get('/api/onboarding/status', auth, (req,res) => {
   try {
-    const user = req.session.user;
-    const leadsDoUser = filtrarPorUsuario(_cacheLeads || [], user);
-    const temLeadManual = leadsDoUser.some(l => (l.origemEntrada || l.origem || '') === 'manual');
-    const passos = [
-      { key: 'xml', label: 'Importar XML de imóveis', desc: 'Suba um arquivo XML padrão do seu sistema pra trazer sua carteira de uma vez.', feito: !!user.xmlUrl, acao: 'Ir para Imóveis', link: '/app/imoveis', bonusCoins: 100 },
-      { key: 'whatsapp', label: 'Conectar WhatsApp', desc: 'Escaneie o QR Code pra capturar leads e enviar vitrines automaticamente.', feito: user.whatsappStatus === 'open', acao: 'Conectar agora', link: '/app/perfil#secao-whatsapp' },
-      { key: 'instagram', label: 'Conectar Instagram', desc: 'Publique seus imóveis direto no feed/stories do Instagram.', feito: !!user.instagramContaId, acao: 'Conectar agora', link: '/app/perfil#secao-instagram' },
-      { key: 'leadManual', label: 'Cadastrar uma lead manual', desc: 'Cadastre uma lead direto no app pra ver o match acontecendo.', feito: temLeadManual, acao: 'Ir para Leads', link: '/app/leads' },
-      { key: 'assistente', label: 'Tirar uma dúvida com o assistente', desc: 'Pergunte qualquer coisa sobre o sistema — ele responde na hora.', feito: (user.historicoAssistente||[]).length > 0, acao: 'Abrir assistente', link: '/app/assistente' },
-      { key: 'perfil', label: 'Conhecer sua área de perfil', desc: 'Veja onde configurar seus dados, WhatsApp, Instagram e mais.', feito: !!user.onboardingPerfilVisto, acao: 'Ir para Perfil', link: '/app/perfil' },
-    ];
+    const passos = _passosOnboarding(req.session.user);
     const feitos = passos.filter(p => p.feito).length;
     res.json({ passos, total: passos.length, feitos, completo: feitos === passos.length });
   } catch(e) {
@@ -20306,6 +20313,38 @@ app.get('/app/resumo', auth, (req, res) => {
 
   const cards = [];
 
+  // ✅ Primeiros passos pendentes — mesma lista de /api/onboarding/status
+  // (modal "Primeiros Passos" do resto da plataforma), até 2 por vez, pra
+  // virar ação de verdade dentro do próprio resumo, não só um link pra sair
+  // da tela. set/2026, pedido do Renato: "sempre que aqueles primeiros
+  // passos sempre serve pra uma ação, você tem que fazer ele fazer ação por
+  // aqui" — o passo "xml" já importa direto no card (form + resultado
+  // inline); os outros passos, por enquanto, continuam levando pra tela
+  // certa (mesmo padrão dos outros cards) até virarem inline também.
+  try {
+    _passosOnboarding(req.session.user)
+      .filter(p => !p.feito)
+      .slice(0, 2)
+      .forEach(p => {
+        if (p.key === 'xml') {
+          cards.push({
+            ordem: 1,
+            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: 'CONFIGURAÇÃO',
+            icon: '📥', nome: p.label, detalhe: p.desc, time: '',
+            tipoAcao: 'onboarding_xml'
+          });
+        } else {
+          cards.push({
+            ordem: 1,
+            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: 'CONFIGURAÇÃO',
+            icon: '⚙️', nome: p.label, detalhe: p.desc, time: '',
+            primary: p.acao, primaryLink: p.link,
+            secondary: 'Ver todos os passos', secondaryLink: '/app-home'
+          });
+        }
+      });
+  } catch (e) { console.error('[resumo] erro onboarding:', e.message); }
+
   // 🔥 Propensão alta/média — mesmo critério do painel "Fale agora" de
   // /app/leads, sem a query de e-mails (calcularPropensao funciona sem,
   // só perde a fatia de score de abertura/clique de e-mail) pra não
@@ -20339,13 +20378,16 @@ app.get('/app/resumo', auth, (req, res) => {
     .sort((a, b) => new Date(b.data || b.criadoEm || 0) - new Date(a.data || a.criadoEm || 0))
     .slice(0, 2)
     .forEach(v => {
+      // "Ver visita" vai direto pra lead dessa visita (mais específico e
+      // útil que a lista genérica) — "Painel" continua sendo o atalho
+      // genérico pra tela de visitas inteira.
       cards.push({
         ordem: 0,
         cat: '📅 Pedido de visita', accent: '#FC642D', tag: 'arches', tagText: 'PRECISA CONFIRMAR',
         icon: '📅', nome: (v.nome || v.contato || 'Alguém') + ' pediu uma visita',
         detalhe: (v.imovelTitulo || 'Imóvel') + (v.dataVisita ? (' — ' + v.dataVisita.split('-').reverse().join('/') + (v.horaVisita ? ' às ' + v.horaVisita : '')) : ''),
         time: tempoRelativoResumo(v.data || v.criadoEm),
-        primary: '✅ Ver visita', primaryLink: '/app/visitas',
+        primary: '✅ Ver visita', primaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas',
         secondary: 'Painel', secondaryLink: '/app/visitas'
       });
     });
@@ -20407,7 +20449,7 @@ app.get('/app/resumo', auth, (req, res) => {
   // índice de busca por voz — nome/telefone de leads + título/bairro de
   // imóveis, tudo já em memória (mesmo motivo de não bater no banco acima)
   const buscaIndex = [
-    ...leads.map(l => ({ tipo: 'lead', nome: l.nome || l.telefone || l.contato || 'Lead', link: '/app/lead/' + l.id })),
+    ...leads.map(l => ({ tipo: 'lead', nome: l.nome || l.telefone || l.contato || 'Lead', tel: l.telefone || l.whatsapp || l.contato || '', link: '/app/lead/' + l.id })),
     ...lerImoveis(req.session.user).slice(0, 500).map(im => ({ tipo: 'imovel', nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' ' + im.bairro) : ''), link: '/app/imovel/' + im.id }))
   ].filter(it => it.nome);
 

@@ -46,9 +46,12 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
 
 .empty-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 32px;color:var(--ink-dim)}
 
-.tap{position:absolute;top:78px;bottom:0;width:38%;z-index:10}
-.tap.left{left:0}
-.tap.right{right:0}
+/* card de "primeiro passo" com ação inline (ex: importar XML) — não sai da
+   tela do resumo, preenche/confirma ali mesmo */
+.onb-form{display:flex;flex-direction:column;gap:9px}
+.onb-input{padding:13px 14px;border-radius:13px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:13.5px;font-family:'Manrope',sans-serif}
+.onb-input::placeholder{color:rgba(244,243,239,.4)}
+.onb-status{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(244,243,239,.65);min-height:14px}
 
 .mic-wrap{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;justify-content:center;z-index:25}
 .mic{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;transition:transform .15s,background .2s}
@@ -67,9 +70,18 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
 .voice-status{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;min-height:14px}
 .voice-transcript{font-family:'Sora',sans-serif;font-weight:700;font-size:18px;color:#fff;min-height:26px;opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .3s ease}
 .voice-transcript.show{opacity:1;transform:translateY(0)}
-.voice-results{margin-top:16px;display:flex;flex-direction:column;gap:8px}
-.voice-result-row{display:block;text-align:left;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;text-decoration:none;font-size:13.5px;font-weight:600}
-.voice-empty{font-size:13px;color:var(--ink-faint);margin-top:12px}
+.voice-results{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+/* card de resultado — mesma linguagem visual dos cards do carrossel
+   principal (k-icon/k-name/act-btn), só compacto, pra qualquer ação de voz
+   virar um card real na tela, não uma lista de texto */
+.voice-card{text-align:left;padding:16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column;gap:10px}
+.vc-top{display:flex;align-items:flex-start;gap:10px}
+.vc-icon{font-size:22px;line-height:1}
+.vc-name{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#fff;margin:0 0 3px}
+.vc-detail{font-size:12.5px;color:rgba(244,243,239,.68);line-height:1.4}
+.vc-actions{display:flex;gap:8px}
+.vc-btn{flex:1;text-align:center;padding:10px 6px;border-radius:11px;font-size:12.5px;font-weight:700;text-decoration:none;color:#0a0a0c;background:#fff}
+.vc-btn.sec{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18)}
 </style>
 </head>
 <body>
@@ -83,8 +95,6 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
   <div id="faces"></div>
 
   <% if (cards && cards.length) { %>
-  <div class="tap left" id="tapLeft"></div>
-  <div class="tap right" id="tapRight"></div>
   <div class="card-body" id="cardBody"></div>
   <div class="actions" id="cardActions"></div>
   <% } else { %>
@@ -142,6 +152,21 @@ if (CARDS.length) {
       '<div class="k-meta"><span class="k-tag ' + c.tag + '">' + c.tagText + '</span><span class="k-time">' + c.time + '</span></div>';
     const actions = document.getElementById('cardActions');
     actions.innerHTML = '';
+
+    // "Primeiro passo" com ação inline (ex: importar XML) — preenche e
+    // confirma sem sair do resumo, em vez do primary/secondary padrão.
+    if (c.tipoAcao === 'onboarding_xml') {
+      actions.innerHTML =
+        '<div class="onb-form">' +
+          '<input type="text" id="onbXmlUrl" placeholder="Cole o link do XML aqui" class="onb-input" inputmode="url" autocapitalize="off" autocorrect="off">' +
+          '<button type="button" id="onbXmlBtn" class="act-btn primary" style="--card-accent:' + c.accent + '">📥 Importar XML</button>' +
+          '<div class="onb-status" id="onbXmlStatus"></div>' +
+        '</div>';
+      document.getElementById('onbXmlUrl').addEventListener('focus', pauseTimer);
+      document.getElementById('onbXmlBtn').addEventListener('click', iniciarImportacaoXml);
+      return;
+    }
+
     const primaryEl = document.createElement('a');
     primaryEl.className = 'act-btn primary';
     primaryEl.style.setProperty('--card-accent', c.accent);
@@ -165,6 +190,54 @@ if (CARDS.length) {
     actions.appendChild(secEl);
 
     [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
+  }
+
+  // Importa o XML direto do card, sem sair do resumo, e mostra o resultado
+  // ali mesmo — reaproveita POST /app/importar (mesma rota de /app/cadastro)
+  // + GET /import-status pra acompanhar o job assíncrono.
+  function iniciarImportacaoXml() {
+    const input = document.getElementById('onbXmlUrl');
+    const status = document.getElementById('onbXmlStatus');
+    const btn = document.getElementById('onbXmlBtn');
+    const url = (input.value || '').trim();
+    if (!url) { status.textContent = 'Cole o link do XML primeiro.'; return; }
+    pauseTimer();
+    btn.disabled = true;
+    status.textContent = 'Enviando…';
+    const fd = new FormData();
+    fd.append('xmlUrl', url);
+    fetch('/app/importar', { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(d => {
+        if (!d || !d.ok) {
+          status.textContent = '❌ ' + ((d && d.erro) || 'Erro ao importar');
+          btn.disabled = false;
+          return;
+        }
+        status.textContent = '⏳ Importando…';
+        _acompanharImportacaoXml(status, btn);
+      })
+      .catch(() => { status.textContent = '❌ Erro de conexão'; btn.disabled = false; });
+  }
+
+  function _acompanharImportacaoXml(status, btn) {
+    let tentativas = 0;
+    const t = setInterval(() => {
+      tentativas++;
+      fetch('/import-status').then(r => r.json()).then(d => {
+        const st = d && d.status;
+        if (!st || typeof st === 'string') return; // ainda não iniciou de verdade
+        if (st.status === 'finalizado' || st.status === 'finalizado_parcial') {
+          clearInterval(t);
+          status.textContent = '✅ ' + (st.mensagem || (st.total + ' imóveis importados'));
+          btn.textContent = '📥 Importar outro XML';
+          btn.disabled = false;
+        } else {
+          status.textContent = '⏳ Importando… (' + (st.total || 0) + ' até agora)';
+        }
+      }).catch(() => {});
+      if (tentativas > 240) clearInterval(t); // ~10min de segurança
+    }, 2500);
   }
 
   function resetBars(from) {
@@ -204,10 +277,39 @@ if (CARDS.length) {
     remaining = Math.max(400, remaining - (Date.now() - startedAt));
   }
 
-  document.getElementById('tapLeft').addEventListener('click', prev);
-  document.getElementById('tapRight').addEventListener('click', next);
-  screenEl.addEventListener('pointerdown', pauseTimer);
-  screenEl.addEventListener('pointerup', () => { if (!micOpen) restartTimer(); });
+  // Navegação real por arrastar (swipe) + toque nas laterais como atalho —
+  // tudo num único listener em vez das zonas de toque fixas de antes, que
+  // ficavam por baixo dos botões de ação e às vezes roubavam o clique deles.
+  // Ignora qualquer interação que comece dentro de .actions/.mic-wrap/
+  // .voice-sheet pra nunca competir com um botão de verdade.
+  let _dragAtivo = false, _dragX = 0, _dragY = 0, _arrastou = false;
+  screenEl.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.actions, .mic-wrap, .voice-sheet')) return;
+    _dragAtivo = true; _arrastou = false;
+    _dragX = e.clientX; _dragY = e.clientY;
+    pauseTimer();
+  });
+  screenEl.addEventListener('pointermove', (e) => {
+    if (!_dragAtivo) return;
+    if (Math.abs(e.clientX - _dragX) > 10) _arrastou = true;
+  });
+  screenEl.addEventListener('pointerup', (e) => {
+    if (e.target.closest('.actions, .mic-wrap, .voice-sheet')) return;
+    if (!_dragAtivo) return;
+    _dragAtivo = false;
+    const deltaX = e.clientX - _dragX, deltaY = e.clientY - _dragY;
+    if (micOpen) return;
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      deltaX < 0 ? next() : prev();
+    } else if (!_arrastou) {
+      const w = window.innerWidth;
+      if (e.clientX < w * 0.35) prev();
+      else if (e.clientX > w * 0.65) next();
+      else restartTimer();
+    } else {
+      restartTimer();
+    }
+  });
 
   renderCard(0);
   playBar(0);
@@ -243,27 +345,60 @@ function fecharSheet() {
   if (typeof restartTimer === 'function') restartTimer();
 }
 
+// Mostra o resultado de um comando de voz como CARD de verdade (mesma
+// linguagem visual dos cards do carrossel principal), nunca como lista de
+// texto — pedido do Renato: "qualquer ação que ele fizer você tem que
+// mostrar num card da ação acontecendo".
+function mostrarCardResultado(item) {
+  const card = document.createElement('div');
+  card.className = 'voice-card';
+  const botoes = [];
+  if (item.primaryLink) botoes.push('<a class="vc-btn" href="' + item.primaryLink + '"' + (item.primaryLink.indexOf('wa.me') >= 0 ? ' target="_blank"' : '') + '>' + (item.primaryLabel || 'Abrir') + '</a>');
+  if (item.secondaryLink) botoes.push('<a class="vc-btn sec" href="' + item.secondaryLink + '">' + (item.secondaryLabel || 'Ver') + '</a>');
+  card.innerHTML =
+    '<div class="vc-top"><span class="vc-icon">' + (item.icon || '👤') + '</span><div><div class="vc-name">' + item.nome + '</div>' +
+    (item.detalhe ? '<div class="vc-detail">' + item.detalhe + '</div>' : '') + '</div></div>' +
+    (botoes.length ? '<div class="vc-actions">' + botoes.join('') + '</div>' : '');
+  vResults.appendChild(card);
+}
+
+const _PALAVRAS_GENERICAS = /\b(uma?|o|a|de|do|da|lead|cliente|leads|clientes|imovel|imóvel|imoveis|imóveis)\b/g;
+
 function processarComando(texto) {
   const t = normalizar(texto);
-  const m = t.match(/^(?:busca|procura|abre|abrir|ver|mostra)\s+(.+)/);
-  const termo = m ? m[1].trim() : t;
-  if (!termo) { vStatus.textContent = 'não entendi, tenta de novo'; return; }
-  const resultados = BUSCA_INDEX.filter(it => normalizar(it.nome).indexOf(termo) >= 0);
-  if (resultados.length === 1) {
-    vStatus.textContent = 'abrindo…';
-    setTimeout(() => { location.href = resultados[0].link; }, 500);
-  } else if (resultados.length > 1) {
-    vStatus.textContent = resultados.length + ' resultados';
-    resultados.slice(0, 5).forEach(r => {
-      const a = document.createElement('a');
-      a.className = 'voice-result-row';
-      a.href = r.link;
-      a.textContent = (r.tipo === 'lead' ? '👤 ' : '🏠 ') + r.nome;
-      vResults.appendChild(a);
-    });
-  } else {
-    vStatus.textContent = 'não encontrei "' + termo + '"';
+  vResults.innerHTML = '';
+  const m = t.match(/^(?:busca|procura|abre|abrir|ver|mostra|traz|traga|me traz|me traga|puxa)\s+(.+)/);
+  const bruto = m ? m[1].trim() : t;
+  const termo = bruto.replace(_PALAVRAS_GENERICAS, ' ').replace(/\s+/g, ' ').trim();
+
+  if (termo) {
+    const resultados = BUSCA_INDEX.filter(it => normalizar(it.nome).indexOf(termo) >= 0);
+    if (resultados.length) {
+      vStatus.textContent = resultados.length === 1 ? 'encontrei' : (resultados.length + ' resultados');
+      resultados.slice(0, 5).forEach(r => {
+        mostrarCardResultado({
+          icon: r.tipo === 'lead' ? '👤' : '🏠',
+          nome: r.nome,
+          primaryLink: r.tipo === 'lead' && r.tel ? ('https://wa.me/55' + r.tel.replace(/\D/g, '').replace(/^55/, '')) : r.link,
+          primaryLabel: r.tipo === 'lead' ? '💬 Falar' : 'Ver imóvel',
+          secondaryLink: r.tipo === 'lead' ? r.link : '',
+          secondaryLabel: 'Ver lead'
+        });
+      });
+      return;
+    }
   }
+
+  // Sem nome específico (ex: "traga uma lead", "quem eu falo agora") — traz
+  // o card de maior prioridade do próprio carrossel como resultado da ação.
+  if (/\b(lead|cliente)\b/.test(t) && CARDS.length) {
+    const c = CARDS[0];
+    vStatus.textContent = 'aqui está';
+    mostrarCardResultado({ icon: c.icon, nome: c.nome, detalhe: c.detalhe, primaryLink: c.primaryLink, primaryLabel: c.primary, secondaryLink: c.secondaryLink, secondaryLabel: c.secondary });
+    return;
+  }
+
+  vStatus.textContent = termo ? ('não encontrei "' + termo + '"') : 'não entendi, tenta de novo';
 }
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;

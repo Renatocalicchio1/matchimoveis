@@ -370,4 +370,55 @@ function decidirDisparo(lead, propensao) {
   return { deveDisparar: true, motivoDecisao: 'ok' };
 }
 
-module.exports = { calcularPropensao, tempoRelativo, gerarMensagem, decidirDisparo, PONTOS };
+/**
+ * decidirAvisoCorretor(lead, propensao) — decide se avisa o CORRETOR
+ * (WhatsApp automático pra ele mesmo, não pra lead) que essa lead merece
+ * atenção agora. Diferente de decidirDisparo() (que só cobre tier 'alta' e
+ * decide a cadência de mensagem PRA LEAD): aqui cobre tier 'alta' OU 'media'
+ * — mesmo critério já usado no painel passivo "Fale agora" de /app/leads
+ * (`l.propensao.tier !== 'baixa'`) — e usa dedup PRÓPRIA
+ * (lead.corretorAvisoUltimo), separada de lead.propensaoUltimoDisparo, pra
+ * não interferir na cadência de mensagem da lead nem ser afetada por ela.
+ * set/2026, pedido do Renato: "os clientes que também estão com propensão
+ * alta ou média, avise o usuário [corretor] por WhatsApp também".
+ *
+ * Respeita "marcar como falado": se o corretor já marcou a lead como falada
+ * (lead.corretorFaladoEm) DEPOIS do sinal atual, não avisa de novo — só
+ * volta a avisar quando surgir um sinal mais recente que a marcação.
+ */
+function decidirAvisoCorretor(lead, propensao) {
+  if (!propensao || propensao.tier === 'baixa' || !propensao.atualizadoEm) {
+    return { deveAvisar: false, motivoDecisao: 'tier_baixa' };
+  }
+
+  // Mesma trava de qualidade de sinal do decidirDisparo (ver comentário
+  // acima) — vitrineVista não exige interação humana de verdade.
+  if (propensao.motivoTipo === 'vitrineVista') {
+    return { deveAvisar: false, motivoDecisao: 'motivo_vitrinevista_nao_avisa_sozinho' };
+  }
+
+  if (lead.corretorFaladoEm && new Date(lead.corretorFaladoEm).getTime() >= new Date(propensao.atualizadoEm).getTime()) {
+    return { deveAvisar: false, motivoDecisao: 'ja_marcado_como_falado' };
+  }
+
+  const ultimo = lead && lead.corretorAvisoUltimo;
+  if (ultimo && ultimo.motivoTipo === propensao.motivoTipo && ultimo.em === propensao.atualizadoEm) {
+    return { deveAvisar: false, motivoDecisao: 'mesmo_sinal_ja_avisado' };
+  }
+
+  if (ultimo && ultimo.avisadoEm) {
+    const minsDesde = (Date.now() - new Date(ultimo.avisadoEm).getTime()) / 60000;
+    if (minsDesde < COOLDOWN_MINUTOS) {
+      return { deveAvisar: false, motivoDecisao: 'cooldown_ativo' };
+    }
+  }
+
+  const temVisitaAtiva = lead && (lead.visitaSolicitada || (lead.visitaStatus && !['cancelada', 'recusada'].includes(lead.visitaStatus || '')));
+  if (temVisitaAtiva) {
+    return { deveAvisar: false, motivoDecisao: 'ja_tem_visita_ativa' };
+  }
+
+  return { deveAvisar: true, motivoDecisao: 'ok' };
+}
+
+module.exports = { calcularPropensao, tempoRelativo, gerarMensagem, decidirDisparo, decidirAvisoCorretor, PONTOS };

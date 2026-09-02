@@ -48,7 +48,12 @@ const CUSTO = {
   postar_instagram:       15,
   campanha_meta_criada:   15,
   lead_meta_recebido:     15,
-  email_lead:             15
+  email_lead:             15,
+  // Aviso proativo no WhatsApp do CORRETOR (não da lead) — propensão alta
+  // ("fale agora") ou lead curtiu um imóvel (set/2026, pedido do Renato).
+  // Diferente de notificacao_prop (que avisa o CLIENTE/proprietário sobre o
+  // imóvel, não o corretor).
+  alerta_corretor:        10
 };
 
 // O webhook do WhatsApp (/webhook/whatsapp) não checa saldo antes de responder —

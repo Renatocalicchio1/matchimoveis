@@ -148,13 +148,16 @@
 <div class="fa-panel">
   <div class="fa-head"><h3>🎯 Fale agora</h3><span><%= faleAgora.length %> lead<%= faleAgora.length===1?'':'s' %> com sinal forte</span></div>
   <% faleAgora.forEach(l => { const p = l.propensao; %>
-  <div class="fa-row" onclick="location.href='/app/lead/<%= l.id %>'" style="cursor:pointer">
+  <div class="fa-row" id="fa-row-<%= l.id %>" onclick="location.href='/app/lead/<%= l.id %>'" style="cursor:pointer">
     <div class="fa-score <%= p.tier %>"><%= p.score %></div>
     <div class="fa-body">
       <div class="fa-nome"><%= l.nome||l.telefone||'Lead' %></div>
       <div class="fa-motivo"><%= p.motivo %><% if(p.tempoRelativo){ %><span class="fa-tempo"><%= p.tempoRelativo %></span><% } %></div>
     </div>
-    <% if(p.whatsappLink){ %><a href="<%= p.whatsappLink %>" target="_blank" onclick="event.stopPropagation()" class="fa-cta">💬 Falar agora</a><% } %>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <% if(p.whatsappLink){ %><a href="<%= p.whatsappLink %>" target="_blank" onclick="event.stopPropagation();marcarFalado('<%= l.id %>')" class="fa-cta">💬 Falar agora</a><% } %>
+      <button type="button" onclick="event.stopPropagation();marcarFalado('<%= l.id %>')" class="fa-cta" style="background:#9ca3af" title="Já falei com ela">✓</button>
+    </div>
   </div>
   <% }) %>
 </div>
@@ -595,6 +598,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { once: true });
   }
 });
+
+// Marca a lead como "já falei com ela" — silencia o painel "Fale agora" e os
+// avisos automáticos de WhatsApp pro corretor (JOB_PROPENSAO) até surgir um
+// sinal novo depois dessa marcação (ver POST /app/lead/:id/marcar-falado).
+function marcarFalado(id) {
+  fetch('/app/lead/' + id + '/marcar-falado', { method: 'POST' }).catch(() => {});
+  const row = document.getElementById('fa-row-' + id);
+  if (row) row.remove();
+}
 
 function setChip(campo, valor, btn) {
   _fl[campo] = valor;

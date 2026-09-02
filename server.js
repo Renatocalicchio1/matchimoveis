@@ -5361,6 +5361,30 @@ function marcarEtapaLead(lead, etapa){
   else lead.jornada.push({ etapa, feito:true, data:new Date().toISOString() });
 }
 
+// Avisa o CORRETOR (não a lead) por WhatsApp quando ela faz algo que merece
+// atenção AGORA (propensão alta, curtiu um imóvel) — set/2026, pedido do
+// Renato: o corretor já tá com o número dele conectado, tem que ser avisado
+// pra ligar/chamar a lead enquanto ela ainda tá "quente". Manda da própria
+// instância do corretor pro próprio número dele (mesmo padrão já usado no
+// aviso de "nova solicitação de visita", nunca pro número da lead — a lead
+// continua sendo avisada só pelos canais dela, sem duplicar ação).
+async function _avisarCorretorWhatsapp(userId, mensagem, custoTipo) {
+  try {
+    const user = (_cacheUsuarios || []).find(u => u.id === userId);
+    const _telCorretor = ((user && (user.celular || user.telefone)) || '').replace(/\D/g, '');
+    if (!user || !user.whatsappInstance || user.whatsappStatus !== 'open' || !_telCorretor) return false;
+    const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+    await fetch(_EU + '/message/sendText/' + user.whatsappInstance, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': _EK },
+      body: JSON.stringify({ number: '55' + _telCorretor.replace(/^55/, ''), text: mensagem })
+    });
+    consumir(userId, custoTipo).catch(() => {});
+    return true;
+  } catch (e) { console.error('[alerta-corretor]', e.message); return false; }
+}
+
 // Acumula (sem duplicar) os imóveis que a lead clicou "Gostei" — usado tanto
 // pela vitrine (/cliente/oferta) quanto pela página pública do imóvel (/imovel/:id)
 function _registrarGostei(lead, imovelObj) {
@@ -5406,6 +5430,23 @@ function _registrarGostei(lead, imovelObj) {
       criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
     });
   } catch(e) { console.error('[notif gostei]', e.message); }
+
+  // Avisa o corretor no WhatsApp DELE — só na 1ª curtida dentro de uma janela
+  // de 30min (se ela curtir vários imóveis seguidos, manda só a 1ª mensagem;
+  // o link já leva pro painel que mostra TODOS os imóveis que ela curtiu até
+  // agora, não precisa 1 aviso por clique — pedido do Renato)
+  try {
+    const _cooldownGostei = 30 * 60 * 1000;
+    const _ultimoAlertaGostei = lead.alertaGosteiEnviadoEm ? new Date(lead.alertaGosteiEnviadoEm).getTime() : 0;
+    if (_uidGostei && (Date.now() - _ultimoAlertaGostei) > _cooldownGostei) {
+      lead.alertaGosteiEnviadoEm = new Date().toISOString();
+      const _telLeadGostei = (lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g, '');
+      const _msgGostei = '❤️ *' + (lead.nome || 'Uma lead') + '* curtiu ' + _tituloGostei + '!'
+        + (_telLeadGostei ? '\n📱 Falar com ela: https://wa.me/55' + _telLeadGostei.replace(/^55/, '') : '')
+        + '\n\n🔗 Veja o que ela já curtiu: ' + BASE_URL + '/app/lead/' + (lead.id || lead.leadId || '');
+      _avisarCorretorWhatsapp(_uidGostei, _msgGostei, 'alerta_corretor');
+    }
+  } catch(e) { console.error('[alerta-gostei]', e.message); }
 }
 
 app.get('/cliente/oferta/:leadId', (req,res)=>{
@@ -5449,10 +5490,13 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
     const _ultimaVezVitrine = leads[idxLead].vitrineVisualizadaEm;
     _visitaVitrineNova = !_ultimaVezVitrine || (Date.now() - new Date(_ultimaVezVitrine).getTime()) > 30*60*1000;
     if (_visitaVitrineNova) leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
-    if (false && !leads[idxLead].vitrineEnviada) {
-      leads[idxLead].vitrineEnviada = true;
-      leads[idxLead].vitrineEnviadaEm = new Date().toISOString();
-    }
+    // (removido, set/2026) tinha um bloco morto aqui (`if (false && ...)`)
+    // tentando marcar vitrineEnviada quando a lead VÊ a vitrine — errado
+    // por definição: "visualizada" é a lead abrindo o link, "enviada" é o
+    // corretor tendo mandado; nunca deve ser inferido um do outro. Quem
+    // marca vitrineEnviada de verdade: cerebro/match-core.js (envio
+    // automático), JOB_FOLLOWUPS e /app/lead/:id/vitrine-manual-enviada
+    // (envio manual, corrigido na mesma varredura).
     lead = leads[idxLead];
   }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
@@ -9397,6 +9441,9 @@ app.get('/app/leads', auth, async (req,res)=>{
   await _anexarPropensao(leads);
   const faleAgora = leads
     .filter(l => l.propensao && l.propensao.tier !== 'baixa')
+    // some do painel se o corretor já marcou "falado" depois desse sinal
+    // (POST /app/lead/:id/marcar-falado) — só reaparece com sinal novo
+    .filter(l => !l.corretorFaladoEm || !l.propensao.atualizadoEm || new Date(l.corretorFaladoEm).getTime() < new Date(l.propensao.atualizadoEm).getTime())
     .sort((a, b) => b.propensao.score - a.propensao.score)
     .slice(0, 5);
   // Mensagem de WhatsApp já pronta e segmentada pelo motivo, só pras top 5
@@ -11062,57 +11109,81 @@ setInterval(async () => {
       rows.forEach(r => { const lid = String(r.lead_id || ''); (emailsPorLead[lid] = emailsPorLead[lid] || []).push(r); });
     }
 
-    const { decidirDisparo } = require('./cerebro/propensao');
+    const { decidirDisparo, decidirAvisoCorretor } = require('./cerebro/propensao');
     for (const lead of leads) {
       try {
         if (lead.tipoLead === 'corretor') continue;
         const propensao = calcularPropensao(lead, emailsPorLead[String(lead.id)] || []);
-        const { deveDisparar } = decidirDisparo(lead, propensao);
-        if (!deveDisparar) continue;
 
         const userId = lead.userId || lead.corretorId || lead.codigoUsuario || '';
         const user = users.find(u => u.id === userId);
         if (!user) continue;
 
-        const link = BASE_URL_PROP + '/cliente/oferta/' + lead.id + '?userId=' + userId;
-        const msg = gerarMensagem(propensao, { leadNome: lead.nome, corretorNome: user.nome, link });
-
-        let enviouAlgo = false;
-
-        if (!lead.automacaoEmailPausada && lead.email) {
-          try {
-            await _envPropEmail({
-              para: lead.email,
-              assunto: msg.assuntoEmail,
-              html: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><p style="font-size:15px;line-height:1.7;color:#222;white-space:pre-wrap">' + msg.corpoEmail + '</p></div>',
-              texto: msg.corpoEmail,
-              tipo: 'propensao_alta',
-              leadId: lead.id,
-              userId
-            });
-            consumir(userId, 'email_lead').catch(() => {});
-            enviouAlgo = true;
-          } catch (eEmailProp) { console.error('[JOB PROPENSAO] erro email:', eEmailProp.message); }
-        }
-
         const contatoProp = (lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g, '');
-        if (!lead.automacaoWhatsappPausada && user.whatsappInstance && user.whatsappStatus === 'open' && contatoProp) {
-          try {
-            await fetch(EU_PROP + '/message/sendText/' + user.whatsappInstance, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'apikey': EK_PROP },
-              body: JSON.stringify({ number: contatoProp, text: msg.whatsapp })
+
+        // Dispara pra LEAD (email + WhatsApp) — só tier alta, cadência dela
+        // (decidirDisparo), independente do aviso pro corretor logo abaixo.
+        const { deveDisparar } = decidirDisparo(lead, propensao);
+        if (deveDisparar) {
+          const link = BASE_URL_PROP + '/cliente/oferta/' + lead.id + '?userId=' + userId;
+          const msg = gerarMensagem(propensao, { leadNome: lead.nome, corretorNome: user.nome, link });
+
+          let enviouAlgo = false;
+
+          if (!lead.automacaoEmailPausada && lead.email) {
+            try {
+              await _envPropEmail({
+                para: lead.email,
+                assunto: msg.assuntoEmail,
+                html: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><p style="font-size:15px;line-height:1.7;color:#222;white-space:pre-wrap">' + msg.corpoEmail + '</p></div>',
+                texto: msg.corpoEmail,
+                tipo: 'propensao_alta',
+                leadId: lead.id,
+                userId
+              });
+              consumir(userId, 'email_lead').catch(() => {});
+              enviouAlgo = true;
+            } catch (eEmailProp) { console.error('[JOB PROPENSAO] erro email:', eEmailProp.message); }
+          }
+
+          if (!lead.automacaoWhatsappPausada && user.whatsappInstance && user.whatsappStatus === 'open' && contatoProp) {
+            try {
+              await fetch(EU_PROP + '/message/sendText/' + user.whatsappInstance, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': EK_PROP },
+                body: JSON.stringify({ number: contatoProp, text: msg.whatsapp })
+              });
+              consumir(userId, 'followup_auto').catch(() => {});
+              enviouAlgo = true;
+            } catch (eWaProp) { console.error('[JOB PROPENSAO] erro WA:', eWaProp.message); }
+          }
+
+          if (enviouAlgo) {
+            await _atualizarLeadProp(lead.id, {
+              propensaoUltimoDisparo: { motivoTipo: propensao.motivoTipo, em: propensao.atualizadoEm, disparadoEm: new Date().toISOString(), score: propensao.score }
             });
-            consumir(userId, 'followup_auto').catch(() => {});
-            enviouAlgo = true;
-          } catch (eWaProp) { console.error('[JOB PROPENSAO] erro WA:', eWaProp.message); }
+            console.log('[JOB PROPENSAO] disparado:', lead.nome || lead.id, '| motivo:', propensao.motivo, '| score:', propensao.score);
+          }
         }
 
-        if (enviouAlgo) {
-          await _atualizarLeadProp(lead.id, {
-            propensaoUltimoDisparo: { motivoTipo: propensao.motivoTipo, em: propensao.atualizadoEm, disparadoEm: new Date().toISOString(), score: propensao.score }
-          });
-          console.log('[JOB PROPENSAO] disparado:', lead.nome || lead.id, '| motivo:', propensao.motivo, '| score:', propensao.score);
+        // Avisa o CORRETOR no WhatsApp DELE — independente do disparo pra
+        // lead acima; cobre tier alta E média (mesmo critério do painel
+        // "Fale agora" de /app/leads) e respeita "marcar como falado"
+        // (lead.corretorFaladoEm, ver POST /app/lead/:id/marcar-falado) —
+        // pedido direto do Renato (set/2026)
+        const { deveAvisar } = decidirAvisoCorretor(lead, propensao);
+        if (deveAvisar) {
+          const _msgCorretorProp = '🔥 *Fale agora com ' + (lead.nome || 'essa lead') + '!*\n\n'
+            + (propensao.motivo || 'Ela está com sinal de compra') + (propensao.tempoRelativo ? ' · ' + propensao.tempoRelativo : '')
+            + (contatoProp ? '\n📱 Falar com ela: https://wa.me/55' + contatoProp.replace(/^55/, '') : '')
+            + '\n\n🔗 Painel: ' + BASE_URL_PROP + '/app/lead/' + lead.id;
+          const enviouCorretor = await _avisarCorretorWhatsapp(userId, _msgCorretorProp, 'alerta_corretor');
+          if (enviouCorretor) {
+            await _atualizarLeadProp(lead.id, {
+              corretorAvisoUltimo: { motivoTipo: propensao.motivoTipo, em: propensao.atualizadoEm, avisadoEm: new Date().toISOString(), score: propensao.score }
+            });
+            console.log('[JOB PROPENSAO] corretor avisado:', lead.nome || lead.id, '| tier:', propensao.tier, '| motivo:', propensao.motivo);
+          }
         }
       } catch (eLeadProp) { console.error('[JOB PROPENSAO] erro lead', lead.id, ':', eLeadProp.message); }
     }
@@ -11253,10 +11324,26 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine What
 // por nenhuma rota (é só um <a href="https://wa.me/..."> abrindo direto).
 // Debita o mesmo custo do envio automático (vitrine_whatsapp) pra não ter
 // jeito "de graça" de mandar vitrine só por não estar conectado (ago/2026).
-// Fire-and-forget de propósito (mesmo padrão do resto do sistema pra esse
-// tipo de débito) — não bloqueia a abertura do WhatsApp.
+//
+// BUG real (set/2026, achado numa varredura pedida pelo Renato: "clientes
+// no radar dizendo que a mensagem não foi enviada"): essa rota só debitava
+// os coins e nunca marcava lead.vitrineEnviada/vitrineEnviadaEm — então
+// depois de mandar manual, o Radar do Corretor (services/agenteProativo.js,
+// sinal "Match encontrado, vitrine não enviada") e o chip "✓ WhatsApp" de
+// /app/leads continuavam achando que nunca foi enviada, pra sempre. Fix:
+// marca igual ao caminho automático (cerebro/match-core.js).
 app.post('/app/lead/:id/vitrine-manual-enviada', auth, async (req, res) => {
   consumir(req.session.user.id, 'vitrine_whatsapp').catch(() => {});
+  try {
+    const leadsDoUsuario = lerLeads(req.session.user);
+    if (leadsDoUsuario.find(l => String(l.id) === String(req.params.id))) {
+      const { atualizarLead: _atualizarLeadVitrineManual } = require('./services/salvarLead');
+      await _atualizarLeadVitrineManual(req.params.id, {
+        vitrineEnviada: true,
+        vitrineEnviadaEm: new Date().toISOString()
+      });
+    }
+  } catch(e) { console.error('[vitrine-manual-enviada]', e.message); }
   res.json({ ok: true });
 });
 
@@ -19658,6 +19745,25 @@ app.post('/app/lead/:id/classificar', auth, async (req, res) => {
   }
 });
 
+// Corretor marca a lead como "já falei com ela" — silencia o painel "Fale
+// agora" (filtro em /app/leads abaixo) e os avisos automáticos de WhatsApp
+// pro corretor (JOB_PROPENSAO, cerebro/propensao.js decidirAvisoCorretor)
+// até surgir um sinal de propensão novo depois dessa marcação. set/2026,
+// pedido do Renato.
+app.post('/app/lead/:id/marcar-falado', auth, async (req, res) => {
+  try {
+    const leadsDoUsuario = lerLeads(req.session.user);
+    if (!leadsDoUsuario.find(l => String(l.id) === String(req.params.id))) {
+      return res.status(404).json({ erro: 'lead nao encontrada' });
+    }
+    const { atualizarLead: _atualizarLeadFalado } = require('./services/salvarLead');
+    await _atualizarLeadFalado(req.params.id, { corretorFaladoEm: new Date().toISOString() });
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
 // ── COMENTÁRIOS DA LEAD (ago/2026) ────────────────────────────
 // Comentário livre do corretor/imobiliária sobre a lead, com data/hora —
 // blindado por conta (lerLeads já filtra pelo dono; a mesma pessoa virando
@@ -20886,10 +20992,13 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
     const _ultimaVezVitrine = leads[idxLead].vitrineVisualizadaEm;
     _visitaVitrineNova = !_ultimaVezVitrine || (Date.now() - new Date(_ultimaVezVitrine).getTime()) > 30*60*1000;
     if (_visitaVitrineNova) leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
-    if (false && !leads[idxLead].vitrineEnviada) {
-      leads[idxLead].vitrineEnviada = true;
-      leads[idxLead].vitrineEnviadaEm = new Date().toISOString();
-    }
+    // (removido, set/2026) tinha um bloco morto aqui (`if (false && ...)`)
+    // tentando marcar vitrineEnviada quando a lead VÊ a vitrine — errado
+    // por definição: "visualizada" é a lead abrindo o link, "enviada" é o
+    // corretor tendo mandado; nunca deve ser inferido um do outro. Quem
+    // marca vitrineEnviada de verdade: cerebro/match-core.js (envio
+    // automático), JOB_FOLLOWUPS e /app/lead/:id/vitrine-manual-enviada
+    // (envio manual, corrigido na mesma varredura).
     lead = leads[idxLead];
   }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);

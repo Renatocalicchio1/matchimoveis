@@ -47,13 +47,32 @@ function dispararWorkerLeads(jobId, filePath, userId) {
   _processarFilaImports();
 }
 
+// Trava contra worker duplicado pra mesma campanha (set/2026, achado
+// investigando bloqueio "Business Account locked" da Meta) — diferente dos
+// workers de importação (fila com limite acima), dispararWorkerDisparo()
+// nunca teve nenhuma proteção: se chamado 2x pra mesma campanha (ex: clique
+// manual "Iniciar campanha" + JOB_JOBS_TRAVADOS relançando por achar a
+// campanha "sem atualização há 10+min" quase ao mesmo tempo), sobem 2
+// worker_threads mandando mensagem em paralelo pro mesmo lote de contatos —
+// rajada de envio que pode disparar proteção anti-abuso da própria Meta,
+// além de risco de mensagem duplicada pro cliente.
+const _disparosAtivos = new Set();
+
 function dispararWorkerDisparo(campanhaId) {
+  if (_disparosAtivos.has(campanhaId)) {
+    console.log('[WORKER DISPARO] já tem worker ativo pra essa campanha, ignorando disparo duplicado:', campanhaId);
+    return null;
+  }
+  _disparosAtivos.add(campanhaId);
   const worker = new Worker(path.join(__dirname, '../workers/disparoWhatsappWorker.js'), {
     workerData: { campanhaId }
   });
   worker.on('message', msg => console.log('[WORKER DISPARO]', msg));
   worker.on('error', e => console.error('[WORKER DISPARO] erro:', e.message));
-  worker.on('exit', code => console.log('[WORKER DISPARO] exit:', code));
+  worker.on('exit', code => {
+    console.log('[WORKER DISPARO] exit:', code);
+    _disparosAtivos.delete(campanhaId);
+  });
   return worker;
 }
 

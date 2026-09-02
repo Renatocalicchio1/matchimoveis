@@ -20286,9 +20286,6 @@ app.get('/app/certidoes', auth, (req, res) => {
 // query no banco) de propósito — pedido explícito: "não pode ter
 // carregado", a tela tem que abrir pronta.
 app.get('/app/resumo', auth, (req, res) => {
-  const uid = req.session.user.id || req.session.user.codigoUsuario;
-  if (uid !== 'REN-G9K6') return res.redirect('/app-home');
-
   const agora = Date.now();
   const horasDesde = iso => iso ? (agora - new Date(iso).getTime()) / 3600000 : Infinity;
   const tempoRelativoResumo = iso => {

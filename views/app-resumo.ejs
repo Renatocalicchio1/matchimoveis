@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0a0a0c">
+<title>Resumo Inteligente — MatchImóveis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0c; --ink:#f4f3ef; --ink-dim:rgba(244,243,239,.62); --ink-faint:rgba(244,243,239,.34);
+  --rausch:#FF385C; --babu:#00A699; --arches:#FC642D;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
+
+.screen{position:relative;width:100vw;height:100dvh;overflow:hidden;background:#111}
+
+.bars{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:14px;right:14px;display:flex;gap:5px;z-index:20}
+.bar{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
+.bar > i{display:block;height:100%;width:0%;background:#fff;border-radius:3px}
+
+.card-top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 26px);left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;z-index:20}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:rgba(0,0,0,.34);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);padding:6px 11px 6px 9px;border-radius:20px}
+.brand{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.42)}
+
+.card-face{position:absolute;inset:0;transition:opacity .35s ease}
+
+.card-body{position:absolute;left:22px;right:22px;bottom:150px;z-index:15}
+.k-icon{font-size:32px;margin-bottom:16px;display:block}
+.k-name{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(24px,7vw,30px);line-height:1.15;text-wrap:balance;margin:0 0 9px}
+.k-detail{font-size:14.5px;color:rgba(244,243,239,.82);line-height:1.55;margin:0 0 13px;max-width:320px}
+.k-meta{display:flex;align-items:center;gap:8px}
+.k-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
+.k-tag.rausch{background:rgba(255,56,92,.18);color:#ff8fa3}
+.k-tag.arches{background:rgba(252,100,45,.18);color:#ffab7a}
+.k-tag.babu{background:rgba(0,166,153,.2);color:#5fe0d1}
+.k-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(244,243,239,.42)}
+
+.actions{position:absolute;left:22px;right:22px;bottom:92px;display:flex;gap:9px;z-index:20}
+.act-btn{flex:1;text-align:center;font-family:'Manrope',sans-serif;font-weight:700;font-size:13.5px;padding:13px 8px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--ink);backdrop-filter:blur(6px);text-decoration:none;display:block;cursor:pointer}
+.act-btn.primary{background:var(--card-accent,#fff);color:#0a0a0c;border-color:transparent}
+
+.empty-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 32px;color:var(--ink-dim)}
+
+.tap{position:absolute;top:78px;bottom:0;width:38%;z-index:10}
+.tap.left{left:0}
+.tap.right{right:0}
+
+.mic-wrap{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;justify-content:center;z-index:25}
+.mic{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;transition:transform .15s,background .2s}
+.mic.on{background:var(--rausch);animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.55)}50%{box-shadow:0 0 0 16px rgba(255,56,92,0)}}
+
+.voice-sheet{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(10,10,12,0) 0%,rgba(10,10,12,.97) 20%,#0a0a0c 100%);padding:28px 22px calc(env(safe-area-inset-bottom,0px) + 34px);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:40;text-align:center}
+.voice-sheet.open{transform:translateY(0)}
+.voice-wave{display:flex;gap:4px;align-items:center;justify-content:center;height:30px;margin-bottom:14px}
+.voice-wave i{width:3.5px;border-radius:3px;background:var(--rausch);display:block;animation:wave 1s ease-in-out infinite}
+.voice-wave i:nth-child(1){height:10px;animation-delay:0s} .voice-wave i:nth-child(2){height:22px;animation-delay:.1s}
+.voice-wave i:nth-child(3){height:14px;animation-delay:.2s} .voice-wave i:nth-child(4){height:26px;animation-delay:.3s}
+.voice-wave i:nth-child(5){height:12px;animation-delay:.4s} .voice-wave i:nth-child(6){height:20px;animation-delay:.5s}
+.voice-wave i:nth-child(7){height:9px;animation-delay:.6s}
+@keyframes wave{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.voice-status{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;min-height:14px}
+.voice-transcript{font-family:'Sora',sans-serif;font-weight:700;font-size:18px;color:#fff;min-height:26px;opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .3s ease}
+.voice-transcript.show{opacity:1;transform:translateY(0)}
+.voice-results{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.voice-result-row{display:block;text-align:left;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;text-decoration:none;font-size:13.5px;font-weight:600}
+.voice-empty{font-size:13px;color:var(--ink-faint);margin-top:12px}
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+  <div class="bars" id="bars"></div>
+  <div class="card-top">
+    <span class="chip" id="chipCat">·</span>
+    <span class="brand">MatchImóveis</span>
+  </div>
+
+  <div id="faces"></div>
+
+  <% if (cards && cards.length) { %>
+  <div class="tap left" id="tapLeft"></div>
+  <div class="tap right" id="tapRight"></div>
+  <div class="card-body" id="cardBody"></div>
+  <div class="actions" id="cardActions"></div>
+  <% } else { %>
+  <div class="empty-state">
+    <div style="font-size:38px">🎯</div>
+    <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:17px;color:#fff">Tudo tranquilo por aqui</div>
+    <div style="font-size:13px">Nada pedindo atenção agora — volte daqui a pouco.</div>
+  </div>
+  <% } %>
+
+  <div class="mic-wrap"><button class="mic" id="micBtn" title="Falar um comando">🎙️</button></div>
+
+  <div class="voice-sheet" id="voiceSheet">
+    <div class="voice-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="voice-status" id="voiceStatus">ouvindo…</div>
+    <div class="voice-transcript" id="voiceTranscript"></div>
+    <div id="voiceResults" class="voice-results"></div>
+  </div>
+</div>
+
+<script>
+const CARDS = <%- JSON.stringify(cards || []) %>;
+const BUSCA_INDEX = <%- JSON.stringify(buscaIndex || []) %>;
+
+let idx = 0, timer = null, dur = 7000, startedAt = 0, remaining = dur, micOpen = false;
+const bars = document.getElementById('bars');
+const facesEl = document.getElementById('faces');
+const screenEl = document.getElementById('screen');
+
+function hexToRgba(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return 'rgba(' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',') + ',' + a + ')';
+}
+
+if (CARDS.length) {
+  CARDS.forEach((c, i) => {
+    const b = document.createElement('div');
+    b.className = 'bar'; b.innerHTML = '<i></i>';
+    bars.appendChild(b);
+    const f = document.createElement('div');
+    f.className = 'card-face';
+    f.style.background = 'radial-gradient(120% 90% at 20% 0%,' + hexToRgba(c.accent, .42) + ',transparent 55%),linear-gradient(165deg,#15080c 0%,#0c0708 68%)';
+    f.style.opacity = '0';
+    facesEl.appendChild(f);
+  });
+
+  function renderCard(i) {
+    const c = CARDS[i];
+    document.getElementById('chipCat').textContent = c.cat;
+    const body = document.getElementById('cardBody');
+    body.innerHTML =
+      '<span class="k-icon">' + c.icon + '</span>' +
+      '<h2 class="k-name">' + c.nome + '</h2>' +
+      '<p class="k-detail">' + c.detalhe + '</p>' +
+      '<div class="k-meta"><span class="k-tag ' + c.tag + '">' + c.tagText + '</span><span class="k-time">' + c.time + '</span></div>';
+    const actions = document.getElementById('cardActions');
+    actions.innerHTML = '';
+    const primaryEl = document.createElement('a');
+    primaryEl.className = 'act-btn primary';
+    primaryEl.style.setProperty('--card-accent', c.accent);
+    primaryEl.textContent = c.primary;
+    primaryEl.href = c.primaryLink || '#';
+    if ((c.primaryLink || '').indexOf('wa.me') >= 0) primaryEl.target = '_blank';
+    actions.appendChild(primaryEl);
+
+    const secEl = document.createElement(c.marcarFalado ? 'button' : 'a');
+    secEl.className = 'act-btn';
+    secEl.textContent = c.secondary;
+    if (c.marcarFalado) {
+      secEl.addEventListener('click', () => {
+        fetch('/app/lead/' + c.marcarFalado + '/marcar-falado', { method: 'POST' }).catch(() => {});
+        secEl.textContent = '✓ Falado';
+        secEl.disabled = true;
+      });
+    } else {
+      secEl.href = c.secondaryLink || '#';
+    }
+    actions.appendChild(secEl);
+
+    [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
+  }
+
+  function resetBars(from) {
+    [...bars.children].forEach((b, bi) => {
+      b.querySelector('i').style.transition = 'none';
+      b.querySelector('i').style.width = bi < from ? '100%' : '0%';
+    });
+  }
+
+  function playBar(i) {
+    resetBars(i);
+    const fill = bars.children[i].querySelector('i');
+    requestAnimationFrame(() => {
+      fill.style.transition = 'width ' + remaining + 'ms linear';
+      fill.style.width = '100%';
+    });
+  }
+
+  function goTo(i) {
+    idx = (i + CARDS.length) % CARDS.length;
+    remaining = dur;
+    renderCard(idx);
+    playBar(idx);
+    restartTimer();
+  }
+  function next() { goTo(idx + 1); }
+  function prev() { goTo(idx - 1); }
+
+  function restartTimer() {
+    clearTimeout(timer);
+    if (micOpen) return;
+    startedAt = Date.now();
+    timer = setTimeout(next, remaining);
+  }
+  function pauseTimer() {
+    clearTimeout(timer);
+    remaining = Math.max(400, remaining - (Date.now() - startedAt));
+  }
+
+  document.getElementById('tapLeft').addEventListener('click', prev);
+  document.getElementById('tapRight').addEventListener('click', next);
+  screenEl.addEventListener('pointerdown', pauseTimer);
+  screenEl.addEventListener('pointerup', () => { if (!micOpen) restartTimer(); });
+
+  renderCard(0);
+  playBar(0);
+  restartTimer();
+}
+
+// ── comando de voz real (Web Speech API — precisa HTTPS + Chrome/Android;
+// sem suporte em iOS Safari nem em navegador sem microfone liberado) ──
+const micBtn = document.getElementById('micBtn');
+const sheet = document.getElementById('voiceSheet');
+const vStatus = document.getElementById('voiceStatus');
+const vTranscript = document.getElementById('voiceTranscript');
+const vResults = document.getElementById('voiceResults');
+
+function normalizar(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+}
+
+function abrirSheet() {
+  micOpen = true;
+  if (typeof pauseTimer === 'function') pauseTimer();
+  micBtn.classList.add('on');
+  sheet.classList.add('open');
+  vStatus.textContent = 'ouvindo…';
+  vTranscript.textContent = '';
+  vTranscript.classList.remove('show');
+  vResults.innerHTML = '';
+}
+function fecharSheet() {
+  micOpen = false;
+  micBtn.classList.remove('on');
+  sheet.classList.remove('open');
+  if (typeof restartTimer === 'function') restartTimer();
+}
+
+function processarComando(texto) {
+  const t = normalizar(texto);
+  const m = t.match(/^(?:busca|procura|abre|abrir|ver|mostra)\s+(.+)/);
+  const termo = m ? m[1].trim() : t;
+  if (!termo) { vStatus.textContent = 'não entendi, tenta de novo'; return; }
+  const resultados = BUSCA_INDEX.filter(it => normalizar(it.nome).indexOf(termo) >= 0);
+  if (resultados.length === 1) {
+    vStatus.textContent = 'abrindo…';
+    setTimeout(() => { location.href = resultados[0].link; }, 500);
+  } else if (resultados.length > 1) {
+    vStatus.textContent = resultados.length + ' resultados';
+    resultados.slice(0, 5).forEach(r => {
+      const a = document.createElement('a');
+      a.className = 'voice-result-row';
+      a.href = r.link;
+      a.textContent = (r.tipo === 'lead' ? '👤 ' : '🏠 ') + r.nome;
+      vResults.appendChild(a);
+    });
+  } else {
+    vStatus.textContent = 'não encontrei "' + termo + '"';
+  }
+}
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) {
+  const recognition = new SR();
+  recognition.lang = 'pt-BR';
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+  let ultimaTranscricao = '';
+  recognition.onresult = (e) => {
+    let texto = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) texto += e.results[i][0].transcript;
+    ultimaTranscricao = texto;
+    vTranscript.textContent = '"' + texto + '"';
+    vTranscript.classList.add('show');
+    if (e.results[e.results.length - 1].isFinal) {
+      vStatus.textContent = 'entendi';
+      processarComando(texto);
+    }
+  };
+  recognition.onerror = () => { vStatus.textContent = 'não peguei o áudio, tenta de novo'; };
+  recognition.onend = () => { micBtn.classList.remove('on'); };
+  micBtn.addEventListener('click', () => {
+    if (micOpen) { recognition.stop(); fecharSheet(); return; }
+    abrirSheet();
+    try { recognition.start(); } catch (e) {}
+  });
+} else {
+  micBtn.addEventListener('click', () => {
+    abrirSheet();
+    vStatus.textContent = 'comando de voz não é suportado nesse navegador';
+  });
+}
+
+sheet.addEventListener('click', (e) => { if (e.target === sheet) fecharSheet(); });
+</script>
+</body>
+</html>

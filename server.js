@@ -20275,6 +20275,148 @@ app.get('/app/certidoes', auth, (req, res) => {
   res.render('app-certidoes', { user: req.session.user, _certCatalogo });
 });
 
+// "Resumo Inteligente" (set/2026, protótipo do app mobile "Gerenciador de
+// Negócios" — ver conceito em CLAUDE.md) — tela de repouso do corretor em
+// formato story/carrossel: cada card já é uma ação, não só um dado, com
+// comando de voz real (Web Speech API, precisa HTTPS + Chrome/Android).
+// Liberado só na conta de teste (mesma trava de /app/academia e
+// /app/certidoes) e sem entrada no menu ainda — só link direto, a pedido
+// do Renato, pra testar no celular antes de decidir levar pro menu.
+// Tudo lido do CACHE em memória (lerLeads/_cacheVisitas/lerImoveis, sem
+// query no banco) de propósito — pedido explícito: "não pode ter
+// carregado", a tela tem que abrir pronta.
+app.get('/app/resumo', auth, (req, res) => {
+  const uid = req.session.user.id || req.session.user.codigoUsuario;
+  if (uid !== 'REN-G9K6') return res.redirect('/app-home');
+
+  const agora = Date.now();
+  const horasDesde = iso => iso ? (agora - new Date(iso).getTime()) / 3600000 : Infinity;
+  const tempoRelativoResumo = iso => {
+    if (!iso) return '';
+    const min = (agora - new Date(iso).getTime()) / 60000;
+    if (min < 1) return 'agora mesmo';
+    if (min < 60) return 'há ' + Math.round(min) + ' min';
+    const h = min / 60;
+    if (h < 24) return 'há ' + Math.round(h) + 'h';
+    return 'há ' + Math.floor(h / 24) + ' dias';
+  };
+  const waLink = tel => 'https://wa.me/55' + String(tel || '').replace(/\D/g, '').replace(/^55/, '');
+
+  const leads = lerLeads(req.session.user)
+    .filter(l => l.tipoLead !== 'corretor')
+    .filter(l => !_ehLeadCaptacao(l));
+  const visitas = filtrarPorUsuario(_cacheVisitas || [], req.session.user);
+
+  const cards = [];
+
+  // 🔥 Propensão alta/média — mesmo critério do painel "Fale agora" de
+  // /app/leads, sem a query de e-mails (calcularPropensao funciona sem,
+  // só perde a fatia de score de abertura/clique de e-mail) pra não
+  // depender do banco nessa tela.
+  try {
+    const { calcularPropensao } = require('./cerebro/propensao');
+    leads.forEach(l => { l._propensaoResumo = calcularPropensao(l, []); });
+  } catch (e) { console.error('[resumo] erro propensao:', e.message); }
+  leads
+    .filter(l => l._propensaoResumo && l._propensaoResumo.tier !== 'baixa')
+    .filter(l => !l.corretorFaladoEm || !l._propensaoResumo.atualizadoEm || new Date(l.corretorFaladoEm).getTime() < new Date(l._propensaoResumo.atualizadoEm).getTime())
+    .sort((a, b) => b._propensaoResumo.score - a._propensaoResumo.score)
+    .slice(0, 2)
+    .forEach(l => {
+      const p = l._propensaoResumo;
+      const tel = l.telefone || l.whatsapp || l.contato || '';
+      cards.push({
+        ordem: p.tier === 'alta' ? 0 : 1,
+        cat: p.tier === 'alta' ? '🔥 Propensão alta' : '🌤 Propensão média', accent: p.tier === 'alta' ? '#FF385C' : '#FC642D',
+        tag: p.tier === 'alta' ? 'rausch' : 'arches', tagText: 'FALE AGORA',
+        icon: p.tier === 'alta' ? '🔥' : '🌤', nome: (l.nome || 'Uma lead') + ' quer fechar',
+        detalhe: p.motivo || 'Sinal de interesse detectado.', time: p.tempoRelativo || '',
+        primary: '💬 Falar agora', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
+        secondary: 'Ver lead', secondaryLink: '/app/lead/' + l.id
+      });
+    });
+
+  // 📅 Pedido de visita pendente
+  visitas
+    .filter(v => v.status === 'solicitada')
+    .sort((a, b) => new Date(b.data || b.criadoEm || 0) - new Date(a.data || a.criadoEm || 0))
+    .slice(0, 2)
+    .forEach(v => {
+      cards.push({
+        ordem: 0,
+        cat: '📅 Pedido de visita', accent: '#FC642D', tag: 'arches', tagText: 'PRECISA CONFIRMAR',
+        icon: '📅', nome: (v.nome || v.contato || 'Alguém') + ' pediu uma visita',
+        detalhe: (v.imovelTitulo || 'Imóvel') + (v.dataVisita ? (' — ' + v.dataVisita.split('-').reverse().join('/') + (v.horaVisita ? ' às ' + v.horaVisita : '')) : ''),
+        time: tempoRelativoResumo(v.data || v.criadoEm),
+        primary: '✅ Ver visita', primaryLink: '/app/visitas',
+        secondary: 'Painel', secondaryLink: '/app/visitas'
+      });
+    });
+
+  // ❤️ Curtiu um imóvel (Gostei) — pega o clique mais recente de cada lead
+  leads
+    .filter(l => l.imoveisGostei && l.imoveisGostei.length)
+    .map(l => ({ l, g: l.imoveisGostei[l.imoveisGostei.length - 1] }))
+    .filter(x => horasDesde(x.g.clicadoEm) < 48)
+    .sort((a, b) => new Date(b.g.clicadoEm) - new Date(a.g.clicadoEm))
+    .slice(0, 2)
+    .forEach(({ l, g }) => {
+      const tel = l.telefone || l.whatsapp || l.contato || '';
+      cards.push({
+        ordem: 1,
+        cat: '❤️ Curtiu um imóvel', accent: '#FF385C', tag: 'rausch', tagText: 'SINAL FORTE',
+        icon: '❤️', nome: (l.nome || 'Uma lead') + ' curtiu um imóvel',
+        detalhe: (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm),
+        primary: '💬 Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
+        secondary: 'Ver lead', secondaryLink: '/app/lead/' + l.id
+      });
+    });
+
+  // 📤 Vitrine enviada — a plataforma já fez sozinha
+  leads
+    .filter(l => l.vitrineEnviada && l.vitrineEnviadaEm && horasDesde(l.vitrineEnviadaEm) < 48)
+    .sort((a, b) => new Date(b.vitrineEnviadaEm) - new Date(a.vitrineEnviadaEm))
+    .slice(0, 2)
+    .forEach(l => {
+      cards.push({
+        ordem: 2,
+        cat: '📤 Vitrine enviada', accent: '#00A699', tag: 'babu', tagText: 'AUTOMÁTICO',
+        icon: '📤', nome: 'Vitrine enviada pra ' + (l.nome || 'uma lead'),
+        detalhe: (l.matchCount || (l.matches || []).length || 0) + ' imóveis selecionados.', time: tempoRelativoResumo(l.vitrineEnviadaEm),
+        primary: 'Ver lead', primaryLink: '/app/lead/' + l.id,
+        secondary: 'Marcar como falado', secondaryLink: '', marcarFalado: l.id
+      });
+    });
+
+  // 🆕 Nova lead — mesmo filtro de "visível" do resto da plataforma
+  leads
+    .filter(l => !(l.leadOculta === true && !((l.matches || []).length || (l.matchesBase || []).length)))
+    .filter(l => horasDesde(l.criadoEm || l.data_cadastro) < 48)
+    .sort((a, b) => new Date(b.criadoEm || b.data_cadastro || 0) - new Date(a.criadoEm || a.data_cadastro || 0))
+    .slice(0, 2)
+    .forEach(l => {
+      cards.push({
+        ordem: 1,
+        cat: '🆕 Nova lead', accent: '#FC642D', tag: 'arches', tagText: 'NOVA',
+        icon: '🆕', nome: (l.nome || 'Uma lead') + ' entrou em contato',
+        detalhe: 'Origem: ' + (l.origem || l.origemEntrada || 'manual'), time: tempoRelativoResumo(l.criadoEm || l.data_cadastro),
+        primary: 'Ver lead', primaryLink: '/app/lead/' + l.id,
+        secondary: 'Painel', secondaryLink: '/app/leads'
+      });
+    });
+
+  cards.sort((a, b) => a.ordem - b.ordem);
+
+  // índice de busca por voz — nome/telefone de leads + título/bairro de
+  // imóveis, tudo já em memória (mesmo motivo de não bater no banco acima)
+  const buscaIndex = [
+    ...leads.map(l => ({ tipo: 'lead', nome: l.nome || l.telefone || l.contato || 'Lead', link: '/app/lead/' + l.id })),
+    ...lerImoveis(req.session.user).slice(0, 500).map(im => ({ tipo: 'imovel', nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' ' + im.bairro) : ''), link: '/app/imovel/' + im.id }))
+  ].filter(it => it.nome);
+
+  res.render('app-resumo', { user: req.session.user, cards, buscaIndex });
+});
+
 app.get('/app/parceiros', auth, async (req, res) => {
   const uid = req.session.user.id || req.session.user.codigoUsuario;
   const { query: _qParc } = require('./services/db');

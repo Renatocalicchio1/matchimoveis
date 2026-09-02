@@ -5431,11 +5431,24 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
                (lead.matchesAuto && lead.matchesAuto.length ? lead.matchesAuto : null) ||
                (lead.matches && lead.matches.length ? lead.matches : null) || []).slice(0, 9); // vitrine: máximo de 9 imóveis (já vêm ordenados por score)
   
-  // Marca vitrine como visualizada
+  // Marca vitrine como visualizada — só conta como visualização NOVA se já
+  // passou o cooldown da propensão (30min, mesmo valor de COOLDOWN_MINUTOS
+  // em cerebro/propensao.js) desde a última vez. Bug real reportado pelo
+  // Renato (set/2026): essa rota é atingida toda vez que o link é aberto,
+  // inclusive por scanner de segurança/preview de email que pré-abre o link
+  // sozinho, sem humano nenhum — sem essa trava, vitrineVisualizadaEm
+  // avançava a cada hit, o motivo 'vitrineVista' do motor de propensão
+  // nunca reconhecia "mesmo sinal já tratado" (só a 'visualizacao'/
+  // 'navegouImoveis' já tinham dedup própria), e JOB_PROPENSAO reenviava o
+  // e-mail "Separei umas opções pra você" a cada ~30min sem parar. Sintoma
+  // confirmado: lead com 24 vitrineVistas e ZERO imóvel de fato aberto.
   const idxLead = leads.findIndex(l => String(l.id||l.leadId||'') === String(req.params.leadId));
+  let _visitaVitrineNova = true;
   if (idxLead >= 0) {
     leads[idxLead].vitrineVisualizada = true;
-    leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
+    const _ultimaVezVitrine = leads[idxLead].vitrineVisualizadaEm;
+    _visitaVitrineNova = !_ultimaVezVitrine || (Date.now() - new Date(_ultimaVezVitrine).getTime()) > 30*60*1000;
+    if (_visitaVitrineNova) leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
     if (false && !leads[idxLead].vitrineEnviada) {
       leads[idxLead].vitrineEnviada = true;
       leads[idxLead].vitrineEnviadaEm = new Date().toISOString();
@@ -5448,11 +5461,15 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   // tinha disparo nenhum (motor construído, nunca ligado na página pública).
   // Aplicado nas 2 cópias dessa rota (ver nota de duplicação de rotas no
   // topo do arquivo) — só a 1ª registrada pelo Express roda de verdade, mas
-  // mantém as cópias consistentes.
-  try {
-    const { registrarComportamento: _regCompVitrine } = require('./cerebro/motor-intencao');
-    Object.assign(lead, _regCompVitrine(lead, { tipo: 'viu_vitrine', em: new Date().toISOString() }));
-  } catch (e) { console.error('[comportamento-vitrine]', e.message); }
+  // mantém as cópias consistentes. Só registra se for visita nova (ver
+  // trava acima) — senão vitrineVistas e ultimaAtividade também inflavam
+  // sozinhos a cada hit automático.
+  if (_visitaVitrineNova) {
+    try {
+      const { registrarComportamento: _regCompVitrine } = require('./cerebro/motor-intencao');
+      Object.assign(lead, _regCompVitrine(lead, { tipo: 'viu_vitrine', em: new Date().toISOString() }));
+    } catch (e) { console.error('[comportamento-vitrine]', e.message); }
+  }
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   const _usersMapVitrine = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapVitrine[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
   res.render('cliente-oferta', {
@@ -20828,11 +20845,24 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
                (lead.matchesAuto && lead.matchesAuto.length ? lead.matchesAuto : null) ||
                (lead.matches && lead.matches.length ? lead.matches : null) || []).slice(0, 9); // vitrine: máximo de 9 imóveis (já vêm ordenados por score)
   
-  // Marca vitrine como visualizada
+  // Marca vitrine como visualizada — só conta como visualização NOVA se já
+  // passou o cooldown da propensão (30min, mesmo valor de COOLDOWN_MINUTOS
+  // em cerebro/propensao.js) desde a última vez. Bug real reportado pelo
+  // Renato (set/2026): essa rota é atingida toda vez que o link é aberto,
+  // inclusive por scanner de segurança/preview de email que pré-abre o link
+  // sozinho, sem humano nenhum — sem essa trava, vitrineVisualizadaEm
+  // avançava a cada hit, o motivo 'vitrineVista' do motor de propensão
+  // nunca reconhecia "mesmo sinal já tratado" (só a 'visualizacao'/
+  // 'navegouImoveis' já tinham dedup própria), e JOB_PROPENSAO reenviava o
+  // e-mail "Separei umas opções pra você" a cada ~30min sem parar. Sintoma
+  // confirmado: lead com 24 vitrineVistas e ZERO imóvel de fato aberto.
   const idxLead = leads.findIndex(l => String(l.id||l.leadId||'') === String(req.params.leadId));
+  let _visitaVitrineNova = true;
   if (idxLead >= 0) {
     leads[idxLead].vitrineVisualizada = true;
-    leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
+    const _ultimaVezVitrine = leads[idxLead].vitrineVisualizadaEm;
+    _visitaVitrineNova = !_ultimaVezVitrine || (Date.now() - new Date(_ultimaVezVitrine).getTime()) > 30*60*1000;
+    if (_visitaVitrineNova) leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
     if (false && !leads[idxLead].vitrineEnviada) {
       leads[idxLead].vitrineEnviada = true;
       leads[idxLead].vitrineEnviadaEm = new Date().toISOString();
@@ -20845,11 +20875,15 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   // tinha disparo nenhum (motor construído, nunca ligado na página pública).
   // Aplicado nas 2 cópias dessa rota (ver nota de duplicação de rotas no
   // topo do arquivo) — só a 1ª registrada pelo Express roda de verdade, mas
-  // mantém as cópias consistentes.
-  try {
-    const { registrarComportamento: _regCompVitrine } = require('./cerebro/motor-intencao');
-    Object.assign(lead, _regCompVitrine(lead, { tipo: 'viu_vitrine', em: new Date().toISOString() }));
-  } catch (e) { console.error('[comportamento-vitrine]', e.message); }
+  // mantém as cópias consistentes. Só registra se for visita nova (ver
+  // trava acima) — senão vitrineVistas e ultimaAtividade também inflavam
+  // sozinhos a cada hit automático.
+  if (_visitaVitrineNova) {
+    try {
+      const { registrarComportamento: _regCompVitrine } = require('./cerebro/motor-intencao');
+      Object.assign(lead, _regCompVitrine(lead, { tipo: 'viu_vitrine', em: new Date().toISOString() }));
+    } catch (e) { console.error('[comportamento-vitrine]', e.message); }
+  }
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   const _usersMapVitrine = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapVitrine[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
   res.render('cliente-oferta', {

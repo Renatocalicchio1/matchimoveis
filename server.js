@@ -6134,7 +6134,7 @@ function auth(req,res,next){
   // lista, mais curta, sem afiliados/lead). Duas cópias idênticas dessa
   // função existem no arquivo (bug de duplicação de rotas já documentado no
   // topo do CLAUDE.md) — mantém as duas em sincronia.
-  const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
+  const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp', '/app/resumo'];
   const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
   if(!_isLivre){
     const _userId = req.session.user.codigoUsuario || req.session.user.codigo || req.session.user.id;
@@ -21698,7 +21698,7 @@ function auth(req,res,next){
   // lista, mais curta, sem afiliados/lead). Duas cópias idênticas dessa
   // função existem no arquivo (bug de duplicação de rotas já documentado no
   // topo do CLAUDE.md) — mantém as duas em sincronia.
-  const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
+  const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp', '/app/resumo'];
   const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
   if(!_isLivre){
     const _userId = req.session.user.codigoUsuario || req.session.user.codigo || req.session.user.id;

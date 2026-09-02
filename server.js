@@ -16874,6 +16874,29 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
     const entries = req.body.entry || [];
     for (const entry of entries) {
       for (const change of (entry.changes || [])) {
+        // Eventos de conta/WABA (account_update, account_review_update,
+        // account_alerts) — assinados set/2026 depois de descobrir (via
+        // suporte da Meta) que é por esse campo que vem o motivo/prazo de
+        // expiração de restrição de conta (ex: "Business Account locked").
+        // Antes desse trecho, o webhook só sabia tratar `messages`/`statuses`
+        // — qualquer outro campo caía no vazio silenciosamente, e a gente só
+        // descobria restrição de conta caçando manualmente no Meta Business
+        // Suite. Loga bruto + notifica REN-G9K6 na hora.
+        if (['account_update', 'account_review_update', 'account_alerts'].includes(change.field)) {
+          console.log('[whatsapp-cloud] evento de conta (' + change.field + '):', JSON.stringify(change.value));
+          try {
+            criarNotificacaoService({
+              id: Date.now().toString() + '_wa_conta_' + Math.random().toString(36).slice(2, 7),
+              tipo: 'alerta_whatsapp_conta',
+              titulo: 'Aviso da Meta sobre a conta do WhatsApp (' + change.field + ')',
+              mensagem: JSON.stringify(change.value).slice(0, 500),
+              usuarioId: 'REN-G9K6',
+              lida: false,
+              criadaEm: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+            });
+          } catch (e) { console.error('[whatsapp-cloud] erro notif conta:', e.message); }
+          continue;
+        }
         const mensagens = change.value?.messages || [];
         const phoneNumberId = change.value?.metadata?.phone_number_id || null;
         // Número legível (ex: "551130304050") de qual dos nossos números

@@ -491,7 +491,7 @@ app.post('/api/presenca/heartbeat', (req, res) => {
 // sem saldo já é bloqueada em outro lugar (services/
 // distribuicaoAreaAtuacao.js, filtro de saldo próprio), não depende dessa
 // lista aqui.
-const _rotasLivresSaldo = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil'];
+const _rotasLivresSaldo = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/app/resumo'];
 app.use('/app', async (req, res, next) => {
   if (!req.session || !req.session.user) return next();
   const _rota = req.path;

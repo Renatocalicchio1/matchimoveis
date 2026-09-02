@@ -210,8 +210,17 @@ async function contarCadastradosUnicos() {
 // onboarding etc) — foi reativado. Não é remoção — quem chama continua
 // recebendo um retorno normal ({skipped:true}) quando pausado, nenhum
 // caller precisa saber, nem quebra por causa disso.
+// propensao_alta pausado (set/2026, pedido urgente do Renato): mesmo depois
+// da correção do bug de dedup em GET /cliente/oferta/:leadId (commit
+// 5db68b1f — vitrineVisualizadaEm sem trava de 30min fazia o motivo
+// 'vitrineVista' parecer "sinal novo" a cada hit automático de scanner de
+// email), o email "Separei umas opções pra você" continuou repetindo pro
+// mesmo lead horas depois — sinal de que ainda existe outro furo na trava
+// de dedup do JOB_PROPENSAO (cerebro/propensao.js). Pausado até investigar
+// a fundo, pra não continuar arriscando reputação de envio.
 function _emailPausado(tipo) {
   if (!tipo) return true; // campanha.js (admin/campanha) nunca passa tipo
+  if (tipo === 'propensao_alta') return true;
   return tipo.indexOf('campanha_captacao_') === 0 || tipo === 'convite_portal_global';
 }
 

@@ -332,6 +332,24 @@ function decidirDisparo(lead, propensao) {
     return { deveDisparar: false, motivoDecisao: 'nao_esta_alta' };
   }
 
+  // 'vitrineVista' nunca dispara automático sozinho (bug real, set/2026):
+  // o timestamp desse motivo vem de lead.vitrineVisualizadaEm, atualizado
+  // por um simples GET em /cliente/oferta/:leadId — sem exigir JS nem
+  // interação de verdade. Scanner de segurança/preview de email pré-abre
+  // esse link sozinho, sem humano nenhum atrás, e isso já causou o email
+  // "Separei umas opções pra você" repetir pro mesmo lead (visto de novo
+  // mesmo depois da trava de 30min em server.js, commit 5db68b1f — reduzia
+  // a frequência mas não eliminava, porque scanner reincidindo a cada 30+
+  // min sempre parecia "sinal novo"). Os outros motivos (visualizacao,
+  // salvou, compartilhou, navegouImoveis, mensagemWhatsapp, emailClicado)
+  // exigem ação real (JS rodando com tempo mínimo na página, clique
+  // explícito, ou o próprio lead escrevendo) — só esses continuam
+  // disparando automático. vitrineVista continua contando pro SCORE/tier,
+  // só não pode ser o motivo que efetivamente dispara.
+  if (propensao.motivoTipo === 'vitrineVista') {
+    return { deveDisparar: false, motivoDecisao: 'motivo_vitrinevista_nao_dispara_sozinho' };
+  }
+
   const ultimo = lead && lead.propensaoUltimoDisparo;
   if (ultimo && ultimo.motivoTipo === propensao.motivoTipo && ultimo.em === propensao.atualizadoEm) {
     return { deveDisparar: false, motivoDecisao: 'mesmo_sinal_ja_disparado' };

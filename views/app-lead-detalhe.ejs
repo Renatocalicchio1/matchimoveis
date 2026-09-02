@@ -48,6 +48,29 @@
 const _p    = lead.perfilIA || {};
 const _mat  = lead.matches || lead.matchesAuto || [];
 const _matA = lead.matchesAuto || [];
+
+// Comportamento por imóvel (pedido do Renato, set/2026): quanto tempo a
+// lead ficou em cada imóvel específico e quantas vezes voltou nele, pra
+// mostrar dentro de cada card de "Imóveis compatíveis" — não só o total
+// agregado que já existia no card "Atividade da lead". Fonte: mesmo
+// lead.comportamento.imoveisVisualizados/imoveisSalvos alimentado por
+// /api/comportamento-lead (visualizou_imovel tem duracao_segundos por
+// visita já deduplicada — ver cerebro/motor-intencao.js).
+const _visPorImovel = {};
+((lead.comportamento||{}).imoveisVisualizados||[]).forEach(v => {
+  const _key = String(v.id||'');
+  if(!_key) return;
+  if(!_visPorImovel[_key]) _visPorImovel[_key] = { visitas:0, tempoTotal:0, ultimaVez:null };
+  _visPorImovel[_key].visitas += 1;
+  _visPorImovel[_key].tempoTotal += (v.duracao||0);
+  if(!_visPorImovel[_key].ultimaVez || new Date(v.em||0) > new Date(_visPorImovel[_key].ultimaVez)) _visPorImovel[_key].ultimaVez = v.em;
+});
+const _salvosImovelSet = new Set(((lead.comportamento||{}).imoveisSalvos||[]).map(s => String(s.id||'')));
+function _fmtTempoImovel(seg){
+  if(!seg) return '0s';
+  if(seg < 60) return Math.round(seg)+'s';
+  return Math.round(seg/60)+'min';
+}
 const _score= lead.score || 0;
 const _temp = lead.temperatura || 'frio';
 const _fase = lead.faseFunil || 'novo';
@@ -315,6 +338,13 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           </div>
           <div style="font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap">R$ <%= Number(m.valor_imovel||m.valor||0).toLocaleString('pt-BR') %></div>
         </a>
+        <% const _midComp = String(m.idExterno||m.id||''); const _visComp = _visPorImovel[_midComp]; const _gostouComp = _salvosImovelSet.has(_midComp); %>
+        <% if(_visComp || _gostouComp) { %>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px 10px;margin:-6px 0 8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:10.5px;color:#9a3412">
+          <% if(_visComp) { %><span>👁️ <%= _visComp.visitas %> visita<%= _visComp.visitas>1?'s':'' %></span><span>⏱ <%= _fmtTempoImovel(_visComp.tempoTotal) %></span><% } %>
+          <% if(_gostouComp) { %><span style="color:#dc2626;font-weight:600">❤️ Gostou</span><% } %>
+        </div>
+        <% } %>
         <% if(m.donoContato) { %>
         <% const _linkDc1 = 'https://www.matchimoveis.ia.br/imovel/' + (m.idExterno||m.id||'') + '?userId=' + encodeURIComponent(m.donoContato.codigoUsuario||''); %>
         <% const _msgDc1 = encodeURIComponent('Olá! Sou o corretor ' + (user.nome||'') + ', da MatchImóveis, tenho um cliente interessado neste imóvel: ' + _linkDc1 + '. Quero mais informações.'); %>

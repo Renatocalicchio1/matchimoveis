@@ -100,7 +100,8 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 
 .voice-sheet{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.97) 20%,#fff 100%);box-shadow:0 -8px 30px rgba(0,0,0,.08);padding:28px 22px calc(env(safe-area-inset-bottom,0px) + 34px);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:40;text-align:center}
 .voice-sheet.open{transform:translateY(0)}
-.sheet-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink-dim);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:1}
+.sheet-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink-dim);font-size:15px;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.15);z-index:45}
+.sheet-close.show{display:flex}
 .voice-wave{display:flex;gap:4px;align-items:center;justify-content:center;height:30px;margin-bottom:14px}
 .voice-wave i{width:3.5px;border-radius:3px;background:var(--rausch);display:block;animation:wave 1s ease-in-out infinite}
 .voice-wave i:nth-child(1){height:10px;animation-delay:0s} .voice-wave i:nth-child(2){height:22px;animation-delay:.1s}
@@ -172,7 +173,6 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
   <div class="mic-wrap"><button class="mic" id="micBtn" title="Falar um comando">🎙️</button></div>
 
   <div class="voice-sheet" id="voiceSheet">
-    <button type="button" class="sheet-close" id="voiceSheetClose" title="Fechar">✕</button>
     <div class="voice-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="voice-status" id="voiceStatus">ouvindo…</div>
     <div class="voice-transcript" id="voiceTranscript"></div>
@@ -181,12 +181,17 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 
   <!-- Painel rápido de lead/imóvel — abre "Ver lead"/"Ver imóvel" dentro do
        próprio resumo, sem navegar embora (mesma mecânica de slide-up do
-       voice-sheet). Botão "✕" explícito pra fechar — antes só dava pra
-       fechar tocando fora do cartão, o que não é óbvio (pedido do Renato). -->
+       voice-sheet). -->
   <div class="voice-sheet" id="infoSheet">
-    <button type="button" class="sheet-close" id="infoSheetClose" title="Fechar">✕</button>
     <div id="infoContent"></div>
   </div>
+
+  <!-- Botão "✕" único, fora dos sheets (que crescem em altura conforme o
+       conteúdo) — fica ancorado direto na tela, sempre no mesmo lugar e
+       sempre visível enquanto qualquer um dos dois sheets estiver aberto,
+       em vez de depender da altura do card lá dentro. Antes só dava pra
+       fechar tocando fora do cartão, o que não é óbvio (pedido do Renato). -->
+  <button type="button" class="sheet-close" id="sheetCloseBtn" title="Fechar">✕</button>
 </div>
 
 <nav class="bottom-nav">
@@ -900,6 +905,16 @@ const infoContent = document.getElementById('infoContent');
 const _navBottom = document.querySelector('.bottom-nav');
 function _toggleNavParaSheet(aberto) { if (_navBottom) _navBottom.style.display = aberto ? 'none' : ''; }
 
+// Botão "✕" único, fora dos dois sheets — mostra/esconde junto com
+// qualquer um dos dois, sempre no mesmo lugar da tela.
+const sheetCloseBtn = document.getElementById('sheetCloseBtn');
+function _mostrarSheetClose() { sheetCloseBtn.classList.add('show'); }
+function _esconderSheetClose() { sheetCloseBtn.classList.remove('show'); }
+sheetCloseBtn.addEventListener('click', () => {
+  if (infoSheet.classList.contains('open')) fecharInfoSheet();
+  else if (sheet.classList.contains('open')) micBtn.click(); // pára o reconhecimento de voz e fecha
+});
+
 function abrirInfoLead(id) {
   const info = LEADS_RESUMO[id];
   if (!info) { location.href = '/app/lead/' + id; return; }
@@ -922,6 +937,7 @@ function abrirInfoLead(id) {
       '</div>' +
     '</div>';
   infoSheet.classList.add('open');
+  _mostrarSheetClose();
 
   // "✓ Já falei" — set/2026, pedido do Renato: "mostrar que já foi
   // comunicado". Fica aqui (não em cada card) pra não empilhar botão em
@@ -960,6 +976,7 @@ function abrirInfoImovel(c, link) {
       '</div>' +
     '</div>';
   infoSheet.classList.add('open');
+  _mostrarSheetClose();
 }
 // "Ver todos os passos" — mesma ideia, painel inline em vez de navegar pra
 // /app-home. Busca a mesma rota que o modal "Primeiros Passos" do resto da
@@ -971,6 +988,7 @@ function abrirPassos() {
   _toggleNavParaSheet(true);
   infoContent.innerHTML = '<div class="voice-card" style="margin:0"><div class="vc-detail">Carregando…</div></div>';
   infoSheet.classList.add('open');
+  _mostrarSheetClose();
   fetch('/api/onboarding/status').then(r => r.json()).then(d => {
     const passos = (d && d.passos) || [];
     const linhas = passos.map(p =>
@@ -991,14 +1009,11 @@ function abrirPassos() {
 function fecharInfoSheet() {
   infoSheet.classList.remove('open');
   micOpen = false;
+  _esconderSheetClose();
   _toggleNavParaSheet(false);
   if (typeof restartTimer === 'function') restartTimer();
 }
 infoSheet.addEventListener('click', (e) => { if (e.target === infoSheet) fecharInfoSheet(); });
-// Botão "✕" explícito — antes só dava pra fechar tocando fora do cartão
-// (área estreita, pouco óbvia). Pedido do Renato: precisa ter como fechar.
-document.getElementById('infoSheetClose').addEventListener('click', fecharInfoSheet);
-document.getElementById('voiceSheetClose').addEventListener('click', () => micBtn.click());
 
 function normalizar(s) {
   return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
@@ -1009,6 +1024,7 @@ function abrirSheet() {
   if (typeof pauseTimer === 'function') pauseTimer();
   micBtn.classList.add('on');
   sheet.classList.add('open');
+  _mostrarSheetClose();
   _toggleNavParaSheet(true);
   vStatus.textContent = 'ouvindo…';
   vTranscript.textContent = '';
@@ -1019,6 +1035,7 @@ function fecharSheet() {
   micOpen = false;
   micBtn.classList.remove('on');
   sheet.classList.remove('open');
+  _esconderSheetClose();
   _toggleNavParaSheet(false);
   if (typeof restartTimer === 'function') restartTimer();
 }

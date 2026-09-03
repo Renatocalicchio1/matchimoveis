@@ -20390,9 +20390,6 @@ app.get('/api/feed/novos', auth, async (req, res) => {
 // conteúdo em texto no lugar, não um player fingindo funcionar.
 app.get('/app/academia', auth, (req, res) => {
   const uid = req.session.user.id || req.session.user.codigoUsuario;
-  // TEMP (ago/2026): liberado só na conta de teste — remover essa trava
-  // quando liberar geral (mesma trava do menu em app-shell.ejs).
-  if (uid !== 'REN-G9K6') return res.redirect('/app-home');
   const visitas = _cacheVisitas || [];
   const vendasFechadas = visitas.filter(v =>
     String(v.userId || v.ownerUserId || v.corretorId || '') === String(uid) &&

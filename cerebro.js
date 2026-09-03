@@ -8,6 +8,7 @@ console.log('🧠 Gerando assistente-mapa.json...');
 // ── ROTAS DO SISTEMA ──────────────────────────────────────────────────────────
 const rotas = [
   { rota:'/app-home',            label:'Dashboard',              descricao:'Painel principal com métricas, gráficos e resumo geral' },
+  { rota:'/app/resumo',          label:'Tempo Real',             descricao:'Resumo inteligente em tela cheia, estilo carrossel/story: prioriza leads/visitas/captações que precisam de ação agora, com comando por voz e atualização automática' },
   { rota:'/app/imoveis',         label:'Meus Imóveis',           descricao:'Lista de imóveis cadastrados com filtros e busca' },
   { rota:'/app/cadastro',        label:'Cadastrar Imóvel',       descricao:'Formulário manual ou importar via XML (com botão Testar antes de Importar)' },
   { rota:'/app/imovel/:id/editar', label:'Editar Imóvel',        descricao:'Editar dados, fotos e portais de um imóvel' },

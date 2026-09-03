@@ -1,11 +1,16 @@
 {
-  "geradoEm": "2026-08-03T03:27:54.581Z",
+  "geradoEm": "2026-09-03T21:50:02.051Z",
   "versao": "3.0",
   "rotas": [
     {
       "rota": "/app-home",
       "label": "Dashboard",
       "descricao": "Painel principal com métricas, gráficos e resumo geral"
+    },
+    {
+      "rota": "/app/resumo",
+      "label": "Tempo Real",
+      "descricao": "Resumo inteligente em tela cheia, estilo carrossel/story: prioriza leads/visitas/captações que precisam de ação agora, com comando por voz e atualização automática"
     },
     {
       "rota": "/app/imoveis",
@@ -563,6 +568,6 @@
       "Explica o passo a passo numerado quando a ação tiver mais de 2 etapas"
     ]
   },
-  "totalRotas": 29,
+  "totalRotas": 30,
   "totalIntents": 47
 }

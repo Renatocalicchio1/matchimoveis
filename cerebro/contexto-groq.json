@@ -1,10 +1,15 @@
 {
-  "geradoEm": "2026-08-03T03:27:54.599Z",
+  "geradoEm": "2026-09-03T21:50:02.068Z",
   "paginas": [
     {
       "rota": "/app-home",
       "label": "Dashboard",
       "descricao": "Painel principal com métricas, gráficos e resumo geral"
+    },
+    {
+      "rota": "/app/resumo",
+      "label": "Tempo Real",
+      "descricao": "Resumo inteligente em tela cheia, estilo carrossel/story: prioriza leads/visitas/captações que precisam de ação agora, com comando por voz e atualização automática"
     },
     {
       "rota": "/app/imoveis",

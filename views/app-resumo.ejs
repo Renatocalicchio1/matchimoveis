@@ -181,7 +181,11 @@ if (CARDS.length) {
     bars.appendChild(b);
     const f = document.createElement('div');
     f.className = 'card-face';
-    f.style.background = 'radial-gradient(120% 90% at 20% 0%,' + hexToRgba(c.accent, .42) + ',transparent 55%),linear-gradient(165deg,#15080c 0%,#0c0708 68%)';
+    // Cor de fundo bem mais presente (pedido do Renato: "usar mais as
+    // cores da plataforma"), não só um brilho fraco — a cor da categoria
+    // (Rausch/Arches/Babu, paleta oficial Airbnb já usada no resto do
+    // app) domina o topo do card e escurece pra baixo, onde fica o texto.
+    f.style.background = 'radial-gradient(140% 110% at 15% -15%,' + hexToRgba(c.accent, .68) + ',transparent 62%),linear-gradient(175deg,' + hexToRgba(c.accent, .24) + ' 0%,#0a0a0c 70%)';
     f.style.opacity = '0';
     facesEl.appendChild(f);
   });
@@ -557,7 +561,11 @@ if (CARDS.length) {
       bars.appendChild(b);
       const f = document.createElement('div');
       f.className = 'card-face';
-      f.style.background = 'radial-gradient(120% 90% at 20% 0%,' + hexToRgba(c.accent, .42) + ',transparent 55%),linear-gradient(165deg,#15080c 0%,#0c0708 68%)';
+      // Cor de fundo bem mais presente (pedido do Renato: "usar mais as
+    // cores da plataforma"), não só um brilho fraco — a cor da categoria
+    // (Rausch/Arches/Babu, paleta oficial Airbnb já usada no resto do
+    // app) domina o topo do card e escurece pra baixo, onde fica o texto.
+    f.style.background = 'radial-gradient(140% 110% at 15% -15%,' + hexToRgba(c.accent, .68) + ',transparent 62%),linear-gradient(175deg,' + hexToRgba(c.accent, .24) + ' 0%,#0a0a0c 70%)';
       f.style.opacity = '0';
       facesEl.appendChild(f);
     });

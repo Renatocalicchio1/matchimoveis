@@ -21,7 +21,7 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
 
 .bars{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:14px;right:14px;display:flex;gap:5px;z-index:20}
 .bar{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden}
-.bar > i{display:block;height:100%;width:0%;background:#fff;border-radius:3px}
+.bar > i{display:block;height:100%;width:0%;background:var(--rausch);border-radius:3px}
 
 .card-top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 26px);left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;z-index:20}
 .chip{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:rgba(0,0,0,.34);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);padding:6px 11px 6px 9px;border-radius:20px}
@@ -89,7 +89,7 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
 .onb-code-big{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:800;letter-spacing:4px;color:#fff;background:rgba(255,255,255,.08);border:1.5px dashed rgba(255,255,255,.35);border-radius:12px;padding:14px;margin-top:10px}
 
 .mic-wrap{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;justify-content:center;z-index:25}
-.mic{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;transition:transform .15s,background .2s}
+.mic{width:60px;height:60px;border-radius:50%;background:rgba(255,56,92,.16);border:1px solid rgba(255,56,92,.4);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;transition:transform .15s,background .2s}
 .mic.on{background:var(--rausch);animation:pulse 1.1s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.55)}50%{box-shadow:0 0 0 16px rgba(255,56,92,0)}}
 
@@ -281,7 +281,26 @@ if (CARDS.length) {
       '<div class="k-meta"><span class="k-tag ' + c.tag + '">' + c.tagText + '</span><span class="k-time">' + c.time + '</span></div>';
     actions.innerHTML = '';
 
-    actions.appendChild(criarBotaoAcao(c.primary, c.primaryLink, true, c.accent));
+    if (c.curtirImovel) {
+      const curtirEl = document.createElement('button');
+      curtirEl.type = 'button';
+      curtirEl.className = 'act-btn primary';
+      curtirEl.style.setProperty('--card-accent', c.accent);
+      curtirEl.textContent = c.primary;
+      curtirEl.addEventListener('click', () => {
+        fetch('/api/favoritos/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imovelId: c.curtirImovel })
+        }).catch(() => {});
+        curtirEl.textContent = '❤️ Curtido!';
+        curtirEl.disabled = true;
+        dispararCoracoes();
+      });
+      actions.appendChild(curtirEl);
+    } else {
+      actions.appendChild(criarBotaoAcao(c.primary, c.primaryLink, true, c.accent));
+    }
 
     if (c.marcarFalado) {
       const secEl = document.createElement('button');
@@ -635,6 +654,23 @@ function abrirInfoLead(id) {
       '</div>' +
     '</div>';
   infoSheet.classList.add('open');
+
+  // "✓ Já falei" — set/2026, pedido do Renato: "mostrar que já foi
+  // comunicado". Fica aqui (não em cada card) pra não empilhar botão em
+  // cima de botão — esse painel já é o ponto comum de "ver essa lead"
+  // vindo de QUALQUER tipo de card, então marcar aqui já silencia ela em
+  // todos eles (propensão, curtiu, vitrine, nova lead) até surgir sinal novo.
+  const jaFaladoBtn = document.createElement('button');
+  jaFaladoBtn.type = 'button';
+  jaFaladoBtn.className = 'vc-btn sec';
+  jaFaladoBtn.style.marginTop = '2px';
+  jaFaladoBtn.textContent = '✓ Já falei com ela';
+  jaFaladoBtn.addEventListener('click', () => {
+    fetch('/app/lead/' + id + '/marcar-falado', { method: 'POST' }).catch(() => {});
+    jaFaladoBtn.textContent = '✅ Marcado como falado';
+    jaFaladoBtn.disabled = true;
+  });
+  infoContent.appendChild(jaFaladoBtn);
 }
 function fecharInfoSheet() {
   infoSheet.classList.remove('open');

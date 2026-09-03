@@ -17938,6 +17938,15 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   const uid  = req.session.user.id || req.session.user.userId;
   const user = req.session.user;
 
+  // Trava geral (set/2026) — essa rota nunca teve try/catch no corpo
+  // inteiro; qualquer exceção (arquivo de memória corrompido, cerebro/
+  // Groq fora do ar etc.) derrubava a requisição sem resposta nenhuma —
+  // achado testando o comando de voz do /app/resumo, que agora depende
+  // dessa rota pra perguntas abertas ("quantas leads eu tenho") e mostrava
+  // só "não consegui falar com o assistente agora" sem pista nenhuma do
+  // que aconteceu de verdade.
+  try {
+
   const { imoveis, leads, visitas, d } = _montarContextoAssistente(user);
 
   const memoriaPath = path.join(__dirname,'assistente-memoria.json');
@@ -18008,6 +18017,10 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   } catch(e){}
 
   res.json({ resposta, fonte:'cerebro' });
+  } catch (eGeral) {
+    console.error('[assistente/chat] erro geral:', eGeral.message);
+    res.json({ resposta: 'Deu um erro aqui do meu lado, tenta de novo em alguns segundos.', fonte: 'erro' });
+  }
 });
 
 // ─── Histórico do assistente por usuário ─────────────────────────────────────
@@ -20395,6 +20408,12 @@ function _construirDadosResumo(user) {
     return 'há ' + Math.floor(h / 24) + ' dias';
   };
   const waLink = tel => 'https://wa.me/55' + String(tel || '').replace(/\D/g, '').replace(/^55/, '');
+  // "Já comunicado" (set/2026, pedido do Renato: "entender o cliente que
+  // já foi comunicado, mostrar que já foi comunicado") — mesma checagem
+  // que já existia só pro card de propensão (corretorFaladoEm marcado
+  // DEPOIS do sinal em questão = não mostra de novo), agora reaproveitada
+  // por todos os cards baseados em lead, não só propensão.
+  const _jaFalado = (lead, referenciaIso) => !!(lead.corretorFaladoEm && referenciaIso && new Date(lead.corretorFaladoEm).getTime() >= new Date(referenciaIso).getTime());
   // Rodízio (set/2026, pedido do Renato: "está repetindo muita vez os
   // dados... tem que ficar um rodízio") — em vez de sempre mostrar os
   // mesmos top-N (mesma lead toda hora), pega uma janela deslizante de um
@@ -20517,6 +20536,7 @@ function _construirDadosResumo(user) {
     .filter(l => l.imoveisGostei && l.imoveisGostei.length)
     .map(l => ({ l, g: l.imoveisGostei[l.imoveisGostei.length - 1] }))
     .filter(x => horasDesde(x.g.clicadoEm) < 48)
+    .filter(x => !_jaFalado(x.l, x.g.clicadoEm))
     .sort((a, b) => new Date(b.g.clicadoEm) - new Date(a.g.clicadoEm))
     .slice(0, 9), 3)
     .forEach(({ l, g }) => {
@@ -20535,6 +20555,7 @@ function _construirDadosResumo(user) {
   // 📤 Vitrine enviada — a plataforma já fez sozinha
   _rotacionar(leads
     .filter(l => l.vitrineEnviada && l.vitrineEnviadaEm && horasDesde(l.vitrineEnviadaEm) < 48)
+    .filter(l => !_jaFalado(l, l.vitrineEnviadaEm))
     .sort((a, b) => new Date(b.vitrineEnviadaEm) - new Date(a.vitrineEnviadaEm))
     .slice(0, 9), 3)
     .forEach(l => {
@@ -20552,6 +20573,7 @@ function _construirDadosResumo(user) {
   _rotacionar(leads
     .filter(l => !(l.leadOculta === true && !((l.matches || []).length || (l.matchesBase || []).length)))
     .filter(l => horasDesde(l.criadoEm || l.data_cadastro) < 48)
+    .filter(l => !_jaFalado(l, l.criadoEm || l.data_cadastro))
     .sort((a, b) => new Date(b.criadoEm || b.data_cadastro || 0) - new Date(a.criadoEm || a.data_cadastro || 0))
     .slice(0, 9), 3)
     .forEach(l => {
@@ -20569,6 +20591,28 @@ function _construirDadosResumo(user) {
         secondary: tel ? '💬 Falar' : '👤 Ver lead', secondaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id)
       });
     });
+
+  // 🏠 Imóveis pra curtir — set/2026, pedido do Renato: "trabalha sozinho e
+  // implementa funcionalidades... pensa no Instagram, TikTok... imóveis
+  // dele, na região dele, pra o usuário curtir". Reaproveita curtida que
+  // já existia (favoritos, POST /api/favoritos/toggle) em vez de criar um
+  // sistema de curtida novo — só dá um uso novo pra ele, dentro do resumo.
+  // Só imóveis com foto (senão o card fica sem graça) e ativos. MVP: só a
+  // carteira própria do corretor por enquanto, não imóveis de parceiro/rede
+  // — dá pra estender depois se fizer sentido, mantendo simples por ora.
+  try {
+    const _imoveisComFoto = lerImoveis(user).filter(im => im.fotos && im.fotos.length && (im.status || 'ativo') === 'ativo');
+    _rotacionar(_imoveisComFoto, 3).forEach(im => {
+      cards.push({
+        ordem: 3,
+        cat: '🏠 Pra você curtir', accent: '#00A699', tag: 'babu', tagText: '✨ SUA CARTEIRA',
+        icon: '🏠', foto: im.fotos[0], nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' em ' + im.bairro) : ''),
+        detalhe: '💰 ' + (im.valor_imovel ? ('R$ ' + Number(im.valor_imovel).toLocaleString('pt-BR')) : 'Valor sob consulta'),
+        time: '', primary: '❤️ Curtir', curtirImovel: im.id,
+        secondary: '🔍 Ver imóvel', secondaryLink: '/app/imovel/' + im.id
+      });
+    });
+  } catch (e) { console.error('[resumo] erro imoveis curtir:', e.message); }
 
   // Ordena o resto por prioridade e intercala 1 "Primeiro passo" pendente a
   // cada 2 cards — set/2026, pedido do Renato: "priorizar os primeiros

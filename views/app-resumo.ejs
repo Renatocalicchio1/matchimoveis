@@ -668,12 +668,27 @@ function fecharSheet() {
 // linguagem visual dos cards do carrossel principal), nunca como lista de
 // texto — pedido do Renato: "qualquer ação que ele fizer você tem que
 // mostrar num card da ação acontecendo".
+// Monta o HTML de um botão de resultado de voz — se o link aponta pra uma
+// lead que já temos em LEADS_RESUMO, abre inline (abrirInfoLead) em vez de
+// navegar embora do resumo, igual os cards do carrossel principal já
+// fazem via criarBotaoAcao. set/2026, pedido do Renato: "ele não tem que
+// ir pro painel" — esse era o buraco que faltava (resultado de voz sempre
+// navegava, nunca checava se dava pra ficar inline).
+function _botaoResultadoVozHtml(label, link, classe) {
+  if (!link) return '';
+  const leadId = link.indexOf('/app/lead/') === 0 ? link.slice('/app/lead/'.length) : null;
+  if (leadId && LEADS_RESUMO[leadId]) {
+    return '<button type="button" class="' + classe + '" onclick="abrirInfoLead(\'' + leadId + '\')">' + label + '</button>';
+  }
+  return '<a class="' + classe + '" href="' + link + '"' + (link.indexOf('wa.me') >= 0 ? ' target="_blank"' : '') + '>' + label + '</a>';
+}
+
 function mostrarCardResultado(item) {
   const card = document.createElement('div');
   card.className = 'voice-card';
   const botoes = [];
-  if (item.primaryLink) botoes.push('<a class="vc-btn" href="' + item.primaryLink + '"' + (item.primaryLink.indexOf('wa.me') >= 0 ? ' target="_blank"' : '') + '>' + (item.primaryLabel || 'Abrir') + '</a>');
-  if (item.secondaryLink) botoes.push('<a class="vc-btn sec" href="' + item.secondaryLink + '">' + (item.secondaryLabel || 'Ver') + '</a>');
+  if (item.primaryLink) botoes.push(_botaoResultadoVozHtml(item.primaryLabel || 'Abrir', item.primaryLink, 'vc-btn'));
+  if (item.secondaryLink) botoes.push(_botaoResultadoVozHtml(item.secondaryLabel || 'Ver', item.secondaryLink, 'vc-btn sec'));
   card.innerHTML =
     (item.foto ? '<img class="vc-foto" src="' + item.foto + '" alt="">' : '') +
     '<div class="vc-top"><span class="vc-icon">' + (item.icon || '👤') + '</span><div><div class="vc-name">' + item.nome + '</div>' +

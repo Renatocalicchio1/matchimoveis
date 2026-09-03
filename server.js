@@ -20497,9 +20497,10 @@ function _construirDadosResumo(user) {
     .sort((a, b) => new Date(b.data || b.criadoEm || 0) - new Date(a.data || a.criadoEm || 0))
     .slice(0, 6), 2)
     .forEach(v => {
-      // "Ver visita" vai direto pra lead dessa visita (mais específico e
-      // útil que a lista genérica) — "Painel" continua sendo o atalho
-      // genérico pra tela de visitas inteira.
+      // Os 2 botões ficam na lead dessa visita (abre inline, sem sair do
+      // resumo — set/2026, pedido do Renato: "ele não tem que ir pro
+      // painel"). "Painel" só vira link de verdade pro /app/visitas
+      // quando a visita não tem lead vinculada (raro, mas possível).
       cards.push({
         ordem: 0,
         cat: '📅 Pedido de visita', accent: '#FC642D', tag: 'arches', tagText: '⏰ PRECISA CONFIRMAR',
@@ -20507,7 +20508,7 @@ function _construirDadosResumo(user) {
         detalhe: '🏠 ' + (v.imovelTitulo || 'Imóvel') + (v.dataVisita ? (' — ' + v.dataVisita.split('-').reverse().join('/') + (v.horaVisita ? ' às ' + v.horaVisita : '')) : ''),
         time: tempoRelativoResumo(v.data || v.criadoEm),
         primary: '✅ Confirmar visita', primaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas',
-        secondary: '📋 Painel', secondaryLink: '/app/visitas'
+        secondary: '👤 Ver lead', secondaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas'
       });
     });
 
@@ -20554,13 +20555,18 @@ function _construirDadosResumo(user) {
     .sort((a, b) => new Date(b.criadoEm || b.data_cadastro || 0) - new Date(a.criadoEm || a.data_cadastro || 0))
     .slice(0, 6), 2)
     .forEach(l => {
+      // "Painel" (ia pra /app/leads, lista inteira) trocado por "Falar" —
+      // set/2026, pedido do Renato: "ele não tem que ir pro painel", os 2
+      // botões ficam nessa lead específica (inline ou WhatsApp), nunca
+      // saindo pra lista genérica.
+      const tel = l.telefone || l.whatsapp || l.contato || '';
       cards.push({
         ordem: 1,
         cat: '🆕 Nova lead', accent: '#FC642D', tag: 'arches', tagText: '🎉 NOVA',
         icon: '🆕', nome: '🎉 ' + (l.nome || 'Uma lead') + ' chegou!',
         detalhe: '📍 Origem: ' + (l.origem || l.origemEntrada || 'manual'), time: tempoRelativoResumo(l.criadoEm || l.data_cadastro),
         primary: '👤 Ver lead', primaryLink: '/app/lead/' + l.id,
-        secondary: '📋 Painel', secondaryLink: '/app/leads'
+        secondary: tel ? '💬 Falar' : '👤 Ver lead', secondaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id)
       });
     });
 

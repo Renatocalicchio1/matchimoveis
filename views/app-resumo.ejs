@@ -29,8 +29,21 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
 
 .card-face{position:absolute;inset:0;transition:opacity .35s ease}
 
+/* coraçõezinhos subindo quando uma lead curte um imóvel — puramente
+   decorativo, não intercepta toque (pointer-events:none) */
+.hearts-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:18}
+.heart-fly{position:absolute;bottom:110px;font-size:22px;opacity:0;animation:heartFly 2.6s ease-in forwards}
+@keyframes heartFly{
+  0%{opacity:0;transform:translateY(0) translateX(0) scale(.6) rotate(0deg)}
+  12%{opacity:1;transform:translateY(-40px) translateX(var(--drift,0px)) scale(1) rotate(var(--rot,0deg))}
+  100%{opacity:0;transform:translateY(-420px) translateX(var(--drift,0px)) scale(.9) rotate(var(--rot,0deg))}
+}
+
 .card-body{position:absolute;left:22px;right:22px;bottom:150px;z-index:15}
 .k-icon{font-size:32px;margin-bottom:16px;display:block}
+/* foto real do imóvel, quando tem — substitui o ícone, compacta de
+   propósito (miniatura, não hero) pra não poluir o card */
+.k-foto{width:60px;height:60px;border-radius:16px;object-fit:cover;margin-bottom:14px;display:block;border:1px solid rgba(255,255,255,.18)}
 .k-name{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(24px,7vw,30px);line-height:1.15;text-wrap:balance;margin:0 0 9px}
 .k-detail{font-size:14.5px;color:rgba(244,243,239,.82);line-height:1.55;margin:0 0 13px;max-width:320px}
 .k-meta{display:flex;align-items:center;gap:8px}
@@ -47,16 +60,33 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
 .empty-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 32px;color:var(--ink-dim)}
 
 /* card de "primeiro passo" com ação inline (ex: importar XML) — não sai da
-   tela do resumo, preenche/confirma ali mesmo. Precisa de bem mais altura
-   que a linha única de botões padrão (.actions é flex-row, 1 linha só) —
-   por isso as classes .onb-tall/.actions-col abaixo dão folga própria pra
-   não o formulário ficar espremido/sobreposto. */
-.card-body.onb-tall{bottom:264px}
-.actions.actions-col{flex-direction:column;align-items:stretch;height:auto}
-.onb-form{display:flex;flex-direction:column;gap:10px;width:100%}
-.onb-input{width:100%;padding:14px;border-radius:13px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:#fff;font-size:14px;font-family:'Manrope',sans-serif;line-height:1.3}
+   tela do resumo, preenche/confirma ali mesmo. Antes tentava reaproveitar
+   .card-body + .actions (2 blocos independentes, cada um ancorado por
+   `bottom` e crescendo pra cima) com uma folga calculada na mão — ficou
+   frágil: em telas mais estreitas o texto quebra em mais linhas do que o
+   previsto e o formulário acaba sobreposto (bug real reportado pelo
+   Renato, com print do celular). Agora é 1 container só, em fluxo normal
+   (flex-column, não posicionamento por cálculo), com overflow-y:auto como
+   rede de segurança — pior caso ele rola dentro do próprio card, nunca
+   mais sobrepõe outra coisa. */
+.onb-card-wrap{position:absolute;top:96px;left:22px;right:22px;bottom:100px;z-index:20;display:flex;flex-direction:column;justify-content:center;gap:14px;overflow-y:auto}
+.onb-card-wrap .k-icon{margin-bottom:0}
+.onb-card-wrap .k-name{margin-bottom:0}
+.onb-card-wrap .k-detail{margin-bottom:0}
+.onb-form{display:flex;flex-direction:column;gap:10px;width:100%;flex-shrink:0}
+.onb-input{width:100%;padding:14px;border-radius:13px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:#fff;font-size:14px;font-family:'Manrope',sans-serif;line-height:1.3;box-sizing:border-box}
 .onb-input::placeholder{color:rgba(244,243,239,.4)}
 .onb-status{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(244,243,239,.65);min-height:14px}
+
+/* Conectar WhatsApp inline (QR ou código) — mesmo mecanismo de
+   /app/perfil, dentro do onb-card-wrap. */
+.onb-toggle{display:flex;gap:8px;flex-shrink:0}
+.onb-toggle button{flex:1;padding:9px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);font-size:12px;font-weight:700;color:rgba(244,243,239,.65);cursor:pointer;font-family:'Manrope',sans-serif}
+.onb-toggle button.on{background:#fff;color:#0a0a0c;border-color:#fff}
+.onb-qr-box{display:none;text-align:center;background:#fff;border-radius:14px;padding:14px;flex-shrink:0}
+.onb-qr-box img{width:170px;height:170px;display:block;margin:0 auto;border-radius:8px}
+.onb-code-box{display:none;text-align:center;flex-shrink:0}
+.onb-code-big{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:800;letter-spacing:4px;color:#fff;background:rgba(255,255,255,.08);border:1.5px dashed rgba(255,255,255,.35);border-radius:12px;padding:14px;margin-top:10px}
 
 .mic-wrap{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;justify-content:center;z-index:25}
 .mic{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;transition:transform .15s,background .2s}
@@ -80,6 +110,7 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
    principal (k-icon/k-name/act-btn), só compacto, pra qualquer ação de voz
    virar um card real na tela, não uma lista de texto */
 .voice-card{text-align:left;padding:16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column;gap:10px}
+.vc-foto{width:100%;height:110px;object-fit:cover;border-radius:12px;display:block}
 .vc-top{display:flex;align-items:flex-start;gap:10px}
 .vc-icon{font-size:22px;line-height:1}
 .vc-name{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#fff;margin:0 0 3px}
@@ -98,10 +129,12 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
   </div>
 
   <div id="faces"></div>
+  <div class="hearts-layer" id="heartsLayer"></div>
 
   <% if (cards && cards.length) { %>
   <div class="card-body" id="cardBody"></div>
   <div class="actions" id="cardActions"></div>
+  <div class="onb-card-wrap" id="onbCardWrap" style="display:none"></div>
   <% } else { %>
   <div class="empty-state">
     <div style="font-size:38px">🎯</div>
@@ -177,35 +210,72 @@ if (CARDS.length) {
     return a;
   }
 
+  // Coraçõezinhos subindo quando o card é de "curtiu um imóvel" — feedback
+  // visual rápido, puramente decorativo (pedido do Renato).
+  const heartsLayer = document.getElementById('heartsLayer');
+  function dispararCoracoes() {
+    const cores = ['❤️', '💗', '💕'];
+    for (let hi = 0; hi < 10; hi++) {
+      setTimeout(() => {
+        const h = document.createElement('span');
+        h.className = 'heart-fly';
+        h.textContent = cores[Math.floor(Math.random() * cores.length)];
+        h.style.left = (20 + Math.random() * 60) + '%';
+        h.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
+        h.style.setProperty('--rot', (Math.random() * 40 - 20) + 'deg');
+        h.style.animationDuration = (2 + Math.random()) + 's';
+        heartsLayer.appendChild(h);
+        setTimeout(() => h.remove(), 3200);
+      }, hi * 140);
+    }
+  }
+
   function renderCard(i) {
     const c = CARDS[i];
     document.getElementById('chipCat').textContent = c.cat;
+    if (c.coracoes) dispararCoracoes();
     const body = document.getElementById('cardBody');
+    const actions = document.getElementById('cardActions');
+    const onbWrap = document.getElementById('onbCardWrap');
+
+    // "Primeiro passo" com ação inline (ex: importar XML, conectar
+    // WhatsApp) — usa um container PRÓPRIO (#onbCardWrap), separado de
+    // #cardBody/#cardActions, pra não depender de 2 blocos ancorados por
+    // `bottom` que podem se sobrepor quando o texto quebra em mais linhas
+    // do que o previsto.
+    if (c.tipoAcao === 'onboarding_xml' || c.tipoAcao === 'onboarding_whatsapp') {
+      body.style.display = 'none';
+      actions.style.display = 'none';
+      onbWrap.style.display = 'flex';
+      if (c.tipoAcao === 'onboarding_xml') {
+        onbWrap.innerHTML =
+          (c.foto ? '<img class="k-foto" src="' + c.foto + '" alt="">' : '<span class="k-icon">' + c.icon + '</span>') +
+          '<h2 class="k-name">' + c.nome + '</h2>' +
+          '<p class="k-detail">' + c.detalhe + '</p>' +
+          '<div class="onb-form">' +
+            '<input type="text" id="onbXmlUrl" placeholder="Cole o link do XML aqui" class="onb-input" inputmode="url" autocapitalize="off" autocorrect="off">' +
+            '<button type="button" id="onbXmlBtn" class="act-btn primary" style="--card-accent:' + c.accent + '">📥 Importar XML</button>' +
+            '<div class="onb-status" id="onbXmlStatus"></div>' +
+          '</div>';
+        document.getElementById('onbXmlUrl').addEventListener('focus', pauseTimer);
+        document.getElementById('onbXmlBtn').addEventListener('click', iniciarImportacaoXml);
+      } else {
+        montarOnboardingWhatsapp(c);
+      }
+      [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
+      return;
+    }
+    body.style.display = '';
+    actions.style.display = '';
+    onbWrap.style.display = 'none';
+    onbWrap.innerHTML = '';
+
     body.innerHTML =
-      '<span class="k-icon">' + c.icon + '</span>' +
+      (c.foto ? '<img class="k-foto" src="' + c.foto + '" alt="">' : '<span class="k-icon">' + c.icon + '</span>') +
       '<h2 class="k-name">' + c.nome + '</h2>' +
       '<p class="k-detail">' + c.detalhe + '</p>' +
       '<div class="k-meta"><span class="k-tag ' + c.tag + '">' + c.tagText + '</span><span class="k-time">' + c.time + '</span></div>';
-    const actions = document.getElementById('cardActions');
     actions.innerHTML = '';
-
-    // "Primeiro passo" com ação inline (ex: importar XML) — preenche e
-    // confirma sem sair do resumo, em vez do primary/secondary padrão.
-    // Alterna as classes de altura/layout pra esse caso não ficar
-    // espremido — e tira de novo nos outros cards, senão fica herdado.
-    body.classList.toggle('onb-tall', c.tipoAcao === 'onboarding_xml');
-    actions.classList.toggle('actions-col', c.tipoAcao === 'onboarding_xml');
-    if (c.tipoAcao === 'onboarding_xml') {
-      actions.innerHTML =
-        '<div class="onb-form">' +
-          '<input type="text" id="onbXmlUrl" placeholder="Cole o link do XML aqui" class="onb-input" inputmode="url" autocapitalize="off" autocorrect="off">' +
-          '<button type="button" id="onbXmlBtn" class="act-btn primary" style="--card-accent:' + c.accent + '">📥 Importar XML</button>' +
-          '<div class="onb-status" id="onbXmlStatus"></div>' +
-        '</div>';
-      document.getElementById('onbXmlUrl').addEventListener('focus', pauseTimer);
-      document.getElementById('onbXmlBtn').addEventListener('click', iniciarImportacaoXml);
-      return;
-    }
 
     actions.appendChild(criarBotaoAcao(c.primary, c.primaryLink, true, c.accent));
 
@@ -225,6 +295,128 @@ if (CARDS.length) {
     }
 
     [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
+  }
+
+  // Conectar WhatsApp direto do card (QR ou código), sem sair do resumo —
+  // reaproveita as mesmas rotas de /app/perfil (GET /app/whatsapp/qrcode,
+  // GET /app/whatsapp/pairing-code, GET /app/whatsapp/status).
+  let _onbWaModo = 'qr';
+  let _onbWaTimer = null;
+
+  function montarOnboardingWhatsapp(c) {
+    onbWrap.innerHTML =
+      '<span class="k-icon">' + c.icon + '</span>' +
+      '<h2 class="k-name">' + c.nome + '</h2>' +
+      '<p class="k-detail">' + c.detalhe + '</p>' +
+      '<div class="onb-toggle">' +
+        '<button type="button" id="onbWaTabQr" class="on">📷 QR Code</button>' +
+        '<button type="button" id="onbWaTabCode">🔢 Código</button>' +
+      '</div>' +
+      '<div class="onb-qr-box" id="onbWaQrBox"><img id="onbWaQrImg" alt=""></div>' +
+      '<div class="onb-code-box" id="onbWaCodeBox">' +
+        '<input type="tel" id="onbWaNumero" class="onb-input" placeholder="Ex: 11999999999" inputmode="numeric">' +
+        '<div class="onb-code-big" id="onbWaCodeBig" style="display:none"></div>' +
+      '</div>' +
+      '<button type="button" id="onbWaBtn" class="act-btn primary" style="--card-accent:' + c.accent + '">🚀 Conectar WhatsApp</button>' +
+      '<div class="onb-status" id="onbWaStatus"></div>';
+
+    _onbWaModo = 'qr';
+    document.getElementById('onbWaTabQr').addEventListener('click', () => _alternarOnbWaModo('qr'));
+    document.getElementById('onbWaTabCode').addEventListener('click', () => _alternarOnbWaModo('code'));
+    document.getElementById('onbWaNumero').addEventListener('focus', pauseTimer);
+    document.getElementById('onbWaBtn').addEventListener('click', _conectarOnbWhatsapp);
+  }
+
+  function _alternarOnbWaModo(modo) {
+    _onbWaModo = modo;
+    document.getElementById('onbWaTabQr').classList.toggle('on', modo === 'qr');
+    document.getElementById('onbWaTabCode').classList.toggle('on', modo === 'code');
+    document.getElementById('onbWaQrBox').style.display = modo === 'qr' ? 'block' : 'none';
+    document.getElementById('onbWaCodeBox').style.display = modo === 'code' ? 'block' : 'none';
+  }
+
+  async function _conectarOnbWhatsapp() {
+    if (_onbWaModo === 'code') return _conectarOnbWhatsappCodigo();
+    const btn = document.getElementById('onbWaBtn');
+    const status = document.getElementById('onbWaStatus');
+    pauseTimer();
+    btn.textContent = '⏳ Gerando QR...';
+    btn.disabled = true;
+    status.textContent = '';
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      const resp = await fetch('/app/whatsapp/qrcode', { signal: controller.signal });
+      clearTimeout(timeout);
+      const d = await resp.json();
+      if (d.base64) {
+        const img = document.getElementById('onbWaQrImg');
+        img.src = d.base64.indexOf('data:image') === 0 ? d.base64 : ('https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(d.base64));
+        document.getElementById('onbWaQrBox').style.display = 'block';
+        btn.textContent = '🔄 Gerar novo QR';
+        btn.disabled = false;
+        _iniciarPollOnbWa();
+      } else {
+        btn.textContent = '🚀 Conectar WhatsApp';
+        btn.disabled = false;
+        status.textContent = '❌ ' + (d.erro || 'Não consegui gerar o QR.');
+      }
+    } catch (e) {
+      btn.textContent = '🚀 Conectar WhatsApp';
+      btn.disabled = false;
+      status.textContent = '❌ Conexão falhou, tenta de novo.';
+    }
+  }
+
+  async function _conectarOnbWhatsappCodigo() {
+    const btn = document.getElementById('onbWaBtn');
+    const status = document.getElementById('onbWaStatus');
+    const numero = (document.getElementById('onbWaNumero').value || '').replace(/\D/g, '');
+    if (!numero || numero.length < 10) { status.textContent = '⚠️ Informe um número válido com DDD.'; return; }
+    pauseTimer();
+    btn.textContent = '⏳ Gerando código...';
+    btn.disabled = true;
+    status.textContent = '';
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 35000);
+      const resp = await fetch('/app/whatsapp/pairing-code?numero=' + numero, { signal: controller.signal });
+      clearTimeout(timeout);
+      const d = await resp.json();
+      if (d.pairingCode) {
+        const big = document.getElementById('onbWaCodeBig');
+        big.textContent = d.pairingCode;
+        big.style.display = 'block';
+        btn.textContent = '🔄 Gerar novo código';
+        btn.disabled = false;
+        _iniciarPollOnbWa();
+      } else {
+        btn.textContent = '🚀 Conectar WhatsApp';
+        btn.disabled = false;
+        status.textContent = '❌ ' + (d.erro || 'Não consegui gerar o código.');
+      }
+    } catch (e) {
+      btn.textContent = '🚀 Conectar WhatsApp';
+      btn.disabled = false;
+      status.textContent = '❌ Conexão falhou, tenta de novo.';
+    }
+  }
+
+  function _iniciarPollOnbWa() {
+    if (_onbWaTimer) clearInterval(_onbWaTimer);
+    _onbWaTimer = setInterval(async () => {
+      try {
+        const d = await (await fetch('/app/whatsapp/status')).json();
+        if (d.status === 'open') {
+          clearInterval(_onbWaTimer);
+          _onbWaTimer = null;
+          const status = document.getElementById('onbWaStatus');
+          if (status) status.textContent = '✅🎉 WhatsApp conectado! (' + (d.numero || '') + ')';
+          const btn = document.getElementById('onbWaBtn');
+          if (btn) { btn.textContent = '✅ Conectado!'; btn.disabled = true; }
+        }
+      } catch (e) {}
+    }, 3000);
   }
 
   // Importa o XML direto do card, sem sair do resumo, e mostra o resultado
@@ -349,6 +541,55 @@ if (CARDS.length) {
   renderCard(0);
   playBar(0);
   restartTimer();
+
+  // Reconstrói o carrossel inteiro (barras + faces + card atual) quando
+  // chega um conjunto de cards novo do polling em tempo real abaixo —
+  // preserva a posição atual quando possível (não faz sentido voltar pro
+  // card 1 só porque um "há X min" mudou em outro card).
+  function reconstruirCarrossel(novosCards) {
+    CARDS.length = 0;
+    novosCards.forEach(c => CARDS.push(c));
+    bars.innerHTML = '';
+    facesEl.innerHTML = '';
+    CARDS.forEach((c) => {
+      const b = document.createElement('div');
+      b.className = 'bar'; b.innerHTML = '<i></i>';
+      bars.appendChild(b);
+      const f = document.createElement('div');
+      f.className = 'card-face';
+      f.style.background = 'radial-gradient(120% 90% at 20% 0%,' + hexToRgba(c.accent, .42) + ',transparent 55%),linear-gradient(165deg,#15080c 0%,#0c0708 68%)';
+      f.style.opacity = '0';
+      facesEl.appendChild(f);
+    });
+    idx = Math.max(0, Math.min(idx, CARDS.length - 1));
+    remaining = dur;
+    renderCard(idx);
+    playBar(idx);
+    restartTimer();
+  }
+
+  // Tempo real (set/2026, pedido do Renato: "vai ser tempo real, ele tem
+  // que acessar o tempo real") — busca dados novos a cada 40s (GET
+  // /api/resumo/dados, mesma função de montagem do servidor que a página
+  // usou no load) e só reconstrói o carrossel se os cards realmente
+  // mudaram (novo sinal, não só o "há X min" andando) — e nunca enquanto o
+  // corretor está com um sheet de voz/lead aberto, pra não interromper ele.
+  async function _atualizarDadosResumo() {
+    if (micOpen) return;
+    try {
+      const r = await fetch('/api/resumo/dados');
+      const d = await r.json();
+      if (!d || !d.ok) return;
+      Object.assign(LEADS_RESUMO, d.leadsResumo || {});
+      BUSCA_INDEX.length = 0;
+      (d.buscaIndex || []).forEach(it => BUSCA_INDEX.push(it));
+      const novosCards = d.cards || [];
+      const chaveAtual = CARDS.map(c => c.nome + '|' + c.cat).join('~');
+      const chaveNova = novosCards.map(c => c.nome + '|' + c.cat).join('~');
+      if (chaveAtual !== chaveNova && novosCards.length) reconstruirCarrossel(novosCards);
+    } catch (e) {}
+  }
+  setInterval(_atualizarDadosResumo, 40000);
 }
 
 // ── comando de voz real (Web Speech API — precisa HTTPS + Chrome/Android;
@@ -426,20 +667,70 @@ function mostrarCardResultado(item) {
   if (item.primaryLink) botoes.push('<a class="vc-btn" href="' + item.primaryLink + '"' + (item.primaryLink.indexOf('wa.me') >= 0 ? ' target="_blank"' : '') + '>' + (item.primaryLabel || 'Abrir') + '</a>');
   if (item.secondaryLink) botoes.push('<a class="vc-btn sec" href="' + item.secondaryLink + '">' + (item.secondaryLabel || 'Ver') + '</a>');
   card.innerHTML =
+    (item.foto ? '<img class="vc-foto" src="' + item.foto + '" alt="">' : '') +
     '<div class="vc-top"><span class="vc-icon">' + (item.icon || '👤') + '</span><div><div class="vc-name">' + item.nome + '</div>' +
     (item.detalhe ? '<div class="vc-detail">' + item.detalhe + '</div>' : '') + '</div></div>' +
     (botoes.length ? '<div class="vc-actions">' + botoes.join('') + '</div>' : '');
   vResults.appendChild(card);
 }
 
+// Resposta de texto livre do assistente de verdade (Central
+// Operacional/IA, reaproveita POST /app/assistente/chat) — pra perguntas
+// que não são busca por nome, tipo "quantas leads eu tenho". Construído via
+// textContent (não innerHTML) porque o texto vem de fora (a IA), nunca
+// confiar nele como HTML.
+function mostrarRespostaAssistente(texto) {
+  const card = document.createElement('div');
+  card.className = 'voice-card';
+  const top = document.createElement('div');
+  top.className = 'vc-top';
+  const icon = document.createElement('span');
+  icon.className = 'vc-icon';
+  icon.textContent = '🤖';
+  const detail = document.createElement('div');
+  detail.className = 'vc-detail';
+  detail.style.whiteSpace = 'pre-wrap';
+  detail.textContent = texto;
+  top.appendChild(icon);
+  top.appendChild(detail);
+  card.appendChild(top);
+  vResults.appendChild(card);
+}
+
+function perguntarAssistente(texto) {
+  vStatus.textContent = '🤔 pensando…';
+  fetch('/app/assistente/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mensagem: texto })
+  }).then(r => r.json()).then(d => {
+    vStatus.textContent = 'aqui está';
+    mostrarRespostaAssistente((d && d.resposta) || 'Não consegui entender, tenta de novo.');
+  }).catch(() => {
+    vStatus.textContent = '❌ não consegui falar com o assistente agora';
+  });
+}
+
 const _PALAVRAS_GENERICAS = /\b(uma?|o|a|de|do|da|lead|cliente|leads|clientes|imovel|imóvel|imoveis|imóveis)\b/g;
 
 function processarComando(texto) {
+  // Memória de tudo que o corretor fala por voz aqui — fire-and-forget,
+  // não atrasa a resposta na tela. Pedido do Renato: "capturar e criar uma
+  // memória de tudo o que ele está falando".
+  fetch('/api/resumo/comando-voz', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto })
+  }).catch(() => {});
+
   const t = normalizar(texto);
   vResults.innerHTML = '';
   const m = t.match(/^(?:busca|procura|abre|abrir|ver|mostra|traz|traga|me traz|me traga|puxa)\s+(.+)/);
   const bruto = m ? m[1].trim() : t;
   const termo = bruto.replace(_PALAVRAS_GENERICAS, ' ').replace(/\s+/g, ' ').trim();
+
+  const _pareceComando = /^(?:busca|procura|abre|abrir|ver|mostra|traz|traga|me traz|me traga|puxa)\b/.test(t);
+  const _pareceProgunta = /\b(quant|quem|qual|quais|onde|como|por ?que)\b|\?$/.test(t);
 
   if (termo) {
     const resultados = BUSCA_INDEX.filter(it => normalizar(it.nome).indexOf(termo) >= 0);
@@ -448,6 +739,7 @@ function processarComando(texto) {
       resultados.slice(0, 5).forEach(r => {
         mostrarCardResultado({
           icon: r.tipo === 'lead' ? '👤' : '🏠',
+          foto: r.foto || '',
           nome: r.nome,
           primaryLink: r.tipo === 'lead' && r.tel ? ('https://wa.me/55' + r.tel.replace(/\D/g, '').replace(/^55/, '')) : r.link,
           primaryLabel: r.tipo === 'lead' ? '💬 Falar' : 'Ver imóvel',
@@ -459,16 +751,22 @@ function processarComando(texto) {
     }
   }
 
-  // Sem nome específico (ex: "traga uma lead", "quem eu falo agora") — traz
-  // o card de maior prioridade do próprio carrossel como resultado da ação.
-  if (/\b(lead|cliente)\b/.test(t) && CARDS.length) {
+  // Sem nome específico, mas parece pedido pra trazer algo (ex: "traga uma
+  // lead", "quem eu falo agora") — não uma pergunta — traz o card de maior
+  // prioridade do carrossel como resultado da ação.
+  if (/\b(lead|cliente)\b/.test(t) && CARDS.length && (_pareceComando || !_pareceProgunta)) {
     const c = CARDS[0];
     vStatus.textContent = 'aqui está';
-    mostrarCardResultado({ icon: c.icon, nome: c.nome, detalhe: c.detalhe, primaryLink: c.primaryLink, primaryLabel: c.primary, secondaryLink: c.secondaryLink, secondaryLabel: c.secondary });
+    mostrarCardResultado({ icon: c.icon, foto: c.foto || '', nome: c.nome, detalhe: c.detalhe, primaryLink: c.primaryLink, primaryLabel: c.primary, secondaryLink: c.secondaryLink, secondaryLabel: c.secondary });
     return;
   }
 
-  vStatus.textContent = termo ? ('não encontrei "' + termo + '"') : 'não entendi, tenta de novo';
+  // Nada disso — pergunta aberta de verdade (ex: "quantas leads eu tenho",
+  // "tem alguma visita hoje"). Usa o assistente real (Central
+  // Operacional/IA) em vez de tentar adivinhar aqui — pedido do Renato:
+  // "precisa colocar a nossa inteligência pra entender o que ele está
+  // perguntando".
+  perguntarAssistente(texto);
 }
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -486,6 +784,11 @@ if (SR) {
     vTranscript.classList.add('show');
     if (e.results[e.results.length - 1].isFinal) {
       vStatus.textContent = 'entendi';
+      // Bug real reportado pelo Renato: terminou de falar e o microfone
+      // continuava captando (ficava "aberto" esperando mais áudio). Já
+      // temos o resultado final — para a escuta na hora, não espera o
+      // navegador decidir sozinho quando encerrar.
+      recognition.stop();
       processarComando(texto);
     }
   };

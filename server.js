@@ -20374,13 +20374,15 @@ app.get('/app/certidoes', auth, (req, res) => {
 // Negócios" — ver conceito em CLAUDE.md) — tela de repouso do corretor em
 // formato story/carrossel: cada card já é uma ação, não só um dado, com
 // comando de voz real (Web Speech API, precisa HTTPS + Chrome/Android).
-// Liberado só na conta de teste (mesma trava de /app/academia e
-// /app/certidoes) e sem entrada no menu ainda — só link direto, a pedido
-// do Renato, pra testar no celular antes de decidir levar pro menu.
 // Tudo lido do CACHE em memória (lerLeads/_cacheVisitas/lerImoveis, sem
 // query no banco) de propósito — pedido explícito: "não pode ter
 // carregado", a tela tem que abrir pronta.
-app.get('/app/resumo', auth, (req, res) => {
+//
+// Monta os dados (cards + índice de busca + resumo de leads) — extraído em
+// função própria (set/2026) pra ser reaproveitado tanto pela página (GET
+// /app/resumo) quanto pelo polling em tempo real (GET /api/resumo/dados,
+// ver abaixo), sem duplicar a lógica dos 2 lados.
+function _construirDadosResumo(user) {
   const agora = Date.now();
   const horasDesde = iso => iso ? (agora - new Date(iso).getTime()) / 3600000 : Infinity;
   const tempoRelativoResumo = iso => {
@@ -20393,11 +20395,32 @@ app.get('/app/resumo', auth, (req, res) => {
     return 'há ' + Math.floor(h / 24) + ' dias';
   };
   const waLink = tel => 'https://wa.me/55' + String(tel || '').replace(/\D/g, '').replace(/^55/, '');
+  // Rodízio (set/2026, pedido do Renato: "está repetindo muita vez os
+  // dados... tem que ficar um rodízio") — em vez de sempre mostrar os
+  // mesmos top-N (mesma lead toda hora), pega uma janela deslizante de um
+  // pool maior já ordenado por importância, trocando a cada 5min. Continua
+  // "mais importante primeiro" (o pool em si já vem ordenado), só circula
+  // por mais gente ao longo do tempo em vez de travar nas 2 primeiras.
+  const _rotacionar = (lista, tamanho) => {
+    if (lista.length <= tamanho) return lista;
+    const bucket = Math.floor(agora / (5 * 60 * 1000));
+    const offset = bucket % lista.length;
+    const janela = [];
+    for (let ri = 0; ri < tamanho; ri++) janela.push(lista[(offset + ri) % lista.length]);
+    return janela;
+  };
 
-  const leads = lerLeads(req.session.user)
+  const leads = lerLeads(user)
     .filter(l => l.tipoLead !== 'corretor')
     .filter(l => !_ehLeadCaptacao(l));
-  const visitas = filtrarPorUsuario(_cacheVisitas || [], req.session.user);
+  const visitas = filtrarPorUsuario(_cacheVisitas || [], user);
+
+  // Foto do imóvel por ID, pra ilustrar os cards ("o imóvel que o cara
+  // navegou" — pedido do Renato) sem precisar buscar de novo no banco.
+  const _mapaFotoImovel = {};
+  lerImoveis(user).forEach(im => {
+    if (im.fotos && im.fotos.length) _mapaFotoImovel[String(im.id)] = im.fotos[0];
+  });
 
   const cards = [];
 
@@ -20410,24 +20433,31 @@ app.get('/app/resumo', auth, (req, res) => {
   // inline); os outros passos, por enquanto, continuam levando pra tela
   // certa (mesmo padrão dos outros cards) até virarem inline também.
   try {
-    _passosOnboarding(req.session.user)
+    _passosOnboarding(user)
       .filter(p => !p.feito)
       .slice(0, 2)
       .forEach(p => {
         if (p.key === 'xml') {
           cards.push({
             ordem: 1,
-            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: 'CONFIGURAÇÃO',
-            icon: '📥', nome: p.label, detalhe: p.desc, time: '',
+            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: '🚀 CONFIGURAÇÃO',
+            icon: '📥', nome: '📥 ' + p.label, detalhe: p.desc, time: '',
             tipoAcao: 'onboarding_xml'
+          });
+        } else if (p.key === 'whatsapp') {
+          cards.push({
+            ordem: 1,
+            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: '🚀 CONFIGURAÇÃO',
+            icon: '💬', nome: '💬 ' + p.label, detalhe: p.desc, time: '',
+            tipoAcao: 'onboarding_whatsapp'
           });
         } else {
           cards.push({
             ordem: 1,
-            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: 'CONFIGURAÇÃO',
-            icon: '⚙️', nome: p.label, detalhe: p.desc, time: '',
-            primary: p.acao, primaryLink: p.link,
-            secondary: 'Ver todos os passos', secondaryLink: '/app-home'
+            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: '🚀 CONFIGURAÇÃO',
+            icon: '⚙️', nome: '⚙️ ' + p.label, detalhe: p.desc, time: '',
+            primary: '⚡ ' + p.acao, primaryLink: p.link,
+            secondary: '📋 Ver todos os passos', secondaryLink: '/app-home'
           });
         }
       });
@@ -20441,94 +20471,96 @@ app.get('/app/resumo', auth, (req, res) => {
     const { calcularPropensao } = require('./cerebro/propensao');
     leads.forEach(l => { l._propensaoResumo = calcularPropensao(l, []); });
   } catch (e) { console.error('[resumo] erro propensao:', e.message); }
-  leads
+  _rotacionar(leads
     .filter(l => l._propensaoResumo && l._propensaoResumo.tier !== 'baixa')
     .filter(l => !l.corretorFaladoEm || !l._propensaoResumo.atualizadoEm || new Date(l.corretorFaladoEm).getTime() < new Date(l._propensaoResumo.atualizadoEm).getTime())
     .sort((a, b) => b._propensaoResumo.score - a._propensaoResumo.score)
-    .slice(0, 2)
+    .slice(0, 6), 2)
     .forEach(l => {
       const p = l._propensaoResumo;
       const tel = l.telefone || l.whatsapp || l.contato || '';
+      const _fotoMotivo = p.motivoImovel && p.motivoImovel.id ? _mapaFotoImovel[String(p.motivoImovel.id)] : '';
       cards.push({
         ordem: p.tier === 'alta' ? 0 : 1,
         cat: p.tier === 'alta' ? '🔥 Propensão alta' : '🌤 Propensão média', accent: p.tier === 'alta' ? '#FF385C' : '#FC642D',
-        tag: p.tier === 'alta' ? 'rausch' : 'arches', tagText: 'FALE AGORA',
-        icon: p.tier === 'alta' ? '🔥' : '🌤', nome: (l.nome || 'Uma lead') + ' quer fechar',
-        detalhe: p.motivo || 'Sinal de interesse detectado.', time: p.tempoRelativo || '',
-        primary: '💬 Falar agora', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
-        secondary: 'Ver lead', secondaryLink: '/app/lead/' + l.id
+        tag: p.tier === 'alta' ? 'rausch' : 'arches', tagText: p.tier === 'alta' ? '⚡ FALE AGORA' : '🌤 ESQUENTANDO',
+        icon: p.tier === 'alta' ? '🔥' : '🌤', foto: _fotoMotivo || '', nome: (p.tier === 'alta' ? '🔥 ' : '') + (l.nome || 'Uma lead') + (p.tier === 'alta' ? ' está pronta pra fechar!' : ' demonstrou interesse'),
+        detalhe: '👀 ' + (p.motivo || 'Sinal de interesse detectado.'), time: p.tempoRelativo || '',
+        primary: p.tier === 'alta' ? '💬🔥 Falar agora' : '💬 Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
+        secondary: '👤 Ver lead', secondaryLink: '/app/lead/' + l.id
       });
     });
 
   // 📅 Pedido de visita pendente
-  visitas
+  _rotacionar(visitas
     .filter(v => v.status === 'solicitada')
     .sort((a, b) => new Date(b.data || b.criadoEm || 0) - new Date(a.data || a.criadoEm || 0))
-    .slice(0, 2)
+    .slice(0, 6), 2)
     .forEach(v => {
       // "Ver visita" vai direto pra lead dessa visita (mais específico e
       // útil que a lista genérica) — "Painel" continua sendo o atalho
       // genérico pra tela de visitas inteira.
       cards.push({
         ordem: 0,
-        cat: '📅 Pedido de visita', accent: '#FC642D', tag: 'arches', tagText: 'PRECISA CONFIRMAR',
-        icon: '📅', nome: (v.nome || v.contato || 'Alguém') + ' pediu uma visita',
-        detalhe: (v.imovelTitulo || 'Imóvel') + (v.dataVisita ? (' — ' + v.dataVisita.split('-').reverse().join('/') + (v.horaVisita ? ' às ' + v.horaVisita : '')) : ''),
+        cat: '📅 Pedido de visita', accent: '#FC642D', tag: 'arches', tagText: '⏰ PRECISA CONFIRMAR',
+        icon: '📅', nome: '🙋 ' + (v.nome || v.contato || 'Alguém') + ' pediu uma visita!',
+        detalhe: '🏠 ' + (v.imovelTitulo || 'Imóvel') + (v.dataVisita ? (' — ' + v.dataVisita.split('-').reverse().join('/') + (v.horaVisita ? ' às ' + v.horaVisita : '')) : ''),
         time: tempoRelativoResumo(v.data || v.criadoEm),
-        primary: '✅ Ver visita', primaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas',
-        secondary: 'Painel', secondaryLink: '/app/visitas'
+        primary: '✅ Confirmar visita', primaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas',
+        secondary: '📋 Painel', secondaryLink: '/app/visitas'
       });
     });
 
   // ❤️ Curtiu um imóvel (Gostei) — pega o clique mais recente de cada lead
-  leads
+  _rotacionar(leads
     .filter(l => l.imoveisGostei && l.imoveisGostei.length)
     .map(l => ({ l, g: l.imoveisGostei[l.imoveisGostei.length - 1] }))
     .filter(x => horasDesde(x.g.clicadoEm) < 48)
     .sort((a, b) => new Date(b.g.clicadoEm) - new Date(a.g.clicadoEm))
-    .slice(0, 2)
+    .slice(0, 6), 2)
     .forEach(({ l, g }) => {
       const tel = l.telefone || l.whatsapp || l.contato || '';
       cards.push({
         ordem: 1,
-        cat: '❤️ Curtiu um imóvel', accent: '#FF385C', tag: 'rausch', tagText: 'SINAL FORTE',
-        icon: '❤️', nome: (l.nome || 'Uma lead') + ' curtiu um imóvel',
-        detalhe: (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm),
-        primary: '💬 Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
-        secondary: 'Ver lead', secondaryLink: '/app/lead/' + l.id
+        cat: '❤️ Curtiu um imóvel', accent: '#FF385C', tag: 'rausch', tagText: '🔥 SINAL FORTE',
+        icon: '❤️', foto: g.foto || '', nome: '❤️ ' + (l.nome || 'Uma lead') + ' AMOU um imóvel!',
+        detalhe: '🏠 ' + (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm),
+        primary: '💬❤️ Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
+        secondary: '👤 Ver lead', secondaryLink: '/app/lead/' + l.id,
+        coracoes: true
       });
     });
 
   // 📤 Vitrine enviada — a plataforma já fez sozinha
-  leads
+  _rotacionar(leads
     .filter(l => l.vitrineEnviada && l.vitrineEnviadaEm && horasDesde(l.vitrineEnviadaEm) < 48)
     .sort((a, b) => new Date(b.vitrineEnviadaEm) - new Date(a.vitrineEnviadaEm))
-    .slice(0, 2)
+    .slice(0, 6), 2)
     .forEach(l => {
       cards.push({
         ordem: 2,
-        cat: '📤 Vitrine enviada', accent: '#00A699', tag: 'babu', tagText: 'AUTOMÁTICO',
-        icon: '📤', nome: 'Vitrine enviada pra ' + (l.nome || 'uma lead'),
-        detalhe: (l.matchCount || (l.matches || []).length || 0) + ' imóveis selecionados.', time: tempoRelativoResumo(l.vitrineEnviadaEm),
-        primary: 'Ver lead', primaryLink: '/app/lead/' + l.id,
-        secondary: 'Marcar como falado', secondaryLink: '', marcarFalado: l.id
+        cat: '📤 Vitrine enviada', accent: '#00A699', tag: 'babu', tagText: '🤖 AUTOMÁTICO',
+        icon: '📤', nome: '✅ Vitrine enviada pra ' + (l.nome || 'uma lead') + '!',
+        detalhe: '🏠✨ ' + (l.matchCount || (l.matches || []).length || 0) + ' imóveis selecionados automaticamente.', time: tempoRelativoResumo(l.vitrineEnviadaEm),
+        primary: '👤 Ver lead', primaryLink: '/app/lead/' + l.id,
+        secondary: '✓ Marcar como falado', secondaryLink: '', marcarFalado: l.id
       });
     });
 
   // 🆕 Nova lead — mesmo filtro de "visível" do resto da plataforma
-  leads
+  _rotacionar(leads
     .filter(l => !(l.leadOculta === true && !((l.matches || []).length || (l.matchesBase || []).length)))
     .filter(l => horasDesde(l.criadoEm || l.data_cadastro) < 48)
     .sort((a, b) => new Date(b.criadoEm || b.data_cadastro || 0) - new Date(a.criadoEm || a.data_cadastro || 0))
-    .slice(0, 2)
+    .slice(0, 6), 2)
     .forEach(l => {
       cards.push({
         ordem: 1,
-        cat: '🆕 Nova lead', accent: '#FC642D', tag: 'arches', tagText: 'NOVA',
-        icon: '🆕', nome: (l.nome || 'Uma lead') + ' entrou em contato',
-        detalhe: 'Origem: ' + (l.origem || l.origemEntrada || 'manual'), time: tempoRelativoResumo(l.criadoEm || l.data_cadastro),
-        primary: 'Ver lead', primaryLink: '/app/lead/' + l.id,
-        secondary: 'Painel', secondaryLink: '/app/leads'
+        cat: '🆕 Nova lead', accent: '#FC642D', tag: 'arches', tagText: '🎉 NOVA',
+        icon: '🆕', nome: '🎉 ' + (l.nome || 'Uma lead') + ' chegou!',
+        detalhe: '📍 Origem: ' + (l.origem || l.origemEntrada || 'manual'), time: tempoRelativoResumo(l.criadoEm || l.data_cadastro),
+        primary: '👤 Ver lead', primaryLink: '/app/lead/' + l.id,
+        secondary: '📋 Painel', secondaryLink: '/app/leads'
       });
     });
 
@@ -20538,7 +20570,7 @@ app.get('/app/resumo', auth, (req, res) => {
   // imóveis, tudo já em memória (mesmo motivo de não bater no banco acima)
   const buscaIndex = [
     ...leads.map(l => ({ tipo: 'lead', nome: l.nome || l.telefone || l.contato || 'Lead', tel: l.telefone || l.whatsapp || l.contato || '', link: '/app/lead/' + l.id })),
-    ...lerImoveis(req.session.user).slice(0, 500).map(im => ({ tipo: 'imovel', nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' ' + im.bairro) : ''), link: '/app/imovel/' + im.id }))
+    ...lerImoveis(user).slice(0, 500).map(im => ({ tipo: 'imovel', nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' ' + im.bairro) : ''), foto: (im.fotos && im.fotos[0]) || '', link: '/app/imovel/' + im.id }))
   ].filter(it => it.nome);
 
   // Resumo rápido de cada lead referenciada nos cards (nome, telefone, o
@@ -20568,7 +20600,50 @@ app.get('/app/resumo', auth, (req, res) => {
     };
   });
 
+  return { cards, buscaIndex, leadsResumo };
+}
+
+// Sem entrada no menu ainda — só link direto, a pedido do Renato, pra
+// testar antes de decidir levar pro menu geral.
+app.get('/app/resumo', auth, (req, res) => {
+  const { cards, buscaIndex, leadsResumo } = _construirDadosResumo(req.session.user);
   res.render('app-resumo', { user: req.session.user, cards, buscaIndex, leadsResumo });
+});
+
+// Tempo real (set/2026, pedido do Renato: "vai ser tempo real, ele tem que
+// acessar o tempo real") — a página faz polling nessa rota a cada ~40s pra
+// atualizar os cards sem precisar recarregar a tela inteira. Mesma função
+// de montagem de dados do GET /app/resumo, só devolvendo JSON.
+app.get('/api/resumo/dados', auth, (req, res) => {
+  try {
+    res.json({ ok: true, ...(_construirDadosResumo(req.session.user)) });
+  } catch (e) {
+    console.error('[resumo] erro /api/resumo/dados:', e.message);
+    res.json({ ok: false });
+  }
+});
+
+// Memória de TUDO que o corretor fala por voz no /app/resumo — set/2026,
+// pedido do Renato: "tem que capturar e criar uma memória de tudo o que
+// ele está falando". Reaproveita services/memory.js (logEvent/readEvents),
+// infra genérica de log de eventos que já existia no projeto mas ainda não
+// tinha nenhum chamador — grava cada comando de voz, seja qual for o
+// caminho que ele tomou depois (busca, card genérico, assistente).
+app.post('/api/resumo/comando-voz', auth, (req, res) => {
+  try {
+    const texto = String(req.body.texto || '').trim();
+    if (!texto) return res.json({ ok: false });
+    const { logEvent } = require('./services/memory');
+    logEvent({
+      type: 'comando_voz_resumo',
+      corretorId: req.session.user.id || req.session.user.codigoUsuario,
+      meta: { texto }
+    });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[comando-voz]', e.message);
+    res.json({ ok: false });
+  }
 });
 
 app.get('/app/parceiros', auth, async (req, res) => {

@@ -578,6 +578,9 @@ function toggleMaisMenu(){
      flutuando por cima do conteúdo o tempo todo. -->
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
   <% if(user && !_menuRestrito){ %>
+  <a href="/app/resumo" style="display:inline-flex;align-items:center;gap:5px;background:#fff1f3;border:1px solid #fecdd3;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#FF385C;text-decoration:none;white-space:nowrap">
+    ⚡ Tempo real
+  </a>
   <a href="/app/notificacoes#radar" id="radarBadge" style="display:none;align-items:center;gap:5px;background:#fff1f3;border:1px solid #fecdd3;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#FF385C;text-decoration:none;white-space:nowrap">
     🎯 Radar <span id="radarBadgeCount"></span>
   </a>

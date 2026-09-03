@@ -20429,6 +20429,15 @@ app.get('/app/certidoes', auth, (req, res) => {
 // /app/resumo) quanto pelo polling em tempo real (GET /api/resumo/dados,
 // ver abaixo), sem duplicar a lógica dos 2 lados.
 function _construirDadosResumo(user) {
+  // user vem de req.session.user — foto tirada no login, não atualiza sozinha
+  // quando o corretor conecta WhatsApp/Instagram ou importa XML depois de
+  // logado (só atualiza se a rota específica escrever de volta na sessão, o
+  // que nem sempre acontece — ex: conexão feita em outra aba/dispositivo).
+  // Resultado: card de "Conectar WhatsApp" continuava aparecendo pro
+  // corretor mesmo já conectado. Busca a versão fresca no cache (mesmo
+  // padrão já usado alhures no arquivo) pra essa tela nunca mostrar passo
+  // como pendente que já foi concluído de verdade no banco.
+  user = (_cacheUsuarios || []).find(u => u.id === user.id) || user;
   const agora = Date.now();
   const horasDesde = iso => iso ? (agora - new Date(iso).getTime()) / 3600000 : Infinity;
   const tempoRelativoResumo = iso => {

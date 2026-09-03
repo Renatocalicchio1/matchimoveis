@@ -47,9 +47,14 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
 .empty-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 32px;color:var(--ink-dim)}
 
 /* card de "primeiro passo" com ação inline (ex: importar XML) — não sai da
-   tela do resumo, preenche/confirma ali mesmo */
-.onb-form{display:flex;flex-direction:column;gap:9px}
-.onb-input{padding:13px 14px;border-radius:13px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:13.5px;font-family:'Manrope',sans-serif}
+   tela do resumo, preenche/confirma ali mesmo. Precisa de bem mais altura
+   que a linha única de botões padrão (.actions é flex-row, 1 linha só) —
+   por isso as classes .onb-tall/.actions-col abaixo dão folga própria pra
+   não o formulário ficar espremido/sobreposto. */
+.card-body.onb-tall{bottom:264px}
+.actions.actions-col{flex-direction:column;align-items:stretch;height:auto}
+.onb-form{display:flex;flex-direction:column;gap:10px;width:100%}
+.onb-input{width:100%;padding:14px;border-radius:13px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:#fff;font-size:14px;font-family:'Manrope',sans-serif;line-height:1.3}
 .onb-input::placeholder{color:rgba(244,243,239,.4)}
 .onb-status{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:rgba(244,243,239,.65);min-height:14px}
 
@@ -113,11 +118,18 @@ body{background:#000;color:var(--ink);font-family:'Manrope',sans-serif}
     <div class="voice-transcript" id="voiceTranscript"></div>
     <div id="voiceResults" class="voice-results"></div>
   </div>
+
+  <!-- Painel rápido de lead — abre "Ver lead" dentro do próprio resumo, sem
+       navegar embora (mesma mecânica de slide-up do voice-sheet). -->
+  <div class="voice-sheet" id="infoSheet">
+    <div id="infoContent"></div>
+  </div>
 </div>
 
 <script>
 const CARDS = <%- JSON.stringify(cards || []) %>;
 const BUSCA_INDEX = <%- JSON.stringify(buscaIndex || []) %>;
+const LEADS_RESUMO = <%- JSON.stringify(leadsResumo || {}) %>;
 
 let idx = 0, timer = null, dur = 7000, startedAt = 0, remaining = dur, micOpen = false;
 const bars = document.getElementById('bars');
@@ -141,6 +153,30 @@ if (CARDS.length) {
     facesEl.appendChild(f);
   });
 
+  // Monta um botão de ação — se o link aponta pra /app/lead/:id e a gente
+  // já tem o resumo dessa lead (LEADS_RESUMO), abre o painel inline em vez
+  // de navegar embora da tela do resumo; qualquer outro link (WhatsApp,
+  // /app/visitas, /app/leads etc.) continua navegação normal.
+  function criarBotaoAcao(label, link, isPrimary, accent) {
+    const leadId = link && link.indexOf('/app/lead/') === 0 ? link.slice('/app/lead/'.length) : null;
+    if (leadId && LEADS_RESUMO[leadId]) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'act-btn' + (isPrimary ? ' primary' : '');
+      if (isPrimary) btn.style.setProperty('--card-accent', accent);
+      btn.textContent = label;
+      btn.addEventListener('click', () => abrirInfoLead(leadId));
+      return btn;
+    }
+    const a = document.createElement('a');
+    a.className = 'act-btn' + (isPrimary ? ' primary' : '');
+    if (isPrimary) a.style.setProperty('--card-accent', accent);
+    a.textContent = label;
+    a.href = link || '#';
+    if ((link || '').indexOf('wa.me') >= 0) a.target = '_blank';
+    return a;
+  }
+
   function renderCard(i) {
     const c = CARDS[i];
     document.getElementById('chipCat').textContent = c.cat;
@@ -155,6 +191,10 @@ if (CARDS.length) {
 
     // "Primeiro passo" com ação inline (ex: importar XML) — preenche e
     // confirma sem sair do resumo, em vez do primary/secondary padrão.
+    // Alterna as classes de altura/layout pra esse caso não ficar
+    // espremido — e tira de novo nos outros cards, senão fica herdado.
+    body.classList.toggle('onb-tall', c.tipoAcao === 'onboarding_xml');
+    actions.classList.toggle('actions-col', c.tipoAcao === 'onboarding_xml');
     if (c.tipoAcao === 'onboarding_xml') {
       actions.innerHTML =
         '<div class="onb-form">' +
@@ -167,27 +207,22 @@ if (CARDS.length) {
       return;
     }
 
-    const primaryEl = document.createElement('a');
-    primaryEl.className = 'act-btn primary';
-    primaryEl.style.setProperty('--card-accent', c.accent);
-    primaryEl.textContent = c.primary;
-    primaryEl.href = c.primaryLink || '#';
-    if ((c.primaryLink || '').indexOf('wa.me') >= 0) primaryEl.target = '_blank';
-    actions.appendChild(primaryEl);
+    actions.appendChild(criarBotaoAcao(c.primary, c.primaryLink, true, c.accent));
 
-    const secEl = document.createElement(c.marcarFalado ? 'button' : 'a');
-    secEl.className = 'act-btn';
-    secEl.textContent = c.secondary;
     if (c.marcarFalado) {
+      const secEl = document.createElement('button');
+      secEl.type = 'button';
+      secEl.className = 'act-btn';
+      secEl.textContent = c.secondary;
       secEl.addEventListener('click', () => {
         fetch('/app/lead/' + c.marcarFalado + '/marcar-falado', { method: 'POST' }).catch(() => {});
         secEl.textContent = '✓ Falado';
         secEl.disabled = true;
       });
+      actions.appendChild(secEl);
     } else {
-      secEl.href = c.secondaryLink || '#';
+      actions.appendChild(criarBotaoAcao(c.secondary, c.secondaryLink, false, c.accent));
     }
-    actions.appendChild(secEl);
 
     [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
   }
@@ -323,6 +358,41 @@ const sheet = document.getElementById('voiceSheet');
 const vStatus = document.getElementById('voiceStatus');
 const vTranscript = document.getElementById('voiceTranscript');
 const vResults = document.getElementById('voiceResults');
+
+// ── painel rápido de lead (abre "Ver lead" dentro do resumo, sem navegar
+// embora) — mesmo cartão visual do resultado de voz (.voice-card), só que
+// alimentado por LEADS_RESUMO (já veio pronto do servidor, sem round-trip) ──
+const infoSheet = document.getElementById('infoSheet');
+const infoContent = document.getElementById('infoContent');
+
+function abrirInfoLead(id) {
+  const info = LEADS_RESUMO[id];
+  if (!info) { location.href = '/app/lead/' + id; return; }
+  if (typeof pauseTimer === 'function') pauseTimer();
+  micOpen = true; // reaproveita a trava que impede o carrossel de avançar sozinho com um sheet aberto
+  const gostei = info.gostei && info.gostei.length ? ('<div class="vc-detail">❤️ Curtiu: ' + info.gostei.join(', ') + '</div>') : '';
+  const atividade = info.ultimaAtividade ? ('<div class="vc-detail">🕓 Última atividade: ' + info.ultimaAtividade + '</div>') : '';
+  const telLimpo = (info.telefone || '').replace(/\D/g, '');
+  infoContent.innerHTML =
+    '<div class="voice-card" style="margin:0">' +
+      '<div class="vc-top"><span class="vc-icon">👤</span><div>' +
+        '<div class="vc-name">' + info.nome + '</div>' +
+        '<div class="vc-detail">' + (info.telefone || 'sem telefone') + ' · ' + info.matchCount + ' imóve' + (info.matchCount === 1 ? 'l' : 'is') + ' em match · origem: ' + info.origem + '</div>' +
+        gostei + atividade +
+      '</div></div>' +
+      '<div class="vc-actions">' +
+        (telLimpo ? '<a class="vc-btn" target="_blank" href="https://wa.me/55' + telLimpo.replace(/^55/, '') + '">💬 Falar</a>' : '') +
+        '<a class="vc-btn sec" href="' + info.link + '">Perfil completo</a>' +
+      '</div>' +
+    '</div>';
+  infoSheet.classList.add('open');
+}
+function fecharInfoSheet() {
+  infoSheet.classList.remove('open');
+  micOpen = false;
+  if (typeof restartTimer === 'function') restartTimer();
+}
+infoSheet.addEventListener('click', (e) => { if (e.target === infoSheet) fecharInfoSheet(); });
 
 function normalizar(s) {
   return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();

@@ -19424,6 +19424,94 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     return res.json({ ok: false, erro: e.message });
   }
 });
+
+// Conectar o WhatsApp por CÓDIGO (pareamento por número) — alternativa ao QR
+// pra quem não consegue escanear (ex: WhatsApp Web sem câmera fácil, ou
+// preferência mesmo). Mesmo endpoint Evolution API usado no QR
+// (/instance/connect/:instance), só que passando ?number= o Baileys retorna
+// um pairingCode de 8 caracteres em vez do QR — a pessoa digita esse código
+// em WhatsApp → Aparelhos conectados → Conectar com número de telefone.
+// set/2026, pedido do Renato. Mesmo padrão de criação/instância do QR,
+// duplicado aqui de propósito (não como função compartilhada) porque as
+// respostas da Evolution divergem bastante entre os dois modos e misturar
+// deixaria as duas rotas mais frágeis de entender/manter separadas.
+app.get('/app/whatsapp/pairing-code', auth, async (req, res) => {
+  const userId = req.session.user.id;
+  const numero = String(req.query.numero || '').replace(/\D/g, '');
+  if (!numero || numero.length < 10) {
+    return res.json({ ok: false, erro: 'Informe um número válido, com DDD (ex: 11999999999).' });
+  }
+  const { lerUsuarios: _luPC, salvarTodosUsuarios: _salvarPC } = require('./services/salvarUsuario');
+  const _usersPC = await _luPC();
+  const _userPC = _usersPC.find(u => u.id === userId);
+  if ((_userPC?.matchCoins || 0) <= 0) {
+    return res.json({ ok: false, erro: 'Sem créditos — recarregue para conectar o WhatsApp novamente.' });
+  }
+  const EVOLUTION_URL_PC = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+  const EVOLUTION_KEY_PC = process.env.EVOLUTION_KEY || 'match2025evolution';
+  const _numeroCompleto = numero.startsWith('55') ? numero : ('55' + numero);
+  let instanceNamePC = 'match-' + userId.replace(/[^a-z0-9]/gi,'').toLowerCase().substring(0,20);
+  try {
+    await fetch(EVOLUTION_URL_PC + '/instance/delete/' + instanceNamePC, { method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY_PC } }).catch(()=>{});
+    delete _qrCache[instanceNamePC];
+    await new Promise(r => setTimeout(r, 1000));
+    const createRes = await fetch(EVOLUTION_URL_PC + '/instance/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY_PC },
+      body: JSON.stringify({
+        instanceName: instanceNamePC,
+        integration: 'WHATSAPP-BAILEYS',
+        qrcode: true,
+        number: _numeroCompleto,
+        webhook: {
+          url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp',
+          enabled: true,
+          byEvents: true,
+          events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED']
+        }
+      })
+    });
+    const createData = await createRes.json();
+    let instanceToken = createData?.hash;
+    if (!instanceToken) {
+      try {
+        const fetchRes = await fetch(EVOLUTION_URL_PC + '/instance/fetchInstances', { headers: { 'apikey': EVOLUTION_KEY_PC } });
+        const fetchData = await fetchRes.json();
+        const instList = Array.isArray(fetchData) ? fetchData : (fetchData?.data || []);
+        const inst = instList.find(i => i.name === instanceNamePC);
+        instanceToken = inst?.token || null;
+      } catch(e) { console.log('[PAIRING] erro fetchInstances:', e.message); }
+    }
+    const _usersPC2 = await _luPC();
+    const _idxPC = _usersPC2.findIndex(u => u.id === userId);
+    if (_idxPC >= 0) { _usersPC2[_idxPC].whatsappInstance = instanceNamePC; _usersPC2[_idxPC].whatsappStatus = 'connecting'; await _salvarPC(_usersPC2).catch(()=>{}); }
+
+    const pairingDireto = createData?.pairingCode || createData?.instance?.pairingCode;
+    if (pairingDireto) {
+      return res.json({ ok: true, pairingCode: pairingDireto, instanceName: instanceNamePC });
+    }
+    // Polling: busca o código via /instance/connect a cada 3s, igual o QR
+    for (let _pi = 0; _pi < 10; _pi++) {
+      await new Promise(r => setTimeout(r, 3000));
+      try {
+        const pcRes = await fetch(EVOLUTION_URL_PC + '/instance/connect/' + instanceNamePC + '?number=' + _numeroCompleto, {
+          headers: { 'apikey': instanceToken }
+        });
+        const pcData = await pcRes.json();
+        const pairing = pcData?.pairingCode || pcData?.pairCode;
+        if (pairing) {
+          console.log('[PAIRING] código encontrado via connect tentativa', _pi + 1);
+          return res.json({ ok: true, pairingCode: pairing, instanceName: instanceNamePC });
+        }
+        console.log('[PAIRING] connect tentativa', _pi + 1, ':', JSON.stringify(pcData).substring(0, 80));
+      } catch(_pcErr) { console.log('[PAIRING] erro connect:', _pcErr.message); }
+    }
+    return res.json({ ok: false, erro: 'Código não gerado em 30s — tente novamente' });
+  } catch(e) {
+    return res.json({ ok: false, erro: e.message });
+  }
+});
+
 // ROTA_QRCODE_ANTIGA_DESATIVADA
 app.get('/app/whatsapp/qrcode_old_disabled', auth, async (req, res) => {
   const userId = req.session.user.id;
@@ -20453,7 +20541,34 @@ app.get('/app/resumo', auth, (req, res) => {
     ...lerImoveis(req.session.user).slice(0, 500).map(im => ({ tipo: 'imovel', nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' ' + im.bairro) : ''), link: '/app/imovel/' + im.id }))
   ].filter(it => it.nome);
 
-  res.render('app-resumo', { user: req.session.user, cards, buscaIndex });
+  // Resumo rápido de cada lead referenciada nos cards (nome, telefone, o
+  // que ela fez) — pra "Ver lead" abrir um painel INLINE dentro do próprio
+  // resumo em vez de navegar pra /app/lead/:id e sair da tela. set/2026,
+  // pedido do Renato: "abre os dados ali na própria telinha do resumo,
+  // mas coisas rápidas". Só inclui quem já apareceu num card (não a
+  // carteira toda) — mantém o payload pequeno pra abrir instantâneo.
+  const _leadIdsCards = new Set();
+  cards.forEach(c => {
+    [c.primaryLink, c.secondaryLink].forEach(l => {
+      if (l && l.indexOf('/app/lead/') === 0) _leadIdsCards.add(l.slice('/app/lead/'.length));
+    });
+  });
+  const leadsResumo = {};
+  _leadIdsCards.forEach(id => {
+    const l = leads.find(x => String(x.id) === String(id));
+    if (!l) return;
+    leadsResumo[id] = {
+      nome: l.nome || l.telefone || l.contato || 'Lead',
+      telefone: l.telefone || l.whatsapp || l.contato || '',
+      origem: l.origem || l.origemEntrada || 'manual',
+      matchCount: l.matchCount || (l.matches || []).length || 0,
+      gostei: (l.imoveisGostei || []).map(g => g.titulo || g.tipo || 'Imóvel').slice(-3),
+      ultimaAtividade: tempoRelativoResumo((l.comportamento && l.comportamento.ultimaAtividade) || l.criadoEm || l.data_cadastro),
+      link: '/app/lead/' + id
+    };
+  });
+
+  res.render('app-resumo', { user: req.session.user, cards, buscaIndex, leadsResumo });
 });
 
 app.get('/app/parceiros', auth, async (req, res) => {

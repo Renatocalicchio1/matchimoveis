@@ -187,6 +187,14 @@
   font-weight:500;
   margin:12px 0;
 }
+/* Conectar por código (pareamento por número), alternativa ao QR — set/2026 */
+.wa-toggle{display:flex;gap:8px;margin:12px 0 4px}
+.wa-toggle button{flex:1;padding:8px 10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:600;color:#6b7280;cursor:pointer}
+.wa-toggle button.on{background:#111827;color:#fff;border-color:#111827}
+.wa-code-wrap{display:none;text-align:center;padding:16px;background:#f9fafb;border-radius:8px;margin:12px 0}
+.wa-code-wrap p{font-size:12px;color:#6b7280;margin:0 0 10px}
+.wa-code-wrap input{width:100%;max-width:220px;padding:10px 12px;border-radius:8px;border:1px solid #e5e7eb;font-size:14px;text-align:center;margin-bottom:6px;box-sizing:border-box}
+.wa-code-big{display:inline-block;font-family:monospace;font-size:26px;font-weight:800;letter-spacing:4px;color:#111827;background:#fff;border-radius:8px;padding:14px 18px;border:1.5px dashed #9ca3af;margin-top:10px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chip{display:inline-flex;align-items:center;gap:6px;background:#fff1f2;color:#111827;border:1px solid #fecdd3;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
 .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1}
@@ -705,9 +713,23 @@ contratarPlano(<%- JSON.stringify(comboAuto) %>);
     </div>
   </div>
 
+  <div class="wa-toggle" id="wa-toggle">
+    <button type="button" id="wa-tab-qr" class="on" onclick="alternarModoWA('qr')">📷 QR Code</button>
+    <button type="button" id="wa-tab-code" onclick="alternarModoWA('code')">🔢 Código por número</button>
+  </div>
+
   <div class="wa-qr-wrap" id="wa-qr-wrap">
     <p>Abra WhatsApp → Dispositivos conectados → Conectar → Escaneie o QR:</p>
     <img id="wa-qr" alt="QR Code WhatsApp">
+  </div>
+
+  <div class="wa-code-wrap" id="wa-code-wrap">
+    <p>Digite o número (com DDD) e depois abra WhatsApp → Dispositivos conectados → Conectar com número de telefone:</p>
+    <input type="tel" id="wa-numero-input" placeholder="Ex: 11999999999" inputmode="numeric">
+    <div id="wa-code-resultado" style="display:none">
+      <p style="margin:8px 0 0">Digite esse código no seu WhatsApp:</p>
+      <div class="wa-code-big" id="wa-code-big"></div>
+    </div>
   </div>
 
   <div class="wa-ok" id="wa-ok">
@@ -983,6 +1005,22 @@ _pegarLocalizacaoAutomatico();
 
 
 let _waTimer = null;
+let _waModo = 'qr';
+// Alterna entre "escanear QR" e "digitar código" (pareamento por número) —
+// mesmo fluxo de conexão por trás, só troca qual rota conectarWA() chama.
+function alternarModoWA(modo) {
+  _waModo = modo;
+  document.getElementById('wa-tab-qr').classList.toggle('on', modo === 'qr');
+  document.getElementById('wa-tab-code').classList.toggle('on', modo === 'code');
+  document.getElementById('wa-qr-wrap').style.display = 'none';
+  document.getElementById('wa-code-wrap').style.display = 'none';
+  document.getElementById('wa-code-resultado').style.display = 'none';
+  const aviso = document.getElementById('wa-aviso');
+  if (aviso) aviso.style.display = 'none';
+  const btn = document.getElementById('btn-wa');
+  if (btn && !btn.disabled) btn.textContent = modo === 'qr' ? 'Conectar WhatsApp' : 'Gerar código';
+}
+
 async function checkWA() {
   try {
     const d = await (await fetch('/app/whatsapp/status')).json();
@@ -993,10 +1031,13 @@ async function checkWA() {
       document.getElementById('wa-ok').style.display = 'block';
       document.getElementById('wa-num').textContent = d.numero || '';
       document.getElementById('wa-qr-wrap').style.display = 'none';
+      document.getElementById('wa-code-wrap').style.display = 'none';
+      document.getElementById('wa-toggle').style.display = 'none';
       document.getElementById('btn-wa').style.display = 'none';
       document.getElementById('btn-wa-off').style.display = 'inline-flex';
       if (_waTimer) { clearInterval(_waTimer); _waTimer = null; }
     } else {
+      document.getElementById('wa-toggle').style.display = 'flex';
       badge.className = 'pf-badge pf-badge-red';
       badge.textContent = 'Desconectado';
       document.getElementById('wa-ok').style.display = 'none';
@@ -1008,6 +1049,7 @@ async function checkWA() {
 
 let _waTentativas = 0;
 async function conectarWA() {
+  if (_waModo === 'code') return conectarWACodigo();
   const btn = document.getElementById('btn-wa');
   const aviso = document.getElementById('wa-aviso');
   btn.textContent = 'Gerando QR...';
@@ -1041,6 +1083,45 @@ async function conectarWA() {
     btn.textContent = 'Gerar novo QR';
     btn.disabled = false;
     if (aviso) { aviso.textContent = 'Conexão falhou. Clique em "Gerar novo QR" para tentar novamente.'; aviso.style.display = 'block'; }
+  }
+}
+
+async function conectarWACodigo() {
+  const btn = document.getElementById('btn-wa');
+  const aviso = document.getElementById('wa-aviso');
+  const numeroInput = document.getElementById('wa-numero-input');
+  const numero = (numeroInput.value || '').replace(/\D/g, '');
+  if (aviso) aviso.style.display = 'none';
+  if (!numero || numero.length < 10) {
+    if (aviso) { aviso.textContent = 'Informe um número válido, com DDD.'; aviso.style.display = 'block'; }
+    return;
+  }
+  document.getElementById('wa-code-resultado').style.display = 'none';
+  btn.textContent = 'Gerando código...';
+  btn.disabled = true;
+  try {
+    // Timeout mais folgado que o do QR — a rota tenta por até ~30s do lado
+    // do servidor antes de desistir (10 tentativas de 3s).
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 35000);
+    const resp = await fetch('/app/whatsapp/pairing-code?numero=' + numero, { signal: controller.signal });
+    clearTimeout(timeout);
+    const d = await resp.json();
+    if (d.pairingCode) {
+      document.getElementById('wa-code-big').textContent = d.pairingCode;
+      document.getElementById('wa-code-resultado').style.display = 'block';
+      btn.textContent = 'Gerar novo código';
+      btn.disabled = false;
+      _waTimer = setInterval(checkWA, 3000);
+    } else {
+      btn.textContent = 'Tentar novamente';
+      btn.disabled = false;
+      if (aviso) { aviso.textContent = d.erro || 'Não foi possível gerar o código. Tente novamente.'; aviso.style.display = 'block'; }
+    }
+  } catch(e) {
+    btn.textContent = 'Gerar novo código';
+    btn.disabled = false;
+    if (aviso) { aviso.textContent = 'Conexão falhou. Tente novamente.'; aviso.style.display = 'block'; }
   }
 }
 

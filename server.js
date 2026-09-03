@@ -20435,7 +20435,7 @@ function _construirDadosResumo(user) {
   try {
     _passosOnboarding(user)
       .filter(p => !p.feito)
-      .slice(0, 2)
+      .slice(0, 3)
       .forEach(p => {
         if (p.key === 'xml') {
           cards.push({
@@ -20475,7 +20475,7 @@ function _construirDadosResumo(user) {
     .filter(l => l._propensaoResumo && l._propensaoResumo.tier !== 'baixa')
     .filter(l => !l.corretorFaladoEm || !l._propensaoResumo.atualizadoEm || new Date(l.corretorFaladoEm).getTime() < new Date(l._propensaoResumo.atualizadoEm).getTime())
     .sort((a, b) => b._propensaoResumo.score - a._propensaoResumo.score)
-    .slice(0, 6), 2)
+    .slice(0, 9), 3)
     .forEach(l => {
       const p = l._propensaoResumo;
       const tel = l.telefone || l.whatsapp || l.contato || '';
@@ -20495,7 +20495,7 @@ function _construirDadosResumo(user) {
   _rotacionar(visitas
     .filter(v => v.status === 'solicitada')
     .sort((a, b) => new Date(b.data || b.criadoEm || 0) - new Date(a.data || a.criadoEm || 0))
-    .slice(0, 6), 2)
+    .slice(0, 9), 3)
     .forEach(v => {
       // Os 2 botões ficam na lead dessa visita (abre inline, sem sair do
       // resumo — set/2026, pedido do Renato: "ele não tem que ir pro
@@ -20518,7 +20518,7 @@ function _construirDadosResumo(user) {
     .map(l => ({ l, g: l.imoveisGostei[l.imoveisGostei.length - 1] }))
     .filter(x => horasDesde(x.g.clicadoEm) < 48)
     .sort((a, b) => new Date(b.g.clicadoEm) - new Date(a.g.clicadoEm))
-    .slice(0, 6), 2)
+    .slice(0, 9), 3)
     .forEach(({ l, g }) => {
       const tel = l.telefone || l.whatsapp || l.contato || '';
       cards.push({
@@ -20536,7 +20536,7 @@ function _construirDadosResumo(user) {
   _rotacionar(leads
     .filter(l => l.vitrineEnviada && l.vitrineEnviadaEm && horasDesde(l.vitrineEnviadaEm) < 48)
     .sort((a, b) => new Date(b.vitrineEnviadaEm) - new Date(a.vitrineEnviadaEm))
-    .slice(0, 6), 2)
+    .slice(0, 9), 3)
     .forEach(l => {
       cards.push({
         ordem: 2,
@@ -20553,7 +20553,7 @@ function _construirDadosResumo(user) {
     .filter(l => !(l.leadOculta === true && !((l.matches || []).length || (l.matchesBase || []).length)))
     .filter(l => horasDesde(l.criadoEm || l.data_cadastro) < 48)
     .sort((a, b) => new Date(b.criadoEm || b.data_cadastro || 0) - new Date(a.criadoEm || a.data_cadastro || 0))
-    .slice(0, 6), 2)
+    .slice(0, 9), 3)
     .forEach(l => {
       // "Painel" (ia pra /app/leads, lista inteira) trocado por "Falar" —
       // set/2026, pedido do Renato: "ele não tem que ir pro painel", os 2
@@ -20570,7 +20570,25 @@ function _construirDadosResumo(user) {
       });
     });
 
-  cards.sort((a, b) => a.ordem - b.ordem);
+  // Ordena o resto por prioridade e intercala 1 "Primeiro passo" pendente a
+  // cada 2 cards — set/2026, pedido do Renato: "priorizar os primeiros
+  // passos... intercalados com os de pontuação maior até completar os
+  // primeiros passos". Não é só jogar pro topo (isso empilharia todos
+  // juntos) nem deixar largado no meio do rodízio — fica sempre visível,
+  // espaçado, sem dominar o carrossel. Assim que um passo é concluído,
+  // _passosOnboarding já para de gerar o card dele (filter !p.feito acima)
+  // — "até completar" já é automático, não precisa de lógica extra aqui.
+  const _passosCards = cards.filter(c => c.cat === '✅ Primeiros passos');
+  const _outrosCards = cards.filter(c => c.cat !== '✅ Primeiros passos').sort((a, b) => a.ordem - b.ordem);
+  const _cardsIntercalados = [];
+  let _pi = 0;
+  _outrosCards.forEach((c, i) => {
+    _cardsIntercalados.push(c);
+    if ((i + 1) % 2 === 0 && _pi < _passosCards.length) _cardsIntercalados.push(_passosCards[_pi++]);
+  });
+  while (_pi < _passosCards.length) _cardsIntercalados.push(_passosCards[_pi++]);
+  cards.length = 0;
+  _cardsIntercalados.forEach(c => cards.push(c));
 
   // índice de busca por voz — nome/telefone de leads + título/bairro de
   // imóveis, tudo já em memória (mesmo motivo de não bater no banco acima)

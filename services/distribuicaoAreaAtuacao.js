@@ -26,6 +26,15 @@
  * ago/2026 (3ª mudança): pedido explícito do Renato pra baixar de 5 pra 2
  * leads por rodada ("vamos baixar para duas leads por distribuição") —
  * TETO_POR_RODADA 5 → 2, cadência de 3x/dia mantida.
+ * set/2026 (4ª mudança): estoque de interessados cresceu de novo e estava
+ * sobrando muita coisa sem distribuir (interessado que passa 7 dias sem
+ * dono expira de vez, nunca mais entra numa rodada) — pedido explícito do
+ * Renato: "ao invés de 2 por vez, 5". TETO_POR_RODADA 2 → 5 de novo. O
+ * tier cidade já repetia passadas de LOTE_CIDADE (2) em loop até esgotar
+ * quem ainda pode receber (`while (mudouAlgumaCoisa)` abaixo) — esse
+ * "rodízio de novo se sobrar" já existia, só era travado cedo demais pelo
+ * teto de 2; com TETO_POR_RODADA=5 o mesmo loop agora dá até 3 passadas
+ * (2+2+1) por rodada antes de parar, sem precisar de lógica nova.
  *
  * Regras (definidas com o Renato, ago/2026):
  * - Só interessados com até 7 dias (hoje - 7 dias).
@@ -177,7 +186,7 @@ async function _mapaJaAtribuidos() {
 // por conta serve pros dois tiers, sem precisar marcar de qual tier veio.
 // Máximo de contas que recebem a mesma lead (esse sim é por SEMPRE, não por
 // rodada — ver _mapaJaAtribuidos): 2 (bairro + cidade somados).
-const TETO_POR_RODADA = 2;
+const TETO_POR_RODADA = 5;
 const MAX_CONTAS_POR_LEAD = 2;
 
 // Mesmo mapeamento pra Nome/Telefone/Email/Tipo/Cidade/etc (chaves
@@ -401,12 +410,12 @@ function _proximoHorarioBR(hh, mm, agora) {
   return alvo;
 }
 
-// 3 horários espalhados no dia (pedido do Renato, ago/2026: "pelo menos 3x
-// no dia") — 6h, 12h, 18h, horário de Brasília. Fora da janela de jobs de
-// madrugada (créditos 2h-2h40, xmlScheduler 3h, recarga de cache
-// 3h15-3h50), espaçados o suficiente (6h) pra nunca colidir com o guard de
-// INTERVALO_MINIMO_MS (1h).
-const HORARIOS_RODADA_BR = [6, 12, 18];
+// 5 horários espalhados no dia (set/2026, pedido explícito do Renato: "faz
+// 5 rodadas no dia" — era 3, 6h/12h/18h). 6h-18h, de 3 em 3h, horário de
+// Brasília. Fora da janela de jobs de madrugada (créditos 2h-2h40,
+// xmlScheduler 3h, recarga de cache 3h15-3h50), espaçados o suficiente
+// (3h) pra nunca colidir com o guard de INTERVALO_MINIMO_MS (1h).
+const HORARIOS_RODADA_BR = [6, 9, 12, 15, 18];
 function iniciarDistribuicaoAreaAtuacao() {
   console.log('[distribuicaoAreaAtuacao] ⏱️ ' + HORARIOS_RODADA_BR.length + ' rodadas/dia — ' + HORARIOS_RODADA_BR.join('h, ') + 'h (horário de Brasília)');
   const _agora = new Date();

@@ -1,0 +1,115 @@
+# Infraestrutura de e-mail marketing self-hosted — Listmonk (painel/engine
+# de disparo) + Postgres (banco do Listmonk, separado do banco da
+# plataforma MatchImóveis) + Postfix/OpenDKIM (MTA local que assina e
+# entrega os e-mails).
+#
+# Postfix/OpenDKIM rodam com `network_mode: host` de propósito — um MTA
+# precisa bindar a porta 25 direto na interface pública da VPS (não dá pra
+# fazer isso só com port-mapping do Docker de forma confiável, e o
+# reverse-DNS/PTR configurado no provedor da VPS aponta pro IP da própria
+# máquina, não pro IP interno do Docker). Isso significa que Postfix e
+# OpenDKIM enxergam a rede da VPS inteira, não só a rede docker-compose —
+# é assim mesmo que servidor de e-mail funciona, não é erro de config.
+#
+# Rodar: docker compose up -d
+# (depois de já ter rodado setup_email_infra.sh pra instalar/configurar o
+# Postfix/OpenDKIM na própria VPS — ver README.md)
+
+services:
+  # Banco de dados do Listmonk — próprio, separado do banco da plataforma
+  # MatchImóveis (não reaproveita o Postgres principal de propósito: uma
+  # campanha de 118k gerando muita escrita não deve competir com o banco
+  # de produção da plataforma).
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: listmonk
+      POSTGRES_PASSWORD: ${LISTMONK_DB_PASSWORD}
+      POSTGRES_DB: listmonk
+    volumes:
+      - listmonk_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listmonk"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    networks:
+      - listmonk_net
+
+  # Listmonk — painel de gerenciamento de listas/campanhas + motor de
+  # disparo. Config completa em config.toml (gerado no 1º boot, ou monta
+  # um arquivo próprio em ./listmonk-config.toml se preferir versionar).
+  listmonk:
+    image: listmonk/listmonk:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "9000:9000"   # painel web — considera colocar atrás de nginx+TLS antes de expor pra internet
+    environment:
+      LISTMONK_db__host: db
+      LISTMONK_db__port: 5432
+      LISTMONK_db__user: listmonk
+      LISTMONK_db__password: ${LISTMONK_DB_PASSWORD}
+      LISTMONK_db__database: listmonk
+      LISTMONK_db__ssl_mode: disable
+      # App aponta o webhook de bounce/unsubscribe pra plataforma MatchImóveis
+      LISTMONK_app__root_url: ${LISTMONK_ROOT_URL}
+    volumes:
+      - listmonk_uploads:/listmonk/uploads
+    networks:
+      - listmonk_net
+
+  # Postfix — MTA local. Não expõe porta nenhuma pro Docker de propósito
+  # (network_mode: host, já bindado na porta 25 da própria VPS pelo
+  # serviço systemd instalado por setup_email_infra.sh). Esse serviço aqui
+  # só documenta a dependência/ordem de subida — o processo real do
+  # Postfix roda como serviço do sistema operacional, não como container,
+  # exatamente pra poder usar host networking com PTR/rDNS corretos.
+  #
+  # Se preferir Postfix 100% em container em vez de instalado direto na
+  # VPS, dá pra trocar esse bloco por uma imagem tipo `boky/postfix` — só
+  # que MESMO ASSIM precisa network_mode: host pra funcionar direito como
+  # MTA público. Deixei como serviço de sistema (via setup_email_infra.sh)
+  # por ser mais fácil de depurar/logar em produção.
+  postfix:
+    image: boky/postfix:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      ALLOWED_SENDER_DOMAINS: matchimoveis.online
+      HOSTNAME: mail.matchimoveis.online
+      RELAYHOST: ""
+      OPENDKIM_ENABLED: "false"  # assinatura fica a cargo do serviço opendkim abaixo, via socket local
+    volumes:
+      - ./postfix/main.cf:/etc/postfix/main.cf:ro
+      - postfix_spool:/var/spool/postfix
+      - /var/run/opendkim:/var/run/opendkim   # socket compartilhado com o OpenDKIM
+    depends_on:
+      - opendkim
+
+  # OpenDKIM — assina cada e-mail que passa pelo Postfix com a chave
+  # privada gerada em setup_email_infra.sh. Também roda em host network
+  # pra compartilhar o socket Unix com o Postfix sem overhead de rede.
+  opendkim:
+    image: agilestacks/opendkim:latest
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./opendkim/opendkim.conf:/etc/opendkim.conf:ro
+      - ./opendkim/KeyTable:/etc/opendkim/KeyTable:ro
+      - ./opendkim/SigningTable:/etc/opendkim/SigningTable:ro
+      - ./opendkim/TrustedHosts:/etc/opendkim/TrustedHosts:ro
+      - /etc/opendkim/keys:/etc/opendkim/keys:ro   # gerado por setup_email_infra.sh
+      - /var/run/opendkim:/var/run/opendkim
+
+networks:
+  listmonk_net:
+    driver: bridge
+
+volumes:
+  listmonk_db_data:
+  listmonk_uploads:
+  postfix_spool:

@@ -16557,6 +16557,39 @@ app.post('/webhook/ses-notificacoes', express.text({ type: '*/*' }), async (req,
   }
 });
 
+// Webhook do Listmonk (infra/email-marketing/, set/2026) — bounce/
+// reclamação/descadastro reportado pela instância própria de e-mail
+// marketing. Mesma tabela de supressão que o SES já usa (email_optout via
+// descadastrarEmail(), services/email.js) — um e-mail suprimido por
+// qualquer um dos dois canais fica suprimido nos dois, sem precisar
+// duplicar lista.
+//
+// ⚠️ O formato exato do payload depende de como o bounce é detectado do
+// lado do Listmonk (webhook configurado em Settings → Bounces, ou script
+// próprio lendo uma caixa de bounce via IMAP) — não tenho como validar
+// contra uma instância real daqui. Aceita alguns formatos de campo
+// plausíveis (email/subscriber_email, type/bounce_type) e ignora o resto
+// do payload; ajusta o parsing quando confirmar o formato real na prática.
+app.post('/webhook/listmonk', express.json(), async (req, res) => {
+  try {
+    const corpo = req.body || {};
+    const email = corpo.email || corpo.subscriber_email || (corpo.subscriber && corpo.subscriber.email) || '';
+    const tipo = (corpo.type || corpo.bounce_type || corpo.event || '').toLowerCase();
+    if (!email) return res.status(400).json({ ok: false, erro: 'email ausente no payload' });
+
+    const { descadastrarEmail } = require('./services/email');
+    const motivo = tipo.includes('complaint') || tipo.includes('reclama') ? 'reclamacao'
+      : tipo.includes('unsub') || tipo.includes('descadastr') ? 'manual'
+      : 'bounce';
+    await descadastrarEmail(email, motivo);
+    console.log('[webhook/listmonk] suprimido:', email, '| motivo:', motivo, '| tipo bruto:', tipo);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[webhook/listmonk]', e.message);
+    res.sendStatus(500);
+  }
+});
+
 app.post('/webhook/mercadopago', express.json(), async (req, res) => {
   try {
     const { type, data } = req.body;

@@ -1,0 +1,3 @@
+# Diz qual assinatura (da KeyTable) usar pra cada remetente. "*@" cobre
+# qualquer endereço @matchimoveis.online usado pelo Listmonk/Postfix.
+*@matchimoveis.online match2026._domainkey.matchimoveis.online

@@ -1,0 +1,66 @@
+# /etc/postfix/main.cf — MTA de saída pra campanhas do MatchImóveis
+#
+# Papel deste arquivo: só ENVIAR e-mail (o Listmonk manda tudo pra cá via
+# SMTP local). NÃO recebe e-mail de fora (não é caixa de entrada) — a
+# única coisa que aceita de fora é bounce/feedback dos servidores de
+# destino, que o próprio Postfix já trata sozinho.
+#
+# Troca TODO_DOMINIO/TODO_IP pelos valores reais da sua VPS antes de subir.
+
+# ── Identidade do servidor ──────────────────────────────────────────────
+# hostname que aparece no HELO/EHLO e no header Received — TEM que bater
+# exatamente com o PTR (reverse DNS) configurado no provedor da VPS, senão
+# a maioria dos servidores de destino rejeita ou joga pra spam de cara.
+myhostname = mail.matchimoveis.online
+mydomain = matchimoveis.online
+myorigin = $mydomain
+
+# ── O que esse servidor aceita/recusa ───────────────────────────────────
+# Só entrega LOCAL (não é servidor de recebimento de e-mail de terceiros)
+inet_interfaces = all
+inet_protocols = ipv4
+mydestination = localhost
+
+# Relay só é permitido pra quem está na rede interna (o Listmonk, rodando
+# na mesma VPS/rede Docker) — sem isso, QUALQUER UM na internet poderia
+# usar seu Postfix pra mandar spam através da sua reputação (open relay,
+# o pior erro de configuração possível num MTA).
+mynetworks = 127.0.0.0/8, [::1]/128, TODO_RANGE_DOCKER_INTERNO
+smtpd_relay_restrictions = permit_mynetworks, reject_unauth_destination
+
+# ── TLS de saída (obrigatório pra entregabilidade em 2026) ──────────────
+smtp_tls_security_level = may
+smtp_tls_loglevel = 1
+smtp_tls_note_starttls_offer = yes
+smtpd_tls_security_level = may
+smtpd_tls_cert_file = /etc/letsencrypt/live/mail.matchimoveis.online/fullchain.pem
+smtpd_tls_key_file = /etc/letsencrypt/live/mail.matchimoveis.online/privkey.pem
+
+# ── Limites de taxa (o Listmonk já controla throttling na aplicação, isso
+# aqui é uma 2ª trava de segurança direto no MTA, pra nunca rajar mesmo
+# se a config do Listmonk falhar) ────────────────────────────────────────
+smtp_destination_rate_delay = 1s
+smtp_destination_concurrency_limit = 4
+smtp_extra_recipient_limit = 10
+default_destination_rate_delay = 1s
+
+# ── Fila / retry ─────────────────────────────────────────────────────────
+maximal_queue_lifetime = 2d
+bounce_queue_lifetime = 2d
+minimal_backoff_time = 5min
+maximal_backoff_time = 30min
+
+# ── Integração com OpenDKIM (assina toda mensagem antes de sair) ────────
+milter_default_action = accept
+milter_protocol = 6
+smtpd_milters = local:opendkim/opendkim.sock
+non_smtpd_milters = local:opendkim/opendkim.sock
+
+# ── Tamanho máximo de mensagem (10MB — e-mail de marketing não devia
+# passar disso; travar aqui evita anexo gigante acidental) ──────────────
+message_size_limit = 10485760
+
+# ── Log detalhado de bounce (o services/listmonkSync.js e o webhook do
+# Listmonk cuidam da parte de negócio, mas log local ajuda a depurar
+# problema de entrega direto no servidor) ────────────────────────────────
+notify_classes = bounce, delay

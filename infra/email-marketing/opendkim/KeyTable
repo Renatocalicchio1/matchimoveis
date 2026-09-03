@@ -1,0 +1,5 @@
+# Mapeia o seletor+domínio pro arquivo da chave privada. Formato:
+# <apelido> <dominio>:<seletor>:<caminho-da-chave-privada>
+#
+# O arquivo private.key é gerado por setup_email_infra.sh (opendkim-genkey).
+match2026._domainkey.matchimoveis.online matchimoveis.online:match2026:/etc/opendkim/keys/matchimoveis.online/match2026.private

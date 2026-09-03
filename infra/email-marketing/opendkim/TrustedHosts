@@ -1,0 +1,8 @@
+# Hosts que o OpenDKIM confia pra assinar sem checagem extra — só a própria
+# máquina e a rede interna do Docker Compose (onde o Listmonk/Postfix
+# conversam entre si). NUNCA coloca "0.0.0.0" ou range público aqui — isso
+# transformaria o servidor num assinador aberto pra qualquer remetente.
+127.0.0.1
+localhost
+::1
+TODO_RANGE_DOCKER_INTERNO

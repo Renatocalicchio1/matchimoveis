@@ -5296,7 +5296,7 @@ async function salvarLeads(leads){
 
 // ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
 async function lerLeadsData() {
-  try { const { query: _qLD } = require('./services/db'); const r = await _qLD('SELECT *, dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario, score, temperatura, fase_funil, perfil_ia, status, tipo_lead, historico, timeline, eventos, comportamento, mapa_intencao FROM leads ORDER BY criado_em DESC'); return r.rows.filter(r=>r.fase_funil!=='captacao'&&r.status!=='captacao').map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, matches: r.matches||[], matchesAuto: (r.matches_auto && r.matches_auto.length) ? r.matches_auto : (r.matches||[]), score: r.score || (r.dados||{}).score || 0, temperatura: r.temperatura || (r.dados||{}).temperatura || 'frio', faseFunil: r.fase_funil || (r.dados||{}).faseFunil || 'novo', status: r.status || (r.dados||{}).status || 'novo', perfilIA: r.perfil_ia || (r.dados||{}).perfilIA || {}, mapaIntencao: r.mapa_intencao || (r.dados||{}).mapaIntencao || null, comportamento: r.comportamento || (r.dados||{}).comportamento || null, historico: r.historico || (r.dados||{}).historico || [], timeline: r.timeline || (r.dados||{}).timeline || [], eventos: r.eventos || (r.dados||{}).eventos || [] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
+  try { const { query: _qLD } = require('./services/db'); const r = await _qLD('SELECT *, dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario, score, temperatura, fase_funil, perfil_ia, status, tipo_lead, historico, timeline, eventos, comportamento, mapa_intencao FROM leads ORDER BY criado_em DESC'); return r.rows.filter(r=>r.fase_funil!=='captacao'&&r.status!=='captacao').map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, vitrineEmailEnviada: r.vitrine_email_enviada, vitrineEmailEnviadaEm: r.vitrine_email_enviada_em, matches: r.matches||[], matchesAuto: (r.matches_auto && r.matches_auto.length) ? r.matches_auto : (r.matches||[]), score: r.score || (r.dados||{}).score || 0, temperatura: r.temperatura || (r.dados||{}).temperatura || 'frio', faseFunil: r.fase_funil || (r.dados||{}).faseFunil || 'novo', status: r.status || (r.dados||{}).status || 'novo', perfilIA: r.perfil_ia || (r.dados||{}).perfilIA || {}, mapaIntencao: r.mapa_intencao || (r.dados||{}).mapaIntencao || null, comportamento: r.comportamento || (r.dados||{}).comportamento || null, historico: r.historico || (r.dados||{}).historico || [], timeline: r.timeline || (r.dados||{}).timeline || [], eventos: r.eventos || (r.dados||{}).eventos || [] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
 }
 
 async function salvarLeadsData(leads) {
@@ -20545,7 +20545,11 @@ function _construirDadosResumo(user) {
         icon: p.tier === 'alta' ? '🔥' : '🌤', foto: _fotoMotivo || '', nome: (p.tier === 'alta' ? '🔥 ' : '') + (l.nome || 'Uma lead') + (p.tier === 'alta' ? ' está pronta pra fechar!' : ' demonstrou interesse'),
         detalhe: '👀 ' + (p.motivo || 'Sinal de interesse detectado.'), time: p.tempoRelativo || '',
         primary: p.tier === 'alta' ? '💬🔥 Falar agora' : '💬 Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
-        secondary: '👤 Ver lead', secondaryLink: '/app/lead/' + l.id
+        // Link direto pro imóvel que gerou o sinal (não só a lead) — pedido
+        // do Renato: "sempre legal o corretor saber de qual imóvel que o
+        // cliente está entrando". Sem imóvel identificado, cai pro lead.
+        secondary: (p.motivoImovel && p.motivoImovel.id) ? '🏠 Ver imóvel' : '👤 Ver lead',
+        secondaryLink: (p.motivoImovel && p.motivoImovel.id) ? ('/app/imovel/' + p.motivoImovel.id) : ('/app/lead/' + l.id)
       });
     });
 
@@ -20586,7 +20590,10 @@ function _construirDadosResumo(user) {
         icon: '❤️', foto: g.foto || '', nome: '❤️ ' + (l.nome || 'Uma lead') + ' AMOU um imóvel!',
         detalhe: '🏠 ' + (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm),
         primary: '💬❤️ Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
-        secondary: '👤 Ver lead', secondaryLink: '/app/lead/' + l.id,
+        // Mesmo motivo do card de propensão — link direto pro imóvel que
+        // ela curtiu, não só a lead.
+        secondary: g.id ? '🏠 Ver imóvel' : '👤 Ver lead',
+        secondaryLink: g.id ? ('/app/imovel/' + g.id) : ('/app/lead/' + l.id),
         coracoes: true
       });
     });
@@ -21364,7 +21371,7 @@ async function salvarLeads(leads){
 
 // ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
 async function lerLeadsData() {
-  try { const { query: _qLD } = require('./services/db'); const r = await _qLD('SELECT *, dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario, score, temperatura, fase_funil, perfil_ia, status, tipo_lead, historico, timeline, eventos, comportamento, mapa_intencao FROM leads ORDER BY criado_em DESC'); return r.rows.filter(r=>r.fase_funil!=='captacao'&&r.status!=='captacao').map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, matches: r.matches||[], matchesAuto: (r.matches_auto && r.matches_auto.length) ? r.matches_auto : (r.matches||[]), score: r.score || (r.dados||{}).score || 0, temperatura: r.temperatura || (r.dados||{}).temperatura || 'frio', faseFunil: r.fase_funil || (r.dados||{}).faseFunil || 'novo', status: r.status || (r.dados||{}).status || 'novo', perfilIA: r.perfil_ia || (r.dados||{}).perfilIA || {}, mapaIntencao: r.mapa_intencao || (r.dados||{}).mapaIntencao || null, comportamento: r.comportamento || (r.dados||{}).comportamento || null, historico: r.historico || (r.dados||{}).historico || [], timeline: r.timeline || (r.dados||{}).timeline || [], eventos: r.eventos || (r.dados||{}).eventos || [] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
+  try { const { query: _qLD } = require('./services/db'); const r = await _qLD('SELECT *, dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario, score, temperatura, fase_funil, perfil_ia, status, tipo_lead, historico, timeline, eventos, comportamento, mapa_intencao FROM leads ORDER BY criado_em DESC'); return r.rows.filter(r=>r.fase_funil!=='captacao'&&r.status!=='captacao').map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, vitrineEmailEnviada: r.vitrine_email_enviada, vitrineEmailEnviadaEm: r.vitrine_email_enviada_em, matches: r.matches||[], matchesAuto: (r.matches_auto && r.matches_auto.length) ? r.matches_auto : (r.matches||[]), score: r.score || (r.dados||{}).score || 0, temperatura: r.temperatura || (r.dados||{}).temperatura || 'frio', faseFunil: r.fase_funil || (r.dados||{}).faseFunil || 'novo', status: r.status || (r.dados||{}).status || 'novo', perfilIA: r.perfil_ia || (r.dados||{}).perfilIA || {}, mapaIntencao: r.mapa_intencao || (r.dados||{}).mapaIntencao || null, comportamento: r.comportamento || (r.dados||{}).comportamento || null, historico: r.historico || (r.dados||{}).historico || [], timeline: r.timeline || (r.dados||{}).timeline || [], eventos: r.eventos || (r.dados||{}).eventos || [] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
 }
 
 async function salvarLeadsData(leads) {

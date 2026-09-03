@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 .k-icon{font-size:32px;margin-bottom:16px;display:block}
 /* foto real do imóvel, quando tem — substitui o ícone, compacta de
    propósito (miniatura, não hero) pra não poluir o card */
-.k-foto{width:60px;height:60px;border-radius:16px;object-fit:cover;margin-bottom:14px;display:block;border:1px solid rgba(0,0,0,.1)}
+.k-foto{width:clamp(130px,42vw,190px);aspect-ratio:1/1;border-radius:22px;object-fit:cover;margin:0 auto 16px;display:block;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 18px rgba(0,0,0,.1)}
 .k-name{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(24px,7vw,30px);line-height:1.15;text-wrap:balance;margin:0 0 9px;color:var(--ink)}
 .k-detail{font-size:14.5px;color:var(--ink-dim);line-height:1.55;margin:0 0 13px;max-width:320px}
 .k-meta{display:flex;align-items:center;gap:8px}
@@ -768,11 +768,18 @@ const vResults = document.getElementById('voiceResults');
 const infoSheet = document.getElementById('infoSheet');
 const infoContent = document.getElementById('infoContent');
 
+// Esconde o menu de baixo enquanto o voice-sheet/infoSheet estiver aberto —
+// sem isso o menu (z-index mais alto, precisa ficar acima do carrossel)
+// cobria o rodapé do sheet, cortando o fim da transcrição/resultado.
+const _navBottom = document.querySelector('.bottom-nav');
+function _toggleNavParaSheet(aberto) { if (_navBottom) _navBottom.style.display = aberto ? 'none' : ''; }
+
 function abrirInfoLead(id) {
   const info = LEADS_RESUMO[id];
   if (!info) { location.href = '/app/lead/' + id; return; }
   if (typeof pauseTimer === 'function') pauseTimer();
   micOpen = true; // reaproveita a trava que impede o carrossel de avançar sozinho com um sheet aberto
+  _toggleNavParaSheet(true);
   const gostei = info.gostei && info.gostei.length ? ('<div class="vc-detail">❤️ Curtiu: ' + info.gostei.join(', ') + '</div>') : '';
   const atividade = info.ultimaAtividade ? ('<div class="vc-detail">🕓 Última atividade: ' + info.ultimaAtividade + '</div>') : '';
   const telLimpo = (info.telefone || '').replace(/\D/g, '');
@@ -810,6 +817,7 @@ function abrirInfoLead(id) {
 function fecharInfoSheet() {
   infoSheet.classList.remove('open');
   micOpen = false;
+  _toggleNavParaSheet(false);
   if (typeof restartTimer === 'function') restartTimer();
 }
 infoSheet.addEventListener('click', (e) => { if (e.target === infoSheet) fecharInfoSheet(); });
@@ -823,6 +831,7 @@ function abrirSheet() {
   if (typeof pauseTimer === 'function') pauseTimer();
   micBtn.classList.add('on');
   sheet.classList.add('open');
+  _toggleNavParaSheet(true);
   vStatus.textContent = 'ouvindo…';
   vTranscript.textContent = '';
   vTranscript.classList.remove('show');
@@ -832,6 +841,7 @@ function fecharSheet() {
   micOpen = false;
   micBtn.classList.remove('on');
   sheet.classList.remove('open');
+  _toggleNavParaSheet(false);
   if (typeof restartTimer === 'function') restartTimer();
 }
 
@@ -972,26 +982,42 @@ if (SR) {
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
   let ultimaTranscricao = '';
+  let silencioTimer = null;
+  let jaProcessouEsseCiclo = false;
+  function _finalizarEscuta(texto) {
+    if (jaProcessouEsseCiclo) return;
+    jaProcessouEsseCiclo = true;
+    clearTimeout(silencioTimer);
+    vStatus.textContent = 'entendi';
+    recognition.stop();
+    processarComando(texto);
+  }
   recognition.onresult = (e) => {
     let texto = '';
     for (let i = e.resultIndex; i < e.results.length; i++) texto += e.results[i][0].transcript;
     ultimaTranscricao = texto;
     vTranscript.textContent = '"' + texto + '"';
     vTranscript.classList.add('show');
+    clearTimeout(silencioTimer);
     if (e.results[e.results.length - 1].isFinal) {
-      vStatus.textContent = 'entendi';
       // Bug real reportado pelo Renato: terminou de falar e o microfone
       // continuava captando (ficava "aberto" esperando mais áudio). Já
       // temos o resultado final — para a escuta na hora, não espera o
       // navegador decidir sozinho quando encerrar.
-      recognition.stop();
-      processarComando(texto);
+      _finalizarEscuta(texto);
+    } else {
+      // Fallback pra navegador que não marca isFinal de forma confiável
+      // (Safari/iOS é inconsistente nisso) — se ficar 1.5s sem nenhuma
+      // palavra nova, considera que a pessoa parou de falar e processa o
+      // que já foi captado, em vez de deixar o mic "preso" escutando.
+      silencioTimer = setTimeout(() => _finalizarEscuta(texto), 1500);
     }
   };
-  recognition.onerror = () => { vStatus.textContent = 'não peguei o áudio, tenta de novo'; };
+  recognition.onerror = () => { clearTimeout(silencioTimer); vStatus.textContent = 'não peguei o áudio, tenta de novo'; };
   recognition.onend = () => { micBtn.classList.remove('on'); };
   micBtn.addEventListener('click', () => {
-    if (micOpen) { recognition.stop(); fecharSheet(); return; }
+    if (micOpen) { clearTimeout(silencioTimer); recognition.stop(); fecharSheet(); return; }
+    jaProcessouEsseCiclo = false;
     abrirSheet();
     try { recognition.start(); } catch (e) {}
   });

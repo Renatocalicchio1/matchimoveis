@@ -1,5 +1,6 @@
 const { enviarEmail } = require('./email');
 const { query } = require('./db');
+const { atualizarUsuario } = require('./salvarUsuario');
 
 async function enviarEmailReengajamento() {
   try {
@@ -13,6 +14,11 @@ async function enviarEmailReengajamento() {
       AND COALESCE((dados->>'emailOptOut')::boolean, false) = false
       -- Afiliado restrito só recebe email do programa de afiliados (ago/2026)
       AND COALESCE((dados->>'afiliadoRestrito')::boolean, false) = false
+      -- Sem essa trava, todo usuário inativo recebia esse email TODO DIA que
+      -- o job rodava, indefinidamente (ultimo_acesso não muda enquanto ele
+      -- fica fora) — achado em varredura de duplicidade (set/2026). Mesmo
+      -- padrão de cooldown de 7 dias já usado em emailFunilConta.js.
+      AND (dados->>'reengajamentoEnviadoEm' IS NULL OR (dados->>'reengajamentoEnviadoEm')::timestamp <= NOW() - INTERVAL '7 days')
     `, [sete_dias_atras]);
 
     console.log('[REENGAJAMENTO] usuarios inativos:', rows.length);
@@ -42,6 +48,7 @@ async function enviarEmailReengajamento() {
           botaoTexto: 'Voltar ao sistema →',
           userId: u.codigo_usuario
         });
+        await atualizarUsuario(u.codigo_usuario, { reengajamentoEnviadoEm: new Date().toISOString() });
         console.log('[REENGAJAMENTO] email enviado:', u.email);
         await new Promise(r => setTimeout(r, 1000)); // 1s entre emails
       } catch(e) { console.error('[REENGAJAMENTO] erro:', u.email, e.message); }

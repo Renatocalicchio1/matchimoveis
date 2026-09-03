@@ -5412,6 +5412,7 @@ function _registrarGostei(lead, imovelObj) {
     cidade: imovelObj.cidade || '',
     valor_imovel: imovelObj.valor_imovel || imovelObj.valor || 0,
     foto: (imovelObj.fotos && imovelObj.fotos[0]) || '',
+    fotos: (imovelObj.fotos || []).filter(Boolean).slice(0, 6),
     userId: imovelObj.userId || imovelObj.user_id || imovelObj.usuarioId || imovelObj.codigoUsuario || '',
     clicadoEm: new Date().toISOString()
   });
@@ -7373,9 +7374,9 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const _totalVenda = _imoveisUser.rows.length;
     const _senhaInicial = req.session.senhaInicialTemp || null;
     delete req.session.senhaInicialTemp;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || '') });
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || ''), voltarResumo: req.query.voltar === 'resumo' });
   } catch(e) {
-    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || '') });
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || ''), voltarResumo: req.query.voltar === 'resumo' });
   }
 });
 
@@ -14885,7 +14886,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     emailsLead = _rEmailsLead.rows;
   } catch (eEmailsLead) { console.error('[lead-detalhe] emails:', eEmailsLead.message); }
 
-  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados, emailsLead });
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados, emailsLead, voltarResumo: req.query.voltar === 'resumo' });
 });
 // Dono real do imóvel = mesmo critério usado em lerImoveis()/salvarImovel.js — userId/usuarioId/codigoUsuario/corretorId
 function _ehDonoDoImovel(imovel, user) {
@@ -14943,7 +14944,7 @@ app.get('/app/imovel/:id', auth, async (req, res) => {
     }
   }
 
-  res.render('app-imovel-detalhe', { user, imovel, verProprietario, isDono, donoContato });
+  res.render('app-imovel-detalhe', { user, imovel, verProprietario, isDono, donoContato, voltarResumo: req.query.voltar === 'resumo' });
 });
 
 // Editar imóvel - tela
@@ -20473,11 +20474,13 @@ function _construirDadosResumo(user) {
     .filter(l => !_ehLeadCaptacao(l));
   const visitas = filtrarPorUsuario(_cacheVisitas || [], user);
 
-  // Foto do imóvel por ID, pra ilustrar os cards ("o imóvel que o cara
+  // Fotos do imóvel por ID, pra ilustrar os cards ("o imóvel que o cara
   // navegou" — pedido do Renato) sem precisar buscar de novo no banco.
+  // Array (não só a 1ª foto) — pedido do Renato: "se tiver mais que uma
+  // foto, o usuário pode correr pro lado pra ver as fotos".
   const _mapaFotoImovel = {};
   lerImoveis(user).forEach(im => {
-    if (im.fotos && im.fotos.length) _mapaFotoImovel[String(im.id)] = im.fotos[0];
+    if (im.fotos && im.fotos.length) _mapaFotoImovel[String(im.id)] = im.fotos.filter(Boolean).slice(0, 6);
   });
 
   const cards = [];
@@ -20509,13 +20512,23 @@ function _construirDadosResumo(user) {
             icon: '💬', nome: '💬 ' + p.label, detalhe: p.desc, time: '',
             tipoAcao: 'onboarding_whatsapp'
           });
+        } else if (p.key === 'leadManual') {
+          cards.push({
+            ordem: 1,
+            cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: '🚀 CONFIGURAÇÃO',
+            icon: '👤', nome: '👤 ' + p.label, detalhe: p.desc, time: '',
+            tipoAcao: 'onboarding_leadmanual'
+          });
         } else {
           cards.push({
             ordem: 1,
             cat: '✅ Primeiros passos', accent: '#00A699', tag: 'babu', tagText: '🚀 CONFIGURAÇÃO',
             icon: '⚙️', nome: '⚙️ ' + p.label, detalhe: p.desc, time: '',
             primary: '⚡ ' + p.acao, primaryLink: p.link,
-            secondary: '📋 Ver todos os passos', secondaryLink: '/app-home'
+            // "Ver todos os passos" abre um painel inline (busca
+            // /api/onboarding/status), não navega mais pra /app-home —
+            // pedido do Renato: "manter na página de resumo".
+            secondary: '📋 Ver todos os passos', verPassos: true
           });
         }
       });
@@ -20537,12 +20550,12 @@ function _construirDadosResumo(user) {
     .forEach(l => {
       const p = l._propensaoResumo;
       const tel = l.telefone || l.whatsapp || l.contato || '';
-      const _fotoMotivo = p.motivoImovel && p.motivoImovel.id ? _mapaFotoImovel[String(p.motivoImovel.id)] : '';
+      const _fotosMotivo = p.motivoImovel && p.motivoImovel.id ? (_mapaFotoImovel[String(p.motivoImovel.id)] || []) : [];
       cards.push({
         ordem: p.tier === 'alta' ? 0 : 1,
         cat: p.tier === 'alta' ? '🔥 Propensão alta' : '🌤 Propensão média', accent: p.tier === 'alta' ? '#FF385C' : '#FC642D',
         tag: p.tier === 'alta' ? 'rausch' : 'arches', tagText: p.tier === 'alta' ? '⚡ FALE AGORA' : '🌤 ESQUENTANDO',
-        icon: p.tier === 'alta' ? '🔥' : '🌤', foto: _fotoMotivo || '', nome: (p.tier === 'alta' ? '🔥 ' : '') + (l.nome || 'Uma lead') + (p.tier === 'alta' ? ' está pronta pra fechar!' : ' demonstrou interesse'),
+        icon: p.tier === 'alta' ? '🔥' : '🌤', foto: _fotosMotivo[0] || '', fotos: _fotosMotivo, nome: (p.tier === 'alta' ? '🔥 ' : '') + (l.nome || 'Uma lead') + (p.tier === 'alta' ? ' está pronta pra fechar!' : ' demonstrou interesse'),
         detalhe: '👀 ' + (p.motivo || 'Sinal de interesse detectado.'), time: p.tempoRelativo || '',
         primary: p.tier === 'alta' ? '💬🔥 Falar agora' : '💬 Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
         // Link direto pro imóvel que gerou o sinal (não só a lead) — pedido
@@ -20587,7 +20600,7 @@ function _construirDadosResumo(user) {
       cards.push({
         ordem: 1,
         cat: '❤️ Curtiu um imóvel', accent: '#FF385C', tag: 'rausch', tagText: '🔥 SINAL FORTE',
-        icon: '❤️', foto: g.foto || '', nome: '❤️ ' + (l.nome || 'Uma lead') + ' AMOU um imóvel!',
+        icon: '❤️', foto: g.foto || '', fotos: g.fotos || [], nome: '❤️ ' + (l.nome || 'Uma lead') + ' AMOU um imóvel!',
         detalhe: '🏠 ' + (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm),
         primary: '💬❤️ Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
         // Mesmo motivo do card de propensão — link direto pro imóvel que
@@ -20652,7 +20665,7 @@ function _construirDadosResumo(user) {
       cards.push({
         ordem: 3,
         cat: '🏠 Pra você curtir', accent: '#00A699', tag: 'babu', tagText: '✨ SUA CARTEIRA',
-        icon: '🏠', foto: im.fotos[0], nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' em ' + im.bairro) : ''),
+        icon: '🏠', foto: im.fotos[0], fotos: im.fotos.filter(Boolean).slice(0, 6), nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' em ' + im.bairro) : ''),
         detalhe: '💰 ' + (im.valor_imovel ? ('R$ ' + Number(im.valor_imovel).toLocaleString('pt-BR')) : 'Valor sob consulta'),
         time: '', primary: '❤️ Curtir', curtirImovel: im.id,
         secondary: '🔍 Ver imóvel', secondaryLink: '/app/imovel/' + im.id

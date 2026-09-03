@@ -43,7 +43,12 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 .k-icon{font-size:32px;margin-bottom:16px;display:block}
 /* foto real do imóvel, quando tem — substitui o ícone, compacta de
    propósito (miniatura, não hero) pra não poluir o card */
-.k-foto{width:clamp(130px,42vw,190px);aspect-ratio:1/1;border-radius:22px;object-fit:cover;margin:0 auto 16px;display:block;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 18px rgba(0,0,0,.1)}
+.k-foto{width:clamp(150px,48vw,220px);aspect-ratio:1/1;border-radius:22px;object-fit:cover;margin:0 auto 16px;display:block;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 18px rgba(0,0,0,.1)}
+/* Quando o imóvel tem mais de 1 foto — corre pro lado pra ver as outras
+   (pedido do Renato). Mesmo tamanho/visual do .k-foto único, só que numa
+   fileira com scroll horizontal em vez de 1 imagem fixa. */
+.k-foto-gallery{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 0 16px;padding-bottom:2px}
+.k-foto-gallery img{flex:0 0 auto;width:clamp(150px,48vw,220px);aspect-ratio:1/1;object-fit:cover;border-radius:22px;border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 18px rgba(0,0,0,.1);scroll-snap-align:start}
 .k-name{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(24px,7vw,30px);line-height:1.15;text-wrap:balance;margin:0 0 9px;color:var(--ink)}
 .k-detail{font-size:14.5px;color:var(--ink-dim);line-height:1.55;margin:0 0 13px;max-width:320px}
 .k-meta{display:flex;align-items:center;gap:8px}
@@ -95,6 +100,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 
 .voice-sheet{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.97) 20%,#fff 100%);box-shadow:0 -8px 30px rgba(0,0,0,.08);padding:28px 22px calc(env(safe-area-inset-bottom,0px) + 34px);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);z-index:40;text-align:center}
 .voice-sheet.open{transform:translateY(0)}
+.sheet-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink-dim);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:1}
 .voice-wave{display:flex;gap:4px;align-items:center;justify-content:center;height:30px;margin-bottom:14px}
 .voice-wave i{width:3.5px;border-radius:3px;background:var(--rausch);display:block;animation:wave 1s ease-in-out infinite}
 .voice-wave i:nth-child(1){height:10px;animation-delay:0s} .voice-wave i:nth-child(2){height:22px;animation-delay:.1s}
@@ -166,15 +172,19 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
   <div class="mic-wrap"><button class="mic" id="micBtn" title="Falar um comando">🎙️</button></div>
 
   <div class="voice-sheet" id="voiceSheet">
+    <button type="button" class="sheet-close" id="voiceSheetClose" title="Fechar">✕</button>
     <div class="voice-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="voice-status" id="voiceStatus">ouvindo…</div>
     <div class="voice-transcript" id="voiceTranscript"></div>
     <div id="voiceResults" class="voice-results"></div>
   </div>
 
-  <!-- Painel rápido de lead — abre "Ver lead" dentro do próprio resumo, sem
-       navegar embora (mesma mecânica de slide-up do voice-sheet). -->
+  <!-- Painel rápido de lead/imóvel — abre "Ver lead"/"Ver imóvel" dentro do
+       próprio resumo, sem navegar embora (mesma mecânica de slide-up do
+       voice-sheet). Botão "✕" explícito pra fechar — antes só dava pra
+       fechar tocando fora do cartão, o que não é óbvio (pedido do Renato). -->
   <div class="voice-sheet" id="infoSheet">
+    <button type="button" class="sheet-close" id="infoSheetClose" title="Fechar">✕</button>
     <div id="infoContent"></div>
   </div>
 </div>
@@ -300,13 +310,45 @@ const BUSCA_INDEX = <%- JSON.stringify(buscaIndex || []) %>;
 const LEADS_RESUMO = <%- JSON.stringify(leadsResumo || {}) %>;
 
 let idx = 0, timer = null, dur = 7000, startedAt = 0, remaining = dur, micOpen = false;
+// Marca o link com "?voltar=resumo" pra página de destino (lead, imóvel,
+// perfil etc.) saber que veio daqui e mostrar um "← Voltar pro Tempo
+// Real" — só em links internos de verdade (nunca WhatsApp/externo). O
+// card em si já é lembrado sozinho via sessionStorage (ver renderCard).
+// Escopo no topo do script (não dentro do "if (CARDS.length)") de
+// propósito — é chamada tanto de dentro desse bloco (criarBotaoAcao)
+// quanto de fora (abrirInfoLead/abrirInfoImovel, mais abaixo no arquivo).
+function _comVoltarResumo(link) {
+  if (!link || link.indexOf('/app/') !== 0) return link;
+  const [caminho, hash] = link.split('#');
+  const sep = caminho.indexOf('?') >= 0 ? '&' : '?';
+  return caminho + sep + 'voltar=resumo' + (hash ? '#' + hash : '');
+}
 const bars = document.getElementById('bars');
 const facesEl = document.getElementById('faces');
 const screenEl = document.getElementById('screen');
+// Precisa ficar num escopo acessível tanto por renderCard() quanto por
+// montarOnboardingWhatsapp() (chamada de dentro de renderCard, mas definida
+// fora dela) — bug real encontrado por simulação: como só existia dentro de
+// renderCard, montarOnboardingWhatsapp jogava "onbWrap is not defined" e o
+// card de "Conectar WhatsApp" ficava com a tela em branco (nunca chegava a
+// escrever nada no DOM).
+const onbWrap = document.getElementById('onbCardWrap');
 
 function hexToRgba(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return 'rgba(' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',') + ',' + a + ')';
+}
+
+// Foto do card: galeria com scroll horizontal quando tem mais de 1 foto
+// (pedido do Renato: "correr pro lado pra ver as fotos"), 1 foto só quando
+// só tem uma, ou o ícone padrão quando o imóvel não tem foto nenhuma.
+function _htmlFoto(c) {
+  const fotos = (c.fotos && c.fotos.length ? c.fotos : (c.foto ? [c.foto] : []));
+  if (fotos.length > 1) {
+    return '<div class="k-foto-gallery">' + fotos.map(f => '<img src="' + f + '" alt="">').join('') + '</div>';
+  }
+  if (fotos.length === 1) return '<img class="k-foto" src="' + fotos[0] + '" alt="">';
+  return '<span class="k-icon">' + c.icon + '</span>';
 }
 
 if (CARDS.length) {
@@ -327,9 +369,11 @@ if (CARDS.length) {
 
   // Monta um botão de ação — se o link aponta pra /app/lead/:id e a gente
   // já tem o resumo dessa lead (LEADS_RESUMO), abre o painel inline em vez
-  // de navegar embora da tela do resumo; qualquer outro link (WhatsApp,
-  // /app/visitas, /app/leads etc.) continua navegação normal.
-  function criarBotaoAcao(label, link, isPrimary, accent) {
+  // de navegar embora da tela do resumo; mesma ideia pra /app/imovel/:id
+  // (usa a foto/nome/detalhe que o PRÓPRIO card já tem — é o mesmo imóvel
+  // sendo mostrado, não precisa buscar de novo). Qualquer outro link
+  // (WhatsApp, /app/visitas, /app/leads etc.) continua navegação normal.
+  function criarBotaoAcao(label, link, isPrimary, accent, c) {
     const leadId = link && link.indexOf('/app/lead/') === 0 ? link.slice('/app/lead/'.length) : null;
     if (leadId && LEADS_RESUMO[leadId]) {
       const btn = document.createElement('button');
@@ -340,11 +384,20 @@ if (CARDS.length) {
       btn.addEventListener('click', () => abrirInfoLead(leadId));
       return btn;
     }
+    if (link && link.indexOf('/app/imovel/') === 0 && c) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'act-btn' + (isPrimary ? ' primary' : '');
+      if (isPrimary) btn.style.setProperty('--card-accent', accent);
+      btn.textContent = label;
+      btn.addEventListener('click', () => abrirInfoImovel(c, link));
+      return btn;
+    }
     const a = document.createElement('a');
     a.className = 'act-btn' + (isPrimary ? ' primary' : '');
     if (isPrimary) a.style.setProperty('--card-accent', accent);
     a.textContent = label;
-    a.href = link || '#';
+    a.href = _comVoltarResumo(link || '#');
     if ((link || '').indexOf('wa.me') >= 0) a.target = '_blank';
     return a;
   }
@@ -371,18 +424,21 @@ if (CARDS.length) {
 
   function renderCard(i) {
     const c = CARDS[i];
+    // Sempre grava o card atual — é o que permite voltar exatamente aqui
+    // se a pessoa sair pra outra página (ver renderCard(_idxInicial) mais
+    // abaixo, no início do carrossel).
+    try { sessionStorage.setItem('resumoIdx', i); } catch (e) {}
     document.getElementById('chipCat').textContent = c.cat;
     if (c.coracoes) dispararCoracoes();
     const body = document.getElementById('cardBody');
     const actions = document.getElementById('cardActions');
-    const onbWrap = document.getElementById('onbCardWrap');
 
     // "Primeiro passo" com ação inline (ex: importar XML, conectar
     // WhatsApp) — usa um container PRÓPRIO (#onbCardWrap), separado de
     // #cardBody/#cardActions, pra não depender de 2 blocos ancorados por
     // `bottom` que podem se sobrepor quando o texto quebra em mais linhas
     // do que o previsto.
-    if (c.tipoAcao === 'onboarding_xml' || c.tipoAcao === 'onboarding_whatsapp') {
+    if (c.tipoAcao === 'onboarding_xml' || c.tipoAcao === 'onboarding_whatsapp' || c.tipoAcao === 'onboarding_leadmanual') {
       body.style.display = 'none';
       actions.style.display = 'none';
       onbWrap.style.display = 'flex';
@@ -398,8 +454,10 @@ if (CARDS.length) {
           '</div>';
         document.getElementById('onbXmlUrl').addEventListener('focus', pauseTimer);
         document.getElementById('onbXmlBtn').addEventListener('click', iniciarImportacaoXml);
-      } else {
+      } else if (c.tipoAcao === 'onboarding_whatsapp') {
         montarOnboardingWhatsapp(c);
+      } else {
+        montarOnboardingLeadManual(c);
       }
       [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
       return;
@@ -410,7 +468,7 @@ if (CARDS.length) {
     onbWrap.innerHTML = '';
 
     body.innerHTML =
-      (c.foto ? '<img class="k-foto" src="' + c.foto + '" alt="">' : '<span class="k-icon">' + c.icon + '</span>') +
+      _htmlFoto(c) +
       '<h2 class="k-name">' + c.nome + '</h2>' +
       '<p class="k-detail">' + c.detalhe + '</p>' +
       '<div class="k-meta"><span class="k-tag ' + c.tag + '">' + c.tagText + '</span><span class="k-time">' + c.time + '</span></div>';
@@ -434,7 +492,7 @@ if (CARDS.length) {
       });
       actions.appendChild(curtirEl);
     } else {
-      actions.appendChild(criarBotaoAcao(c.primary, c.primaryLink, true, c.accent));
+      actions.appendChild(criarBotaoAcao(c.primary, c.primaryLink, true, c.accent, c));
     }
 
     if (c.marcarFalado) {
@@ -448,8 +506,15 @@ if (CARDS.length) {
         secEl.disabled = true;
       });
       actions.appendChild(secEl);
+    } else if (c.verPassos) {
+      const secEl = document.createElement('button');
+      secEl.type = 'button';
+      secEl.className = 'act-btn';
+      secEl.textContent = c.secondary;
+      secEl.addEventListener('click', abrirPassos);
+      actions.appendChild(secEl);
     } else {
-      actions.appendChild(criarBotaoAcao(c.secondary, c.secondaryLink, false, c.accent));
+      actions.appendChild(criarBotaoAcao(c.secondary, c.secondaryLink, false, c.accent, c));
     }
 
     [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
@@ -625,6 +690,55 @@ if (CARDS.length) {
     }, 2500);
   }
 
+  // Cadastro rápido de lead manual, inline (mesmo padrão do XML) — pedido
+  // do Renato: "manter na página de resumo". Só nome+telefone (mínimo pra
+  // criar a lead e já rodar o match); o resto dá pra completar depois na
+  // tela normal de detalhe da lead.
+  function montarOnboardingLeadManual(c) {
+    onbWrap.innerHTML =
+      '<span class="k-icon">' + c.icon + '</span>' +
+      '<h2 class="k-name">' + c.nome + '</h2>' +
+      '<p class="k-detail">' + c.detalhe + '</p>' +
+      '<div class="onb-form">' +
+        '<input type="text" id="onbLeadNome" placeholder="Nome da lead" class="onb-input" autocapitalize="words">' +
+        '<input type="tel" id="onbLeadTel" placeholder="WhatsApp (com DDD)" class="onb-input" inputmode="numeric">' +
+        '<button type="button" id="onbLeadBtn" class="act-btn primary" style="--card-accent:' + c.accent + '">👤 Cadastrar lead</button>' +
+        '<div class="onb-status" id="onbLeadStatus"></div>' +
+      '</div>';
+    document.getElementById('onbLeadNome').addEventListener('focus', pauseTimer);
+    document.getElementById('onbLeadTel').addEventListener('focus', pauseTimer);
+    document.getElementById('onbLeadBtn').addEventListener('click', _cadastrarLeadManual);
+  }
+  function _cadastrarLeadManual() {
+    const nome = (document.getElementById('onbLeadNome').value || '').trim();
+    const telefone = (document.getElementById('onbLeadTel').value || '').replace(/\D/g, '');
+    const btn = document.getElementById('onbLeadBtn');
+    const status = document.getElementById('onbLeadStatus');
+    if (!nome) { status.textContent = 'Coloca o nome da lead primeiro.'; return; }
+    if (!telefone || telefone.length < 10) { status.textContent = 'WhatsApp inválido, coloca com DDD.'; return; }
+    btn.disabled = true;
+    status.textContent = 'Cadastrando…';
+    fetch('/app/lead/manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, telefone })
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (!d || !d.ok) {
+          status.textContent = '❌ ' + ((d && d.erro) || 'Erro ao cadastrar');
+          btn.disabled = false;
+          return;
+        }
+        status.textContent = '✅ Lead cadastrada! Rodando o match…';
+        btn.textContent = '👤 Cadastrar outra lead';
+        btn.disabled = false;
+        document.getElementById('onbLeadNome').value = '';
+        document.getElementById('onbLeadTel').value = '';
+      })
+      .catch(() => { status.textContent = '❌ Erro de conexão'; btn.disabled = false; });
+  }
+
   function resetBars(from) {
     [...bars.children].forEach((b, bi) => {
       b.querySelector('i').style.transition = 'none';
@@ -696,8 +810,20 @@ if (CARDS.length) {
     }
   });
 
-  renderCard(0);
-  playBar(0);
+  // Volta exatamente no card onde a pessoa estava, se ela saiu pra outra
+  // página (ex: "Perfil completo"/"Ver página completa") e voltou — pedido
+  // do Renato: "voltar pra página de tempo real exatamente onde ele
+  // estava". idx some da memória (não é query string) então funciona sem
+  // sujar a URL, mas só sobrevive enquanto a aba ficar aberta.
+  let _idxInicial = 0;
+  try {
+    const _salvo = parseInt(sessionStorage.getItem('resumoIdx'), 10);
+    if (!isNaN(_salvo) && _salvo >= 0 && _salvo < CARDS.length) _idxInicial = _salvo;
+    sessionStorage.removeItem('resumoIdx');
+  } catch (e) {}
+  renderCard(_idxInicial);
+  playBar(_idxInicial);
+  idx = _idxInicial;
   restartTimer();
 
   // Reconstrói o carrossel inteiro (barras + faces + card atual) quando
@@ -792,7 +918,7 @@ function abrirInfoLead(id) {
       '</div></div>' +
       '<div class="vc-actions">' +
         (telLimpo ? '<a class="vc-btn" target="_blank" href="https://wa.me/55' + telLimpo.replace(/^55/, '') + '">💬 Falar</a>' : '') +
-        '<a class="vc-btn sec" href="' + info.link + '">Perfil completo</a>' +
+        '<a class="vc-btn sec" href="' + _comVoltarResumo(info.link) + '">Perfil completo</a>' +
       '</div>' +
     '</div>';
   infoSheet.classList.add('open');
@@ -814,6 +940,54 @@ function abrirInfoLead(id) {
   });
   infoContent.appendChild(jaFaladoBtn);
 }
+// Cartãozinho inline do imóvel — mesma ideia de abrirInfoLead, só que pro
+// "Ver imóvel": reaproveita a foto/nome/detalhe que o card já tem (é o
+// mesmo imóvel), sem sair da tela do resumo. "Ver página completa" é o
+// único link de verdade (navega), igual "Perfil completo" faz pra lead.
+function abrirInfoImovel(c, link) {
+  if (typeof pauseTimer === 'function') pauseTimer();
+  micOpen = true;
+  _toggleNavParaSheet(true);
+  infoContent.innerHTML =
+    '<div class="voice-card" style="margin:0">' +
+      (c.foto ? '<img class="vc-foto" src="' + c.foto + '" alt="">' : '') +
+      '<div class="vc-top"><span class="vc-icon">🏠</span><div>' +
+        '<div class="vc-name">' + c.nome + '</div>' +
+        '<div class="vc-detail">' + c.detalhe + '</div>' +
+      '</div></div>' +
+      '<div class="vc-actions">' +
+        '<a class="vc-btn sec" href="' + _comVoltarResumo(link) + '">🔍 Ver página completa</a>' +
+      '</div>' +
+    '</div>';
+  infoSheet.classList.add('open');
+}
+// "Ver todos os passos" — mesma ideia, painel inline em vez de navegar pra
+// /app-home. Busca a mesma rota que o modal "Primeiros Passos" do resto da
+// plataforma já usa (/api/onboarding/status), fonte única, sem duplicar
+// lista.
+function abrirPassos() {
+  if (typeof pauseTimer === 'function') pauseTimer();
+  micOpen = true;
+  _toggleNavParaSheet(true);
+  infoContent.innerHTML = '<div class="voice-card" style="margin:0"><div class="vc-detail">Carregando…</div></div>';
+  infoSheet.classList.add('open');
+  fetch('/api/onboarding/status').then(r => r.json()).then(d => {
+    const passos = (d && d.passos) || [];
+    const linhas = passos.map(p =>
+      '<div class="vc-top" style="align-items:center">' +
+        '<span class="vc-icon">' + (p.feito ? '✅' : '⬜') + '</span>' +
+        '<div><div class="vc-name" style="font-size:14px">' + p.label + '</div>' +
+        (p.feito ? '' : '<a class="vc-detail" style="color:var(--rausch);text-decoration:underline" href="' + p.link + '">' + p.acao + ' →</a>') +
+        '</div>' +
+      '</div>'
+    ).join('');
+    infoContent.innerHTML =
+      '<div class="voice-card" style="margin:0">' +
+        '<div class="vc-name" style="margin-bottom:8px">✅ Primeiros passos (' + (d.feitos||0) + '/' + (d.total||passos.length) + ')</div>' +
+        linhas +
+      '</div>';
+  }).catch(() => { infoContent.innerHTML = '<div class="voice-card" style="margin:0"><div class="vc-detail">❌ Não consegui carregar agora.</div></div>'; });
+}
 function fecharInfoSheet() {
   infoSheet.classList.remove('open');
   micOpen = false;
@@ -821,6 +995,10 @@ function fecharInfoSheet() {
   if (typeof restartTimer === 'function') restartTimer();
 }
 infoSheet.addEventListener('click', (e) => { if (e.target === infoSheet) fecharInfoSheet(); });
+// Botão "✕" explícito — antes só dava pra fechar tocando fora do cartão
+// (área estreita, pouco óbvia). Pedido do Renato: precisa ter como fechar.
+document.getElementById('infoSheetClose').addEventListener('click', fecharInfoSheet);
+document.getElementById('voiceSheetClose').addEventListener('click', () => micBtn.click());
 
 function normalizar(s) {
   return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();

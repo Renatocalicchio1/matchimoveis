@@ -4,6 +4,12 @@
 <style>
 .tbtn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
 .map-fab{position:absolute;right:14px;bottom:240px;width:52px;height:52px;border-radius:50%;background:#00A699;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;flex-direction:column;gap:1px;}
+/* Filtros de tipo (Visitas/Interesse/Leads) — empilhados na vertical, na
+   borda direita, em cima do FAB de agenda e do robô do assistente. Z-index
+   abaixo do menu "Mais" (#maisMenu, z-index:499 em app-shell.ejs) de
+   propósito — pedido do Renato: quando o menu abre, esses ícones têm que
+   ficar escondidos atrás dele, não continuar visíveis por cima. */
+.tfilters{position:absolute;right:14px;bottom:304px;z-index:300;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:4px}
 .map-fab-badge{position:absolute;top:-4px;right:-4px;background:#FF385C;color:#fff;font-size:10px;font-weight:700;border-radius:20px;padding:1px 5px;min-width:18px;text-align:center;display:none;}
 .map-drawer{position:absolute;right:12px;bottom:240px;width:260px;background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1001;overflow:hidden;max-height:50vh;display:none;flex-direction:column;}
 .map-panel-head{padding:12px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;font-weight:600;color:#111;display:flex;align-items:center;justify-content:space-between;}
@@ -11,6 +17,7 @@
 @media(max-width:900px){
   .map-fab{bottom:230px;}
   .map-drawer{right:12px;bottom:230px;width:calc(100vw - 24px);max-height:45vh;}
+  .tfilters{bottom:294px;}
 }
 .vcard{padding:10px 14px;border-bottom:1px solid #f9fafb;border-left:3px solid transparent;cursor:pointer}
 .vcard:hover{background:#f9fafb}
@@ -37,7 +44,7 @@
 </style>
 
 <div id="mapaWrap">
-  <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;gap:4px">
+  <div class="tfilters">
     <button class="tbtn" id="btn-visitas" onclick="toggle('visitas')" style="background:#00A699;color:#fff">📅 Visitas</button>
     <button class="tbtn" id="btn-interesse" onclick="toggle('interesse')" style="background:#f3f4f6;color:#666">🔥 Interesse</button>
     <button class="tbtn" id="btn-leads" onclick="toggle('leads')" style="background:#f3f4f6;color:#666">👤 Leads</button>

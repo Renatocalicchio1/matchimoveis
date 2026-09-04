@@ -29,6 +29,12 @@ const LISTMONK_URL = (process.env.LISTMONK_URL || '').replace(/\/$/, '');
 const LISTMONK_API_USER = process.env.LISTMONK_API_USER || '';
 const LISTMONK_API_TOKEN = process.env.LISTMONK_API_TOKEN || '';
 
+// CTA das campanhas de aquecimento — domínio principal (não o
+// matchimoveis.online, que é só o domínio de ENVIO) + ?cadastro=1 (abre o
+// modal de cadastro direto, mesmo padrão já usado no resto da plataforma,
+// ver CLAUDE.md "Páginas de conteúdo SEO/AEO").
+const BASE_URL_MATCHIMOVEIS_CADASTRO = 'https://www.matchimoveis.ia.br/?cadastro=1';
+
 function _authHeader() {
   const cred = Buffer.from(`${LISTMONK_API_USER}:${LISTMONK_API_TOKEN}`).toString('base64');
   return { Authorization: `Basic ${cred}`, 'Content-Type': 'application/json' };
@@ -183,6 +189,26 @@ async function dispararLoteDoWarmup({ inicio, fim, diaWarmup }) {
     }
   }
 
+  // Conteúdo real (não placeholder vazio) — mesmo tom/voz já usado na
+  // campanha por SES (services/campanha.js, template "pagina"). Testado ao
+  // vivo (set/2026): um corpo vazio/genérico ("teste"/parágrafo em branco)
+  // caiu no spam do Gmail e do Yahoo mesmo com SPF/DKIM/DMARC 100% — email
+  // sem conteúdo real é sinal forte de spam por conteúdo, além da questão
+  // de reputação de domínio novo (que só o aquecimento gradual resolve).
+  // Só 1 variação por enquanto (a campanha por SES já tem rotação de ~30
+  // variações pra nunca repetir o mesmo texto — considerar portar esse
+  // mesmo mecanismo pra cá antes do disparo real pros 118k, pra não
+  // repetir o mesmo assunto/corpo todo santo dia do aquecimento).
+  const _ASSUNTO_WARMUP = 'Tem gente procurando imóvel na sua região agora — só não com você';
+  const _CTA_URL = BASE_URL_MATCHIMOVEIS_CADASTRO;
+  const _corpoWarmupHtml = `<p>Olá,</p>
+<p>Todo dia, gente na sua região está procurando imóvel — e boa parte desses contatos nunca chega até você, porque não existe nada cruzando essa demanda com a sua carteira automaticamente.</p>
+<p>A Match Imóveis faz isso sozinha: recebe o lead, casa com o imóvel certo, monta a vitrine e já manda pelo WhatsApp — sem você precisar ficar de olho o dia inteiro.</p>
+<p style="text-align:center;margin:28px 0">
+  <a href="${_CTA_URL}" style="background:#FF385C;color:#fff;text-decoration:none;font-weight:700;padding:12px 28px;border-radius:8px;display:inline-block">Conhecer a Match Imóveis →</a>
+</p>
+<p>— Equipe Match Imóveis</p>`;
+
   // Cria a campanha e já marca pra rodar (status "running") — troca por
   // "draft" aqui se preferir revisar manualmente no painel antes de cada
   // disparo em vez de automático.
@@ -190,11 +216,11 @@ async function dispararLoteDoWarmup({ inicio, fim, diaWarmup }) {
     method: 'POST',
     body: JSON.stringify({
       name: `Aquecimento - Dia ${diaWarmup}`,
-      subject: 'Novidades no MatchImóveis 🏠',
+      subject: _ASSUNTO_WARMUP,
       lists: [idListaDia],
       type: 'regular',
       content_type: 'richtext',
-      body: '<p>Conteúdo da campanha — edita no painel do Listmonk antes de ativar.</p>'
+      body: _corpoWarmupHtml
     })
   });
   await _listmonkFetch(`/api/campaigns/${campanha.data.id}/status`, {

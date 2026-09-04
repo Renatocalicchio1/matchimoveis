@@ -1,19 +1,15 @@
 # Infraestrutura de e-mail marketing self-hosted — Listmonk (painel/engine
 # de disparo) + Postgres (banco do Listmonk, separado do banco da
-# plataforma MatchImóveis) + Postfix/OpenDKIM (MTA local que assina e
-# entrega os e-mails).
+# plataforma MatchImóveis).
 #
-# Postfix/OpenDKIM rodam com `network_mode: host` de propósito — um MTA
-# precisa bindar a porta 25 direto na interface pública da VPS (não dá pra
-# fazer isso só com port-mapping do Docker de forma confiável, e o
-# reverse-DNS/PTR configurado no provedor da VPS aponta pro IP da própria
-# máquina, não pro IP interno do Docker). Isso significa que Postfix e
-# OpenDKIM enxergam a rede da VPS inteira, não só a rede docker-compose —
-# é assim mesmo que servidor de e-mail funciona, não é erro de config.
+# ⚠️ Postfix/OpenDKIM NÃO sobem por aqui (containers `postfix`/`opendkim`
+# comentados no fim do arquivo). Na VPS real (set/2026) os dois já rodam
+# nativos via systemd, instalados por setup_email_infra.sh — subir os
+# containers equivalentes brigaria pela porta 25 e pelo socket do milter
+# com o que já está funcionando. Só sobe esse compose DEPOIS de já ter
+# rodado setup_email_infra.sh (ver README.md).
 #
-# Rodar: docker compose up -d
-# (depois de já ter rodado setup_email_infra.sh pra instalar/configurar o
-# Postfix/OpenDKIM na própria VPS — ver README.md)
+# Rodar: docker compose up -d db listmonk
 
 services:
   # Banco de dados do Listmonk — próprio, separado do banco da plataforma
@@ -62,48 +58,39 @@ services:
     networks:
       - listmonk_net
 
-  # Postfix — MTA local. Não expõe porta nenhuma pro Docker de propósito
-  # (network_mode: host, já bindado na porta 25 da própria VPS pelo
-  # serviço systemd instalado por setup_email_infra.sh). Esse serviço aqui
-  # só documenta a dependência/ordem de subida — o processo real do
-  # Postfix roda como serviço do sistema operacional, não como container,
-  # exatamente pra poder usar host networking com PTR/rDNS corretos.
+  # Postfix e OpenDKIM: DESATIVADOS neste compose (comentado de propósito).
+  # Rodam nativos via systemd na VPS (setup_email_infra.sh) — confirmado
+  # funcionando (DKIM/SPF/DMARC passando) em set/2026. Não descomentar sem
+  # antes parar os serviços systemd (`systemctl stop postfix opendkim`),
+  # senão os dois brigam pela porta 25 e pelo socket /var/run/opendkim.
   #
-  # Se preferir Postfix 100% em container em vez de instalado direto na
-  # VPS, dá pra trocar esse bloco por uma imagem tipo `boky/postfix` — só
-  # que MESMO ASSIM precisa network_mode: host pra funcionar direito como
-  # MTA público. Deixei como serviço de sistema (via setup_email_infra.sh)
-  # por ser mais fácil de depurar/logar em produção.
-  postfix:
-    image: boky/postfix:latest
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      ALLOWED_SENDER_DOMAINS: matchimoveis.online
-      HOSTNAME: mail.matchimoveis.online
-      RELAYHOST: ""
-      OPENDKIM_ENABLED: "false"  # assinatura fica a cargo do serviço opendkim abaixo, via socket local
-    volumes:
-      - ./postfix/main.cf:/etc/postfix/main.cf:ro
-      - postfix_spool:/var/spool/postfix
-      - /var/run/opendkim:/var/run/opendkim   # socket compartilhado com o OpenDKIM
-    depends_on:
-      - opendkim
-
-  # OpenDKIM — assina cada e-mail que passa pelo Postfix com a chave
-  # privada gerada em setup_email_infra.sh. Também roda em host network
-  # pra compartilhar o socket Unix com o Postfix sem overhead de rede.
-  opendkim:
-    image: agilestacks/opendkim:latest
-    restart: unless-stopped
-    network_mode: host
-    volumes:
-      - ./opendkim/opendkim.conf:/etc/opendkim.conf:ro
-      - ./opendkim/KeyTable:/etc/opendkim/KeyTable:ro
-      - ./opendkim/SigningTable:/etc/opendkim/SigningTable:ro
-      - ./opendkim/TrustedHosts:/etc/opendkim/TrustedHosts:ro
-      - /etc/opendkim/keys:/etc/opendkim/keys:ro   # gerado por setup_email_infra.sh
-      - /var/run/opendkim:/var/run/opendkim
+  # postfix:
+  #   image: boky/postfix:latest
+  #   restart: unless-stopped
+  #   network_mode: host
+  #   environment:
+  #     ALLOWED_SENDER_DOMAINS: matchimoveis.online
+  #     HOSTNAME: mail.matchimoveis.online
+  #     RELAYHOST: ""
+  #     OPENDKIM_ENABLED: "false"
+  #   volumes:
+  #     - ./postfix/main.cf:/etc/postfix/main.cf:ro
+  #     - postfix_spool:/var/spool/postfix
+  #     - /var/run/opendkim:/var/run/opendkim
+  #   depends_on:
+  #     - opendkim
+  #
+  # opendkim:
+  #   image: agilestacks/opendkim:latest
+  #   restart: unless-stopped
+  #   network_mode: host
+  #   volumes:
+  #     - ./opendkim/opendkim.conf:/etc/opendkim.conf:ro
+  #     - ./opendkim/KeyTable:/etc/opendkim/KeyTable:ro
+  #     - ./opendkim/SigningTable:/etc/opendkim/SigningTable:ro
+  #     - ./opendkim/TrustedHosts:/etc/opendkim/TrustedHosts:ro
+  #     - /etc/opendkim/keys:/etc/opendkim/keys:ro
+  #     - /var/run/opendkim:/var/run/opendkim
 
 networks:
   listmonk_net:

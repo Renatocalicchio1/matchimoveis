@@ -1012,8 +1012,14 @@ function alternarModoWA(modo) {
   _waModo = modo;
   document.getElementById('wa-tab-qr').classList.toggle('on', modo === 'qr');
   document.getElementById('wa-tab-code').classList.toggle('on', modo === 'code');
+  // Bug real (auditoria de UX, set/2026): aqui escondia os dois blocos sem
+  // nunca mostrar o de "código por número" — clicar na aba não fazia nada
+  // aparecer, e o campo pra digitar o número ficava impossível de achar.
+  // QR só aparece depois que conectarWA() busca o QR de verdade; o campo
+  // de número, por outro lado, precisa aparecer JÁ ao trocar de aba (é
+  // nele que o usuário digita antes de clicar em "Conectar").
   document.getElementById('wa-qr-wrap').style.display = 'none';
-  document.getElementById('wa-code-wrap').style.display = 'none';
+  document.getElementById('wa-code-wrap').style.display = modo === 'code' ? 'block' : 'none';
   document.getElementById('wa-code-resultado').style.display = 'none';
   const aviso = document.getElementById('wa-aviso');
   if (aviso) aviso.style.display = 'none';

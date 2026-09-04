@@ -788,7 +788,7 @@ if (CARDS.length) {
   // .voice-sheet pra nunca competir com um botão de verdade.
   let _dragAtivo = false, _dragX = 0, _dragY = 0, _arrastou = false;
   screenEl.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.actions, .mic-wrap, .voice-sheet')) return;
+    if (e.target.closest('.actions, .mic-wrap, .voice-sheet, .onb-card-wrap')) return;
     _dragAtivo = true; _arrastou = false;
     _dragX = e.clientX; _dragY = e.clientY;
     pauseTimer();
@@ -798,7 +798,7 @@ if (CARDS.length) {
     if (Math.abs(e.clientX - _dragX) > 10) _arrastou = true;
   });
   screenEl.addEventListener('pointerup', (e) => {
-    if (e.target.closest('.actions, .mic-wrap, .voice-sheet')) return;
+    if (e.target.closest('.actions, .mic-wrap, .voice-sheet, .onb-card-wrap')) return;
     if (!_dragAtivo) return;
     _dragAtivo = false;
     const deltaX = e.clientX - _dragX, deltaY = e.clientY - _dragY;

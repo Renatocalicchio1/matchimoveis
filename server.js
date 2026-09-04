@@ -20487,6 +20487,17 @@ app.get('/app/certidoes', auth, (req, res) => {
 // query no banco) de propósito — pedido explícito: "não pode ter
 // carregado", a tela tem que abrir pronta.
 //
+// Monta o nome de exibição de um imóvel (título + bairro) sem duplicar o
+// bairro quando ele já vem embutido no título — muitos títulos importados
+// de XML de portal já vêm prontos tipo "Apartamento em Belenzinho", então
+// só concatenar sempre " em <bairro>" gerava "Apartamento em Belenzinho em
+// Belenzinho" (bug reportado pelo Renato, print do /app/resumo, set/2026).
+function _tituloComBairro(titulo, tipoFallback, bairro) {
+  const base = titulo || tipoFallback || 'Imóvel';
+  if (!bairro) return base;
+  return base.toLowerCase().includes(bairro.toLowerCase()) ? base : (base + ' em ' + bairro);
+}
+
 // Monta os dados (cards + índice de busca + resumo de leads) — extraído em
 // função própria (set/2026) pra ser reaproveitado tanto pela página (GET
 // /app/resumo) quanto pelo polling em tempo real (GET /api/resumo/dados,
@@ -20666,7 +20677,7 @@ function _construirDadosResumo(user) {
         ordem: 1,
         cat: '❤️ Curtiu um imóvel', accent: '#FF385C', tag: 'rausch', tagText: '🔥 SINAL FORTE',
         icon: '❤️', foto: g.foto || '', fotos: g.fotos || [], nome: '❤️ ' + (l.nome || 'Uma lead') + ' AMOU um imóvel!',
-        detalhe: '🏠 ' + (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm), _ts: g.clicadoEm ? new Date(g.clicadoEm).getTime() : 0,
+        detalhe: '🏠 ' + _tituloComBairro(g.titulo, '', g.bairro), time: tempoRelativoResumo(g.clicadoEm), _ts: g.clicadoEm ? new Date(g.clicadoEm).getTime() : 0,
         primary: '💬❤️ Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
         // Mesmo motivo do card de propensão — link direto pro imóvel que
         // ela curtiu, não só a lead.
@@ -20730,7 +20741,7 @@ function _construirDadosResumo(user) {
       cards.push({
         ordem: 3,
         cat: '🏠 Pra você curtir', accent: '#00A699', tag: 'babu', tagText: '✨ SUA CARTEIRA',
-        icon: '🏠', foto: im.fotos[0], fotos: im.fotos.filter(Boolean).slice(0, 6), nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' em ' + im.bairro) : ''),
+        icon: '🏠', foto: im.fotos[0], fotos: im.fotos.filter(Boolean).slice(0, 6), nome: _tituloComBairro(im.titulo, im.tipo, im.bairro),
         detalhe: '💰 ' + (im.valor_imovel ? ('R$ ' + Number(im.valor_imovel).toLocaleString('pt-BR')) : 'Valor sob consulta'),
         time: '', primary: '❤️ Curtir', curtirImovel: im.id,
         secondary: '🔍 Ver imóvel', secondaryLink: '/app/imovel/' + im.id
@@ -20772,7 +20783,7 @@ function _construirDadosResumo(user) {
   // imóveis, tudo já em memória (mesmo motivo de não bater no banco acima)
   const buscaIndex = [
     ...leads.map(l => ({ tipo: 'lead', nome: l.nome || l.telefone || l.contato || 'Lead', tel: l.telefone || l.whatsapp || l.contato || '', link: '/app/lead/' + l.id })),
-    ...lerImoveis(user).slice(0, 500).map(im => ({ tipo: 'imovel', nome: (im.titulo || im.tipo || 'Imóvel') + (im.bairro ? (' ' + im.bairro) : ''), foto: (im.fotos && im.fotos[0]) || '', link: '/app/imovel/' + im.id }))
+    ...lerImoveis(user).slice(0, 500).map(im => ({ tipo: 'imovel', nome: _tituloComBairro(im.titulo, im.tipo, im.bairro), foto: (im.fotos && im.fotos[0]) || '', link: '/app/imovel/' + im.id }))
   ].filter(it => it.nome);
 
   // Resumo rápido de cada lead referenciada nos cards (nome, telefone, o

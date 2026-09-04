@@ -29,6 +29,12 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 
 .card-face{position:absolute;inset:0;transition:opacity .35s ease}
 
+/* Camada que arrasta junto (foto de fundo + texto + botões) durante o
+   swipe estilo Tinder — pedido do Renato: "passar o dedo pro lado". Sem
+   transition por padrão (aplicada via JS só no fim do gesto, senão o
+   dedo fica "atrasado" em relação ao dedo durante o arraste). */
+.card-drag-layer{position:absolute;inset:0;touch-action:pan-y}
+
 /* coraçõezinhos subindo quando uma lead curte um imóvel — puramente
    decorativo, não intercepta toque (pointer-events:none) */
 .hearts-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:18}
@@ -160,13 +166,16 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
   </div>
 
   <div id="faces"></div>
+  <div class="card-drag-layer" id="cardDragLayer">
+    <% if (cards && cards.length) { %>
+    <div class="card-body" id="cardBody"></div>
+    <div class="actions" id="cardActions"></div>
+    <div class="onb-card-wrap" id="onbCardWrap" style="display:none"></div>
+    <% } %>
+  </div>
   <div class="hearts-layer" id="heartsLayer"></div>
 
-  <% if (cards && cards.length) { %>
-  <div class="card-body" id="cardBody"></div>
-  <div class="actions" id="cardActions"></div>
-  <div class="onb-card-wrap" id="onbCardWrap" style="display:none"></div>
-  <% } else { %>
+  <% if (!(cards && cards.length)) { %>
   <div class="empty-state">
     <div style="font-size:38px">🎯</div>
     <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:17px;color:var(--ink)">Tudo tranquilo por aqui</div>
@@ -335,6 +344,7 @@ function _comVoltarResumo(link) {
 const bars = document.getElementById('bars');
 const facesEl = document.getElementById('faces');
 const screenEl = document.getElementById('screen');
+const cardDragLayer = document.getElementById('cardDragLayer');
 // Precisa ficar num escopo acessível tanto por renderCard() quanto por
 // montarOnboardingWhatsapp() (chamada de dentro de renderCard, mas definida
 // fora dela) — bug real encontrado por simulação: como só existia dentro de
@@ -468,7 +478,7 @@ if (CARDS.length) {
       } else {
         montarOnboardingLeadManual(c);
       }
-      [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
+      [...facesEl.children].forEach((f, fi) => { f.style.transition = 'none'; f.style.transform = 'none'; f.style.opacity = fi === i ? '1' : '0'; });
       return;
     }
     body.style.display = '';
@@ -526,7 +536,7 @@ if (CARDS.length) {
       actions.appendChild(criarBotaoAcao(c.secondary, c.secondaryLink, false, c.accent, c));
     }
 
-    [...facesEl.children].forEach((f, fi) => f.style.opacity = fi === i ? '1' : '0');
+    [...facesEl.children].forEach((f, fi) => { f.style.transition = 'none'; f.style.transform = 'none'; f.style.opacity = fi === i ? '1' : '0'; });
   }
 
   // Conectar WhatsApp direto do card (QR ou código), sem sair do resumo —
@@ -791,32 +801,109 @@ if (CARDS.length) {
   // Ignora qualquer interação que comece dentro de .actions/.mic-wrap/
   // .voice-sheet pra nunca competir com um botão de verdade.
   let _dragAtivo = false, _dragX = 0, _dragY = 0, _arrastou = false;
+  // Face "vizinha" (a próxima ou a anterior) que fica entrando pela lateral
+  // enquanto arrasta — pedido do Renato: "como se fosse um carrossel
+  // rolando", não só o card atual sumindo e o próximo aparecendo depois.
+  let _faceVizinhaEl = null;
+  function _resetFaceVizinha() {
+    if (!_faceVizinhaEl) return;
+    _faceVizinhaEl.style.transition = 'none';
+    _faceVizinhaEl.style.transform = 'none';
+    _faceVizinhaEl.style.opacity = '0';
+    _faceVizinhaEl = null;
+  }
   screenEl.addEventListener('pointerdown', (e) => {
     if (e.target.closest('.actions, .mic-wrap, .voice-sheet, .onb-card-wrap')) return;
     _dragAtivo = true; _arrastou = false;
     _dragX = e.clientX; _dragY = e.clientY;
+    cardDragLayer.style.transition = 'none';
+    facesEl.children[idx].style.transition = 'none';
     pauseTimer();
   });
   screenEl.addEventListener('pointermove', (e) => {
     if (!_dragAtivo) return;
-    if (Math.abs(e.clientX - _dragX) > 10) _arrastou = true;
+    const dx = e.clientX - _dragX;
+    if (Math.abs(dx) > 10) _arrastou = true;
+    // Segue o dedo em tempo real (estilo Tinder) só quando o arraste é
+    // predominantemente horizontal — arraste vertical (ex: querendo rolar
+    // o texto) não deforma o card.
+    if (Math.abs(dx) > Math.abs(e.clientY - _dragY)) {
+      const w = window.innerWidth;
+      cardDragLayer.style.transform = 'translateX(' + dx + 'px) rotate(' + (dx / 22) + 'deg)';
+      cardDragLayer.style.opacity = String(1 - Math.min(Math.abs(dx) / 500, .35));
+      // O painel de fundo (foto/cor do card) desliza junto, sem rotação —
+      // o "quadradinho rolando" que o Renato pediu, tipo carrossel/filme.
+      facesEl.children[idx].style.transform = 'translateX(' + dx + 'px)';
+      const signDir = dx < 0 ? 1 : -1; // <0 = arrastando pra esquerda = revela o PRÓXIMO
+      const viznIdx = (idx + signDir + CARDS.length) % CARDS.length;
+      const viznEl = facesEl.children[viznIdx];
+      if (viznEl !== _faceVizinhaEl) { _resetFaceVizinha(); _faceVizinhaEl = viznEl; }
+      viznEl.style.transition = 'none';
+      viznEl.style.opacity = '1';
+      viznEl.style.transform = 'translateX(' + (dx + signDir * w) + 'px)';
+    }
   });
+  // Devolve o card pro centro (soltou sem passar do limite de swipe) ou
+  // manda ele voar pra fora da tela antes de trocar de card — sem isso o
+  // card simplesmente "teleportava" pro próximo, sem feedback visual do
+  // arraste (pedido do Renato: "como se fosse o Tinder... rolando que nem
+  // um carrossel"). renderCard() (chamado por next()/prev() no fim da
+  // animação) já reseta transform/opacity de TODAS as faces pro estado
+  // limpo — não precisa fazer isso aqui de novo.
+  function _resetDragLayer(comTransicao) {
+    const t = comTransicao ? 'transform .25s cubic-bezier(.2,.8,.3,1), opacity .25s' : 'none';
+    cardDragLayer.style.transition = t;
+    cardDragLayer.style.transform = 'translateX(0) rotate(0deg)';
+    cardDragLayer.style.opacity = '1';
+    facesEl.children[idx].style.transition = t;
+    facesEl.children[idx].style.transform = 'none';
+    if (_faceVizinhaEl) {
+      _faceVizinhaEl.style.transition = t;
+      _faceVizinhaEl.style.transform = _faceVizinhaEl === facesEl.children[idx] ? 'none' : _faceVizinhaEl.style.transform;
+    }
+    setTimeout(_resetFaceVizinha, comTransicao ? 260 : 0);
+  }
+  function _voarPraFora(direcao, callback) {
+    const w = window.innerWidth;
+    const t = 'transform .22s ease-out, opacity .22s ease-out';
+    cardDragLayer.style.transition = t;
+    cardDragLayer.style.transform = 'translateX(' + (direcao * w * 1.15) + 'px) rotate(' + (direcao * 20) + 'deg)';
+    cardDragLayer.style.opacity = '0';
+    facesEl.children[idx].style.transition = t;
+    facesEl.children[idx].style.transform = 'translateX(' + (direcao * w * 1.15) + 'px)';
+    if (_faceVizinhaEl) {
+      _faceVizinhaEl.style.transition = t;
+      _faceVizinhaEl.style.transform = 'translateX(0)';
+    }
+    setTimeout(() => { callback(); _faceVizinhaEl = null; _resetDragLayer(false); }, 220);
+  }
   screenEl.addEventListener('pointerup', (e) => {
     if (e.target.closest('.actions, .mic-wrap, .voice-sheet, .onb-card-wrap')) return;
     if (!_dragAtivo) return;
     _dragAtivo = false;
     const deltaX = e.clientX - _dragX, deltaY = e.clientY - _dragY;
-    if (micOpen) return;
+    if (micOpen) { _resetDragLayer(true); return; }
     if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      deltaX < 0 ? next() : prev();
+      deltaX < 0 ? _voarPraFora(-1, next) : _voarPraFora(1, prev);
     } else if (!_arrastou) {
+      _resetDragLayer(false);
       const w = window.innerWidth;
       if (e.clientX < w * 0.35) prev();
       else if (e.clientX > w * 0.65) next();
       else restartTimer();
     } else {
+      _resetDragLayer(true);
       restartTimer();
     }
+  });
+  // Se o navegador cancelar o gesto no meio do caminho (ex: um sistema de
+  // gesto do celular tomando conta), devolve o card pro centro em vez de
+  // deixar ele visualmente torto/deslocado pra sempre.
+  screenEl.addEventListener('pointercancel', () => {
+    if (!_dragAtivo) return;
+    _dragAtivo = false;
+    _resetDragLayer(true);
+    restartTimer();
   });
 
   // Volta exatamente no card onde a pessoa estava, se ela saiu pra outra

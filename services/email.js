@@ -1,4 +1,5 @@
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
+const nodemailer = require('nodemailer');
 const { query } = require('./db');
 
 const ses = new SESClient({
@@ -11,6 +12,45 @@ const ses = new SESClient({
 
 const FROM = process.env.AWS_SES_FROM || 'noreply@matchimoveis.online';
 const BASE_URL = 'https://matchimoveis.ia.br';
+
+// ── Relay SMTP da VPS (Postfix+OpenDKIM, infra/email-marketing/, set/2026) ──
+// "Caminho 1": mantém o painel /admin/campanha e /admin/captacao-campanha
+// (rotação de 30 variações, follow-up 1/2/3, tracking) 100% como estão —
+// só troca o transporte de envio da campanha geral de corretor
+// (services/campanha.js, nunca passa `tipo`) e da campanha de captação
+// (services/campanhaCaptacao.js, tipo sempre `campanha_captacao_*`) de
+// Amazon SES pro Postfix da VPS, IP/domínio separados do que o SES usa pro
+// transacional — mesmo racional de isolamento de reputação já documentado
+// no CLAUDE.md pro aquecimento via Listmonk. VPS_SMTP_PASS é a senha SASL
+// gerada com `saslpasswd2 -c -p -u matchimoveis.online app` (usuário
+// app@matchimoveis.online, porta 587/STARTTLS, cert Let's Encrypt de
+// mail.matchimoveis.online).
+const VPS_SMTP_HOST = process.env.VPS_SMTP_HOST || 'mail.matchimoveis.online';
+const VPS_SMTP_PORT = parseInt(process.env.VPS_SMTP_PORT || '587', 10);
+const VPS_SMTP_USER = process.env.VPS_SMTP_USER || 'app@matchimoveis.online';
+const VPS_SMTP_PASS = process.env.VPS_SMTP_PASS || '';
+const FROM_VPS = process.env.VPS_SMTP_FROM || 'contato@matchimoveis.online';
+
+let _vpsTransporter = null;
+function _getVpsTransporter() {
+  if (_vpsTransporter) return _vpsTransporter;
+  _vpsTransporter = nodemailer.createTransport({
+    host: VPS_SMTP_HOST,
+    port: VPS_SMTP_PORT,
+    secure: false,
+    requireTLS: true,
+    auth: { user: VPS_SMTP_USER, pass: VPS_SMTP_PASS }
+  });
+  return _vpsTransporter;
+}
+
+// As duas únicas campanhas que passam pelo relay da VPS em vez do SES —
+// mesmo critério que _emailPausado() já usa mais abaixo pra identificar
+// essas duas (tipo ausente = campanha geral; prefixo campanha_captacao_ =
+// campanha de captação).
+function _usaRelayVPS(tipo) {
+  return !tipo || tipo.indexOf('campanha_captacao_') === 0;
+}
 
 // Descadastro de email — vale pra QUALQUER email da plataforma (lead,
 // proprietário/cliente ou corretor), não só campanha em massa. enviarEmail()
@@ -218,10 +258,16 @@ async function contarCadastradosUnicos() {
 // mesmo lead horas depois — sinal de que ainda existe outro furo na trava
 // de dedup do JOB_PROPENSAO (cerebro/propensao.js). Pausado até investigar
 // a fundo, pra não continuar arriscando reputação de envio.
+// Campanha geral de corretor (tipo vazio) e campanha de captação
+// (campanha_captacao_*) — pausa removida (set/2026, "Caminho 1"): a razão
+// original da trava (bounce alto, ~847/1.910 só a de captação) era sobre
+// domínio/reputação do SES; agora as duas passam pelo relay da VPS
+// (_usaRelayVPS() acima, IP/domínio separados do SES), então o controle
+// real volta a ser só o toggle "Iniciar"/"Pausar" de /admin/campanha e
+// /admin/captacao-campanha, como o próprio painel já sugere.
 function _emailPausado(tipo) {
-  if (!tipo) return true; // campanha.js (admin/campanha) nunca passa tipo
   if (tipo === 'propensao_alta') return true;
-  return tipo.indexOf('campanha_captacao_') === 0 || tipo === 'convite_portal_global';
+  return tipo === 'convite_portal_global';
 }
 
 async function enviarEmail({ para, assunto, html, texto, tipo, variante, botaoTexto, leadId, userId }) {
@@ -248,19 +294,34 @@ async function enviarEmail({ para, assunto, html, texto, tipo, variante, botaoTe
   }
   const cabecalho = _cabecalhoEmpresa();
   const rodape = _rodapeDescadastro(para);
-  const cmd = new SendEmailCommand({
-    Source: `MatchImóveis <${FROM}>`,
-    Destination: { ToAddresses: [para] },
-    Message: {
-      Subject: { Data: assunto, Charset: 'UTF-8' },
-      Body: {
-        Html: { Data: cabecalho.html + corpoHtml + rodape.html, Charset: 'UTF-8' },
-        Text: { Data: cabecalho.texto + (texto || assunto) + rodape.texto, Charset: 'UTF-8' }
+  const htmlFinal = cabecalho.html + corpoHtml + rodape.html;
+  const textoFinal = cabecalho.texto + (texto || assunto) + rodape.texto;
+
+  let result;
+  if (_usaRelayVPS(tipo)) {
+    const info = await _getVpsTransporter().sendMail({
+      from: `MatchImóveis <${FROM_VPS}>`,
+      to: para,
+      subject: assunto,
+      html: htmlFinal,
+      text: textoFinal
+    });
+    result = { MessageId: info.messageId };
+  } else {
+    const cmd = new SendEmailCommand({
+      Source: `MatchImóveis <${FROM}>`,
+      Destination: { ToAddresses: [para] },
+      Message: {
+        Subject: { Data: assunto, Charset: 'UTF-8' },
+        Body: {
+          Html: { Data: htmlFinal, Charset: 'UTF-8' },
+          Text: { Data: textoFinal, Charset: 'UTF-8' }
+        }
       }
-    }
-  });
-  const result = await ses.send(cmd);
-  console.log('[EMAIL] enviado para:', para, '| MessageId:', result.MessageId, tipo ? ('| tipo: ' + tipo + (variante ? '/' + variante : '')) : '');
+    });
+    result = await ses.send(cmd);
+  }
+  console.log('[EMAIL] enviado para:', para, '| via:', _usaRelayVPS(tipo) ? 'VPS' : 'SES', '| MessageId:', result.MessageId, tipo ? ('| tipo: ' + tipo + (variante ? '/' + variante : '')) : '');
   return { ...result, envioId };
 }
 

@@ -212,6 +212,12 @@ async function dispararLoteDoWarmup({ inicio, fim, diaWarmup }) {
   // Cria a campanha e já marca pra rodar (status "running") — troca por
   // "draft" aqui se preferir revisar manualmente no painel antes de cada
   // disparo em vez de automático.
+  // from_email sempre explícito — sem isso o Listmonk cai no default de
+  // Settings → General (nunca corrigido lá, só nas campanhas de teste
+  // criadas manualmente pelo painel), que é o endereço de exemplo
+  // "noreply@listmonk.yoursite.com". Incidente real (set/2026): o Dia 1
+  // rodou 97 envios reais assim antes de ser pausado — sai sem DKIM
+  // (SigningTable só bate *@matchimoveis.online) e o remetente não existe.
   const campanha = await _listmonkFetch('/api/campaigns', {
     method: 'POST',
     body: JSON.stringify({
@@ -220,7 +226,8 @@ async function dispararLoteDoWarmup({ inicio, fim, diaWarmup }) {
       lists: [idListaDia],
       type: 'regular',
       content_type: 'richtext',
-      body: _corpoWarmupHtml
+      body: _corpoWarmupHtml,
+      from_email: 'MatchImóveis <contato@matchimoveis.online>'
     })
   });
   await _listmonkFetch(`/api/campaigns/${campanha.data.id}/status`, {

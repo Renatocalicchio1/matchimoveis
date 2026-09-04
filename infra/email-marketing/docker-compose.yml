@@ -51,6 +51,10 @@ services:
       LISTMONK_db__password: ${LISTMONK_DB_PASSWORD}
       LISTMONK_db__database: listmonk
       LISTMONK_db__ssl_mode: disable
+      # Sem isso o Listmonk escuta só em 127.0.0.1 DENTRO do container — o
+      # port-mapping do Docker (0.0.0.0:9000->9000) não alcança, e toda
+      # conexão de fora dá "connection reset" mesmo com a porta mapeada certa.
+      LISTMONK_app__address: 0.0.0.0:9000
       # App aponta o webhook de bounce/unsubscribe pra plataforma MatchImóveis
       LISTMONK_app__root_url: ${LISTMONK_ROOT_URL}
     volumes:

@@ -53,8 +53,8 @@ maximal_backoff_time = 30min
 # ── Integração com OpenDKIM (assina toda mensagem antes de sair) ────────
 milter_default_action = accept
 milter_protocol = 6
-smtpd_milters = local:opendkim/opendkim.sock
-non_smtpd_milters = local:opendkim/opendkim.sock
+smtpd_milters = unix:/var/run/opendkim/opendkim.sock
+non_smtpd_milters = unix:/var/run/opendkim/opendkim.sock
 
 # ── Tamanho máximo de mensagem (10MB — e-mail de marketing não devia
 # passar disso; travar aqui evita anexo gigante acidental) ──────────────

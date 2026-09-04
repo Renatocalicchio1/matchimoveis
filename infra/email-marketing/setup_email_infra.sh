@@ -12,8 +12,9 @@
 #   2. Gera o par de chaves DKIM (2048 bits)
 #   3. Ajusta permissões (OpenDKIM roda sem privilégio de root)
 #   4. Copia main.cf/opendkim.conf pro lugar certo
-#   5. Configura rotação de log
-#   6. Sobe os serviços e mostra a chave pública pra colocar no DNS
+#   5. Tira o chroot dos serviços do Postfix que precisam falar com o milter
+#   6. Configura rotação de log
+#   7. Sobe os serviços e mostra a chave pública pra colocar no DNS
 
 set -euo pipefail
 
@@ -61,7 +62,19 @@ cp "$DIR_SCRIPT/opendkim/TrustedHosts" /etc/opendkim/TrustedHosts
 RANGE_DOCKER="172.16.0.0/12"
 sed -i "s#TODO_RANGE_DOCKER_INTERNO#$RANGE_DOCKER#g" /etc/postfix/main.cf /etc/opendkim/TrustedHosts
 
-echo "==> [5/6] Configurando rotação de log..."
+echo "==> [5/7] Tirando o chroot dos serviços que precisam falar com o socket"
+echo "         do OpenDKIM (senão o milter nunca conecta, mesmo com tudo"
+echo "         mais certo — 'connect to Milter service ...: Permission denied'"
+echo "         no /var/log/mail.log é o sintoma)..."
+sed -i -E \
+  -e 's/^(smtp[[:space:]]+inet[[:space:]]+n[[:space:]]+-[[:space:]]+)y/\1n/' \
+  -e 's/^(pickup[[:space:]]+unix[[:space:]]+n[[:space:]]+-[[:space:]]+)y/\1n/' \
+  -e 's/^(cleanup[[:space:]]+unix[[:space:]]+n[[:space:]]+-[[:space:]]+)y/\1n/' \
+  -e 's/^(smtp[[:space:]]+unix[[:space:]]+-[[:space:]]+-[[:space:]]+)y/\1n/' \
+  -e 's/^(relay[[:space:]]+unix[[:space:]]+-[[:space:]]+-[[:space:]]+)y/\1n/' \
+  /etc/postfix/master.cf
+
+echo "==> [6/7] Configurando rotação de log..."
 cat > /etc/logrotate.d/mail-marketing <<'EOF'
 /var/log/mail.log
 /var/log/mail.err
@@ -73,10 +86,13 @@ cat > /etc/logrotate.d/mail-marketing <<'EOF'
     missingok
     notifempty
     create 0640 syslog adm
+    postrotate
+        /usr/lib/rsyslog/rsyslog-rotate 2>/dev/null || (invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true)
+    endscript
 }
 EOF
 
-echo "==> [6/6] Reiniciando serviços..."
+echo "==> [7/7] Reiniciando serviços..."
 systemctl enable postfix opendkim
 systemctl restart opendkim
 systemctl restart postfix

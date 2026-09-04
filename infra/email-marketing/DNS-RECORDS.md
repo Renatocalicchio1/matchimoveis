@@ -13,7 +13,18 @@ Troca `SEU_IP_AQUI` pelo IP público real da VPS antes de publicar.
 |---|---|---|---|
 | A | `mail.matchimoveis.online` | `SEU_IP_AQUI` | 3600 |
 
-## 2. PTR (reverse DNS) — configurado no PAINEL DO PROVEDOR DA VPS, não no
+## 2. MX — obrigatório mesmo esse domínio não recebendo e-mail de verdade
+
+| Tipo | Nome | Valor | Prioridade | TTL |
+|---|---|---|---|---|
+| MX | `matchimoveis.online` | `mail.matchimoveis.online` | 10 | 3600 |
+
+Sem isso, ferramentas de teste (mail-tester.com etc.) e alguns filtros
+antispam penalizam a entrega por não acharem servidor de e-mail nenhum
+por trás do domínio remetente — mesmo o Postfix só enviando, precisa
+existir um MX apontando pra algum lugar.
+
+## 3. PTR (reverse DNS) — configurado no PAINEL DO PROVEDOR DA VPS, não no
    DNS do domínio
 
 Não é um registro que se publica no DNS do domínio — é configurado do lado
@@ -29,7 +40,7 @@ SEU_IP_AQUI  →  mail.matchimoveis.online
 ou joga direto pra spam qualquer servidor sem PTR batendo com o hostname
 do HELO/EHLO.
 
-## 3. SPF — autoriza o IP da VPS a mandar e-mail em nome do domínio
+## 4. SPF — autoriza o IP da VPS a mandar e-mail em nome do domínio
 
 | Tipo | Nome | Valor | TTL |
 |---|---|---|---|
@@ -41,7 +52,7 @@ na lista (mais rigoroso que `~all`, que só "sugere" rejeitar). Só usa
 desse domínio — se também usar SES ou outro serviço no mesmo domínio,
 inclui os dois: `v=spf1 ip4:SEU_IP_AQUI include:amazonses.com -all`.
 
-## 4. DKIM — chave pública gerada pelo `setup_email_infra.sh`
+## 5. DKIM — chave pública gerada pelo `setup_email_infra.sh`
 
 | Tipo | Nome | Valor | TTL |
 |---|---|---|---|
@@ -58,7 +69,7 @@ Alguns provedores de DNS pedem só o valor entre aspas (a parte
 tamanho do TXT (255 caracteres por "string"), a maioria já quebra em
 múltiplas strings automaticamente entre parênteses, como no exemplo acima.
 
-## 5. DMARC — política de o que fazer com e-mail que falha SPF/DKIM
+## 6. DMARC — política de o que fazer com e-mail que falha SPF/DKIM
 
 | Tipo | Nome | Valor | TTL |
 |---|---|---|---|
@@ -77,9 +88,10 @@ p=reject      (rejeita de vez o que falhar)   →  só depois de MESES estável
 Subir a régua cedo demais (`p=reject` num domínio recém-configurado) é uma
 das causas mais comuns de e-mail legítimo desaparecer sem aviso.
 
-## 6. Checklist antes de mandar pra base real
+## 7. Checklist antes de mandar pra base real
 
 - [ ] Registro A publicado e propagado (`dig mail.matchimoveis.online`)
+- [ ] MX publicado (`dig +short MX matchimoveis.online`)
 - [ ] PTR configurado no provedor da VPS e batendo (`dig -x SEU_IP_AQUI`)
 - [ ] SPF publicado (`dig txt matchimoveis.online`)
 - [ ] DKIM publicado (`dig txt match2026._domainkey.matchimoveis.online`)

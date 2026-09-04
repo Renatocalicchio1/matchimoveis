@@ -53,7 +53,14 @@ async function debitarLeadsAtivos() {
 
       if (ativos.length === 0) continue;
 
-      const custo = ativos.length * CUSTO_LEAD_DIA;
+      // Arredonda — match_coins é coluna INTEGER no banco; lead_ativo_dia
+      // é fracionado (0.2) de propósito (é o único custo recorrente, tem
+      // que ser bem pequeno pra não zerar carteira grande sozinho), então
+      // "ativos.length * CUSTO_LEAD_DIA" só dá inteiro quando o total de
+      // leads é múltiplo de 5 — sem arredondar, o UPDATE abaixo quebrava
+      // (Postgres rejeita decimal em coluna INTEGER) toda vez que não desse
+      // múltiplo de 5, silenciosamente (erro só ia pro catch/log).
+      const custo = Math.round(ativos.length * CUSTO_LEAD_DIA);
       const saldoAtual = users[i].matchCoins || 0;
       const debitado = Math.min(custo, saldoAtual);
       const novoSaldo = Math.max(0, saldoAtual - custo);

@@ -33,7 +33,15 @@ const CUSTO = {
   importar_xml:            2,
   gerar_xml_portal:       10,
   sync_xml_24h:            5,
-  lead_ativo_dia:          5,
+  // Único custo RECORRENTE (cobrado 1x por dia, por lead ativa — não é
+  // ação única como o resto da tabela) — tem que ser bem pequeno de
+  // propósito, senão uma carteira grande de leads zera o saldo sozinha em
+  // 1-2 dias só de "existir". Bug real (set/2026): esse valor estava em 5
+  // (mesma ordem de grandeza das ações únicas), 25x maior que o pretendido
+  // — uma conta com 874 leads ativas levou -3.180 coins numa cobrança só
+  // (874 × 5 = 4.370, capado pelo saldo disponível) e zerou o saldo.
+  // Corrigido pro valor documentado desde sempre no catálogo de coins.
+  lead_ativo_dia:        0.2,
   ia_qualifica_lead:      15,
   match_encontrado:       15,
   vitrine_whatsapp:       15,

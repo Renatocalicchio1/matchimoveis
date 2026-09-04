@@ -104,11 +104,11 @@ main{padding:0!important;height:calc(100vh - 60px);display:flex;flex-direction:c
   <div class="input-area">
     <div class="input-row">
       <input type="file" id="file-input" accept=".xml,.xlsx,.xls,.csv" style="display:none" onchange="uploadArquivo(this)">
-      <button class="attach-btn" onclick="document.getElementById('file-input').click()" title="Anexar arquivo">📎</button>
+      <button class="attach-btn" onclick="document.getElementById('file-input').click()" title="Anexar arquivo" aria-label="Anexar arquivo">📎</button>
       <textarea id="chat-input" placeholder="Pergunte sobre imóveis, leads, visitas..." rows="1"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMsg();}"
         oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="send-btn" onclick="enviarMsg()">
+      <button class="send-btn" id="send-btn" onclick="enviarMsg()" aria-label="Enviar">
         <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
       </button>
     </div>
@@ -244,7 +244,7 @@ function addFeedback(pergunta,resposta){
   row.className='feedback-row';
   row.dataset.pergunta=pergunta;
   row.dataset.resposta=resposta;
-  row.innerHTML='<span>Isso ajudou?</span><button class="fb-btn" onclick="enviarFeedback(true,this)">👍</button><button class="fb-btn" onclick="enviarFeedback(false,this)">👎</button>';
+  row.innerHTML='<span>Isso ajudou?</span><button class="fb-btn" onclick="enviarFeedback(true,this)" aria-label="Sim, ajudou">👍</button><button class="fb-btn" onclick="enviarFeedback(false,this)" aria-label="Não ajudou">👎</button>';
   c.appendChild(row);
   scrollBottom();
 }

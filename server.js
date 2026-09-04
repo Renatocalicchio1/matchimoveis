@@ -7374,9 +7374,9 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const _totalVenda = _imoveisUser.rows.length;
     const _senhaInicial = req.session.senhaInicialTemp || null;
     delete req.session.senhaInicialTemp;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || ''), voltarResumo: req.query.voltar === 'resumo' });
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || ''), voltarPara: req.query.voltar });
   } catch(e) {
-    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || ''), voltarResumo: req.query.voltar === 'resumo' });
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || ''), voltarPara: req.query.voltar });
   }
 });
 
@@ -14886,7 +14886,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     emailsLead = _rEmailsLead.rows;
   } catch (eEmailsLead) { console.error('[lead-detalhe] emails:', eEmailsLead.message); }
 
-  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados, emailsLead, voltarResumo: req.query.voltar === 'resumo' });
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados, emailsLead, voltarPara: req.query.voltar });
 });
 // Dono real do imóvel = mesmo critério usado em lerImoveis()/salvarImovel.js — userId/usuarioId/codigoUsuario/corretorId
 function _ehDonoDoImovel(imovel, user) {
@@ -14944,7 +14944,7 @@ app.get('/app/imovel/:id', auth, async (req, res) => {
     }
   }
 
-  res.render('app-imovel-detalhe', { user, imovel, verProprietario, isDono, donoContato, voltarResumo: req.query.voltar === 'resumo' });
+  res.render('app-imovel-detalhe', { user, imovel, verProprietario, isDono, donoContato, voltarPara: req.query.voltar });
 });
 
 // Editar imóvel - tela
@@ -14963,7 +14963,7 @@ app.get('/app/imovel/:id/editar', auth, async (req,res)=>{
   const _completo2 = await _buscarImovelCompleto(imovel.id);
   if (_completo2) imovel = { ...imovel, ...(_completo2.fotos ? { fotos: _completo2.fotos } : {}), descricao: _completo2.descricao };
 
-  const idImovelEdit = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || String(imovel.id) || ''); res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1', erroFoto: req.query.erro || '', idImovel: idImovelEdit });
+  const idImovelEdit = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || String(imovel.id) || ''); res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1', erroFoto: req.query.erro || '', idImovel: idImovelEdit, voltarPara: req.query.voltar });
 });
 
 // Editar imóvel - salvar
@@ -15059,7 +15059,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
   // Renderiza direto sem redirect para evitar problema de sessao
   const idImovelEdit = (imoveis[idx].idExterno&&imoveis[idx].idExterno.trim())?imoveis[idx].idExterno:(imoveis[idx].idInterno||String(imoveis[idx].id)||'');
-  res.render('app-editar-imovel', { user: req.session.user, imovel: imoveis[idx], salvo: true, erroFoto: '', idImovel: idImovelEdit });
+  res.render('app-editar-imovel', { user: req.session.user, imovel: imoveis[idx], salvo: true, erroFoto: '', idImovel: idImovelEdit, voltarPara: req.query.voltar });
 });
 
 

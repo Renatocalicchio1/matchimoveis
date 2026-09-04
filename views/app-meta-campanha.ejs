@@ -115,7 +115,7 @@
   <div class="mc-imoveis-grid" id="mc-imoveis-grid">
     <% imoveis.forEach(function(i){ %>
     <button type="button" class="mc-imovel-card" data-id="<%= i.id %>" data-titulo="<%= i.titulo %>" data-foto="<%= i.foto %>" onclick="escolherImovel(this)">
-      <img src="<%= i.foto %>" loading="lazy">
+      <img src="<%= i.foto %>" alt="<%= i.titulo %>" loading="lazy">
       <div class="mc-imovel-info">
         <div class="mc-imovel-titulo"><%= i.titulo %></div>
         <div class="mc-imovel-valor">R$ <%= Number(i.valorImovel||0).toLocaleString('pt-BR') %></div>
@@ -267,9 +267,9 @@
     </div>
     <div class="mc-preview-texto"><span class="mc-selo mc-selo-1">1</span><span id="mc-preview-texto"></span></div>
     <div class="mc-preview-img-wrap">
-      <img class="mc-preview-img" id="mc-preview-img" src="">
-      <button type="button" class="mc-preview-seta mc-preview-seta-prev" id="mc-preview-seta-prev" onclick="previewFoto(-1)" style="display:none">‹</button>
-      <button type="button" class="mc-preview-seta mc-preview-seta-next" id="mc-preview-seta-next" onclick="previewFoto(1)" style="display:none">›</button>
+      <img class="mc-preview-img" id="mc-preview-img" src="" alt="Prévia do anúncio">
+      <button type="button" class="mc-preview-seta mc-preview-seta-prev" id="mc-preview-seta-prev" onclick="previewFoto(-1)" aria-label="Foto anterior" style="display:none">‹</button>
+      <button type="button" class="mc-preview-seta mc-preview-seta-next" id="mc-preview-seta-next" onclick="previewFoto(1)" aria-label="Próxima foto" style="display:none">›</button>
       <div class="mc-preview-dots" id="mc-preview-dots"></div>
     </div>
     <div class="mc-preview-footer">
@@ -355,9 +355,9 @@
               </div>
               <div class="mc-preview-texto"><span class="mc-selo mc-selo-1">1</span><span id="mc-editar-preview-texto-<%= c.id %>"></span></div>
               <div class="mc-preview-img-wrap">
-                <img class="mc-preview-img" id="mc-editar-preview-img-<%= c.id %>" src="">
-                <button type="button" class="mc-preview-seta mc-preview-seta-prev" id="mc-editar-preview-seta-prev-<%= c.id %>" onclick="previewFotoEdicao(<%= c.id %>,-1)" style="display:none">‹</button>
-                <button type="button" class="mc-preview-seta mc-preview-seta-next" id="mc-editar-preview-seta-next-<%= c.id %>" onclick="previewFotoEdicao(<%= c.id %>,1)" style="display:none">›</button>
+                <img class="mc-preview-img" id="mc-editar-preview-img-<%= c.id %>" src="" alt="Prévia do anúncio">
+                <button type="button" class="mc-preview-seta mc-preview-seta-prev" id="mc-editar-preview-seta-prev-<%= c.id %>" onclick="previewFotoEdicao(<%= c.id %>,-1)" aria-label="Foto anterior" style="display:none">‹</button>
+                <button type="button" class="mc-preview-seta mc-preview-seta-next" id="mc-editar-preview-seta-next-<%= c.id %>" onclick="previewFotoEdicao(<%= c.id %>,1)" aria-label="Próxima foto" style="display:none">›</button>
                 <div class="mc-preview-dots" id="mc-editar-preview-dots-<%= c.id %>"></div>
               </div>
               <div class="mc-preview-footer">

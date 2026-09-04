@@ -445,8 +445,8 @@ async function afAceitarContrato(){
         <div id="af-inbox-rapidas" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
         <div style="display:flex;gap:6px;align-items:center">
           <input type="text" id="af-inbox-reply-texto" placeholder="Escreva sua resposta... (Enter envia)" onkeydown="if(event.key==='Enter'){afInboxResponder();}" style="flex:1;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px">
-          <button type="button" id="af-inbox-btn-gravar" onclick="afInboxAlternarGravacao()" title="Gravar áudio" style="background:#fff;border:1px solid #d1d5db;color:#374151;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:14px">🎤</button>
-          <button type="button" onclick="document.getElementById('af-inbox-arquivo-audio').click()" title="Enviar arquivo de áudio" style="background:#fff;border:1px solid #d1d5db;color:#374151;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:14px">📎</button>
+          <button type="button" id="af-inbox-btn-gravar" onclick="afInboxAlternarGravacao()" title="Gravar áudio" aria-label="Gravar áudio" style="background:#fff;border:1px solid #d1d5db;color:#374151;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:14px">🎤</button>
+          <button type="button" onclick="document.getElementById('af-inbox-arquivo-audio').click()" title="Enviar arquivo de áudio" aria-label="Enviar arquivo de áudio" style="background:#fff;border:1px solid #d1d5db;color:#374151;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:14px">📎</button>
           <input type="file" id="af-inbox-arquivo-audio" accept="audio/*" style="display:none" onchange="afInboxEnviarArquivoAudio(this.files[0])">
           <button type="button" onclick="afInboxResponder()" style="background:#111827;color:#fff;border:none;padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer">Enviar</button>
         </div>
@@ -586,7 +586,7 @@ function _afInboxMontarBolha(m){
   if (m.tipo === 'audio' && m.midia_url) {
     corpo = '<audio controls preload="none" src="' + m.midia_url + '" style="max-width:220px"></audio>';
   } else if ((m.tipo === 'image' || m.tipo === 'sticker') && m.midia_url) {
-    corpo = '<img src="' + m.midia_url + '" style="max-width:200px;border-radius:8px;display:block">';
+    corpo = '<img src="' + m.midia_url + '" alt="Imagem enviada" style="max-width:200px;border-radius:8px;display:block">';
   } else if (m.tipo === 'video' && m.midia_url) {
     corpo = '<video controls preload="metadata" src="' + m.midia_url + '" style="max-width:200px;border-radius:8px;display:block"></video>';
   } else if (m.tipo === 'botao') {

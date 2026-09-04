@@ -93,7 +93,7 @@
   <div class="tkr teal"><div class="tkr-lbl">Com match</div><div class="tkr-val" id="km"><%= stats.comMatch %></div><div class="tkr-delta up">↑ <%= stats.taxaMatch %>% taxa</div></div>
   <div class="tkr orange"><div class="tkr-lbl">Visitas</div><div class="tkr-val" id="kv"><%= stats.visitasAgendadas %></div><div class="tkr-delta n">agendadas</div></div>
   <div class="tkr orange"><div class="tkr-lbl">Hoje</div><div class="tkr-val" id="kh"><%= stats.visitasHoje %></div><div class="tkr-delta n">visitas hoje</div></div>
-  <div class="tkr crit"><div class="tkr-lbl">Pendentes</div><div class="tkr-val"><%= Math.max(stats.leadsNovos - stats.comMatch, 0) %></div><div class="tkr-delta dn">sem match</div></div>
+  <div class="tkr crit"><div class="tkr-lbl">Pendentes</div><div class="tkr-val"><%= Math.max(stats.leadsNovos - stats.comMatch, 0) %></div><div class="tkr-delta dn">⚠ sem match</div></div>
   <div class="tkr good"><div class="tkr-lbl">Score</div><div class="tkr-val"><%= stats.scoreCarteira||0 %></div><div class="tkr-delta n">saúde carteira</div></div>
 </div>
 
@@ -228,7 +228,7 @@
     <% rank.forEach(function(im,i){ %>
     <div class="top-im">
       <span class="top-rk">#<%= i+1 %></span>
-      <% if(im.foto){ %><img class="top-thumb" src="<%= im.foto %>" onerror="this.style.display='none'"><% } %>
+      <% if(im.foto){ %><img class="top-thumb" src="<%= im.foto %>" alt="<%= im.titulo||'Imóvel' %>" onerror="this.style.display='none'"><% } %>
       <div style="flex:1;min-width:0"><div class="top-tipo"><%= im.titulo||'Imóvel' %></div><div class="top-loc"><%= im.bairro||'' %><%= im.valor?' · R$ '+Number(im.valor).toLocaleString('pt-BR'):'' %></div></div>
       <span class="top-cnt"><%= im.cnt||0 %>×</span>
     </div>

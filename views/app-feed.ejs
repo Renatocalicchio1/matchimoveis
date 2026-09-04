@@ -126,9 +126,9 @@ function _renderPost(im, idx) {
     return `<div class="fp-slide fp-slide-video"><video src="${tourUrl}" controls style="width:100%;height:100%;object-fit:cover"></video></div>`;
   })() : '';
   const slidesHtml = tourUrl
-    ? (fotos.length ? fotos.map(f=>`<div class="fp-slide"><img src="${f}" loading="lazy" onerror="this.style.display='none'"></div>`).join('') : '')
+    ? (fotos.length ? fotos.map(f=>`<div class="fp-slide"><img src="${f}" alt="Foto do imóvel" loading="lazy" onerror="this.style.display='none'"></div>`).join('') : '')
     : fotos.length
-      ? fotos.map(f=>`<div class="fp-slide"><img src="${f}" loading="lazy" onerror="this.style.display='none'"></div>`).join('')
+      ? fotos.map(f=>`<div class="fp-slide"><img src="${f}" alt="Foto do imóvel" loading="lazy" onerror="this.style.display='none'"></div>`).join('')
       : `<div class="fp-slide" style="background:#E8404A;"><span style="font-size:48px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:-2px;">M</span></div>`;
 
   const dotsHtml = nSlides>1
@@ -173,7 +173,7 @@ function _renderPost(im, idx) {
     ${badgeFase}
     ${badgeLeads}
     <div class="fp-track">${slidesHtml}</div>
-    ${nSlides>1?'<button class="fp-arrow fp-arrow-prev" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'prev\'))">‹</button><button class="fp-arrow fp-arrow-next" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'next\'))">›</button>':''}
+    ${nSlides>1?'<button class="fp-arrow fp-arrow-prev" aria-label="Foto anterior" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'prev\'))">‹</button><button class="fp-arrow fp-arrow-next" aria-label="Próxima foto" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'next\'))">›</button>':''}
     ${nSlides>1?`<div class="fp-dots">${dotsHtml}</div><div class="fp-num">1 / ${nSlides}</div>`:''}
   </div>
   <div class="fp-body">

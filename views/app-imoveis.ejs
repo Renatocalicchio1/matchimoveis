@@ -451,7 +451,7 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <% if(_isOwner) { %>
         <button class="im-btn instagram" onclick="event.stopPropagation();abrirModalInstagram('<%= _idVer %>')" title="Postar no Instagram">📸 Instagram</button>
         <% } %>
-        <% if(_isOwner) { %><a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a><% } %>
+        <% if(_isOwner) { %><a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar?voltar=imoveis" class="im-btn edit" onclick="event.stopPropagation()">Editar</a><% } %>
         <% if(_isOwner) { %><form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:contents" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn del" onclick="event.stopPropagation()">Excluir</button></form><% } %>
       </div>
     </div>
@@ -896,9 +896,9 @@ function abrirModalInstagram(imovelId) {
         '<div class="ig-prev-card">' +
           '<div class="ig-prev-head"><div class="ig-prev-avatar"></div><div class="ig-prev-username">' + IG_USERNAME + '</div></div>' +
           '<div class="ig-prev-img-wrap">' +
-            '<img id="ig-prev-img" src="' + _igFotos[0] + '">' +
-            '<button type="button" class="ig-prev-nav prev" onclick="igNavFoto(-1)">‹</button>' +
-            '<button type="button" class="ig-prev-nav next" onclick="igNavFoto(1)">›</button>' +
+            '<img id="ig-prev-img" src="' + _igFotos[0] + '" alt="Prévia da foto">' +
+            '<button type="button" class="ig-prev-nav prev" aria-label="Foto anterior" onclick="igNavFoto(-1)">‹</button>' +
+            '<button type="button" class="ig-prev-nav next" aria-label="Próxima foto" onclick="igNavFoto(1)">›</button>' +
           '</div>' +
           '<div class="ig-thumbs" id="ig-thumbs"></div>' +
         '</div>' +
@@ -958,7 +958,7 @@ function igRenderThumbs() {
     return '<div class="ig-thumb' + (off?' off':'') + atual + '" draggable="true" ' +
       'ondragstart="igDragStart(event,\'' + urlAttr + '\')" ondragover="event.preventDefault()" ondrop="igDrop(event,\'' + urlAttr + '\')" ' +
       'onclick="igClicouThumb(\'' + urlAttr + '\', event)">' +
-      '<img src="' + url + '">' +
+      '<img src="' + url + '" alt="Foto">' +
       '<div class="ig-thumb-check" onclick="igToggleFoto(\'' + urlAttr + '\', event)">' + (off ? '' : '✓') + '</div>' +
     '</div>';
   }).join('');

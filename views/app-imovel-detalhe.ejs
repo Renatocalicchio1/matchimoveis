@@ -44,13 +44,13 @@
 
 <% if(imovel.fotos && imovel.fotos.length > 0){ %>
 <div class="hero">
-  <img src="<%= imovel.fotos[0] %>" onclick="abrirGaleria(0)">
-  <% if(imovel.fotos[1]){ %><img src="<%= imovel.fotos[1] %>" onclick="abrirGaleria(1)"><% } %>
-  <% if(imovel.fotos[2]){ %><img src="<%= imovel.fotos[2] %>" onclick="abrirGaleria(2)"><% } %>
-  <% if(imovel.fotos[3]){ %><img src="<%= imovel.fotos[3] %>" onclick="abrirGaleria(3)"><% } %>
+  <img src="<%= imovel.fotos[0] %>" alt="<%= imovel.titulo||'Imóvel' %> — foto 1" onclick="abrirGaleria(0)">
+  <% if(imovel.fotos[1]){ %><img src="<%= imovel.fotos[1] %>" alt="<%= imovel.titulo||'Imóvel' %> — foto 2" onclick="abrirGaleria(1)"><% } %>
+  <% if(imovel.fotos[2]){ %><img src="<%= imovel.fotos[2] %>" alt="<%= imovel.titulo||'Imóvel' %> — foto 3" onclick="abrirGaleria(2)"><% } %>
+  <% if(imovel.fotos[3]){ %><img src="<%= imovel.fotos[3] %>" alt="<%= imovel.titulo||'Imóvel' %> — foto 4" onclick="abrirGaleria(3)"><% } %>
   <% if(imovel.fotos[4]){ %>
     <div style="position:relative;cursor:pointer;overflow:hidden" onclick="abrirGaleria(4)">
-      <img src="<%= imovel.fotos[4] %>" style="width:100%;height:100%;object-fit:cover">
+      <img src="<%= imovel.fotos[4] %>" alt="<%= imovel.titulo||'Imóvel' %> — foto 5" style="width:100%;height:100%;object-fit:cover">
       <% if(imovel.fotos.length > 5){ %>
       <div style="position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:500">+<%= imovel.fotos.length-5 %> fotos</div>
       <% } %>
@@ -59,10 +59,10 @@
 </div>
 
 <div id="lightbox" class="lb">
-  <button class="lb-close" onclick="fecharLightbox()">✕</button>
-  <button class="lb-nav prev" onclick="navFoto(-1)">‹</button>
-  <img id="lb-img" style="max-width:90vw;max-height:88vh;object-fit:contain;border-radius:8px">
-  <button class="lb-nav next" onclick="navFoto(1)">›</button>
+  <button class="lb-close" onclick="fecharLightbox()" aria-label="Fechar">✕</button>
+  <button class="lb-nav prev" onclick="navFoto(-1)" aria-label="Foto anterior">‹</button>
+  <img id="lb-img" alt="Foto ampliada do imóvel" style="max-width:90vw;max-height:88vh;object-fit:contain;border-radius:8px">
+  <button class="lb-nav next" onclick="navFoto(1)" aria-label="Próxima foto">›</button>
   <div id="lb-counter" style="position:absolute;bottom:16px;color:#fff;font-size:13px;opacity:.6"></div>
 </div>
 

@@ -312,7 +312,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     <div class="ld-card">
       <div class="ld-title">⭐ Imóvel ideal pra essa lead</div>
       <a href="/imovel/<%= lead.imovelIdeal.imovelId %>?userId=<%= encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'') %>" target="_blank" class="match-card ld-ideal-card">
-        <% if(lead.imovelIdeal.foto) { %><img class="match-foto" src="<%= lead.imovelIdeal.foto %>"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
+        <% if(lead.imovelIdeal.foto) { %><img class="match-foto" src="<%= lead.imovelIdeal.foto %>" alt="Imóvel ideal"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
         <div style="min-width:0">
           <div style="font-size:12px;font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= lead.imovelIdeal.titulo %></div>
           <% if(lead.imovelIdeal.motivos && lead.imovelIdeal.motivos.length) { %><div style="font-size:11px;color:var(--text-sec);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= lead.imovelIdeal.motivos.slice(0,3).join(' · ') %></div><% } %>
@@ -330,7 +330,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% } else { %>
         <% _mat.forEach(m => { %>
         <a href="/imovel/<%= m.idExterno||m.id||'' %>?userId=<%= encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'') %>" target="_blank" class="match-card">
-          <% if(m.fotos&&m.fotos[0]) { %><img class="match-foto" src="<%= m.fotos[0] %>"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
+          <% if(m.fotos&&m.fotos[0]) { %><img class="match-foto" src="<%= m.fotos[0] %>" alt="<%= m.tipo||'Imóvel' %>"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
           <div>
             <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.tipo||'Imóvel' %> · <%= m.bairro||'-' %></div>
             <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= [m.area_m2?m.area_m2+'m²':null, m.quartos?m.quartos+'q':null, m.vagas?m.vagas+'vg':null].filter(Boolean).join(' · ') %></div>
@@ -366,7 +366,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% _matA.forEach(m => { %>
       <a href="/imovel/<%= m.id_interno||m.id_externo||m.idInterno||m.id||'' %>?userId=<%= encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'') %>" target="_blank" class="match-card">
         <% const _fotoAuto = (m.fotos&&m.fotos.filter(f=>f&&!f.includes('youtube'))[0])||null; %>
-        <% if(_fotoAuto){%><img class="match-foto" src="<%=_fotoAuto%>" onerror="this.style.display='none'"><% } else { %>
+        <% if(_fotoAuto){%><img class="match-foto" src="<%=_fotoAuto%>" alt="<%= m.tipo||'Imóvel' %>" onerror="this.style.display='none'"><% } else { %>
         <div class="match-ph" style="background:var(--brand-light)"><span style="font-size:13px;font-weight:700;color:var(--brand)"><%= m.rank||'' %></span></div>
         <% } %>
         <div>
@@ -399,7 +399,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <div class="ld-title">❤️ Imóveis que o cliente curtiu (<%= lead.imoveisGostei.length %>)</div>
       <% lead.imoveisGostei.forEach(g => { %>
       <a href="/imovel/<%= g.idExterno||g.idInterno||g.id||'' %>?userId=<%= encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'') %>" target="_blank" class="match-card">
-        <% if(g.foto) { %><img class="match-foto" src="<%= g.foto %>" onerror="this.style.display='none'"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
+        <% if(g.foto) { %><img class="match-foto" src="<%= g.foto %>" alt="<%= g.titulo||'Imóvel' %>" onerror="this.style.display='none'"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
         <div>
           <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= g.titulo||'Imóvel' %> · <%= g.bairro||'-' %></div>
           <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= g.cidade||'' %><% if(g.clicadoEm) { %> · <%= new Date(g.clicadoEm).toLocaleDateString('pt-BR') %><% } %></div>
@@ -946,7 +946,7 @@ async function carregarRecomendacoes() {
         <a href="/imovel/${id}" target="_blank" class="match-card" style="position:relative"
            onclick="registrarComportamento('${id}','${tipo}','${bairro}',${preco},${quartos})">
           ${foto
-            ? `<img class="match-foto" src="${foto}" onerror="this.style.display='none'">`
+            ? `<img class="match-foto" src="${foto}" alt="${tipo}" onerror="this.style.display='none'">`
             : `<div class="match-ph">🏠</div>`}
           <div>
             <div style="font-size:12px;font-weight:600;color:#111">${tipo} · ${bairro}</div>

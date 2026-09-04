@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — Cérebro do Assistente</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -212,7 +212,7 @@ function renderLista() {
       '<div class="item-actions">' +
         '<button class="btn" style="background:#e6f7f5;color:#00695c;border-color:#99d9d1;font-size:11px" onclick="testarItem('+idx+', this)">▶ Testar</button>' +
         '<button class="btn btn-edit" style="font-size:11px" onclick="abrirModal('+idx+')">✎ Editar</button>' +
-        '<button class="btn btn-del" style="font-size:11px" onclick="deletar('+idx+')">🗑</button>' +
+        '<button class="btn btn-del" aria-label="Excluir" style="font-size:11px" onclick="deletar('+idx+')">🗑</button>' +
       '</div>' +
     '</div>';
   }).join('');

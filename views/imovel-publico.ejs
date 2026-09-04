@@ -74,7 +74,7 @@
   <% } %>
   <% if(typeof siteConfig !== 'undefined' && siteConfig && siteConfig.metaPixelId){ %>
   <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init',<%- JSON.stringify(siteConfig.metaPixelId) %>);fbq('track','PageView');</script>
-  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<%= siteConfig.metaPixelId %>&ev=PageView&noscript=1"/></noscript>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<%= siteConfig.metaPixelId %>&ev=PageView&noscript=1" alt=""/></noscript>
   <% } %>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -286,10 +286,10 @@
 
 <!-- LIGHTBOX -->
 <div id="lightbox">
-  <button class="lb-btn" onclick="fecharLightbox()" style="top:16px;right:20px;font-size:20px">✕</button>
-  <button class="lb-btn" onclick="navFoto(-1)" style="left:16px">‹</button>
+  <button class="lb-btn" onclick="fecharLightbox()" aria-label="Fechar" style="top:16px;right:20px;font-size:20px">✕</button>
+  <button class="lb-btn" onclick="navFoto(-1)" aria-label="Foto anterior" style="left:16px">‹</button>
   <img id="lb-img" alt="<%= _ogTitulo %>">
-  <button class="lb-btn" onclick="navFoto(1)" style="right:16px">›</button>
+  <button class="lb-btn" onclick="navFoto(1)" aria-label="Próxima foto" style="right:16px">›</button>
   <div id="lb-counter" style="position:absolute;bottom:16px;color:#fff;font-size:14px;opacity:.7"></div>
 </div>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title><%= (typeof title !== 'undefined' && title) ? title + ' · MatchImóveis' : 'MatchImóveis' %></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -26,7 +26,7 @@
       --shadow-md:0 4px 16px rgba(0,0,0,.08);
     }
     html{overflow-x:hidden}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
     
     /* LAYOUT */
     .app{display:flex;min-height:100vh}
@@ -90,6 +90,11 @@
       transition:all .1s;margin-bottom:2px;
       position:relative;white-space:nowrap;
     }
+    /* Rótulo do item — trunca com "..." em vez de cortar sem aviso se algum
+       nome novo não couber nos 190px da sidebar (auditoria de UX, ago/2026).
+       O badge de "novo" (.menu-novo-badge) é position:absolute, não disputa
+       espaço com o texto, então isso só afeta o texto mesmo. */
+    .menu a > span:last-of-type{overflow:hidden;text-overflow:ellipsis;min-width:0}
     .menu a:hover{background:var(--bg);color:var(--text)}
     .menu a.active{background:#fff1f1;color:var(--brand)}
     .menu a.active::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--brand);border-radius:3px 0 0 3px}
@@ -143,7 +148,17 @@
     /* Reforço geral (ago/2026): qualquer texto sem espaço em qualquer
        página /app/* quebra no meio em vez de estourar a largura — mesma
        trava que já tinha só em app-perfil.ejs, agora vale pra todo mundo,
-       pra esse bug parar de reaparecer tela por tela. */
+       pra esse bug parar de reaparecer tela por tela.
+       Verificado de novo (auditoria de UX, ago/2026): tentei achar e
+       corrigir a causa raiz pontual (ex: email de lead sem word-break em
+       app-lead-detalhe.ejs) pra não depender dessa regra genérica — mas
+       reproduzindo com e-mail/URL longo sem espaço, SEM essa regra o texto
+       realmente estoura o card (silenciosamente, escondido pelo
+       overflow-x:hidden do .content, sem barra de rolagem denunciando) e
+       COM essa regra ele quebra certinho, dentro do card. Ou seja: não é
+       band-aid escondendo um bug de layout — é a correção de verdade pra
+       um tipo de conteúdo (email/URL/id sem espaço) que pode aparecer em
+       qualquer uma das 57 telas sem aviso prévio. Mantida de propósito. */
     .content, .content *{
       overflow-wrap:break-word;
       word-break:break-word;
@@ -253,6 +268,11 @@
       .mob-menu-btn{display:none!important}
       .mob-overlay{display:none!important}
       .bottom-nav{display:flex!important}
+      /* Área de toque maior no mobile (auditoria de UX, ago/2026): .btn
+         padrão dava ~34px de altura, abaixo do alvo recomendado de 44px
+         (Apple HIG/Material) — só no mobile, desktop fica como estava. */
+      .btn{padding:12px 16px}
+      .btn-sm{padding:9px 12px}
     }
     @media(min-width:901px){.bottom-nav{display:none!important}}
     .mm-sec{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;padding:16px 6px 6px}
@@ -266,7 +286,11 @@
     *::-webkit-scrollbar-track{background:transparent}
     *::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:6px}
     *::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.38)}
-    .sidebar::-webkit-scrollbar{width:4px}
+    /* Sidebar e "Mais" mobile são painéis de navegação (não conteúdo denso)
+       — engrossei a barra ali pra dar mais pista visual de "isso rola"
+       (auditoria de UX, ago/2026). Resto da plataforma mantém a fina. */
+    .sidebar::-webkit-scrollbar{width:7px}
+    #maisMenu::-webkit-scrollbar{width:7px}
   </style>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#E8404A">
@@ -334,6 +358,10 @@
 
     <a class="<%= active==='resumo'?'active':'' %>" href="/app/resumo" title="Tempo Real">
       <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7v8l10-12h-7z"/></svg></span><span style="font-size:12px">Tempo Real</span>
+    </a>
+
+    <a class="<%= active==='feed'?'active':'' %>" href="/app/feed" title="Feed">
+      <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg></span><span style="font-size:12px">Feed</span>
     </a>
 
     <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis" title="Meus Imóveis">
@@ -429,7 +457,7 @@
 </aside>
 
 <div id="mobOverlay" onclick="fecharMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1099"></div>
-<button id="mobMenuBtn" onclick="abrirMenu()" class="mob-menu-btn" style="display:none;position:fixed;top:12px;left:12px;z-index:1200;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;cursor:pointer;flex-direction:column;gap:4px;box-shadow:0 2px 8px rgba(0,0,0,.1)"><div style="width:18px;height:2px;background:#374151;border-radius:2px"></div><div style="width:18px;height:2px;background:#374151;border-radius:2px"></div><div style="width:18px;height:2px;background:#374151;border-radius:2px"></div></button>
+<button id="mobMenuBtn" onclick="abrirMenu()" class="mob-menu-btn" aria-label="Abrir menu" style="display:none;position:fixed;top:12px;left:12px;z-index:1200;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;cursor:pointer;flex-direction:column;gap:4px;box-shadow:0 2px 8px rgba(0,0,0,.1)"><div style="width:18px;height:2px;background:#374151;border-radius:2px"></div><div style="width:18px;height:2px;background:#374151;border-radius:2px"></div><div style="width:18px;height:2px;background:#374151;border-radius:2px"></div></button>
 <nav class="bottom-nav" style="display:none;position:fixed;bottom:0;left:0;right:0;height:64px;background:#fff;border-top:1px solid #e5e5e3;z-index:500;align-items:center;justify-content:space-around;padding:0 4px 6px;">
   <% if (_menuRestrito) { %>
   <a href="/app/afiliados" style="display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 10px;border-radius:10px;flex:1;background:<%= active==='afiliados'?'#fff1f3':'transparent' %>;">
@@ -584,10 +612,24 @@ function toggleMaisMenu(){
      página (não fixo), rola junto com o resto do conteúdo e some da tela
      ao rolar — pedido explícito do Renato (ago/2026): não deve ficar
      flutuando por cima do conteúdo o tempo todo. -->
+<%
+  // "Voltar de onde veio" — genérico (ago/2026): qualquer rota pode passar
+  // ?voltar=<chave> nos links de saída pra essa tela mostrar um caminho de
+  // volta pro lugar de origem (não só o Tempo Real, que foi o primeiro caso).
+  // Chave -> {url,label}, mapa único aqui, novo destino é só adicionar uma
+  // linha (mesmo espírito do resto desse arquivo: 1 fonte, não duplicar).
+  const _VOLTAR_MAPA = {
+    resumo: { url: '/app/resumo', label: 'Tempo Real' },
+    leads: { url: '/app/leads', label: 'Leads' },
+    imoveis: { url: '/app/imoveis', label: 'Meus Imóveis' },
+  };
+  const _voltarChave = typeof voltarPara !== 'undefined' ? voltarPara : (typeof voltarResumo !== 'undefined' && voltarResumo ? 'resumo' : null);
+  const _voltar = _voltarChave && _VOLTAR_MAPA[_voltarChave] ? _VOLTAR_MAPA[_voltarChave] : null;
+%>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-  <% if(typeof voltarResumo !== 'undefined' && voltarResumo){ %>
-  <a href="/app/resumo" style="display:inline-flex;align-items:center;gap:5px;background:#fff1f3;border:1px solid #fecdd3;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#FF385C;text-decoration:none;white-space:nowrap">
-    ← Voltar pro Tempo Real
+  <% if(_voltar){ %>
+  <a href="<%= _voltar.url %>" style="display:inline-flex;align-items:center;gap:5px;background:#fff1f3;border:1px solid #fecdd3;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#FF385C;text-decoration:none;white-space:nowrap">
+    ← Voltar pro <%= _voltar.label %>
   </a>
   <% } %>
   <% if(user && !_menuRestrito){ %>
@@ -633,7 +675,7 @@ function toggleMaisMenu(){
         <div style="font-size:18px;font-weight:700;color:#111">🚀 Primeiros Passos</div>
         <div id="onb-subtitulo" style="font-size:12px;color:#6b7280;margin-top:2px">Carregando...</div>
       </div>
-      <button onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:20px;line-height:1;padding:4px">✕</button>
+      <button onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" aria-label="Fechar" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:20px;line-height:1;padding:4px">✕</button>
     </div>
     <div id="onb-lista" style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:16px"></div>
   </div>
@@ -647,7 +689,7 @@ function toggleMaisMenu(){
 <div id="modalAfiliadoPopup" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">
     <div style="background:linear-gradient(135deg,#FF385C,#FC642D);padding:28px 24px 22px;color:#fff">
-      <button onclick="document.getElementById('modalAfiliadoPopup').style.display='none'" style="float:right;background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:16px;line-height:1;padding:6px 9px;border-radius:999px;margin:-4px -4px 0 0">✕</button>
+      <button onclick="document.getElementById('modalAfiliadoPopup').style.display='none'" aria-label="Fechar" style="float:right;background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:16px;line-height:1;padding:6px 9px;border-radius:999px;margin:-4px -4px 0 0">✕</button>
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.9;margin-bottom:6px">💰 Programa de afiliados</div>
       <div style="font-size:19px;font-weight:800;line-height:1.3">Conheça seu menu de afiliados</div>
     </div>
@@ -682,7 +724,7 @@ function toggleMaisMenu(){
 </style>
 <div id="robo-wrap">
   <div id="robo-bolha">
-    <button id="robo-fechar" onclick="event.stopPropagation();document.getElementById('robo-bolha').style.display='none'">✕</button>
+    <button id="robo-fechar" onclick="event.stopPropagation();document.getElementById('robo-bolha').style.display='none'" aria-label="Fechar">✕</button>
     <b id="robo-titulo">Assistente MatchImóveis</b>
     <span id="robo-msg"></span>
     <div id="robo-cta" style="display:none;margin-top:8px;font-size:12px;font-weight:700;color:var(--brand,#FF385C)">Ver agora →</div>
@@ -770,7 +812,7 @@ function toggleMaisMenu(){
 </style>
 <div id="indica-wrap">
   <div id="indica-bolha">
-    <button id="indica-fechar" onclick="event.stopPropagation();document.getElementById('indica-bolha').style.display='none'">✕</button>
+    <button id="indica-fechar" onclick="event.stopPropagation();document.getElementById('indica-bolha').style.display='none'" aria-label="Fechar">✕</button>
     <b id="indica-titulo">Indique e ganhe</b>
     <span id="indica-msg"></span>
     <div id="indica-btns">

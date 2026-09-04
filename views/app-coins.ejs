@@ -31,7 +31,7 @@
 <!-- MODAL PAGAMENTO -->
 <div id="mpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;position:relative">
-    <button onclick="fecharMP()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
+    <button onclick="fecharMP()" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
     <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Adicionar créditos</h3>
     <div id="mpBrick"></div>
   </div>
@@ -42,7 +42,7 @@
 <!-- MODAL CPF (pedido só na hora de pagar, exigência do Pix) -->
 <div id="cpfModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3100;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:420px;position:relative">
-    <button onclick="fecharCpfModal()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
+    <button onclick="fecharCpfModal()" aria-label="Fechar" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
     <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">Falta seu CPF pra gerar o Pix</h3>
     <p style="font-size:13px;color:#555;line-height:1.5;margin-bottom:16px">
       Isso não é uma regra do MatchImóveis nem do Mercado Pago — é o <strong>Banco Central</strong> que exige identificação (CPF) do pagador em qualquer pagamento via Pix no Brasil, pra qualquer empresa. Sem isso o Pix fica travado no checkout.

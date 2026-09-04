@@ -242,8 +242,8 @@ leads.forEach(item => {
 <div id="kanban-hint" style="display:none">
   <span style="font-size:16px">👆</span>
   <div style="display:flex;gap:4px;margin-left:auto;align-items:center">
-    <button onclick="scrollKanban(-1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">‹</button>
-    <button onclick="scrollKanban(1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">›</button>
+    <button onclick="scrollKanban(-1)" aria-label="Rolar colunas para a esquerda" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">‹</button>
+    <button onclick="scrollKanban(1)" aria-label="Rolar colunas para a direita" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">›</button>
   </div>
 </div>
 
@@ -340,7 +340,7 @@ leads.forEach(item => {
     </div>
     <% } %>
 
-    <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||telefone||'Lead' %><% if(item._vezesEntrou > 1){ %><span class="lc-vez">↩ <%= item._vezesEntrou %>ª vez</span><% } %></a>
+    <a href="/app/lead/<%= item.id %>?voltar=leads" class="lead-nome"><%= item.nome||telefone||'Lead' %><% if(item._vezesEntrou > 1){ %><span class="lc-vez">↩ <%= item._vezesEntrou %>ª vez</span><% } %></a>
     <div class="lead-tel"><%= telefone||'—' %></div>
 
     <% if(_origemNome || (!_eCorretor && _temBusca) || _temVenda || _eCorretor || item.idAnuncio || item.vitrineEnviada || item.vitrineEmailEnviada){ %>
@@ -437,7 +437,7 @@ leads.forEach(item => {
       <% } %>
       <button type="button" id="comentario-btn-<%= item.id %>" onclick="event.stopPropagation();toggleComentarioBox('<%= item.id %>')" class="lb" title="<%= _comTitle %>">💬 <%= (item.comentarios||[]).length ? 'Comentar ('+(item.comentarios||[]).length+')' : 'Comentar' %></button>
       <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">Excluir</button>
-      <a href="/app/lead/<%= item.id %>" class="lb dark">Ver detalhes →</a>
+      <a href="/app/lead/<%= item.id %>?voltar=leads" class="lb dark">Ver detalhes →</a>
     </div>
     <div class="comment-write-box" id="comentario-<%= item.id %>" style="display:none">
       <div style="font-size:11px;color:#374151;margin-bottom:6px;font-weight:500">Adicionar comentário:</div>
@@ -787,22 +787,31 @@ async function salvarNovaLead(){
     origem: 'manual', origemEntrada: 'manual'
   };
 
+  const btn = _btnDoClique();
+  const orig = _travarBtn(btn, 'Cadastrando…');
   try {
     const r = await fetch('/app/lead/manual', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     const d = await r.json();
     if(d.ok){ fecharModalNovaLead(); window.location.href='/app/lead/'+d.id; }
-    else { err.textContent = d.erro||'Erro ao cadastrar'; err.style.display='block'; }
-  } catch(e){ err.textContent='Erro de conexão'; err.style.display='block'; }
+    else { err.textContent = d.erro||'Erro ao cadastrar'; err.style.display='block'; _destravarBtn(btn,orig); }
+  } catch(e){ err.textContent='Erro de conexão'; err.style.display='block'; _destravarBtn(btn,orig); }
 }
 
 function confirmarExcluir(id) {
   document.querySelectorAll('.confirm-box, .comment-write-box').forEach(el=>el.style.display='none');
   document.getElementById('confirm-'+id).style.display='block';
 }
-async function excluirLead(id){const r=await fetch('/app/lead/'+id,{method:'DELETE'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
+// Feedback de "processando..." nos botões de ação do kanban — antes o
+// clique não dava nenhum retorno visual até a página recarregar, dava pra
+// clicar de novo achando que não tinha funcionado.
+function _btnDoClique(){ return window.event && window.event.target && window.event.target.closest('button'); }
+function _travarBtn(btn, texto){ if(!btn) return null; const orig=btn.textContent; btn.disabled=true; btn.textContent=texto; return orig; }
+function _destravarBtn(btn, orig){ if(!btn) return; btn.disabled=false; if(orig!==null) btn.textContent=orig; }
+
+async function excluirLead(id){const btn=_btnDoClique();const orig=_travarBtn(btn,'Excluindo…');const r=await fetch('/app/lead/'+id,{method:'DELETE'});const d=await r.json();if(d.ok)location.reload();else{alert('Erro: '+d.erro);_destravarBtn(btn,orig);}}
 function abrirClassificar(id){document.querySelectorAll('.confirm-box, .comment-write-box').forEach(el=>el.style.display='none');document.getElementById('classificar-'+id).style.display='block';}
-async function classificarLead(id,tipo){const r=await fetch('/app/lead/'+id+'/classificar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipoLead:tipo})});const d=await r.json();if(d.ok){ if(tipo==='corretor') window.location.href='/app/parceiros'; else location.reload(); }else alert('Erro: '+d.erro);}
-async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',{method:'POST'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
+async function classificarLead(id,tipo){const btn=_btnDoClique();const orig=_travarBtn(btn,'Salvando…');const r=await fetch('/app/lead/'+id+'/classificar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipoLead:tipo})});const d=await r.json();if(d.ok){ if(tipo==='corretor') window.location.href='/app/parceiros'; else location.reload(); }else{alert('Erro: '+d.erro);_destravarBtn(btn,orig);}}
+async function bloquearLead(id){const btn=_btnDoClique();const orig=_travarBtn(btn,'Bloqueando…');const r=await fetch('/app/lead/'+id+'/bloquear',{method:'POST'});const d=await r.json();if(d.ok)location.reload();else{alert('Erro: '+d.erro);_destravarBtn(btn,orig);}}
 
 function toggleComentarioBox(id){
   const box = document.getElementById('comentario-'+id);
@@ -815,9 +824,12 @@ async function salvarComentarioLead(id){
   const txt = document.getElementById('comentario-txt-'+id);
   const texto = txt.value.trim();
   if(!texto) return;
+  const btn = _btnDoClique();
+  const orig = _travarBtn(btn, 'Salvando…');
   const r = await fetch('/app/lead/'+id+'/comentario',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:texto})});
   const d = await r.json();
-  if(!d.ok){ alert('Erro: '+(d.erro||'')); return; }
+  if(!d.ok){ alert('Erro: '+(d.erro||'')); _destravarBtn(btn,orig); return; }
+  _destravarBtn(btn,orig);
   txt.value = '';
   document.getElementById('comentario-'+id).style.display = 'none';
   const ultimos = d.comentarios.slice().sort((a,b)=>new Date(b.criadoEm||0)-new Date(a.criadoEm||0)).slice(0,3);
@@ -934,7 +946,7 @@ function abrirModalKanban(colKey, colLabel) {
     }
 
     var ver = document.createElement('a');
-    ver.href = '/app/lead/' + id;
+    ver.href = '/app/lead/' + id + '?voltar=leads';
     ver.textContent = 'Ver';
     ver.style.cssText = 'font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#f3f4f6;color:#374151;text-decoration:none;border:0.5px solid #e5e7eb';
     acoes.appendChild(ver);

@@ -262,8 +262,8 @@ function _atualizarPreview(){
   }
   let html = '<img src="'+imgUrl+'" alt="">';
   if(total > 1){
-    html += '<button type="button" class="ig-img-nav prev" onclick="trocarImagem(-1)">‹</button>';
-    html += '<button type="button" class="ig-img-nav next" onclick="trocarImagem(1)">›</button>';
+    html += '<button type="button" class="ig-img-nav prev" onclick="trocarImagem(-1)" aria-label="Foto anterior">‹</button>';
+    html += '<button type="button" class="ig-img-nav next" onclick="trocarImagem(1)" aria-label="Próxima foto">›</button>';
   }
   wrap.innerHTML = html;
   document.getElementById('pt-thumbs-dica').style.display = total > 1 ? 'block' : 'none';
@@ -281,7 +281,7 @@ function _renderThumbs(){
     return '<div class="ig-thumb' + (off?' off':'') + atual + '" draggable="true" ' +
       'ondragstart="_ptDragStart(event,\'' + urlAttr + '\')" ondragover="event.preventDefault()" ondrop="_ptDrop(event,\'' + urlAttr + '\')" ' +
       'onclick="_ptClicouThumb(\'' + urlAttr + '\', event)">' +
-      '<img src="' + url + '">' +
+      '<img src="' + url + '" alt="Foto">' +
       '<div class="ig-thumb-check" onclick="_ptToggleFoto(\'' + urlAttr + '\', event)">' + (off ? '' : '✓') + '</div>' +
     '</div>';
   }).join('');

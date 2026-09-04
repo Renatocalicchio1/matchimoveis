@@ -142,7 +142,7 @@ body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px
       <label>Logo</label>
       <div class="logo-row">
         <div class="logo-preview">
-          <% if(siteConfig.logo_url){ %><img src="<%= siteConfig.logo_url %>"><% } else { %><span style="font-size:10px;color:#9ca3af">sem logo</span><% } %>
+          <% if(siteConfig.logo_url){ %><img src="<%= siteConfig.logo_url %>" alt="Logo"><% } else { %><span style="font-size:10px;color:#9ca3af">sem logo</span><% } %>
         </div>
         <form method="POST" action="/admin/site-global/logo" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <input type="file" name="logo" accept="image/*" required style="max-width:220px;width:auto">
@@ -164,10 +164,10 @@ body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px
       <div class="banners-grid">
         <% _banners.forEach(function(b, i){ %>
         <div class="banner-item">
-          <img src="<%= b %>">
+          <img src="<%= b %>" alt="Banner <%= i+1 %>">
           <form method="POST" action="/admin/site-global/banner/excluir" onsubmit="return confirm('Excluir este banner?')">
             <input type="hidden" name="idx" value="<%= i %>">
-            <button type="submit" title="Excluir">✕</button>
+            <button type="submit" title="Excluir" aria-label="Excluir">✕</button>
           </form>
         </div>
         <% }); %>

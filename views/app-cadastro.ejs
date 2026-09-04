@@ -40,6 +40,25 @@
 .foto-preview{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
 .foto-thumb{aspect-ratio:1;border-radius:7px;overflow:hidden;background:var(--bg)}
 .foto-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* Cadastro manual em etapas (ago/2026) — antes eram 13 blocos e ~144 campos
+   soltos num scroll só, sem indicação de quanto faltava (achado real de
+   auditoria de UX). Continua sendo 1 <form> só (mesma action, mesmos names,
+   nenhum campo mudou) — só a exibição é paginada por JS, então o POST final
+   sai idêntico a antes. Padrão de "voltar/próximo" já usado em
+   captar-imovel.ejs, trazido pra cá. */
+.wiz-steps{display:flex;align-items:center;gap:4px;margin-bottom:20px}
+.wiz-step-dot{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.wiz-step-dot .n{width:26px;height:26px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);color:var(--text-ter);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.wiz-step-dot .l{font-size:10px;color:var(--text-ter);text-align:center;line-height:1.3}
+.wiz-step-dot.done .n{background:var(--brand);border-color:var(--brand);color:#fff}
+.wiz-step-dot.on .n{border-color:var(--brand);color:var(--brand);box-shadow:0 0 0 3px var(--brand-light)}
+.wiz-step-dot.on .l{color:var(--dark);font-weight:600}
+.wiz-line{flex:0 0 auto;width:100%;max-width:40px;height:1.5px;background:var(--border);margin-top:-20px}
+.wiz-panel{display:none}
+.wiz-panel.show{display:block}
+.wiz-nav{display:flex;gap:10px;margin-top:4px;margin-bottom:24px}
+@media(max-width:700px){.wiz-step-dot .l{display:none}}
 </style>
 
 <!-- ESCOLHA -->
@@ -125,6 +144,17 @@
 
     <form method="POST" action="/app/imovel/cadastrar" enctype="multipart/form-data">
 
+      <div class="wiz-steps">
+        <div class="wiz-step-dot on" data-passo="1"><div class="n">1</div><div class="l">Onde fica</div></div>
+        <div class="wiz-step-dot" data-passo="2"><div class="n">2</div><div class="l">O que é</div></div>
+        <div class="wiz-step-dot" data-passo="3"><div class="n">3</div><div class="l">Características</div></div>
+        <div class="wiz-step-dot" data-passo="4"><div class="n">4</div><div class="l">Diferenciais</div></div>
+        <div class="wiz-step-dot" data-passo="5"><div class="n">5</div><div class="l">Proprietário</div></div>
+        <div class="wiz-step-dot" data-passo="6"><div class="n">6</div><div class="l">Fotos e publicação</div></div>
+      </div>
+
+      <!-- PASSO 1 — ONDE FICA -->
+      <div class="wiz-panel show" data-passo="1">
       <!-- CEP -->
       <div class="fm-card">
         <div class="fm-title">Busca por CEP</div>
@@ -139,6 +169,37 @@
         <div id="cep-resultado" style="display:none;margin-top:8px;padding:8px 12px;background:#f0fdf4;border-radius:7px;font-size:12px;color:#166534;font-weight:500"></div>
       </div>
 
+      <!-- LOCALIZAÇÃO -->
+      <div class="fm-card">
+        <div class="fm-title">Localização</div>
+        <div class="fg2" style="margin-bottom:10px">
+          <div class="campo"><label>Rua / Avenida</label><input name="endereco" id="campo-endereco" placeholder="Rua das Flores"></div>
+          <div class="fg2">
+            <div class="campo"><label>Número</label><input name="numero" id="campo-numero" placeholder="123" required></div>
+            <div class="campo"><label>Complemento</label><input name="complemento" placeholder="Apto 42"></div>
+          </div>
+        </div>
+        <div class="fg4" style="margin-bottom:10px">
+          <div class="campo">
+            <label>Estado</label>
+            <select name="estado" id="select-estado">
+              <option value="">Selecione</option>
+              <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option><option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option><option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option><option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option><option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option><option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option><option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option><option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC" selected>Santa Catarina</option><option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
+            </select>
+          </div>
+          <div class="campo"><label>Cidade</label><input name="cidade" id="campo-cidade" placeholder="Cidade"></div>
+          <div class="campo" style="grid-column:span 2"><label>Bairro</label><input name="bairro" id="campo-bairro" placeholder="Moema"></div>
+        </div>
+        <div class="fg2">
+          <div class="campo"><label>Latitude</label><input name="latitude" id="campo-lat" placeholder="Preenchido automaticamente" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
+          <div class="campo"><label>Longitude</label><input name="longitude" id="campo-lng" placeholder="Preenchido automaticamente" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
+        </div>
+      </div>
+      <div class="wiz-nav"><button type="button" class="btn btn-primary" style="flex:1;padding:11px" onclick="wizProximo(1,2)">Próximo →</button></div>
+      </div>
+
+      <!-- PASSO 2 — O QUE É -->
+      <div class="wiz-panel" data-passo="2">
       <!-- TIPO -->
       <div class="fm-card">
         <div class="fm-title">Tipo e transação</div>
@@ -208,33 +269,6 @@
         </div>
       </div>
 
-      <!-- LOCALIZAÇÃO -->
-      <div class="fm-card">
-        <div class="fm-title">Localização</div>
-        <div class="fg2" style="margin-bottom:10px">
-          <div class="campo"><label>Rua / Avenida</label><input name="endereco" id="campo-endereco" placeholder="Rua das Flores"></div>
-          <div class="fg2">
-            <div class="campo"><label>Número</label><input name="numero" id="campo-numero" placeholder="123" required></div>
-            <div class="campo"><label>Complemento</label><input name="complemento" placeholder="Apto 42"></div>
-          </div>
-        </div>
-        <div class="fg4" style="margin-bottom:10px">
-          <div class="campo">
-            <label>Estado</label>
-            <select name="estado" id="select-estado">
-              <option value="">Selecione</option>
-              <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option><option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option><option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option><option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option><option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option><option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option><option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option><option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC" selected>Santa Catarina</option><option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
-            </select>
-          </div>
-          <div class="campo"><label>Cidade</label><input name="cidade" id="campo-cidade" placeholder="Cidade"></div>
-          <div class="campo" style="grid-column:span 2"><label>Bairro</label><input name="bairro" id="campo-bairro" placeholder="Moema"></div>
-        </div>
-        <div class="fg2">
-          <div class="campo"><label>Latitude</label><input name="latitude" id="campo-lat" placeholder="Preenchido automaticamente" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
-          <div class="campo"><label>Longitude</label><input name="longitude" id="campo-lng" placeholder="Preenchido automaticamente" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
-        </div>
-      </div>
-
       <!-- VALORES -->
       <div class="fm-card">
         <div class="fm-title">Valores</div>
@@ -248,7 +282,14 @@
           <div class="campo"><label>Aceita permuta?</label><select name="aceita_permuta"><option value="nao">Não</option><option value="sim">Sim</option><option value="a_combinar">A combinar</option></select></div>
         </div>
       </div>
+      <div class="wiz-nav">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="wizIr(1)">← Voltar</button>
+        <button type="button" class="btn btn-primary" style="flex:2;padding:11px" onclick="wizProximo(2,3)">Próximo →</button>
+      </div>
+      </div>
 
+      <!-- PASSO 3 — CARACTERÍSTICAS -->
+      <div class="wiz-panel" data-passo="3">
       <!-- CARACTERÍSTICAS -->
       <div class="fm-card">
         <div class="fm-title">Características</div>
@@ -276,7 +317,14 @@
           <div class="campo"><label>Posição solar</label><select name="posicao_solar"><option value="">Selecione</option><option value="norte">Norte</option><option value="sul">Sul</option><option value="leste">Leste</option><option value="oeste">Oeste</option><option value="nordeste">Nordeste</option><option value="sudeste">Sudeste</option><option value="sudoeste">Sudoeste</option><option value="noroeste">Noroeste</option></select></div>
         </div>
       </div>
+      <div class="wiz-nav">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="wizIr(2)">← Voltar</button>
+        <button type="button" class="btn btn-primary" style="flex:2;padding:11px" onclick="wizProximo(3,4)">Próximo →</button>
+      </div>
+      </div>
 
+      <!-- PASSO 4 — DIFERENCIAIS -->
+      <div class="wiz-panel" data-passo="4">
       <!-- DIFERENCIAIS -->
       <div class="fm-card">
         <div class="fm-title">Diferenciais</div>
@@ -400,7 +448,14 @@
           <label class="dif-item"><input type="checkbox" name="dif_lixo_seletivo"> Coleta seletiva</label>
         </div>
       </div>
+      <div class="wiz-nav">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="wizIr(3)">← Voltar</button>
+        <button type="button" class="btn btn-primary" style="flex:2;padding:11px" onclick="wizProximo(4,5)">Próximo →</button>
+      </div>
+      </div>
 
+      <!-- PASSO 5 — PROPRIETÁRIO E CAPTADOR -->
+      <div class="wiz-panel" data-passo="5">
       <!-- PROPRIETÁRIO -->
       <div class="fm-card">
         <div class="fm-title">Proprietário</div>
@@ -422,7 +477,14 @@
           <div class="campo"><label>Celular / WhatsApp</label><input name="captador_celular" placeholder="(11) 99999-9999"></div>
         </div>
       </div>
+      <div class="wiz-nav">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="wizIr(4)">← Voltar</button>
+        <button type="button" class="btn btn-primary" style="flex:2;padding:11px" onclick="wizProximo(5,6)">Próximo →</button>
+      </div>
+      </div>
 
+      <!-- PASSO 6 — FOTOS, DESCRIÇÃO E PUBLICAÇÃO -->
+      <div class="wiz-panel" data-passo="6">
       <!-- DESCRIÇÃO -->
       <div class="fm-card">
         <div class="fm-title">Descrição</div>
@@ -470,9 +532,11 @@
         </div>
       </div>
 
-      <div style="display:flex;gap:10px;margin-top:4px;margin-bottom:24px">
+      <div class="wiz-nav" style="margin-bottom:24px">
+        <button type="button" class="btn btn-outline" style="flex:1" onclick="wizIr(5)">← Voltar</button>
         <button type="reset" class="btn btn-outline" style="flex:1">Limpar</button>
         <button type="submit" class="btn btn-primary" style="flex:2;padding:12px">Salvar imóvel</button>
+      </div>
       </div>
 
     </form>
@@ -484,6 +548,35 @@ function escolherMetodo(m) {
   document.getElementById('sec-metodo').style.display = 'none';
   document.getElementById('sec-xml').classList.toggle('show', m==='xml');
   document.getElementById('sec-manual').classList.toggle('show', m==='manual');
+  if (m === 'manual') wizIr(1);
+}
+// Cadastro manual em etapas — navegação entre os 6 passos. Continua sendo
+// 1 <form> só (mesma action/names de sempre), só a exibição é paginada.
+function _wizValidarPasso(passo) {
+  var painel = document.querySelector('.wiz-panel[data-passo="'+passo+'"]');
+  if (!painel) return true;
+  var campos = painel.querySelectorAll('input, select, textarea');
+  for (var i=0;i<campos.length;i++){
+    if (typeof campos[i].checkValidity === 'function' && !campos[i].checkValidity()) {
+      campos[i].reportValidity();
+      return false;
+    }
+  }
+  return true;
+}
+function wizProximo(atual, proximo) {
+  if (!_wizValidarPasso(atual)) return;
+  wizIr(proximo);
+}
+function wizIr(n) {
+  document.querySelectorAll('.wiz-panel').forEach(function(p){ p.classList.toggle('show', p.dataset.passo === String(n)); });
+  document.querySelectorAll('.wiz-step-dot').forEach(function(d){
+    var dn = parseInt(d.dataset.passo, 10);
+    d.classList.toggle('on', dn === n);
+    d.classList.toggle('done', dn < n);
+  });
+  var form = document.getElementById('sec-manual');
+  if (form) form.scrollIntoView({behavior:'smooth', block:'start'});
 }
 function voltarMetodo() {
   document.getElementById('sec-metodo').style.display = 'block';
@@ -565,7 +658,7 @@ function previewFotos(input) {
     reader.onload = e => {
       const div = document.createElement('div');
       div.className = 'foto-thumb';
-      div.innerHTML = '<img src="'+e.target.result+'">';
+      div.innerHTML = '<img src="'+e.target.result+'" alt="Prévia da foto">';
       preview.appendChild(div);
     };
     reader.readAsDataURL(f);
@@ -685,9 +778,11 @@ async function excluirXml(removerImoveis) {
     const el = document.querySelector('input[name="proprietario_email"]');
     if (el) el.value = decodeURIComponent(p.get('email'));
   }
-  // scroll para seção proprietário
+  // abre o cadastro manual direto no passo do proprietário (passo 5)
   if (p.get('proprietario') || p.get('telefone')) {
     setTimeout(function(){
+      if (typeof escolherMetodo === 'function') escolherMetodo('manual');
+      if (typeof wizIr === 'function') wizIr(5);
       const el = document.querySelector('input[name="proprietario"]');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 500);

@@ -20142,7 +20142,9 @@ app.get('/app/feed', auth, async (req, res) => {
     const _carteiraMax = Math.max(...Object.values(_carteiraMap), 1);
     const _carteiraScore = (key) => Math.round(((_carteiraMap[key]||0) / _carteiraMax) * 100);
 
-    // extrai cidade/estado dominante da CARTEIRA do corretor (mais preciso que o endereço do perfil)
+    // extrai cidade/estado dominante da CARTEIRA do corretor — usado só como
+    // FALLBACK quando ele não tem área de atuação cadastrada (widget de
+    // chips do perfil, ver CLAUDE.md "Área de atuação multi-cidade").
     const _cidadesCarteira = {};
     const _estadosCarteira = {};
     _meusImoveis.forEach(im => {
@@ -20151,8 +20153,28 @@ app.get('/app/feed', auth, async (req, res) => {
       if(_c) _cidadesCarteira[_c] = (_cidadesCarteira[_c]||0) + 1;
       if(_e) _estadosCarteira[_e] = (_estadosCarteira[_e]||0) + 1;
     });
-    const _cidadeUser = Object.entries(_cidadesCarteira).sort((a,b)=>b[1]-a[1])[0]?.[0] || (req.session.user?.cidade||'').toLowerCase().trim();
-    const _estadoUser = Object.entries(_estadosCarteira).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
+    const _cidadeCarteiraDominante = Object.entries(_cidadesCarteira).sort((a,b)=>b[1]-a[1])[0]?.[0] || (req.session.user?.cidade||'').toLowerCase().trim();
+    const _estadoCarteiraDominante = Object.entries(_estadosCarteira).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
+
+    // Área de atuação real do corretor (pedido do Renato, set/2026: priorizar
+    // bairro > cidade > estado que ELE cadastrou, não só o que domina a
+    // carteira). Busca o usuário fresco na lista já carregada (session pode
+    // estar desatualizada, mesmo motivo documentado em _construirDadosResumo).
+    const _meuUsuarioFeed = usuarios.find(u => [u.codigo_usuario, u.codigoUsuario, u.codigo, u.id].filter(Boolean).map(String).includes(String(myId))) || {};
+    // Chave composta cidade+bairro (não só bairro) — bairro tipo "Centro" se
+    // repete em várias cidades diferentes, comparar só pelo nome bateria
+    // errado (ex: "Centro" de Balneário Camboriú != "Centro" de Joinville).
+    const _areaBairros = new Set((Array.isArray(_meuUsuarioFeed.areaAtuacaoBairros) ? _meuUsuarioFeed.areaAtuacaoBairros : [])
+      .map(p => p && (p.cidade||'').toLowerCase().trim() + '|' + (p.bairro||'').toLowerCase().trim())
+      .filter(k => k !== '|'));
+    const _areaCidades = new Set((Array.isArray(_meuUsuarioFeed.areaAtuacaoCidades) ? _meuUsuarioFeed.areaAtuacaoCidades : [])
+      .map(c => (c || '').toLowerCase().trim()).filter(Boolean));
+    const _areaEstado = (_meuUsuarioFeed.areaAtuacaoEstado || '').toLowerCase().trim();
+    // Sem NENHUM bairro/cidade cadastrado na área de atuação, cai pro que
+    // dominar a carteira (comportamento antigo, preservado pra quem nunca
+    // preencheu a área de atuação no perfil).
+    const _cidadeFallback = _areaCidades.size ? '' : _cidadeCarteiraDominante;
+    const _estadoUser = _areaEstado || _estadoCarteiraDominante;
 
     const { query: _qVF } = require('./services/db');
     const _vistosRow2 = await (async()=>{ try{ const rv=await _qVF('SELECT feed_vistos FROM usuarios WHERE id=$1',[req.session.user.id]); return rv.rows[0]?.feed_vistos||[]; }catch(e){return[];} })();
@@ -20178,15 +20200,22 @@ app.get('/app/feed', auth, async (req, res) => {
       const _demanda = (demandaMap[_cidade]||0) + (demandaMap[_bairro]||0) + (demandaMap[_tipo]||0);
       // proximidade
       const _imEstado = (im.estado||'').toLowerCase().trim();
+      // Cascata pedida pelo Renato (set/2026): bairro > cidade > estado da
+      // ÁREA DE ATUAÇÃO cadastrada pelo corretor — cada nível soma (um
+      // imóvel que bate bairro também bate cidade/estado normalmente,
+      // empilhando pontos; sem bairro/cidade cadastrados, usa o fallback
+      // derivado da carteira pra não perder a priorização de quem nunca
+      // preencheu a área de atuação).
+      const _proxBairro = _areaBairros.size && _bairro && _cidade && _areaBairros.has(_cidade + '|' + _bairro) ? 200 : 0;
+      const _proxCidade = (_areaCidades.size && _cidade && _areaCidades.has(_cidade)) || (_cidadeFallback && _cidade && _cidade.includes(_cidadeFallback)) ? 120 : 0;
       const _proxEstado = _estadoUser && _imEstado && (_imEstado.includes(_estadoUser) || _estadoUser.includes(_imEstado)) ? 80 : 0;
-      const _proxCidade = _cidadeUser && _cidade && _cidade.includes(_cidadeUser) ? 120 : 0;
       // recencia (dias desde criacao, max 30 pontos)
       const _criado = im.criado_em ? new Date(im.criado_em).getTime() : 0;
       const _diasAtras = _criado ? Math.max(0, (Date.now() - _criado) / 86400000) : 999;
       const _recencia = Math.max(0, 30 - _diasAtras);
       const _carteiraBairro = _carteiraScore(_bairro);
       const _carteiraCidade = _carteiraScore(_cidade);
-      const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia + _carteiraBairro + (_carteiraCidade * 0.5);
+      const _score = (lc.length * 10) + _demanda + _proxBairro + _proxCidade + _proxEstado + _recencia + _carteiraBairro + (_carteiraCidade * 0.5);
       const _likesCount = Array.isArray(im.dados?.likes) ? im.dados.likes.length : 0;
       return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score, _likesCount};
     });
@@ -20200,12 +20229,26 @@ app.get('/app/feed', auth, async (req, res) => {
     const _grupos = Object.values(_porUser);
     // embaralha a ordem dos grupos (usuários) a cada requisição
     for(let i=_grupos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[_grupos[i],_grupos[j]]=[_grupos[j],_grupos[i]];}
-    // dentro de cada grupo: vídeos primeiro, resto embaralhado
+    // dentro de cada grupo: vídeos primeiro, resto priorizado pelo _score
+    // (bairro/cidade/estado de atuação, demanda de lead, recência etc —
+    // calculado acima mas até set/2026 nunca era usado, o feed só
+    // embaralhava puro ignorando tudo isso). Mantém uma variação leve pra
+    // não ficar sempre idêntico a cada atualização: agrupa em "baldes" de
+    // 20 pontos e só embaralha DENTRO do mesmo balde, preservando a ordem
+    // de prioridade entre baldes diferentes.
     _grupos.forEach(g => {
       const comVid = g.filter(i => i.tourVirtual && i.tourVirtual !== '');
       let semVid = g.filter(i => !i.tourVirtual || i.tourVirtual === '');
-      // embaralha os sem vídeo
-      for(let i=semVid.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[semVid[i],semVid[j]]=[semVid[j],semVid[i]];}
+      const _baldes = {};
+      semVid.forEach(im => {
+        const b = Math.round((im._score||0) / 20);
+        (_baldes[b] = _baldes[b] || []).push(im);
+      });
+      semVid = Object.keys(_baldes).map(Number).sort((a,b)=>b-a).flatMap(b => {
+        const lista = _baldes[b];
+        for(let i=lista.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lista[i],lista[j]]=[lista[j],lista[i]];}
+        return lista;
+      });
       g.length = 0; comVid.forEach(i => g.push(i)); semVid.forEach(i => g.push(i));
     });
     const _mix = [];
@@ -20578,7 +20621,7 @@ function _construirDadosResumo(user) {
         cat: p.tier === 'alta' ? '🔥 Propensão alta' : '🌤 Propensão média', accent: p.tier === 'alta' ? '#FF385C' : '#FC642D',
         tag: p.tier === 'alta' ? 'rausch' : 'arches', tagText: p.tier === 'alta' ? '⚡ FALE AGORA' : '🌤 ESQUENTANDO',
         icon: p.tier === 'alta' ? '🔥' : '🌤', foto: _fotosMotivo[0] || '', fotos: _fotosMotivo, nome: (p.tier === 'alta' ? '🔥 ' : '') + (l.nome || 'Uma lead') + (p.tier === 'alta' ? ' está pronta pra fechar!' : ' demonstrou interesse'),
-        detalhe: '👀 ' + (p.motivo || 'Sinal de interesse detectado.'), time: p.tempoRelativo || '',
+        detalhe: '👀 ' + (p.motivo || 'Sinal de interesse detectado.'), time: p.tempoRelativo || '', _ts: p.atualizadoEm ? new Date(p.atualizadoEm).getTime() : 0,
         primary: p.tier === 'alta' ? '💬🔥 Falar agora' : '💬 Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
         // Link direto pro imóvel que gerou o sinal (não só a lead) — pedido
         // do Renato: "sempre legal o corretor saber de qual imóvel que o
@@ -20603,7 +20646,7 @@ function _construirDadosResumo(user) {
         cat: '📅 Pedido de visita', accent: '#FC642D', tag: 'arches', tagText: '⏰ PRECISA CONFIRMAR',
         icon: '📅', nome: '🙋 ' + (v.nome || v.contato || 'Alguém') + ' pediu uma visita!',
         detalhe: '🏠 ' + (v.imovelTitulo || 'Imóvel') + (v.dataVisita ? (' — ' + v.dataVisita.split('-').reverse().join('/') + (v.horaVisita ? ' às ' + v.horaVisita : '')) : ''),
-        time: tempoRelativoResumo(v.data || v.criadoEm),
+        time: tempoRelativoResumo(v.data || v.criadoEm), _ts: (v.data || v.criadoEm) ? new Date(v.data || v.criadoEm).getTime() : 0,
         primary: '✅ Confirmar visita', primaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas',
         secondary: '👤 Ver lead', secondaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas'
       });
@@ -20623,7 +20666,7 @@ function _construirDadosResumo(user) {
         ordem: 1,
         cat: '❤️ Curtiu um imóvel', accent: '#FF385C', tag: 'rausch', tagText: '🔥 SINAL FORTE',
         icon: '❤️', foto: g.foto || '', fotos: g.fotos || [], nome: '❤️ ' + (l.nome || 'Uma lead') + ' AMOU um imóvel!',
-        detalhe: '🏠 ' + (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm),
+        detalhe: '🏠 ' + (g.titulo || 'Imóvel') + (g.bairro ? (' em ' + g.bairro) : ''), time: tempoRelativoResumo(g.clicadoEm), _ts: g.clicadoEm ? new Date(g.clicadoEm).getTime() : 0,
         primary: '💬❤️ Falar com ela', primaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id),
         // Mesmo motivo do card de propensão — link direto pro imóvel que
         // ela curtiu, não só a lead.
@@ -20644,7 +20687,7 @@ function _construirDadosResumo(user) {
         ordem: 2,
         cat: '📤 Vitrine enviada', accent: '#00A699', tag: 'babu', tagText: '🤖 AUTOMÁTICO',
         icon: '📤', nome: '✅ Vitrine enviada pra ' + (l.nome || 'uma lead') + '!',
-        detalhe: '🏠✨ ' + (l.matchCount || (l.matches || []).length || 0) + ' imóveis selecionados automaticamente.', time: tempoRelativoResumo(l.vitrineEnviadaEm),
+        detalhe: '🏠✨ ' + (l.matchCount || (l.matches || []).length || 0) + ' imóveis selecionados automaticamente.', time: tempoRelativoResumo(l.vitrineEnviadaEm), _ts: l.vitrineEnviadaEm ? new Date(l.vitrineEnviadaEm).getTime() : 0,
         primary: '👤 Ver lead', primaryLink: '/app/lead/' + l.id,
         secondary: '✓ Marcar como falado', secondaryLink: '', marcarFalado: l.id
       });
@@ -20667,7 +20710,7 @@ function _construirDadosResumo(user) {
         ordem: 1,
         cat: '🆕 Nova lead', accent: '#FC642D', tag: 'arches', tagText: '🎉 NOVA',
         icon: '🆕', nome: '🎉 ' + (l.nome || 'Uma lead') + ' chegou!',
-        detalhe: '📍 Origem: ' + (l.origem || l.origemEntrada || 'manual'), time: tempoRelativoResumo(l.criadoEm || l.data_cadastro),
+        detalhe: '📍 Origem: ' + (l.origem || l.origemEntrada || 'manual'), time: tempoRelativoResumo(l.criadoEm || l.data_cadastro), _ts: (l.criadoEm || l.data_cadastro) ? new Date(l.criadoEm || l.data_cadastro).getTime() : 0,
         primary: '👤 Ver lead', primaryLink: '/app/lead/' + l.id,
         secondary: tel ? '💬 Falar' : '👤 Ver lead', secondaryLink: tel ? waLink(tel) : ('/app/lead/' + l.id)
       });
@@ -20695,16 +20738,26 @@ function _construirDadosResumo(user) {
     });
   } catch (e) { console.error('[resumo] erro imoveis curtir:', e.message); }
 
-  // Ordena o resto por prioridade e intercala 1 "Primeiro passo" pendente a
-  // cada 2 cards — set/2026, pedido do Renato: "priorizar os primeiros
-  // passos... intercalados com os de pontuação maior até completar os
-  // primeiros passos". Não é só jogar pro topo (isso empilharia todos
-  // juntos) nem deixar largado no meio do rodízio — fica sempre visível,
-  // espaçado, sem dominar o carrossel. Assim que um passo é concluído,
-  // _passosOnboarding já para de gerar o card dele (filter !p.feito acima)
-  // — "até completar" já é automático, não precisa de lógica extra aqui.
+  // Ordena o resto por RECÊNCIA de verdade (pedido do Renato, set/2026:
+  // "tem que priorizar o que aconteceu mais recente sempre") — antes
+  // ordenava só por categoria fixa (pedido de visita sempre primeiro,
+  // depois lead/propensão, depois vitrine enviada...), então uma vitrine
+  // enviada de 2 dias atrás podia aparecer antes de uma lead nova de 5min
+  // só por causa da categoria. `ordem` (a prioridade de categoria) agora é
+  // só desempate entre eventos sem timestamp ou com timestamp igual — ex:
+  // "imóveis pra curtir" não tem hora de acontecimento real, então cai
+  // sempre por último dentro do grupo (fica só como conteúdo de
+  // preenchimento, nunca disputa posição com evento de verdade).
+  // Intercala 1 "Primeiro passo" pendente a cada 2 cards — set/2026,
+  // pedido do Renato: "priorizar os primeiros passos... intercalados com
+  // os de pontuação maior até completar os primeiros passos". Não é só
+  // jogar pro topo (isso empilharia todos juntos) nem deixar largado no
+  // meio do rodízio — fica sempre visível, espaçado, sem dominar o
+  // carrossel. Assim que um passo é concluído, _passosOnboarding já para
+  // de gerar o card dele (filter !p.feito acima) — "até completar" já é
+  // automático, não precisa de lógica extra aqui.
   const _passosCards = cards.filter(c => c.cat === '✅ Primeiros passos');
-  const _outrosCards = cards.filter(c => c.cat !== '✅ Primeiros passos').sort((a, b) => a.ordem - b.ordem);
+  const _outrosCards = cards.filter(c => c.cat !== '✅ Primeiros passos').sort((a, b) => (b._ts || 0) - (a._ts || 0) || a.ordem - b.ordem);
   const _cardsIntercalados = [];
   let _pi = 0;
   _outrosCards.forEach((c, i) => {

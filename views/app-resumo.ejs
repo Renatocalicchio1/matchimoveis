@@ -116,7 +116,11 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 /* card de resultado — mesma linguagem visual dos cards do carrossel
    principal (k-icon/k-name/act-btn), só compacto, pra qualquer ação de voz
    virar um card real na tela, não uma lista de texto */
-.voice-card{text-align:left;padding:16px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.09);box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}
+.voice-card{position:relative;text-align:left;padding:16px;border-radius:16px;background:#fff;border:1px solid rgba(0,0,0,.09);box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}
+/* X do painel de lead/imóvel/passos — precisa ficar grudado no próprio
+   cartão branco (pedido do Renato, print mostrando o X lá em cima da tela,
+   longe do modal) — não mais um botão único flutuando no topo da tela. */
+.vc-close{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink-dim);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.08);z-index:1}
 .vc-foto{width:100%;height:110px;object-fit:cover;border-radius:12px;display:block}
 .vc-top{display:flex;align-items:flex-start;gap:10px}
 .vc-icon{font-size:22px;line-height:1}
@@ -905,15 +909,17 @@ const infoContent = document.getElementById('infoContent');
 const _navBottom = document.querySelector('.bottom-nav');
 function _toggleNavParaSheet(aberto) { if (_navBottom) _navBottom.style.display = aberto ? 'none' : ''; }
 
-// Botão "✕" único, fora dos dois sheets — mostra/esconde junto com
-// qualquer um dos dois, sempre no mesmo lugar da tela.
+// Botão "✕" do sheet de voz (mic) — esse não tem um cartão único (tem a
+// onda de áudio, status, transcrição, depois os resultados), então
+// continua sendo um botão fixo no topo do próprio sheet, fora do fluxo.
+// Os painéis de lead/imóvel/passos (abaixo) têm cada um só um cartão real
+// — o X deles agora vive dentro do próprio cartão (.vc-close), não aqui.
 const sheetCloseBtn = document.getElementById('sheetCloseBtn');
 function _mostrarSheetClose() { sheetCloseBtn.classList.add('show'); }
 function _esconderSheetClose() { sheetCloseBtn.classList.remove('show'); }
-sheetCloseBtn.addEventListener('click', () => {
-  if (infoSheet.classList.contains('open')) fecharInfoSheet();
-  else if (sheet.classList.contains('open')) micBtn.click(); // pára o reconhecimento de voz e fecha
-});
+sheetCloseBtn.addEventListener('click', () => micBtn.click()); // pára o reconhecimento de voz e fecha
+// HTML do X embutido no cartão — reaproveitado nos 3 tipos de painel.
+const _VC_CLOSE = '<button type="button" class="vc-close" onclick="fecharInfoSheet()" aria-label="Fechar">✕</button>';
 
 function abrirInfoLead(id) {
   const info = LEADS_RESUMO[id];
@@ -926,6 +932,7 @@ function abrirInfoLead(id) {
   const telLimpo = (info.telefone || '').replace(/\D/g, '');
   infoContent.innerHTML =
     '<div class="voice-card" style="margin:0">' +
+      _VC_CLOSE +
       '<div class="vc-top"><span class="vc-icon">👤</span><div>' +
         '<div class="vc-name">' + info.nome + '</div>' +
         '<div class="vc-detail">' + (info.telefone || 'sem telefone') + ' · ' + info.matchCount + ' imóve' + (info.matchCount === 1 ? 'l' : 'is') + ' em match · origem: ' + info.origem + '</div>' +
@@ -937,7 +944,6 @@ function abrirInfoLead(id) {
       '</div>' +
     '</div>';
   infoSheet.classList.add('open');
-  _mostrarSheetClose();
 
   // "✓ Já falei" — set/2026, pedido do Renato: "mostrar que já foi
   // comunicado". Fica aqui (não em cada card) pra não empilhar botão em
@@ -966,6 +972,7 @@ function abrirInfoImovel(c, link) {
   _toggleNavParaSheet(true);
   infoContent.innerHTML =
     '<div class="voice-card" style="margin:0">' +
+      _VC_CLOSE +
       (c.foto ? '<img class="vc-foto" src="' + c.foto + '" alt="">' : '') +
       '<div class="vc-top"><span class="vc-icon">🏠</span><div>' +
         '<div class="vc-name">' + c.nome + '</div>' +
@@ -976,7 +983,6 @@ function abrirInfoImovel(c, link) {
       '</div>' +
     '</div>';
   infoSheet.classList.add('open');
-  _mostrarSheetClose();
 }
 // "Ver todos os passos" — mesma ideia, painel inline em vez de navegar pra
 // /app-home. Busca a mesma rota que o modal "Primeiros Passos" do resto da
@@ -986,9 +992,8 @@ function abrirPassos() {
   if (typeof pauseTimer === 'function') pauseTimer();
   micOpen = true;
   _toggleNavParaSheet(true);
-  infoContent.innerHTML = '<div class="voice-card" style="margin:0"><div class="vc-detail">Carregando…</div></div>';
+  infoContent.innerHTML = '<div class="voice-card" style="margin:0">' + _VC_CLOSE + '<div class="vc-detail">Carregando…</div></div>';
   infoSheet.classList.add('open');
-  _mostrarSheetClose();
   fetch('/api/onboarding/status').then(r => r.json()).then(d => {
     const passos = (d && d.passos) || [];
     const linhas = passos.map(p =>
@@ -1001,15 +1006,15 @@ function abrirPassos() {
     ).join('');
     infoContent.innerHTML =
       '<div class="voice-card" style="margin:0">' +
+        _VC_CLOSE +
         '<div class="vc-name" style="margin-bottom:8px">✅ Primeiros passos (' + (d.feitos||0) + '/' + (d.total||passos.length) + ')</div>' +
         linhas +
       '</div>';
-  }).catch(() => { infoContent.innerHTML = '<div class="voice-card" style="margin:0"><div class="vc-detail">❌ Não consegui carregar agora.</div></div>'; });
+  }).catch(() => { infoContent.innerHTML = '<div class="voice-card" style="margin:0">' + _VC_CLOSE + '<div class="vc-detail">❌ Não consegui carregar agora.</div></div>'; });
 }
 function fecharInfoSheet() {
   infoSheet.classList.remove('open');
   micOpen = false;
-  _esconderSheetClose();
   _toggleNavParaSheet(false);
   if (typeof restartTimer === 'function') restartTimer();
 }

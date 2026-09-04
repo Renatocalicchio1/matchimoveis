@@ -10891,18 +10891,33 @@ setInterval(async () => {
     // `leadParaChecar` opcional — se a lead tiver automacaoWhatsappPausada
     // (POST /app/lead/:id/automacao), pula o envio automático em silêncio
     // (o followUp ainda é marcado executado normalmente, só não manda nada).
+    // Antes só disparava o fetch e nunca olhava a resposta — uma falha real
+    // da Evolution API (instância "conectada" no nosso banco mas precisando
+    // de novo QR, número bloqueado, timeout etc.) ainda volta como JSON
+    // válido, não como erro de rede, então o try/catch nunca pegava isso e
+    // os chamadores marcavam vitrine/follow-up como enviado mesmo sem ter
+    // saído nada (achado real, reportado por usuários — vitrine marcada
+    // como enviada sem o cliente ter recebido). Mesmo conserto já aplicado
+    // em cerebro/match-core.js (enviarWhatsApp): só considera sucesso com
+    // status HTTP 2xx, retorna true/false pro chamador decidir o que marcar.
     async function _enviarWA(instancia, numero, texto, leadParaChecar) {
       if (leadParaChecar && leadParaChecar.automacaoWhatsappPausada) {
         console.log('[JOB FU] WhatsApp automático pausado pra essa lead, pulando:', leadParaChecar.nome || numero);
-        return;
+        return false;
       }
       try {
-        await fetch(EU + '/message/sendText/' + instancia, {
+        const _r = await fetch(EU + '/message/sendText/' + instancia, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': EK },
           body: JSON.stringify({ number: numero, text: texto })
         });
-      } catch(e) { console.error('[JOB FU] erro envio WA:', e.message); }
+        if (!_r.ok) {
+          const _d = await _r.json().catch(() => ({}));
+          console.error('[JOB FU] falha ao enviar WA →', numero, '| status', _r.status, '|', JSON.stringify(_d).slice(0, 300));
+          return false;
+        }
+        return true;
+      } catch(e) { console.error('[JOB FU] erro envio WA:', e.message); return false; }
     }
 
     for (let i = 0; i < _leads.length; i++) {
@@ -10954,23 +10969,34 @@ setInterval(async () => {
               + _matches + ' imove' + (_matches === 1 ? 'l' : 'is')
               + ' que combinam com o seu perfil.\n\nAcesse sua selecao personalizada:\n'
               + _link + '\n\nEscolha o imovel que mais gostou e agende sua visita! \n\n' + ((_user && _user.nome) ? _user.nome : 'Seu corretor') + ' - MatchImoveis';
-            await _enviarWA(_instancia, _contato, _msg, _leads[i]);
-            _leads[i].vitrineEnviada = true;
-            consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
-            _leads[i].vitrineEnviadaEm = new Date().toISOString();
-            _leads[i].vitrineLink = _link;
-            // Criar follow-up automático de 6h se não tiver visita
-            if (!_leads[i].followUps) _leads[i].followUps = [];
-            const _jaTemFUVitrine = _leads[i].followUps.some(f => f.tipo==='followup_vitrine' && f.status==='pendente');
-            if (!_jaTemFUVitrine) {
-              const _agora6h = Date.now();
-              _leads[i].followUps.push({
-                id: _agora6h.toString(),
-                tipo: 'followup_vitrine',
-                status: 'pendente',
-                criadoEm: new Date(_agora6h).toISOString(),
-                prazo: new Date(_agora6h + 6*3600*1000).toISOString()
-              });
+            const _vitrineWAOk = await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+            if (_vitrineWAOk) {
+              _leads[i].vitrineEnviada = true;
+              consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
+              _leads[i].vitrineEnviadaEm = new Date().toISOString();
+              _leads[i].vitrineLink = _link;
+              // Criar follow-up automático de 6h se não tiver visita
+              if (!_leads[i].followUps) _leads[i].followUps = [];
+              const _jaTemFUVitrine = _leads[i].followUps.some(f => f.tipo==='followup_vitrine' && f.status==='pendente');
+              if (!_jaTemFUVitrine) {
+                const _agora6h = Date.now();
+                _leads[i].followUps.push({
+                  id: _agora6h.toString(),
+                  tipo: 'followup_vitrine',
+                  status: 'pendente',
+                  criadoEm: new Date(_agora6h).toISOString(),
+                  prazo: new Date(_agora6h + 6*3600*1000).toISOString()
+                });
+              }
+            } else {
+              // Desfaz o claim pra essa lead voltar a ficar elegível numa
+              // próxima rodada do job (ou pelo caminho inline de
+              // match-core.js) em vez de ficar "vitrine_enviada=true" pra
+              // sempre sem ter mandado nada de verdade.
+              console.error('[JOB FU] falha ao enviar vitrine WhatsApp — lead', lead.id, 'fica elegível pra nova tentativa');
+              try {
+                await _qVitrineClaimFU('UPDATE leads SET vitrine_enviada=false WHERE id=$1', [lead.id]);
+              } catch(eRollback) { console.error('[JOB FU] erro ao desfazer claim de vitrine:', eRollback.message); }
             }
           } else {
             console.log('[JOB FU] vitrine WhatsApp já enviada por outro caminho, pulando:', lead.nome || _contato);
@@ -11017,7 +11043,6 @@ setInterval(async () => {
           // Proteção — não envia se já tem visita agendada
           const _jaTemVisita = _leads[i].visitaSolicitada || (_leads[i].visitaStatus && !['cancelada','recusada'].includes(_leads[i].visitaStatus||''));
           if (_jaTemVisita) { console.log('[JOB FU] followup_vitrine ignorado — visita ja agendada:', lead.nome); continue; }
-          _leads[i].waFollowupVitrineEnviadoEm = new Date().toISOString();
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
           const _nomeCorretor = _user && _user.nome ? _user.nome : 'Seu corretor';
           const _qtdMatches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
@@ -11026,7 +11051,7 @@ setInterval(async () => {
             + _link + '\n\n'
             + 'Caso ja esteja conversando com ' + _nomeCorretor + ', pode desconsiderar esta mensagem. '
             + 'Mas se quiser, pode entrar no link e agendar diretamente por la! 😊';
-          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+          if (await _enviarWA(_instancia, _contato, _msg, _leads[i])) _leads[i].waFollowupVitrineEnviadoEm = new Date().toISOString();
           const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
           if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Seus imóveis estão esperando por você!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'followup_vitrine_email' }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
@@ -11035,26 +11060,23 @@ setInterval(async () => {
           console.log('[JOB FU] qualificar_lead ignorado — já enviado pelo webhook:', lead.nome);
 
         } else if (fu.tipo === 'agendar_visita') {
-          _leads[i].waAgendarVisitaEnviadoEm = new Date().toISOString();
           const _imovel = (_leads[i].matchesAuto || _leads[i].matches || [])[0];
           const _msg = 'Olá ' + (lead.nome || '') + '! Que tal agendarmos uma visita? 🏠\n\n'
             + (_imovel ? 'Temos ' + _imovel.tipo + ' em ' + _imovel.bairro + ' disponível.\n\n' : '')
             + 'Qual dia e horário ficaria melhor para você?';
-          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+          if (await _enviarWA(_instancia, _contato, _msg, _leads[i])) _leads[i].waAgendarVisitaEnviadoEm = new Date().toISOString();
           const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
           if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '📅 Que tal agendar uma visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'followup_agendar_visita_email' }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'followup_visita') {
-          _leads[i].waFollowupVisitaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Como foi a visita? Gostou do imóvel? 🏠\n\nPosso te ajudar com alguma dúvida ou mostrar outras opções?';
-          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+          if (await _enviarWA(_instancia, _contato, _msg, _leads[i])) _leads[i].waFollowupVisitaEnviadoEm = new Date().toISOString();
           const _emailFU = (!lead.automacaoEmailPausada) ? (lead.email || '') : '';
           if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Como foi a visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg, tipo: 'followup_pos_visita_email' }); consumir(_leads[i].userId || _leads[i].corretorId, 'email_lead').catch(()=>{}); } catch(_eFU){} }
 
         } else if (fu.tipo === 'proposta_negocio') {
-          _leads[i].waPropostaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Ótimo momento para darmos o próximo passo! 🎯\n\nVocê tem interesse em fazer uma proposta? Posso te ajudar com todo o processo.';
-          await _enviarWA(_instancia, _contato, _msg, _leads[i]);
+          if (await _enviarWA(_instancia, _contato, _msg, _leads[i])) _leads[i].waPropostaEnviadoEm = new Date().toISOString();
         }
 
         console.log('[JOB FU] ✓ tipo:', fu.tipo, '| lead:', lead.nome || _contato);

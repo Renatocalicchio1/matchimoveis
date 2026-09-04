@@ -74,12 +74,24 @@ async function enviarWA(instancia, numero, texto) {
     // vez sem precisar mexer em cada um dos ~10 pontos que chamam isso.
     instancia = await instancia;
     const num = String(numero).replace(/\D/g,'');
-    if (!num || !instancia) return;
-    await fetch(`${EVOLUTION_URL}/message/sendText/${instancia}`, {
+    if (!num || !instancia) return false;
+    const r = await fetch(`${EVOLUTION_URL}/message/sendText/${instancia}`, {
       method:'POST', headers:{'Content-Type':'application/json','apikey':EVOLUTION_KEY},
       body:JSON.stringify({number:num,text:texto})
     });
-  } catch(e) { console.error('[VISITA WA]', e.message); }
+    // Mesmo conserto de server.js/match-core.js: uma falha da Evolution API
+    // (instância "conectada" no banco mas precisando de novo QR, número
+    // inválido etc.) volta como JSON válido, não como erro de rede — sem
+    // checar r.ok, essas falhas ficavam completamente invisíveis, nenhum
+    // log, nenhum jeito de saber que o proprietário/parceiro/cliente nunca
+    // recebeu o aviso de confirmação de visita.
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      console.error('[VISITA WA] falha ao enviar →', num, '| instância', instancia, '| status', r.status, '|', JSON.stringify(d).slice(0, 300));
+      return false;
+    }
+    return true;
+  } catch(e) { console.error('[VISITA WA]', e.message); return false; }
 }
 
 async function getInstancia(userId) {

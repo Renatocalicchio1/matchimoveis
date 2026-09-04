@@ -19,8 +19,14 @@
 .af-link-box span{white-space:nowrap;flex-shrink:0}
 .af-link-box button, .af-link-box a{flex-shrink:0}
 .af-table{width:100%;border-collapse:collapse;font-size:13px}
-.af-table th{text-align:left;color:#6b7280;font-weight:600;padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px}
-.af-table td{padding:8px;border-bottom:1px solid #f3f4f6}
+/* Mesmo bug do .af-link-box acima (mesma causa: word-break:break-word
+   global de app-shell.ejs) — sem nowrap, cabeçalho ("Data", "Status") e
+   telefone (sem espaço, "1 palavra" só) quebravam letra por letra dentro
+   da célula, mesmo a tabela já tendo overflow-x:auto no wrapper (bug real
+   reportado no mobile, set/2026). nowrap + o scroll horizontal que já
+   existe resolve — não precisa quebrar linha dentro da célula. */
+.af-table th{text-align:left;color:#6b7280;font-weight:600;padding:8px;border-bottom:1px solid #e5e7eb;font-size:12px;white-space:nowrap}
+.af-table td{padding:8px;border-bottom:1px solid #f3f4f6;white-space:nowrap}
 /* Organograma — padrão clássico de árvore em CSS puro (conectores via borda
    em ::before/::after), estilo genealogia de rede multinível. */
 .af-orgchart-wrap{overflow-x:auto;overflow-y:hidden;padding:8px 0}

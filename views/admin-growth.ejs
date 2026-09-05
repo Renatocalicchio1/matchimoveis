@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Growth · Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
+<%- adminShellCss %>
+.admin-content{max-width:1200px}
+h1{font-size:18px;font-weight:700;margin-bottom:4px}
+.lede{color:#888;font-size:12.5px;margin-bottom:22px;max-width:74ch;line-height:1.6}
+h2.secao{font-size:15px;font-weight:700;margin:36px 0 4px;color:#111}
+.secao-sub{font-size:12px;color:#888;margin-bottom:16px}
+
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:700px){.kpis{grid-template-columns:1fr}}
+.kpi{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px 18px}
+.kpi .n{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.kpi .l{font-size:10.5px;color:#888;text-transform:uppercase;letter-spacing:.03em;margin-top:2px}
+.kpi.dau{border-left:3px solid #FF385C}
+.kpi.wau{border-left:3px solid #FC642D}
+.kpi.mau{border-left:3px solid #00A699}
+
+.seg-bars{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:18px 20px;margin-bottom:22px}
+.sb-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.sb-row:last-child{margin-bottom:0}
+.sb-label{width:110px;flex-shrink:0;font-size:12.5px;font-weight:600;color:#374151}
+.sb-track{flex:1;height:20px;background:#f5f5f4;border-radius:6px;overflow:hidden}
+.sb-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;min-width:2px}
+.sb-fill span{font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap}
+.sb-count{width:110px;flex-shrink:0;text-align:right;font-size:12px;color:#6b7280;font-variant-numeric:tabular-nums}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:#9ca3af;padding:8px 14px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid #f5f5f4;font-size:12.5px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tabela-wrap{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden;margin-bottom:22px}
+.tabela-scroll{overflow-x:auto}
+.num{font-variant-numeric:tabular-nums;font-weight:600}
+.vazio{text-align:center;padding:40px 20px;color:#aaa}
+footer.nota{margin-top:28px;font-size:11.5px;color:#9ca3af;line-height:1.7;max-width:80ch}
+</style>
+</head>
+<body>
+<div class="admin-app">
+<%- adminSidebar %>
+<main class="admin-content">
+  <h1>📈 Growth — Motor de Retenção</h1>
+  <p class="lede">Direto de <code>atividade_diaria</code> (Fase 4) — nunca de login. Login não é sinal de uso real; essas métricas só contam ação de valor de verdade.</p>
+
+  <div class="kpis">
+    <div class="kpi dau"><div class="n"><%= dau.toLocaleString('pt-BR') %></div><div class="l">DAU · ativos hoje</div></div>
+    <div class="kpi wau"><div class="n"><%= wau.toLocaleString('pt-BR') %></div><div class="l">WAU · ativos 7 dias</div></div>
+    <div class="kpi mau"><div class="n"><%= mau.toLocaleString('pt-BR') %></div><div class="l">MAU · ativos 30 dias</div></div>
+  </div>
+
+  <h2 class="secao">Segmentação — <%= totalAtivos.toLocaleString('pt-BR') %> contas ativas</h2>
+  <p class="secao-sub">3 baldes simples por recência de atividade real. Versão completa (5 segmentos incluindo Power User/Returning) fica em <code>services/segmentacaoUsuario.js</code>, pensada pra mirar campanha pontual, não pra essa visão agregada.</p>
+  <div class="seg-bars">
+    <% const _totalSeg = (segmentos.ativo||0) + (segmentos.em_risco||0) + (segmentos.dormente||0); %>
+    <% const _segRows = [
+      {l:'Ativo (≤3d)', v: segmentos.ativo||0, c:'#00A699'},
+      {l:'Em risco (4-14d)', v: segmentos.em_risco||0, c:'#FC642D'},
+      {l:'Dormente (14d+)', v: segmentos.dormente||0, c:'#9ca3af'}
+    ]; %>
+    <% _segRows.forEach(function(s){ const pct = _totalSeg ? Math.round(s.v/_totalSeg*100) : 0; %>
+    <div class="sb-row">
+      <div class="sb-label"><%= s.l %></div>
+      <div class="sb-track"><div class="sb-fill" style="width:<%= Math.max(pct,3) %>%;background:<%= s.c %>"><span><%= pct %>%</span></div></div>
+      <div class="sb-count"><%= s.v.toLocaleString('pt-BR') %> conta<%= s.v===1?'':'s' %></div>
+    </div>
+    <% }) %>
+  </div>
+
+  <h2 class="secao">Ações registradas — últimos 30 dias</h2>
+  <p class="secao-sub">Todo tipo de ação que já entra em <code>atividade_diaria</code> (Fase 4) — só o que o corretor decide fazer, nunca evento automático.</p>
+  <% if (!acoesPorTipo.length) { %>
+  <div class="tabela-wrap"><div class="vazio">Nenhuma ação registrada ainda nos últimos 30 dias.</div></div>
+  <% } else { %>
+  <div class="tabela-wrap">
+  <div class="tabela-scroll">
+  <table>
+    <thead><tr><th>Tipo de ação</th><th>Quantidade</th></tr></thead>
+    <tbody>
+      <% acoesPorTipo.forEach(function(a){ %>
+      <tr><td><%= a.tipo_acao %></td><td class="num"><%= a.n.toLocaleString('pt-BR') %></td></tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+  </div>
+  <% } %>
+
+  <h2 class="secao">Nível dos corretores</h2>
+  <p class="secao-sub">Distribuição atual do Sistema de Nível (Fase 5) — NOVO é o padrão de quem ainda não bateu o 1º limiar (dias ativos + resultado comercial).</p>
+  <div class="tabela-wrap">
+  <div class="tabela-scroll">
+  <table>
+    <thead><tr><th>Nível</th><th>Contas</th></tr></thead>
+    <tbody>
+      <% niveis.forEach(function(nv){ %>
+      <tr><td><%= nv.nivel %></td><td class="num"><%= nv.n.toLocaleString('pt-BR') %></td></tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+  </div>
+
+  <footer class="nota">
+    <strong>DAU/WAU/MAU:</strong> corretores distintos com pelo menos 1 linha em <code>atividade_diaria</code> na janela — 1/7/30 dias corridos, não dia-calendário. <strong>Segmentação:</strong> "dormente" inclui quem nunca teve nenhuma ação registrada (conta anterior à Fase 4 ou que nunca usou nenhuma das 14 rotas conectadas). Limiares (3/14 dias) são os mesmos usados em <code>services/segmentacaoUsuario.js</code>.
+  </footer>
+</main>
+</div>
+</body>
+</html>

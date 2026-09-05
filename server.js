@@ -710,6 +710,7 @@ const _ADMIN_NAV = [
   ]},
   { sec: 'Administração', items: [
     { key: 'funil', href: '/admin/funil', icon: '🧭', label: 'Funil de Vendas' },
+    { key: 'growth', href: '/admin/growth', icon: '📈', label: 'Growth (Motor de Retenção)' },
     { key: 'afiliados-admin', href: '/admin/afiliados', icon: '🌳', label: 'Afiliados' },
     { key: 'comissoes-pendentes', href: '/admin/comissoes-pendentes', icon: '💸', label: 'Comissões Pendentes' },
     { key: 'pagamentos', href: '/admin/pagamentos', icon: '💳', label: 'Pagamentos e Tentativas' }
@@ -1120,6 +1121,55 @@ function _limiteMemoriaContainer() {
   } catch(e) {}
   return null;
 }
+
+// Motor de Retenção, Fase 15 — Métricas de growth (ver CLAUDE.md).
+// DAU/WAU/MAU direto de atividade_diaria (Fase 4) — nunca de login
+// (usuarios.ultimo_acesso só atualiza no login, não é sinal de uso real,
+// gargalo já documentado na Fase 1). Segmentação em 3 baldes simples
+// (ativo ≤3d / em risco 4-14d / dormente 14d+) via 1 query agregada — a
+// versão completa de 5 segmentos (services/segmentacaoUsuario.js) é
+// por-usuário e não escala bem pra uma página agregada, fica reservada
+// pra uso pontual (ex: mirar campanha de reengajamento).
+app.get('/admin/growth', authAdmin, async (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).send('Acesso restrito ao administrador principal.');
+  try {
+    const { query: _qGrowth } = require('./services/db');
+    const _dau = await _qGrowth(`SELECT COUNT(DISTINCT usuario_id)::int AS n FROM atividade_diaria WHERE criado_em > now() - interval '1 day'`);
+    const _wau = await _qGrowth(`SELECT COUNT(DISTINCT usuario_id)::int AS n FROM atividade_diaria WHERE criado_em > now() - interval '7 days'`);
+    const _mau = await _qGrowth(`SELECT COUNT(DISTINCT usuario_id)::int AS n FROM atividade_diaria WHERE criado_em > now() - interval '30 days'`);
+    const _segmentos = await _qGrowth(`
+      WITH ultima AS (
+        SELECT usuario_id, MAX(criado_em) AS ultima FROM atividade_diaria GROUP BY usuario_id
+      ),
+      base AS (
+        SELECT u.codigo_usuario AS uid, ul.ultima
+        FROM usuarios u
+        LEFT JOIN ultima ul ON ul.usuario_id = u.codigo_usuario
+        WHERE u.ativo = true AND u.tipo != 'admin'
+      )
+      SELECT
+        COUNT(*) FILTER (WHERE ultima IS NULL OR ultima < now() - interval '14 days')::int AS dormente,
+        COUNT(*) FILTER (WHERE ultima >= now() - interval '14 days' AND ultima < now() - interval '3 days')::int AS em_risco,
+        COUNT(*) FILTER (WHERE ultima >= now() - interval '3 days')::int AS ativo
+      FROM base
+    `);
+    const _totalAtivos = (_cacheUsuarios || []).filter(u => u.tipo !== 'admin' && u.ativo !== false).length;
+    const _acoesPorTipo = await _qGrowth(`SELECT tipo_acao, COUNT(*)::int AS n FROM atividade_diaria WHERE criado_em > now() - interval '30 days' GROUP BY tipo_acao ORDER BY n DESC`);
+    const _niveis = await _qGrowth(`SELECT COALESCE(dados->>'nivelCorretor','NOVO') AS nivel, COUNT(*)::int AS n FROM usuarios WHERE ativo=true AND tipo != 'admin' GROUP BY 1`);
+
+    res.render('admin-growth', {
+      dau: _dau.rows[0].n, wau: _wau.rows[0].n, mau: _mau.rows[0].n,
+      totalAtivos: _totalAtivos,
+      segmentos: _segmentos.rows[0],
+      acoesPorTipo: _acoesPorTipo.rows,
+      niveis: _niveis.rows,
+      adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('growth', _sidebarPerm(req), req)
+    });
+  } catch (e) {
+    console.error('[admin/growth]', e.message);
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
 
 app.get('/admin/status', authAdmin, async (req, res) => {
   try {
@@ -6885,8 +6935,16 @@ app.get('/app-home', auth, async (req,res)=>{
         abertas = r.rows;
       } catch (e) { console.error('[app-home radar]', e.message); }
       const maisAntiga = abertas[0] || null;
+      // Nível (Fase 5) — selo de reconhecimento, sem nenhum efeito em
+      // distribuição de lead (decisão explícita, ver CLAUDE.md).
+      let nivel = 'NOVO';
+      try {
+        const _uRadarNivel = (_cacheUsuarios || []).find(u => u.id === user.id);
+        nivel = (_uRadarNivel && _uRadarNivel.nivelCorretor) || 'NOVO';
+      } catch (e) {}
       return {
         streak,
+        nivel,
         total: abertas.length,
         urgente: maisAntiga ? { horas: Math.round((Date.now() - new Date(maisAntiga.criado_em).getTime()) / 3600000) } : null
       };
@@ -7548,7 +7606,11 @@ app.post('/app/perfil', auth, async (req,res)=>{
     ...(_regioesPerfil !== undefined ? { regioesAtuacao: _regioesPerfil } : {}),
     ...(req.body.areaAtuacaoEstado !== undefined ? { areaAtuacaoEstado: String(req.body.areaAtuacaoEstado || '').trim() } : {}),
     ...(_areaCidadesPerfil !== undefined ? { areaAtuacaoCidades: _areaCidadesPerfil } : {}),
-    ...(_areaBairrosPerfil !== undefined ? { areaAtuacaoBairros: _areaBairrosPerfil } : {})
+    ...(_areaBairrosPerfil !== undefined ? { areaAtuacaoBairros: _areaBairrosPerfil } : {}),
+    // Ranking (Motor de Retenção, Fase 6, ver CLAUDE.md) — privado por
+    // padrão; só aparece pra outros corretores se o checkbox foi marcado
+    // explicitamente. Sem o hidden no form, não mexe (mesmo padrão acima).
+    ...(req.body.rankingOptIn !== undefined ? { rankingOptIn: req.body.rankingOptIn === '1' || req.body.rankingOptIn === 'true' } : {})
   };
   await _auPerfil(uid, dados).catch(e=>console.error("[perfil]",e.message));
   req.session.user = { ...req.session.user, ...dados };
@@ -14953,7 +15015,38 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     emailsLead = _rEmailsLead.rows;
   } catch (eEmailsLead) { console.error('[lead-detalhe] emails:', eEmailsLead.message); }
 
-  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados, emailsLead, voltarPara: req.query.voltar });
+  // Motor de Retenção, Fase 11 (ver CLAUDE.md) — "linha do tempo causal":
+  // tudo que já foi feito por essa lead específica, direto da tabela
+  // atividade_diaria (Fase 4), entra junto com o resto da Timeline de
+  // eventos que app-lead-detalhe.ejs já monta (tlEventos) — não é
+  // componente novo. Só os tipos que a timeline existente AINDA NÃO
+  // cobre por outra fonte (lead_manual/lead_classificada/visita_agendada
+  // já aparecem via campos da própria lead — incluir de novo aqui
+  // duplicaria a mesma linha duas vezes).
+  const _ROTULOS_TIMELINE_ATIVIDADE = {
+    mensagem_enviada: { ic: '💬', acao: 'Mensagem enviada por WhatsApp' },
+    visita_checkin: { ic: '📍', acao: 'Check-in na visita' },
+    visita_finalizada: { ic: '🏁', acao: 'Visita finalizada' },
+    visita_concluida: { ic: '✅', acao: 'Visita concluída' },
+    proposta_registrada: { ic: '📝', acao: 'Proposta registrada' },
+    negocio_fechado: { ic: '🤝', acao: 'Negócio fechado' },
+    negocio_perdido: { ic: '❌', acao: 'Negócio perdido' },
+    parceiro_confirmado: { ic: '🤝', acao: 'Parceiro confirmou disponibilidade' },
+    proprietario_confirmado: { ic: '🔑', acao: 'Proprietário confirmou disponibilidade' }
+  };
+  let timelineAcoes = [];
+  try {
+    const { query: _qTimelineLead } = require('./services/db');
+    const _rTimeline = await _qTimelineLead(
+      `SELECT tipo_acao, criado_em FROM atividade_diaria WHERE entidade_tipo='lead' AND entidade_id=$1 AND usuario_id=$2 ORDER BY criado_em ASC LIMIT 50`,
+      [String(lead.id), uid]
+    );
+    timelineAcoes = _rTimeline.rows
+      .filter(a => _ROTULOS_TIMELINE_ATIVIDADE[a.tipo_acao])
+      .map(a => ({ ic: _ROTULOS_TIMELINE_ATIVIDADE[a.tipo_acao].ic, acao: _ROTULOS_TIMELINE_ATIVIDADE[a.tipo_acao].acao, det: '', data: a.criado_em }));
+  } catch (eTimelineLead) { console.error('[lead-detalhe] timeline:', eTimelineLead.message); }
+
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados, emailsLead, timelineAcoes, voltarPara: req.query.voltar });
 });
 // Dono real do imóvel = mesmo critério usado em lerImoveis()/salvarImovel.js — userId/usuarioId/codigoUsuario/corretorId
 function _ehDonoDoImovel(imovel, user) {
@@ -20242,6 +20335,26 @@ app.get('/app/feed', auth, async (req, res) => {
       _naoVistos = _todosValidos;
     }
     let imoveis = _naoVistos;
+
+    // Motor de Retenção, Fase 8 — Personalização (ver CLAUDE.md): afinidade
+    // de tipo de imóvel, a partir das próprias curtidas do corretor
+    // (dados.likes) — nunca sobrepõe a cascata geográfica acima, só
+    // desempata dentro do mesmo balde de score (ver abaixo). Início frio:
+    // com menos de 5 curtidas no total, não personaliza.
+    let _afinidadeTipoTop = null;
+    try {
+      const rLikesFeed = await _qVF(
+        `SELECT tipo FROM imoveis WHERE dados->'likes' @> $1::jsonb`,
+        [JSON.stringify([{ userId: String(req.session.user.id) }])]
+      );
+      if (rLikesFeed.rows.length >= 5) {
+        const _contagemTipoFeed = {};
+        rLikesFeed.rows.forEach(row => { const t = (row.tipo || '').trim(); if (t) _contagemTipoFeed[t] = (_contagemTipoFeed[t] || 0) + 1; });
+        const _topEntryFeed = Object.entries(_contagemTipoFeed).sort((a, b) => b[1] - a[1])[0];
+        if (_topEntryFeed) _afinidadeTipoTop = _topEntryFeed[0];
+      }
+    } catch (e) { console.error('[feed] afinidade', e.message); }
+
     imoveis = imoveis.map(im => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';
@@ -20302,8 +20415,15 @@ app.get('/app/feed', auth, async (req, res) => {
       });
       semVid = Object.keys(_baldes).map(Number).sort((a,b)=>b-a).flatMap(b => {
         const lista = _baldes[b];
-        for(let i=lista.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lista[i],lista[j]]=[lista[j],lista[i]];}
-        return lista;
+        // Fase 8 — dentro do MESMO balde, imóveis que batem a afinidade de
+        // tipo sobem; embaralho continua rodando dentro de cada metade, pra
+        // manter a variação leve já existente entre atualizações.
+        const _combinaAfin = _afinidadeTipoTop ? lista.filter(im => (im.tipo || '') === _afinidadeTipoTop) : [];
+        const _restoAfin = _afinidadeTipoTop ? lista.filter(im => (im.tipo || '') !== _afinidadeTipoTop) : lista;
+        [_combinaAfin, _restoAfin].forEach(l => {
+          for(let i=l.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]];}
+        });
+        return [..._combinaAfin, ..._restoAfin];
       });
       g.length = 0; comVid.forEach(i => g.push(i)); semVid.forEach(i => g.push(i));
     });
@@ -20872,11 +20992,43 @@ function _construirDadosResumo(user) {
   return { cards, buscaIndex, leadsResumo };
 }
 
+// Motor de Retenção, Fase 11 — "Resolvido recentemente" (ver CLAUDE.md):
+// o espelho do que já está pendente nos cards acima — oportunidades que
+// fecharam (estado='agido') nas últimas 48h, sempre no fim do carrossel
+// (baixa prioridade, não é acionável). Zero dado novo: mesma tabela
+// oportunidades da Fase 9, só olhando pro outro lado do ciclo de vida.
+const _ROTULOS_OPORTUNIDADE_RESOLVIDA = { novo_lead: 'Lead atendida', novo_match: 'Match trabalhado' };
+async function _cardsResolvidosRecentemente(userId) {
+  try {
+    const { query: _qResolvidos } = require('./services/db');
+    const r = await _qResolvidos(
+      `SELECT tipo, entidade_tipo, entidade_id, agido_em FROM oportunidades
+       WHERE usuario_id=$1 AND estado='agido' AND agido_em > now() - interval '48 hours'
+       ORDER BY agido_em DESC LIMIT 5`,
+      [String(userId)]
+    );
+    const _tempoRel = iso => {
+      const min = (Date.now() - new Date(iso).getTime()) / 60000;
+      if (min < 60) return 'há ' + Math.max(Math.round(min), 1) + ' min';
+      const h = min / 60;
+      return h < 24 ? 'há ' + Math.round(h) + 'h' : 'há ' + Math.floor(h / 24) + ' dias';
+    };
+    return r.rows.map(o => ({
+      ordem: 99,
+      cat: '✅ Resolvido recentemente', accent: '#00A699', tag: 'babu', tagText: '✅ RESOLVIDO',
+      icon: '✅', nome: '✅ ' + (_ROTULOS_OPORTUNIDADE_RESOLVIDA[o.tipo] || 'Oportunidade resolvida'),
+      detalhe: 'Fechada ' + _tempoRel(o.agido_em), time: _tempoRel(o.agido_em),
+      primary: 'Ver lead', primaryLink: o.entidade_tipo === 'lead' ? ('/app/lead/' + o.entidade_id) : undefined
+    }));
+  } catch (e) { console.error('[resumo] cards resolvidos', e.message); return []; }
+}
+
 // Sem entrada no menu ainda — só link direto, a pedido do Renato, pra
 // testar antes de decidir levar pro menu geral.
 app.get('/app/resumo', auth, async (req, res) => {
   const { cards, buscaIndex, leadsResumo } = _construirDadosResumo(req.session.user);
   const streak = await require('./services/atividadeDiaria').calcularStreak(req.session.user.id);
+  cards.push(...(await _cardsResolvidosRecentemente(req.session.user.id)));
   res.render('app-resumo', { user: req.session.user, cards, buscaIndex, leadsResumo, streak });
 });
 
@@ -20887,7 +21039,9 @@ app.get('/app/resumo', auth, async (req, res) => {
 app.get('/api/resumo/dados', auth, async (req, res) => {
   try {
     const streak = await require('./services/atividadeDiaria').calcularStreak(req.session.user.id);
-    res.json({ ok: true, ...(_construirDadosResumo(req.session.user)), streak });
+    const dados = _construirDadosResumo(req.session.user);
+    dados.cards.push(...(await _cardsResolvidosRecentemente(req.session.user.id)));
+    res.json({ ok: true, ...dados, streak });
   } catch (e) {
     console.error('[resumo] erro /api/resumo/dados:', e.message);
     res.json({ ok: false });
@@ -21302,6 +21456,27 @@ app.get('/api/favoritos', auth, async (req, res) => {
     const r = await _q('SELECT favoritos FROM usuarios WHERE id=$1', [req.session.user.id]);
     res.json({ ok: true, favoritos: r.rows[0]?.favoritos || [] });
   } catch(e) { res.json({ ok: false, favoritos: [] }); }
+});
+
+// Motor de Retenção, Fase 7 — push do zero (ver CLAUDE.md). Chave pública
+// é informação pública por natureza do protocolo VAPID — servir sem auth
+// não expõe nada sensível (a privada nunca sai do servidor).
+app.get('/api/push/vapid-public-key', (req, res) => {
+  res.json({ chave: require('./services/pushNotificacoes').chavePublica() });
+});
+
+app.post('/api/push/subscribe', auth, async (req, res) => {
+  try {
+    const ok = await require('./services/pushNotificacoes').inscrever(req.session.user.id, req.body.subscription);
+    res.json({ ok });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/api/push/unsubscribe', auth, async (req, res) => {
+  try {
+    await require('./services/pushNotificacoes').desinscrever(req.body.endpoint);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 
 app.post('/api/favoritos/toggle', auth, async (req, res) => {

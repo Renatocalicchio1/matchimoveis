@@ -60,5 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }, {passive:true});
 })();
 </script>
+<script>
+// Motor de Retenção, Fase 7 — Notification Engine (ver CLAUDE.md).
+// sw.js existia (cache offline) mas nunca era registrado por nenhuma
+// tela — sem registro, o service worker nunca rodava de verdade e push
+// nunca teria como chegar. Registro global aqui, presente em toda tela
+// /app/*, condição pra qualquer inscrição de push funcionar.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(function(e){ console.error('[sw]', e); });
+}
+</script>
 </body>
 </html>

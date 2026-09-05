@@ -93,6 +93,9 @@
   <% if (radar.streak && radar.streak.atual > 0) { %>
   <span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;background:#FFF1E8;color:#b8460e;padding:4px 10px;border-radius:999px">🔥 <%= radar.streak.atual %> dias</span>
   <% } %>
+  <% if (radar.nivel && radar.nivel !== 'NOVO') { %>
+  <span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;background:var(--brand-light);color:var(--brand-dark);padding:4px 10px;border-radius:999px">🏅 <%= radar.nivel %></span>
+  <% } %>
   <% if (radar.total > 0) { %>
     <span style="font-size:13px;color:var(--text-sec);flex:1;min-width:200px">
       <b style="color:var(--text)"><%= radar.total %></b> oportunidade<%= radar.total===1?'':'s' %> aberta<%= radar.total===1?'':'s' %>

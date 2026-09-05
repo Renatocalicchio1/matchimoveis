@@ -48,6 +48,30 @@ async function enviarEmailResumo() {
         const visitasDoUsuario = await lerVisitas(uid);
         const visitas = visitasDoUsuario.filter(v => new Date(v.data || v.createdAt || 0).getTime() >= quinzeDiasAtras).length;
 
+        // Motor de Retenção, Fase 11 (ver CLAUDE.md) — "retorno agregado":
+        // funil ação → resultado dos últimos 15 dias, direto de
+        // atividade_diaria (Fase 4). Só entra no email se houver pelo menos
+        // 1 ação real no período — nunca um "0 ações" forçado.
+        let retornoHtml = '';
+        try {
+          const { rows: acoesRows } = await query(
+            `SELECT tipo_acao, COUNT(*)::int AS n FROM atividade_diaria WHERE usuario_id=$1 AND criado_em >= $2::timestamptz GROUP BY tipo_acao`,
+            [uid, new Date(quinzeDiasAtras).toISOString()]
+          );
+          const contagemAcoes = {};
+          acoesRows.forEach(r => { contagemAcoes[r.tipo_acao] = r.n; });
+          const totalAcoes = Object.values(contagemAcoes).reduce((s, n) => s + n, 0);
+          if (totalAcoes > 0) {
+            const nMsg = contagemAcoes.mensagem_enviada || 0;
+            const nVisitaAg = contagemAcoes.visita_agendada || 0;
+            const nFechado = contagemAcoes.negocio_fechado || 0;
+            retornoHtml = `<div style="background:#e6f7f5;border:1px solid #b9e6df;border-radius:8px;padding:16px;margin:16px 0">
+              <p style="margin:0 0 6px;font-weight:bold;color:#00695c">📈 O que suas ações geraram nos últimos 15 dias</p>
+              <p style="margin:0;color:#00695c;font-size:14px">${nMsg} mensagem${nMsg===1?'':'ns'} enviada${nMsg===1?'':'s'} → ${nVisitaAg} visita${nVisitaAg===1?'':'s'} agendada${nVisitaAg===1?'':'s'} → ${nFechado} negócio${nFechado===1?'':'s'} fechado${nFechado===1?'':'s'}</p>
+            </div>`;
+          }
+        } catch (eRetorno) { console.error('[RESUMO EMAIL] retorno:', eRetorno.message); }
+
         const waStatus = u.whatsapp_status === 'open' ? '✅ Conectado' : '❌ Desconectado';
         const waAlerta = u.whatsapp_status !== 'open' ? `<p style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px;color:#dc2626">⚠️ Seu WhatsApp está desconectado! <a href="${BASE_URL}/app/perfil" style="color:#dc2626;font-weight:bold">Reconectar →</a></p>` : '';
 
@@ -81,6 +105,7 @@ async function enviarEmailResumo() {
               <td style="padding:12px;border:1px solid #e5e7eb;font-weight:bold">${visitas}</td>
             </tr>
           </table>
+          ${retornoHtml}
           <a href="${BASE_URL}/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a>
           <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.ia.br</p>
           <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="${BASE_URL}/email/cancelar?u=${uid}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="${BASE_URL}/conta/excluir?u=${uid}" style="color:#9ca3af">Excluir minha conta</a></p>

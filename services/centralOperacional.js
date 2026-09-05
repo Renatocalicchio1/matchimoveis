@@ -336,12 +336,38 @@ async function responderCentral(user, texto, dadosExternos = {}) {
     var semMatchCount = (ctx.leadsMatch||[]).filter(function(l){ return !l.matchesBase || l.matchesBase.length === 0; }).length;
     var uidRes = getUserKey(user);
     var semPropCount = (ctx.imoveis||[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uidRes && (!i.proprietario || !i.proprietario.telefone); }).length;
-    var rr = 'Resumo do dia:\n';
-    rr += 'Visitas hoje: ' + visitasHoje.length + '\n';
-    rr += 'Leads novas hoje: ' + leadsHoje.length + '\n';
-    rr += 'Leads com match: ' + resumo.leadsComMatch + '\n';
-    rr += 'Leads sem match: ' + semMatchCount + '\n';
-    rr += 'Imoveis sem proprietario: ' + semPropCount;
+
+    // Motor de Retenção, Fase 12 (ver CLAUDE.md) — "IA como gerente
+    // comercial": mesma fonte de dado (services/resumoGerente.js) usada
+    // pela saudação do assistente e pela faixa Radar Match do /app-home.
+    // Prioridade primeiro (o que precisa de decisão agora), contexto
+    // depois, reconhecimento por último e só quando há resultado real.
+    var rr = '';
+    try {
+      var { montarResumoGerente } = require('./resumoGerente');
+      var rg = await montarResumoGerente(uidRes);
+      if (rg.oportunidades && rg.oportunidades.urgente && rg.oportunidades.urgente.horas >= 4) {
+        rr += '⚡ Prioridade agora: uma oportunidade já espera há ' + rg.oportunidades.urgente.horas + 'h.\n\n';
+      }
+      rr += 'Resumo do dia:\n';
+      rr += 'Visitas hoje: ' + visitasHoje.length + '\n';
+      rr += 'Leads novas hoje: ' + leadsHoje.length + '\n';
+      rr += 'Leads com match: ' + resumo.leadsComMatch + '\n';
+      rr += 'Leads sem match: ' + semMatchCount + '\n';
+      rr += 'Imoveis sem proprietario: ' + semPropCount;
+      if (rg.streak && rg.streak.atual > 0) rr += '\n🔥 Sequência: ' + rg.streak.atual + ' dia(s)';
+      if (rg.oportunidades && rg.oportunidades.total > 0) rr += '\n🎯 Oportunidades abertas: ' + rg.oportunidades.total;
+      if (rg.resolvidas48h > 0) rr += '\n✅ Resolvidas nas últimas 48h: ' + rg.resolvidas48h;
+      if (rg.ranking) rr += '\n📊 Posição: ' + rg.ranking.posicao + 'º de ' + rg.ranking.totalGrupo + ' na sua região';
+    } catch (eResumoGerente) {
+      console.error('[central] resumo gerente:', eResumoGerente.message);
+      rr = 'Resumo do dia:\n';
+      rr += 'Visitas hoje: ' + visitasHoje.length + '\n';
+      rr += 'Leads novas hoje: ' + leadsHoje.length + '\n';
+      rr += 'Leads com match: ' + resumo.leadsComMatch + '\n';
+      rr += 'Leads sem match: ' + semMatchCount + '\n';
+      rr += 'Imoveis sem proprietario: ' + semPropCount;
+    }
     if (visitasHoje.length > 0) rr += '\nAtencao: voce tem visitas hoje!';
     if (semMatchCount > 5) rr += '\nDica: rode o match base interna!';
     registrarHistorico(user, memoria, { tipo: 'resumo_diario', texto: texto });

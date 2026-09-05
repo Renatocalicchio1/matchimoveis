@@ -45,11 +45,32 @@ function _empurraoFunil(d) {
   return '';
 }
 
-function responderSaudacao(user, d, finalizar) {
+async function responderSaudacao(user, d, finalizar) {
   const hora = new Date().getHours();
   const saud = hora<12 ? 'Bom dia' : hora<18 ? 'Boa tarde' : 'Boa noite';
   let r = saud + ', <strong>' + (user.nome||'corretor') + '</strong>! 👋<br><br>';
   r += _empurraoFunil(d);
+
+  // Motor de Retenção, Fase 12 (ver CLAUDE.md) — "IA como gerente
+  // comercial": mesma fonte de dado (services/resumoGerente.js) usada
+  // pela faixa Radar Match do /app-home e pelo resumo_diario da Central
+  // Operacional, pra nunca uma superfície contradizer a outra. Sem
+  // sequência/oportunidade/resolvida real, a linha correspondente
+  // simplesmente não aparece — nunca um reconhecimento vazio.
+  try {
+    const uidResumo = user.id || user.codigoUsuario || user.userId || '';
+    const { montarResumoGerente } = require('../services/resumoGerente');
+    const rg = await montarResumoGerente(uidResumo);
+    if (rg.streak && rg.streak.atual > 0) r += '🔥 <strong>' + rg.streak.atual + ' dia(s)</strong> de sequência<br>';
+    if (rg.oportunidades && rg.oportunidades.total > 0) {
+      r += '🎯 <strong>' + rg.oportunidades.total + ' oportunidade(s)</strong> aberta(s)';
+      if (rg.oportunidades.urgente && rg.oportunidades.urgente.horas >= 4) r += ' — a mais antiga já espera há <strong>' + rg.oportunidades.urgente.horas + 'h</strong>';
+      r += '<br>';
+    }
+    if (rg.resolvidas48h > 0) r += '✅ <strong>' + rg.resolvidas48h + '</strong> resolvida(s) nas últimas 48h<br>';
+    if (rg.ranking) r += '📊 <strong>' + rg.ranking.posicao + 'º</strong> de ' + rg.ranking.totalGrupo + ' na sua região<br>';
+  } catch (e) { console.error('[cerebro] resumo gerente:', e.message); }
+
   if (d.pendentes > 0) r += '⚠️ <strong>' + d.pendentes + ' visita(s) pendente(s)</strong><br>';
   if (d.semMatch > 0) r += '📋 <strong>' + d.semMatch + ' lead(s) sem match</strong><br>';
   r += '<br>Como posso te ajudar?<br><br>';
@@ -73,7 +94,7 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
 
   // ── 1. SAUDAÇÃO ──────────────────────────────────────────────────────────────
   if (ehSaudacao(mensagem)) {
-    return finalizar(responderSaudacao(user, d, r => r));
+    return responderSaudacao(user, d, r => r).then(finalizar);
   }
 
   // ── 2. GROQ COM CONTEXTO RICO ────────────────────────────────────────────────

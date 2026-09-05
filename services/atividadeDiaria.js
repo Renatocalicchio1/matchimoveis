@@ -40,6 +40,10 @@ async function registrarAtividade(usuarioId, tipoAcao, opts) {
     if (o.entidadeTipo && o.entidadeId != null) {
       require('./oportunidades').marcarAgidaPorEntidade(usuarioId, o.entidadeTipo, o.entidadeId);
     }
+    // Toda ação de valor é o gatilho de checagem de nível (Fase 5) — mesmo
+    // padrão do afiliado (checa depois de todo evento relevante, barato
+    // quando não promove).
+    require('./nivelCorretor').checarPromocaoNivel(usuarioId);
   } catch (e) {
     console.error('[atividadeDiaria] falha ao registrar', tipoAcao, e.message);
   }

@@ -520,6 +520,10 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       (lead.historico||[]).forEach(h => {
         if(h.acao !== 'visualizou_detalhes_lead') tlEventos.push({ ic:'📋', acao:h.acao, det:'', data:h.data||'' });
       });
+      // Motor de Retenção, Fase 11 (ver CLAUDE.md) — ações reais registradas
+      // em atividade_diaria (Fase 4) que a timeline acima ainda não cobria
+      // por nenhuma outra fonte.
+      (typeof timelineAcoes!=='undefined'?timelineAcoes:[]).forEach(a => tlEventos.push(a));
       tlEventos.sort((a,b) => new Date(b.data||0)-new Date(a.data||0));
       %>
       <% if(tlEventos.length) { %>

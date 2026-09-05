@@ -17,15 +17,19 @@ function _hojeBrasilia() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
 }
 
-// Dedup por tipo (+ lead, quando aplicável) numa janela de horas —
-// generaliza o padrão já usado no job de propensão.
+// Dedup por tipo+entidade numa janela de horas — generaliza o padrão já
+// usado no job de propensão. SÓ deduplica quando há uma entidade real
+// (leadId) pra comparar — sem isso, "mesmo tipo" pode ser 2 eventos
+// genuinamente diferentes (ex: 2 comissões de afiliado no mesmo dia), e
+// deduplicar por tipo sozinho apagaria notificação legítima em vez de
+// repetida. Achado ao migrar os call sites legados (ver CLAUDE.md).
 async function _dedupRecente(usuarioId, tipo, leadId, horasJanela) {
-  if (!dbOk()) return false;
+  if (!dbOk() || !leadId) return false;
   try {
     const r = await getPool().query(
-      `SELECT 1 FROM notificacoes WHERE usuario_id=$1 AND tipo=$2 AND ($3::text IS NULL OR lead_id=$3)
+      `SELECT 1 FROM notificacoes WHERE usuario_id=$1 AND tipo=$2 AND lead_id=$3
        AND criada_em::timestamptz > now() - ($4 || ' hours')::interval LIMIT 1`,
-      [String(usuarioId), tipo, leadId ? String(leadId) : null, String(horasJanela || 24)]
+      [String(usuarioId), tipo, String(leadId), String(horasJanela || 24)]
     );
     return r.rows.length > 0;
   } catch (e) { console.error('[notificationEngine] dedup', e.message); return false; }

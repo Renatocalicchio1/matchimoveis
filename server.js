@@ -16606,15 +16606,16 @@ async function _checarPromocaoAfiliado(codigo) {
     await _auProm(codigo, _camposNivelAfiliado(novoNivel));
     u.afiliadoNivel = novoNivel;
     if (novoNivel === 1) u.indicadoPor = null;
-    criarNotificacaoService({
-      id: Date.now().toString() + '_promafiliado',
+    // Motor de Retenção, Fase 7 (ver CLAUDE.md) — migrado pro engine
+    // central: promoção de nível é transição de estado única (nunca repete
+    // pro mesmo nível), então cap/dedup não têm como suprimir nada real
+    // aqui — mesmo raciocínio já aplicado em nivel_promocao (Fase 5).
+    require('./services/notificationEngine').decidirNotificacao(codigo, {
       tipo: 'afiliado_promocao',
+      tier: 'reconhecimento',
       titulo: '🚀 Você subiu de nível no programa de afiliados!',
-      mensagem: 'Parabéns! Você agora é Nível ' + novoNivel + ' no programa de afiliados.',
-      usuarioId: codigo,
-      lida: false,
-      criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
-    });
+      mensagem: 'Parabéns! Você agora é Nível ' + novoNivel + ' no programa de afiliados.'
+    }).catch(e => console.error('[afiliado-promocao] engine', e.message));
   } catch(e) { console.error('[afiliado-promocao]', e.message); }
 }
 
@@ -17173,15 +17174,17 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
         if (['account_update', 'account_review_update', 'account_alerts'].includes(change.field)) {
           console.log('[whatsapp-cloud] evento de conta (' + change.field + '):', JSON.stringify(change.value));
           try {
-            criarNotificacaoService({
-              id: Date.now().toString() + '_wa_conta_' + Math.random().toString(36).slice(2, 7),
+            // Motor de Retenção, Fase 7 (ver CLAUDE.md) — migrado pro
+            // engine central como urgente (push, se REN-G9K6 tiver
+            // ativado): evento raro e crítico o bastante pra justificar,
+            // sem leadId então o dedup fica desligado (nunca suprime um
+            // evento de conta real, mesmo repetido).
+            require('./services/notificationEngine').decidirNotificacao('REN-G9K6', {
               tipo: 'alerta_whatsapp_conta',
+              tier: 'urgente',
               titulo: 'Aviso da Meta sobre a conta do WhatsApp (' + change.field + ')',
-              mensagem: JSON.stringify(change.value).slice(0, 500),
-              usuarioId: 'REN-G9K6',
-              lida: false,
-              criadaEm: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
-            });
+              mensagem: JSON.stringify(change.value).slice(0, 500)
+            }).catch(e => console.error('[whatsapp-cloud] erro notif conta engine:', e.message));
           } catch (e) { console.error('[whatsapp-cloud] erro notif conta:', e.message); }
           continue;
         }
@@ -18022,6 +18025,23 @@ app.post('/admin/whatsapp-cloud/:telefone/responder-audio', authAdmin, _uploadAu
     res.json({ ok:true });
   } catch(e) {
     res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
+// Motor de Retenção, Fase 6 — tela pública de ranking (ver CLAUDE.md).
+// Só mostra quem optou (rankingOptIn=true) — reconhecimento, nunca
+// distribuição de lead. "Sua posição" sempre visível pro próprio dono,
+// mesmo que ele não tenha optado por aparecer pros outros.
+app.get('/app/ranking', auth, async (req, res) => {
+  try {
+    const user = (_cacheUsuarios || []).find(u => u.id === req.session.user.id) || req.session.user;
+    const { calcularPosicao, topOptIn } = require('./services/rankingCorretor');
+    const posicao = await calcularPosicao(req.session.user.id);
+    const top = posicao ? await topOptIn(posicao.tipo, posicao.estado, 10) : [];
+    res.render('app-ranking', { user: req.session.user, posicao, top, optIn: !!user.rankingOptIn });
+  } catch (e) {
+    console.error('[app/ranking]', e.message);
+    res.status(500).send('Erro ao carregar ranking.');
   }
 });
 
@@ -21023,12 +21043,36 @@ async function _cardsResolvidosRecentemente(userId) {
   } catch (e) { console.error('[resumo] cards resolvidos', e.message); return []; }
 }
 
+// Motor de Retenção, Fase 9 — liga o "✕ dispensar" aos cards já
+// existentes (em vez de criar cards duplicados a partir da tabela
+// oportunidades): qualquer card cujo primaryLink aponte pra uma lead com
+// oportunidade aberta (novo/visto) ganha o id real, pro botão de
+// dispensar aparecer nele.
+async function _anexarOportunidadeIds(cards, userId) {
+  try {
+    const { query: _qOportCards } = require('./services/db');
+    const r = await _qOportCards(
+      `SELECT id, entidade_id FROM oportunidades WHERE usuario_id=$1 AND estado IN ('novo','visto') AND entidade_tipo='lead'`,
+      [String(userId)]
+    );
+    const mapa = {};
+    r.rows.forEach(o => { mapa[String(o.entidade_id)] = o.id; });
+    cards.forEach(c => {
+      if (c.primaryLink && c.primaryLink.indexOf('/app/lead/') === 0) {
+        const leadId = c.primaryLink.slice('/app/lead/'.length);
+        if (mapa[leadId]) c.oportunidadeId = mapa[leadId];
+      }
+    });
+  } catch (e) { console.error('[resumo] anexar oportunidade ids', e.message); }
+}
+
 // Sem entrada no menu ainda — só link direto, a pedido do Renato, pra
 // testar antes de decidir levar pro menu geral.
 app.get('/app/resumo', auth, async (req, res) => {
   const { cards, buscaIndex, leadsResumo } = _construirDadosResumo(req.session.user);
   const streak = await require('./services/atividadeDiaria').calcularStreak(req.session.user.id);
   cards.push(...(await _cardsResolvidosRecentemente(req.session.user.id)));
+  await _anexarOportunidadeIds(cards, req.session.user.id);
   res.render('app-resumo', { user: req.session.user, cards, buscaIndex, leadsResumo, streak });
 });
 
@@ -21041,6 +21085,7 @@ app.get('/api/resumo/dados', auth, async (req, res) => {
     const streak = await require('./services/atividadeDiaria').calcularStreak(req.session.user.id);
     const dados = _construirDadosResumo(req.session.user);
     dados.cards.push(...(await _cardsResolvidosRecentemente(req.session.user.id)));
+    await _anexarOportunidadeIds(dados.cards, req.session.user.id);
     res.json({ ok: true, ...dados, streak });
   } catch (e) {
     console.error('[resumo] erro /api/resumo/dados:', e.message);
@@ -21475,6 +21520,20 @@ app.post('/api/push/subscribe', auth, async (req, res) => {
 app.post('/api/push/unsubscribe', auth, async (req, res) => {
   try {
     await require('./services/pushNotificacoes').desinscrever(req.body.endpoint);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Motor de Retenção, Fase 9 — "✕ dispensar" (ver CLAUDE.md). Só por
+// clique explícito do corretor, nunca inferido — dono confere via
+// usuario_id na própria query, sem precisar de checagem extra.
+app.post('/api/oportunidade/:id/dispensar', auth, async (req, res) => {
+  try {
+    const { query: _qDispensar } = require('./services/db');
+    await _qDispensar(
+      `UPDATE oportunidades SET estado='dispensado', dispensado_em=now() WHERE id=$1 AND usuario_id=$2 AND estado IN ('novo','visto')`,
+      [req.params.id, String(req.session.user.id)]
+    );
     res.json({ ok: true });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });

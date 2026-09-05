@@ -109,6 +109,8 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 .voice-sheet.open{transform:translateY(0)}
 .sheet-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink-dim);font-size:15px;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.15);z-index:45}
 .sheet-close.show{display:flex}
+.card-dismiss{position:fixed;top:calc(env(safe-area-inset-top,0px) + 68px);right:16px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(0,0,0,.5);color:#fff;font-size:13px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:21}
+.card-dismiss.show{display:flex}
 .voice-wave{display:flex;gap:4px;align-items:center;justify-content:center;height:30px;margin-bottom:14px}
 .voice-wave i{width:3.5px;border-radius:3px;background:var(--rausch);display:block;animation:wave 1s ease-in-out infinite}
 .voice-wave i:nth-child(1){height:10px;animation-delay:0s} .voice-wave i:nth-child(2){height:22px;animation-delay:.1s}
@@ -204,6 +206,12 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
   <div class="voice-sheet" id="infoSheet">
     <div id="infoContent"></div>
   </div>
+
+  <!-- Motor de Retenção, Fase 8/9 (ver CLAUDE.md) — "✕ dispensar" uma
+       oportunidade aberta (novo/visto → dispensado). Só aparece em cards
+       ligados a uma oportunidade real (c.oportunidadeId) — nunca some o
+       card, só marca o ciclo de vida como dispensado por decisão explícita. -->
+  <button type="button" class="card-dismiss" id="cardDismissBtn" title="Dispensar" aria-label="Dispensar">✕</button>
 
   <!-- Botão "✕" único, fora dos sheets (que crescem em altura conforme o
        conteúdo) — fica ancorado direto na tela, sempre no mesmo lugar e
@@ -467,6 +475,8 @@ if (CARDS.length) {
       body.style.display = 'none';
       actions.style.display = 'none';
       onbWrap.style.display = 'flex';
+      const dismissBtnOnb = document.getElementById('cardDismissBtn');
+      if (dismissBtnOnb) { dismissBtnOnb.classList.remove('show'); dismissBtnOnb.onclick = null; }
       if (c.tipoAcao === 'onboarding_xml') {
         onbWrap.innerHTML =
           (c.foto ? '<img class="k-foto" src="' + c.foto + '" alt="">' : '<span class="k-icon">' + c.icon + '</span>') +
@@ -491,6 +501,22 @@ if (CARDS.length) {
     actions.style.display = '';
     onbWrap.style.display = 'none';
     onbWrap.innerHTML = '';
+
+    // Motor de Retenção, Fase 8/9 — botão de dispensar aparece só em
+    // cards ligados a uma oportunidade real ainda aberta.
+    const dismissBtn = document.getElementById('cardDismissBtn');
+    if (dismissBtn) {
+      if (c.oportunidadeId) {
+        dismissBtn.classList.add('show');
+        dismissBtn.onclick = () => {
+          fetch('/api/oportunidade/' + c.oportunidadeId + '/dispensar', { method: 'POST' }).catch(() => {});
+          dismissBtn.classList.remove('show');
+        };
+      } else {
+        dismissBtn.classList.remove('show');
+        dismissBtn.onclick = null;
+      }
+    }
 
     body.innerHTML =
       _htmlFoto(c) +

@@ -6868,6 +6868,28 @@ app.get('/app-home', auth, async (req,res)=>{
       });
       const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]);
       return JSON.stringify(Object.fromEntries(sorted));
+    })(),
+    // Faixa "Radar Match" no topo do dashboard (Motor de Retenção, Fase 10
+    // — ver CLAUDE.md). Reaproveita a tabela oportunidades (Fase 9) e o
+    // streak (Fase 4) já calculados — não recalcula leads/visitas/imóveis
+    // de novo, que este mesmo GET já buscou acima.
+    radar: await (async () => {
+      const streak = await require('./services/atividadeDiaria').calcularStreak(user.id);
+      let abertas = [];
+      try {
+        const { query: _qRadarHome } = require('./services/db');
+        const r = await _qRadarHome(
+          `SELECT tipo, entidade_id, criado_em FROM oportunidades WHERE usuario_id=$1 AND estado IN ('novo','visto') ORDER BY criado_em ASC`,
+          [String(user.id)]
+        );
+        abertas = r.rows;
+      } catch (e) { console.error('[app-home radar]', e.message); }
+      const maisAntiga = abertas[0] || null;
+      return {
+        streak,
+        total: abertas.length,
+        urgente: maisAntiga ? { horas: Math.round((Date.now() - new Date(maisAntiga.criado_em).getTime()) / 3600000) } : null
+      };
     })()
   });
 });
@@ -14845,6 +14867,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   lead.atendidoEm = lead.atendidoEm || new Date().toISOString();
 
   atualizarLeadService(lead.id, { historico: lead.historico, mensagens: lead.mensagens, emAtendimento: true, atendidoEm: lead.atendidoEm }).catch(e=>console.error("[leads]",e.message));
+  require('./services/oportunidades').marcarVistaPorEntidade(uid, 'lead', lead.id);
 
   const visitas = (_cacheVisitas || []);
 
@@ -20851,18 +20874,20 @@ function _construirDadosResumo(user) {
 
 // Sem entrada no menu ainda — só link direto, a pedido do Renato, pra
 // testar antes de decidir levar pro menu geral.
-app.get('/app/resumo', auth, (req, res) => {
+app.get('/app/resumo', auth, async (req, res) => {
   const { cards, buscaIndex, leadsResumo } = _construirDadosResumo(req.session.user);
-  res.render('app-resumo', { user: req.session.user, cards, buscaIndex, leadsResumo });
+  const streak = await require('./services/atividadeDiaria').calcularStreak(req.session.user.id);
+  res.render('app-resumo', { user: req.session.user, cards, buscaIndex, leadsResumo, streak });
 });
 
 // Tempo real (set/2026, pedido do Renato: "vai ser tempo real, ele tem que
 // acessar o tempo real") — a página faz polling nessa rota a cada ~40s pra
 // atualizar os cards sem precisar recarregar a tela inteira. Mesma função
 // de montagem de dados do GET /app/resumo, só devolvendo JSON.
-app.get('/api/resumo/dados', auth, (req, res) => {
+app.get('/api/resumo/dados', auth, async (req, res) => {
   try {
-    res.json({ ok: true, ...(_construirDadosResumo(req.session.user)) });
+    const streak = await require('./services/atividadeDiaria').calcularStreak(req.session.user.id);
+    res.json({ ok: true, ...(_construirDadosResumo(req.session.user)), streak });
   } catch (e) {
     console.error('[resumo] erro /api/resumo/dados:', e.message);
     res.json({ ok: false });

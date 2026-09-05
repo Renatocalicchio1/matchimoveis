@@ -87,6 +87,26 @@
   <div class="clk-badge"><span class="pdot"></span><span id="clk"></span></div>
 </div>
 
+<% if (typeof radar !== 'undefined' && radar) { %>
+<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)">
+  <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--text-ter)">🎯 Radar Match</div>
+  <% if (radar.streak && radar.streak.atual > 0) { %>
+  <span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;background:#FFF1E8;color:#b8460e;padding:4px 10px;border-radius:999px">🔥 <%= radar.streak.atual %> dias</span>
+  <% } %>
+  <% if (radar.total > 0) { %>
+    <span style="font-size:13px;color:var(--text-sec);flex:1;min-width:200px">
+      <b style="color:var(--text)"><%= radar.total %></b> oportunidade<%= radar.total===1?'':'s' %> aberta<%= radar.total===1?'':'s' %>
+      <% if (radar.urgente && radar.urgente.horas >= 4) { %>
+        · <span style="color:#b3212f;font-weight:600">⚡ uma aguardando há <%= radar.urgente.horas %>h</span>
+      <% } %>
+    </span>
+    <a href="/app/resumo" style="font-size:12.5px;font-weight:700;color:#fff;background:var(--brand);padding:7px 14px;border-radius:10px;text-decoration:none;white-space:nowrap">Ver oportunidades</a>
+  <% } else { %>
+    <span style="font-size:13px;color:var(--text-ter);flex:1">Nada novo desde sua última visita — sua sequência continua.</span>
+  <% } %>
+</div>
+<% } %>
+
 <div class="ticker-bar">
   <div class="tkr red"><div class="tkr-lbl">Imóveis</div><div class="tkr-val" id="ki"><%= stats.imoveisAtivos %></div><div class="tkr-delta n">carteira ativa</div></div>
   <div class="tkr red"><div class="tkr-lbl">Leads</div><div class="tkr-val" id="kl"><%= stats.leadsNovos %></div><div class="tkr-delta n">pipeline</div></div>

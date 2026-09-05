@@ -26,6 +26,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 .card-top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 26px);left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;z-index:20}
 .chip{display:inline-flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:1px solid rgba(0,0,0,.08);color:var(--ink);padding:6px 11px 6px 9px;border-radius:20px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
 .brand{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint)}
+.streak-chip{display:inline-flex;align-items:center;gap:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;background:#FFF1E8;color:#b8460e;padding:5px 10px 5px 8px;border-radius:20px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
 
 .card-face{position:absolute;inset:0;transition:opacity .35s ease}
 
@@ -162,7 +163,12 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
   <div class="bars" id="bars"></div>
   <div class="card-top">
     <span class="chip" id="chipCat">·</span>
-    <span class="brand">MatchImóveis</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <% if (streak && streak.atual > 0) { %>
+      <span class="streak-chip" id="streakChip" title="Sequência de dias com atividade real">🔥 <%= streak.atual %></span>
+      <% } %>
+      <span class="brand">MatchImóveis</span>
+    </div>
   </div>
 
   <div id="faces"></div>
@@ -958,12 +964,27 @@ if (CARDS.length) {
   // usou no load) e só reconstrói o carrossel se os cards realmente
   // mudaram (novo sinal, não só o "há X min" andando) — e nunca enquanto o
   // corretor está com um sheet de voz/lead aberto, pra não interromper ele.
+  function _atualizarStreakChip(streak) {
+    let el = document.getElementById('streakChip');
+    if (!streak || !streak.atual) { if (el) el.style.display = 'none'; return; }
+    if (!el) {
+      el = document.createElement('span');
+      el.className = 'streak-chip';
+      el.id = 'streakChip';
+      el.title = 'Sequência de dias com atividade real';
+      const brand = document.querySelector('.card-top .brand');
+      if (brand && brand.parentNode) brand.parentNode.insertBefore(el, brand);
+    }
+    el.style.display = '';
+    el.textContent = '🔥 ' + streak.atual;
+  }
   async function _atualizarDadosResumo() {
     if (micOpen) return;
     try {
       const r = await fetch('/api/resumo/dados');
       const d = await r.json();
       if (!d || !d.ok) return;
+      _atualizarStreakChip(d.streak);
       Object.assign(LEADS_RESUMO, d.leadsResumo || {});
       BUSCA_INDEX.length = 0;
       (d.buscaIndex || []).forEach(it => BUSCA_INDEX.push(it));

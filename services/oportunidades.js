@@ -67,6 +67,24 @@ async function marcarVista(id) {
   }
 }
 
+// novo → visto, por entidade (em vez de por id) — usado quando o corretor
+// abre a página de detalhe da própria entidade (ex: GET /app/lead/:id),
+// que é sempre um clique real, nunca só a entidade ter aparecido numa lista.
+async function marcarVistaPorEntidade(usuarioId, entidadeTipo, entidadeId) {
+  if (!usuarioId || !entidadeTipo || entidadeId == null) return;
+  try {
+    await _garantirTabela();
+    if (!dbOk()) return;
+    await getPool().query(
+      `UPDATE oportunidades SET estado='visto', visto_em=now()
+       WHERE usuario_id=$1 AND entidade_tipo=$2 AND entidade_id=$3 AND estado='novo'`,
+      [String(usuarioId), entidadeTipo, String(entidadeId)]
+    );
+  } catch (e) {
+    console.error('[oportunidades] falha ao marcar vista por entidade', e.message);
+  }
+}
+
 // novo/visto → agido. Fecha TODA oportunidade aberta daquela entidade —
 // não só a do mesmo tipo — porque agir sobre a entidade (a lead, o imóvel)
 // resolve qualquer pendência que estivesse aberta sobre ela.
@@ -121,4 +139,4 @@ async function expirarAntigas(dias) {
   }
 }
 
-module.exports = { registrarOportunidade, marcarVista, marcarAgidaPorEntidade, marcarDispensada, expirarAntigas };
+module.exports = { registrarOportunidade, marcarVista, marcarVistaPorEntidade, marcarAgidaPorEntidade, marcarDispensada, expirarAntigas };

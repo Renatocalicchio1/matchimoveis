@@ -170,14 +170,23 @@
   </div>
 </div>
 
+<%
+  // Home dinâmica (Fase 10, ver CLAUDE.md): entre os cards desta fileira, só
+  // "Confirmação & tendência mensal" tem uma comparação real de período já
+  // calculada (mês atual vs mês passado). Regra de quietude — sem desvio
+  // notável (>=20%), a ordem fica a de sempre; nenhum destaque inventado.
+  var _mesAtualPre = stats.visitasRealizadasMes||0, _mesPassadoPre = stats.visitasRealizadasMesPassado||0;
+  var _deltaPre = _mesPassadoPre>0 ? Math.abs(Math.round(((_mesAtualPre-_mesPassadoPre)/_mesPassadoPre)*100)) : (_mesAtualPre>0?100:0);
+  var _confirmacaoPrimeiro = _deltaPre >= 20;
+%>
 <div class="g3">
   <div class="dc">
     <div class="dc-hd"><span class="dc-t">Visitas por status</span></div>
     <div style="position:relative;height:150px"><canvas id="cvisitas" role="img" aria-label="Visitas por status"></canvas></div>
   </div>
 
-  <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Confirmação & tendência mensal</span></div>
+  <div class="dc"<% if(_confirmacaoPrimeiro){ %> style="order:-1"<% } %>>
+    <div class="dc-hd"><span class="dc-t">Confirmação & tendência mensal</span><% if(_confirmacaoPrimeiro){ %><span class="badge-xs bx-orange">maior desvio do mês</span><% } %></div>
     <div class="gauge-wrap" style="margin-bottom:10px">
       <% var vtc=stats.visitasTaxaConfirmacao||0;var gc=vtc>60?'var(--air-good)':vtc>30?'var(--air-warn)':'var(--air-crit)'; %>
       <div class="gauge-big" style="color:<%= gc %>"><%= vtc %>%</div>

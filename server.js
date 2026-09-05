@@ -24198,6 +24198,17 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <button class="no" id="btnPausarAuto" onclick="pausarAutomatico()" ${!ativo?'disabled':''}>⏸ Pausar</button>
   </div>
   <div class="box">
+    <h3>🎯 Piloto "2.500 créditos"</h3>
+    <p class="gray">Isolado do disparo automático acima — usa 3 ângulos novos (Recompensa/Curiosidade/Teste sem risco) em round-robin, manda direto pro cadastro (<code>/?cadastro=1</code>), e pula quem já tem conta (mesma checagem de sempre). Dispara em lote (não passa de 200 por clique) com 1.2s entre envios. Chame de novo pra continuar de onde parou.
+    ${ativo ? '<br><strong style="color:#dc2626">⚠️ Disparo automático está rodando agora — pausa ele antes, senão os dois competem pelos mesmos contatos pendentes.</strong>' : ''}</p>
+    <label>DDD (opcional — vazio dispara pra qualquer região, seguindo a ordem SP→RJ→SC→resto):</label>
+    <input type="text" id="pilotoDdd" placeholder="Ex: 11" value="11" style="max-width:120px">
+    <label>Quantidade (máx 200 por clique):</label>
+    <input type="number" id="pilotoQtd" value="20" min="1" max="200" style="max-width:120px">
+    <button class="ok" onclick="dispararPiloto()">🚀 Disparar piloto</button>
+    <div id="piloto-resultado"></div>
+  </div>
+  <div class="box">
     <h3>1. Importar contatos</h3>
     <p class="gray">CSV ou Excel com colunas: nome, email, celular</p>
     <input type="file" id="arquivo" accept=".csv,.xlsx,.xls">
@@ -24313,6 +24324,23 @@ https://www.matchimoveis.ia.br
     document.getElementById('statusAutomatico').textContent = '⏸ Parado';
     document.getElementById('btnIniciarAuto').disabled = false;
     document.getElementById('btnPausarAuto').disabled = true;
+  }
+  async function dispararPiloto(){
+    const ddd = document.getElementById('pilotoDdd').value.trim();
+    const quantidade = Number(document.getElementById('pilotoQtd').value) || 20;
+    if(!confirm('Disparar piloto "2.500 créditos" pra ' + quantidade + ' contatos' + (ddd ? (' do DDD ' + ddd) : '') + '?')) return;
+    const el = document.getElementById('piloto-resultado');
+    el.textContent = 'Disparando...';
+    try {
+      const r = await fetch('/admin/campanha/piloto/disparar', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ quantidade, ddd: ddd || null })
+      });
+      const d = await r.json();
+      if(!d.ok){ el.textContent = 'Erro: ' + d.erro; return; }
+      el.innerHTML = '✅ Enviados: ' + d.enviados + ' | Erros: ' + d.erros + '<br>Por modelo: ' + JSON.stringify(d.porModelo);
+    } catch(e) { el.textContent = 'Erro: ' + e.message; }
   }
   function _setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
   function _setDisabled(id, val){ const el = document.getElementById(id); if(el) el.disabled = val; }
@@ -24634,7 +24662,7 @@ app.post('/admin/campanha/pausar', authAdmin, async (req, res) => {
 app.post('/admin/campanha/piloto/disparar', authAdmin, async (req, res) => {
   try {
     const { dispararPiloto } = require('./services/campanha');
-    const resultado = await dispararPiloto(req.body?.quantidade || 20);
+    const resultado = await dispararPiloto(req.body?.quantidade || 20, { ddd: req.body?.ddd || null });
     res.json({ ok: true, ...resultado });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

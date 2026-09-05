@@ -1247,8 +1247,28 @@ async function pausarCampanha() {
 // região quem parece corretor/imobiliária/broker vai antes do resto —
 // nunca mistura regiões (não manda um corretor do RJ antes de esgotar todo
 // mundo de SP, mesmo os que não parecem corretor).
-async function proximoLote(limite) {
+// opts.ddd (ex: '11') filtra pelo DDD exato do celular (mesma extração de
+// _dddDigits, replicada em SQL: tira tudo que não é dígito, se tiver 12+
+// dígitos e começar com 55 (código do país) descarta esse prefixo, pega os
+// 2 primeiros dígitos restantes) — usado pelo piloto pra atacar 1 DDD por vez
+// (ex: São Paulo capital/região, DDD 11) em vez do ddd_grupo (que já agrupa
+// TODO o estado de SP, DDDs 11-19, grosso demais pra esse pedido).
+async function proximoLote(limite, opts = {}) {
   await _garantirColunas();
+  const params = [limite];
+  let filtroDdd = '';
+  if (opts.ddd) {
+    params.push(String(opts.ddd));
+    filtroDdd = `
+      AND (
+        CASE
+          WHEN length(regexp_replace(cc.celular, '\\D', '', 'g')) >= 12
+               AND left(regexp_replace(cc.celular, '\\D', '', 'g'), 2) = '55'
+            THEN substring(regexp_replace(cc.celular, '\\D', '', 'g') from 3 for 2)
+          ELSE left(regexp_replace(cc.celular, '\\D', '', 'g'), 2)
+        END
+      ) = $2`;
+  }
   const { rows } = await query(`
     SELECT cc.id, cc.nome, cc.email, cc.celular
     FROM campanha_contatos cc
@@ -1261,9 +1281,10 @@ async function proximoLote(limite) {
           AND cc.celular IS NOT NULL AND cc.celular != ''
           AND RIGHT(regexp_replace(u.celular, '\\D', '', 'g'), 8) = RIGHT(regexp_replace(cc.celular, '\\D', '', 'g'), 8)
       )
+      ${filtroDdd}
     ORDER BY COALESCE(cc.ddd_grupo, 3), (CASE WHEN cc.parece_corretor THEN 0 ELSE 1 END), cc.criado_em ASC
     LIMIT $1
-  `, [limite]);
+  `, params);
   return rows;
 }
 
@@ -1616,8 +1637,8 @@ async function _enviarDaFilaPrincipal() {
 // função nem pela fila principal depois.
 const PILOTO_MODELOS = ['piloto_recompensa', 'piloto_curiosidade', 'piloto_teste'];
 let _pilotoContador = 0;
-async function _enviarPiloto() {
-  const [contato] = await proximoLote(1);
+async function _enviarPiloto(opts = {}) {
+  const [contato] = await proximoLote(1, opts);
   if (!contato) return null;
   // Round-robin determinístico (não sorteio) — garante os 3 grupos do
   // mesmo tamanho (~1/3 cada), em vez de deixar ao acaso.
@@ -1642,12 +1663,13 @@ async function _enviarPiloto() {
 // 1.2s entre envios, mesmo espírito do rate-limit já usado no resto da
 // campanha. Chamado manualmente (rota de admin), várias vezes, até esgotar
 // os pendentes — nunca por um job automático.
-async function dispararPiloto(quantidade) {
+async function dispararPiloto(quantidade, opts = {}) {
   const limite = Math.max(1, Math.min(200, Number(quantidade) || 20));
+  const filtro = opts.ddd ? { ddd: String(opts.ddd).replace(/\D/g, '').slice(0, 2) } : {};
   const resultados = [];
   for (let i = 0; i < limite; i++) {
-    const r = await _enviarPiloto();
-    if (!r) break; // sem mais contato elegível — para, não é erro
+    const r = await _enviarPiloto(filtro);
+    if (!r) break; // sem mais contato elegível (nesse DDD, se filtrado) — para, não é erro
     resultados.push(r);
     if (i < limite - 1) await new Promise(res => setTimeout(res, 1200));
   }

@@ -210,6 +210,183 @@ Sem compromisso, sem cadastro obrigatório pra consultar.
 — Equipe Match Imóveis`
     }
   ],
+  // ── Piloto "2.500 créditos" (set/2026) — 3 ângulos testados em paralelo
+  // nos contatos ainda 'pendente' (relatório de growth aprovado pelo
+  // Renato: reestruturar em cima da recompensa concreta, em vez da aversão
+  // à perda pura que os modelos `pagina`/`demanda` acima usam). Cada um tem
+  // CTA próprio (CTA_POR_TIPO) e vai direto pro formulário de cadastro
+  // (`?cadastro=1` — ver destino em /campanha/track/click/:id), não pra
+  // home genérica. NÃO substitui pagina/demanda ainda — dispararPiloto()
+  // é isolado do job automático (enviarProximo()), só roda quando chamado
+  // explicitamente, pra não misturar com a fila principal dos 118k.
+  piloto_recompensa: [
+    {
+      assunto: 'Você ganhou 2.500 créditos na Match Imóveis',
+      corpo: `Olá {nome},
+
+Você tem 2.500 créditos grátis esperando na Match Imóveis — a plataforma que cruza cada lead seu com o imóvel certo da carteira, sozinha, 24h por dia.
+
+Não precisa cartão. Não precisa plano. Só criar a conta.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: '2.500 créditos com seu nome — só falta resgatar',
+      corpo: `Olá {nome},
+
+Toda conta nova na Match Imóveis nasce com 2.500 créditos: dá pra cadastrar imóvel, importar leads e deixar a IA cruzar tudo sozinha, sem gastar nada do seu bolso.
+
+Você não precisa decidir se vale a pena antes de testar — já está pago. Só falta 1 coisa: criar a conta pra esses créditos virarem seus de verdade.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Isso é seu: 2.500 créditos grátis na Match',
+      corpo: `Olá {nome},
+
+Você tem 2.500 créditos grátis esperando na Match Imóveis — a plataforma que cruza cada lead seu com o imóvel certo da carteira, sozinha, 24h por dia.
+
+Não precisa cartão. Não precisa plano. Só criar a conta.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Corretor(a), seus 2.500 créditos já estão quase na conta',
+      corpo: `Olá {nome},
+
+Toda conta nova na Match Imóveis nasce com 2.500 créditos: dá pra cadastrar imóvel, importar leads e deixar a IA cruzar tudo sozinha, sem gastar nada do seu bolso.
+
+Você não precisa decidir se vale a pena antes de testar — já está pago. Só falta 1 coisa: criar a conta pra esses créditos virarem seus de verdade.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: '2.500 créditos. É grátis.',
+      corpo: `Olá {nome},
+
+Você tem 2.500 créditos grátis esperando na Match Imóveis — a plataforma que cruza cada lead seu com o imóvel certo da carteira, sozinha, 24h por dia.
+
+Não precisa cartão. Não precisa plano. Só criar a conta.
+
+— Equipe Match Imóveis`
+    }
+  ],
+  piloto_curiosidade: [
+    {
+      assunto: 'Isso chegou com seu nome (e vale a pena abrir)',
+      corpo: `Olá {nome},
+
+Direto ao ponto: você tem 2.500 créditos grátis esperando na Match Imóveis.
+
+Não é sorteio, não precisa compartilhar nada, não tem pegadinha. É o valor que toda conta nova recebe pra testar a plataforma que cruza seus leads com o imóvel certo, sozinha.
+
+Só falta criar a conta.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Você não vai adivinhar o que está esperando por você',
+      corpo: `Olá {nome},
+
+O assunto não era isca vazia: tem 2.500 créditos com seu nome, parados, esperando você criar a conta na Match Imóveis pra virarem seus de verdade.
+
+Não some se você não abrir agora — mas quanto antes você entrar, antes seus leads começam a ser cruzados com o imóvel certo, sozinho, sem você precisar vigiar nada.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Tem uma coisa parada com seu nome na Match Imóveis',
+      corpo: `Olá {nome},
+
+Direto ao ponto: você tem 2.500 créditos grátis esperando na Match Imóveis.
+
+Não é sorteio, não precisa compartilhar nada, não tem pegadinha. É o valor que toda conta nova recebe pra testar a plataforma que cruza seus leads com o imóvel certo, sozinha.
+
+Só falta criar a conta.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Curioso(a)? Abre pra descobrir o que é',
+      corpo: `Olá {nome},
+
+O assunto não era isca vazia: tem 2.500 créditos com seu nome, parados, esperando você criar a conta na Match Imóveis pra virarem seus de verdade.
+
+Não some se você não abrir agora — mas quanto antes você entrar, antes seus leads começam a ser cruzados com o imóvel certo, sozinho, sem você precisar vigiar nada.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Isso é seu — só não sabe ainda',
+      corpo: `Olá {nome},
+
+Direto ao ponto: você tem 2.500 créditos grátis esperando na Match Imóveis.
+
+Não é sorteio, não precisa compartilhar nada, não tem pegadinha. É o valor que toda conta nova recebe pra testar a plataforma que cruza seus leads com o imóvel certo, sozinha.
+
+Só falta criar a conta.
+
+— Equipe Match Imóveis`
+    }
+  ],
+  piloto_teste: [
+    {
+      assunto: 'Teste a Match Imóveis de graça — nem cartão pedimos',
+      corpo: `Olá {nome},
+
+Você não precisa acreditar em mim pra testar a Match Imóveis — só precisa de 2 minutos e uma conta grátis, que já nasce com 2.500 créditos.
+
+Dá pra usar de verdade: cadastrar imóvel, importar lead, deixar a IA cruzar tudo. Sem cartão, sem plano, sem compromisso.
+
+Se não servir pra você, não custou nada tentar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Sem risco: 2.500 créditos pra você testar antes de decidir',
+      corpo: `Olá {nome},
+
+Sei que "ferramenta grátis" já cansou de prometer e não entregar. Por isso a Match não pede cartão nem empurra plano na cara — só dá 2.500 créditos pra você testar com seus próprios leads e imóveis.
+
+Não é trial de 7 dias que vira cobrança sozinho. É crédito que você usa quando quiser, do jeito que quiser.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Testa e decide depois (a conta já vem com 2.500 créditos)',
+      corpo: `Olá {nome},
+
+Você não precisa acreditar em mim pra testar a Match Imóveis — só precisa de 2 minutos e uma conta grátis, que já nasce com 2.500 créditos.
+
+Dá pra usar de verdade: cadastrar imóvel, importar lead, deixar a IA cruzar tudo. Sem cartão, sem plano, sem compromisso.
+
+Se não servir pra você, não custou nada tentar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Dá pra testar antes de confiar — é assim que deve ser',
+      corpo: `Olá {nome},
+
+Sei que "ferramenta grátis" já cansou de prometer e não entregar. Por isso a Match não pede cartão nem empurra plano na cara — só dá 2.500 créditos pra você testar com seus próprios leads e imóveis.
+
+Não é trial de 7 dias que vira cobrança sozinho. É crédito que você usa quando quiser, do jeito que quiser.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Zero compromisso: crie a conta, use os créditos, decida você',
+      corpo: `Olá {nome},
+
+Você não precisa acreditar em mim pra testar a Match Imóveis — só precisa de 2 minutos e uma conta grátis, que já nasce com 2.500 créditos.
+
+Dá pra usar de verdade: cadastrar imóvel, importar lead, deixar a IA cruzar tudo. Sem cartão, sem plano, sem compromisso.
+
+Se não servir pra você, não custou nada tentar.
+
+— Equipe Match Imóveis`
+    }
+  ],
   // ── Programa de afiliados (ago/2026) — 10 variações, mesmo eixo de
   // aversão à perda: cada e-mail mostra o que o corretor JÁ ESTÁ perdendo
   // por não ter o link ativo (comissão que "some" a cada indicação sem
@@ -430,7 +607,7 @@ Cada minuto sem resposta reduz a chance de fechar. A Match Imóveis cruza automa
 
 Você chegou a abrir o e-mail sobre a Match Imóveis, mas não criou a conta. Enquanto isso, os leads da sua região continuam sendo cruzados automaticamente — só que não com você.
 
-Cadastro leva menos de 2 minutos, e a conta já sai com 1.000 créditos e seu link de indicação pronto.
+Cadastro leva menos de 2 minutos, e a conta já sai com 2.500 créditos e seu link de indicação pronto.
 
 — Equipe Match Imóveis`
     },
@@ -440,7 +617,7 @@ Cadastro leva menos de 2 minutos, e a conta já sai com 1.000 créditos e seu li
 
 Você chegou a ver a proposta, mas o cadastro ainda não foi feito. Cada dia sem conta é um dia a mais sem leads cruzados automaticamente, e sem o link de indicação que já poderia estar gerando comissão.
 
-Grátis pra criar, 1.000 créditos já na entrada.
+Grátis pra criar, 2.500 créditos já na entrada.
 
 — Equipe Match Imóveis`
     },
@@ -472,7 +649,7 @@ Reparei que você já conferiu a Match Imóveis mas ainda não criou sua conta. 
       assunto: 'Você chegou perto — e parar aqui custa caro',
       corpo: `Olá {nome},
 
-Vi que você teve interesse na plataforma. Pra começar de verdade só falta criar a conta — grátis, com 1.000 créditos e um link de indicação já pronto. Cada dia sem isso é renda que não está entrando.
+Vi que você teve interesse na plataforma. Pra começar de verdade só falta criar a conta — grátis, com 2.500 créditos e um link de indicação já pronto. Cada dia sem isso é renda que não está entrando.
 
 — Equipe Match Imóveis`
     },
@@ -496,7 +673,7 @@ Você já viu do que se trata. Enquanto decide, outros corretores que viram a me
       assunto: 'Poucos minutos separam você de parar de perder isso',
       corpo: `Olá {nome},
 
-Você já conferiu a proposta. O próximo passo é rápido: criar sua conta, que já vem com 1.000 créditos e um link de indicação seu. Cada dia adiando é um dia a mais sem nenhum dos dois.
+Você já conferiu a proposta. O próximo passo é rápido: criar sua conta, que já vem com 2.500 créditos e um link de indicação seu. Cada dia adiando é um dia a mais sem nenhum dos dois.
 
 — Equipe Match Imóveis`
     },
@@ -1113,7 +1290,13 @@ const CTA_POR_TIPO = {
   // followup3 é o único cujo CTA leva pro login (não pra landing page) —
   // esse contato já tem conta, o link de clique (track/click/:id em
   // server.js) redireciona pra /entrar quando modelo_usado === 'followup3'.
-  followup3: 'Ver meus combos →'
+  followup3: 'Ver meus combos →',
+  // Piloto "2.500 créditos" (set/2026) — CTA em 1ª pessoa ("meus", não
+  // "seus"), teste de Michael Aagaard/ContentVerve citado no relatório de
+  // growth (troca "your" por "my" no botão aumentou clique em 90%).
+  piloto_recompensa: 'QUERO MEUS 2.500 CRÉDITOS →',
+  piloto_curiosidade: 'VER MEUS 2.500 CRÉDITOS →',
+  piloto_teste: 'CRIAR CONTA GRÁTIS →'
 };
 
 function gerarHTML(mensagem, contato, tipo) {
@@ -1420,6 +1603,65 @@ async function _enviarDaFilaPrincipal() {
   }
 }
 
+// ── Piloto "2.500 créditos" (set/2026) — ISOLADO do motor automático acima
+// (_enviarDaFilaPrincipal/enviarProximo, que roda sozinho a cada 30s-5min
+// via server.js sempre que campanha_config.ativo=true). Relatório de growth
+// aprovado pelo Renato: testar 3 ângulos em paralelo nos contatos ainda
+// 'pendente', sem misturar com a fila principal (pagina/demanda) nem com o
+// job automático — só dispara quando chamado explicitamente (rota de admin
+// dedicada), nunca sozinho. Usa a MESMA elegibilidade de proximoLote()
+// (pendente, email válido, sem bater com conta já cadastrada por email OU
+// celular) — ninguém que já tem conta recebe isso, e cada contato usado
+// vira 'enviado' (marcarEnviado), então nunca é reaproveitado nem por essa
+// função nem pela fila principal depois.
+const PILOTO_MODELOS = ['piloto_recompensa', 'piloto_curiosidade', 'piloto_teste'];
+let _pilotoContador = 0;
+async function _enviarPiloto() {
+  const [contato] = await proximoLote(1);
+  if (!contato) return null;
+  // Round-robin determinístico (não sorteio) — garante os 3 grupos do
+  // mesmo tamanho (~1/3 cada), em vez de deixar ao acaso.
+  const tipo = PILOTO_MODELOS[_pilotoContador % PILOTO_MODELOS.length];
+  _pilotoContador++;
+  const variacao = _sorteia(MODELOS[tipo]);
+  const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, _nomeOuFallback(contato.nome));
+  const html = gerarHTML(corpoPersonalizado, contato, tipo);
+  try {
+    await enviarEmail({ para: contato.email, assunto: variacao.assunto, html, texto: variacao.assunto });
+    await marcarEnviado(contato.id, null, { modelo: tipo, titulo: variacao.assunto, corpo: variacao.corpo });
+    return { enviado: true, email: contato.email, modelo: tipo, titulo: variacao.assunto };
+  } catch (e) {
+    await marcarEnviado(contato.id, e.message);
+    return { enviado: false, motivo: 'erro_envio', erro: e.message };
+  }
+}
+
+// Dispara um lote bounded (não os 2.000 de uma vez — timeout de request e
+// rajada de conexão simultânea já causaram incidente real na infra de e-mail,
+// ver CLAUDE.md "Postfix engasgou depois do burst do Dia 1"). Intervalo de
+// 1.2s entre envios, mesmo espírito do rate-limit já usado no resto da
+// campanha. Chamado manualmente (rota de admin), várias vezes, até esgotar
+// os pendentes — nunca por um job automático.
+async function dispararPiloto(quantidade) {
+  const limite = Math.max(1, Math.min(200, Number(quantidade) || 20));
+  const resultados = [];
+  for (let i = 0; i < limite; i++) {
+    const r = await _enviarPiloto();
+    if (!r) break; // sem mais contato elegível — para, não é erro
+    resultados.push(r);
+    if (i < limite - 1) await new Promise(res => setTimeout(res, 1200));
+  }
+  return {
+    enviados: resultados.filter(r => r.enviado).length,
+    erros: resultados.filter(r => !r.enviado).length,
+    porModelo: PILOTO_MODELOS.reduce((acc, m) => {
+      acc[m] = resultados.filter(r => r.modelo === m && r.enviado).length;
+      return acc;
+    }, {}),
+    resultados
+  };
+}
+
 async function _enviarDosFollowups() {
   const f1 = await proximoFollowup1();
   if (f1) {
@@ -1522,5 +1764,6 @@ module.exports = {
   statsPorModeloEmail, estagioContatoCampanha, ESTAGIOS_CONTATO_CAMPANHA,
   gerarPreviewPorAssunto, gerarEmailPorTipo,
   MODELOS, gerarHTML, marcarEnviado, nomeOuFallback: _nomeOuFallback,
-  topVariantesPorEngajamento, marcarFollowupEnviado
+  topVariantesPorEngajamento, marcarFollowupEnviado,
+  dispararPiloto
 };

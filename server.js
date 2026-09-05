@@ -536,7 +536,7 @@ app.use('/app', (req, res, next) => {
 });
 
 // ── COMBO OBRIGATÓRIO PRA CONTAS CRIADAS VIA CAMPANHA DE LEADS GARANTIDOS ───
-// Os 1.000 créditos de bônus que essa conta ganha na hora do cadastro são só
+// Os 2.500 créditos de bônus que essa conta ganha na hora do cadastro são só
 // pra poder mexer no sistema e ver o valor — não substituem a compra. Depois
 // de completar o perfil, ainda obriga contratar um dos combos (flag
 // precisaComprarPlano) antes de liberar o resto. A confirmação de pagamento
@@ -3732,7 +3732,7 @@ const _CONTEUDO_SEO = {
   'crm-para-corretores': {
     slug: 'crm-para-corretores',
     titulo: 'CRM para Corretores de Imóveis — Organize Leads Automaticamente | MatchImóveis',
-    metaDescricao: 'CRM imobiliário que organiza cada lead sozinho: funil automático, follow-up por temperatura e histórico completo. Cadastro grátis com 1.000 créditos.',
+    metaDescricao: 'CRM imobiliário que organiza cada lead sozinho: funil automático, follow-up por temperatura e histórico completo. Cadastro grátis com 2.500 créditos.',
     tag: 'CRM imobiliário',
     h1: 'CRM para corretores de imóveis',
     heroSub: 'Cada lead que chega — de portal, planilha, indicação ou WhatsApp — entra automaticamente no funil certo, com follow-up programado sozinho. Você não perde lead por esquecimento.',
@@ -3756,7 +3756,7 @@ const _CONTEUDO_SEO = {
       { q: 'A MatchImóveis é um CRM imobiliário?', a: 'Sim — além de gerenciar leads (funil, temperatura, follow-up, histórico), a plataforma faz o match automático entre lead e imóvel e cuida da comunicação pelo WhatsApp, o que um CRM genérico não faz.' },
       { q: 'Dá pra importar meus leads de uma planilha?', a: 'Sim, tem um importador dedicado de planilha que organiza a carteira inteira no funil automaticamente, sem precisar cadastrar um por um.' },
       { q: 'O CRM organiza sozinho o funil ou preciso mexer manualmente?', a: 'A fase e a temperatura de cada lead são calculadas automaticamente pelo comportamento (respostas, matches, visitas) — você pode ajustar manualmente quando quiser, mas não precisa.' },
-      { q: 'Preciso pagar mensalidade pra usar o CRM?', a: 'Não — o cadastro é grátis com 1.000 créditos de bônus, e a plataforma cobra por uso (créditos gastos conforme a ação), sem mensalidade fixa obrigatória.' },
+      { q: 'Preciso pagar mensalidade pra usar o CRM?', a: 'Não — o cadastro é grátis com 2.500 créditos de bônus, e a plataforma cobra por uso (créditos gastos conforme a ação), sem mensalidade fixa obrigatória.' },
     ],
     relacionados: [
       { slug: 'ia-para-corretores', texto: 'IA para corretores' },
@@ -3872,7 +3872,7 @@ const _CONTEUDO_SEO = {
   'plataforma-para-corretores': {
     slug: 'plataforma-para-corretores',
     titulo: 'Plataforma para Corretores de Imóveis — Tudo num Só Lugar | MatchImóveis',
-    metaDescricao: 'Leads, match automático, WhatsApp com IA, visitas, portais e Instagram numa única plataforma — sem mensalidade fixa. Cadastro grátis com 1.000 créditos.',
+    metaDescricao: 'Leads, match automático, WhatsApp com IA, visitas, portais e Instagram numa única plataforma — sem mensalidade fixa. Cadastro grátis com 2.500 créditos.',
     tag: 'Plataforma completa',
     h1: 'Plataforma para corretores de imóveis',
     heroSub: 'Em vez de um CRM aqui, uma ferramenta de anúncio ali e um WhatsApp Business separado, a MatchImóveis reúne carteira, leads, IA e divulgação num só lugar — com preço por uso, não mensalidade fixa.',
@@ -3893,7 +3893,7 @@ const _CONTEUDO_SEO = {
       { icone: '📸', titulo: 'Instagram e Meta Ads', desc: 'Publica imóvel automaticamente no Instagram e roda campanha de Clique-para-WhatsApp direto da plataforma.' },
     ],
     faq: [
-      { q: 'Quanto custa usar a MatchImóveis?', a: 'O cadastro é grátis e já vem com 1.000 créditos de bônus. Depois disso, cada ação (cadastrar imóvel, receber lead, IA responder, etc.) consome créditos, que você recarrega conforme usar — sem contrato de mensalidade obrigatória.' },
+      { q: 'Quanto custa usar a MatchImóveis?', a: 'O cadastro é grátis e já vem com 2.500 créditos de bônus. Depois disso, cada ação (cadastrar imóvel, receber lead, IA responder, etc.) consome créditos, que você recarrega conforme usar — sem contrato de mensalidade obrigatória.' },
       { q: 'Preciso pagar mensalidade?', a: 'Não é obrigatório — o modelo é por consumo de créditos. Também existem combos de recarga com bônus pra quem usa em volume maior.' },
       { q: 'Como funciona o sistema de créditos?', a: 'Cada ação da plataforma (cadastro de imóvel, nova lead, IA respondendo WhatsApp, visita agendada etc.) tem um custo fixo e transparente em créditos, mostrado direto na tela antes de qualquer cobrança.' },
       { q: 'A plataforma serve pra corretor autônomo ou só pra imobiliária grande?', a: 'Serve pros dois — desde o corretor autônomo com poucos imóveis até imobiliárias com milhares de imóveis e vários corretores em rede.' },
@@ -3907,7 +3907,7 @@ const _CONTEUDO_SEO = {
   'divulgacao-de-imoveis-com-ia': {
     slug: 'divulgacao-de-imoveis-com-ia',
     titulo: 'Divulgação de Imóveis com IA — Publique em Todo Lugar Automaticamente | MatchImóveis',
-    metaDescricao: 'Divulgue seu imóvel nos portais, Instagram e WhatsApp automaticamente, com a IA sugerindo pra lead certa. Cadastro grátis com 1.000 créditos.',
+    metaDescricao: 'Divulgue seu imóvel nos portais, Instagram e WhatsApp automaticamente, com a IA sugerindo pra lead certa. Cadastro grátis com 2.500 créditos.',
     tag: 'Divulgação automática',
     h1: 'Divulgação de imóveis com IA',
     heroSub: 'Cadastrou o imóvel uma vez — a MatchImóveis cuida de levar ele até os portais certos, publicar no Instagram e mandar pra lead certa pelo WhatsApp, tudo automatizado.',
@@ -4038,7 +4038,7 @@ const _CONTEUDO_SEO = {
       { icone: '🤖', titulo: 'IA responde enquanto você não está', desc: 'A primeira triagem no WhatsApp acontece sozinha, mesmo com você offline ou atendendo outro cliente.' },
       { icone: '🎯', titulo: 'Match sem precisar filtrar manual', desc: 'Mesmo com poucos imóveis, o sistema já cruza sozinho o que bate com cada lead nova.' },
       { icone: '📤', titulo: 'Divulgação automática', desc: 'XML pros portais e publicação no Instagram saem sem trabalho manual extra.' },
-      { icone: '💳', titulo: 'Paga só pelo que usa', desc: 'Sem mensalidade fixa — cadastro grátis com 1.000 créditos e cobrança por ação, o que faz sentido pra quem está começando ou tem carteira menor.' },
+      { icone: '💳', titulo: 'Paga só pelo que usa', desc: 'Sem mensalidade fixa — cadastro grátis com 2.500 créditos e cobrança por ação, o que faz sentido pra quem está começando ou tem carteira menor.' },
     ],
     faq: [
       { q: 'A MatchImóveis serve pra corretor sem equipe?', a: 'Sim — o modelo por créditos (sem mensalidade obrigatória) e a IA cobrindo a triagem/divulgação foram pensados justamente pra quem trabalha sozinho e não tem orçamento pra assinatura fixa alta.' },
@@ -4136,13 +4136,13 @@ const _CONTEUDO_SEO = {
   'crm-imobiliario-sem-mensalidade': {
     slug: 'crm-imobiliario-sem-mensalidade',
     titulo: 'CRM Imobiliário sem Mensalidade — Pague só pelo que Usar | MatchImóveis',
-    metaDescricao: 'Cansado de pagar mensalidade fixa de CRM mesmo em mês fraco? Na MatchImóveis você paga por crédito conforme usa, com cadastro grátis e 1.000 créditos de bônus.',
+    metaDescricao: 'Cansado de pagar mensalidade fixa de CRM mesmo em mês fraco? Na MatchImóveis você paga por crédito conforme usa, com cadastro grátis e 2.500 créditos de bônus.',
     tag: 'Modelo de cobrança',
     h1: 'CRM imobiliário sem mensalidade',
     heroSub: 'A maioria dos CRMs imobiliários cobra assinatura fixa todo mês, mesmo em mês fraco. A MatchImóveis funciona por créditos: você paga conforme usa (cadastra imóvel, recebe lead, IA responde) — sem contrato de mensalidade obrigatória.',
     recursosTitulo: 'Como funciona o modelo de créditos',
     recursos: [
-      { icone: '🎁', titulo: 'Cadastro grátis com bônus', desc: 'Criar a conta já libera 1.000 créditos de bônus, sem cartão de crédito e sem custo inicial.' },
+      { icone: '🎁', titulo: 'Cadastro grátis com bônus', desc: 'Criar a conta já libera 2.500 créditos de bônus, sem cartão de crédito e sem custo inicial.' },
       { icone: '🪙', titulo: 'Custo transparente por ação', desc: 'Cada ação (cadastrar imóvel, nova lead, IA respondendo, vitrine enviada) tem um valor fixo em créditos, mostrado antes de qualquer cobrança.' },
       { icone: '📦', titulo: 'Combos com bônus pra quem usa mais', desc: 'Quem consome mais créditos por mês pode contratar um combo com desconto/bônus sobre a recarga normal — sem virar mensalidade obrigatória.' },
       { icone: '⏸️', titulo: 'Mês fraco, gasto menor', desc: 'Sem lead nova, sem imóvel novo, sem uso — não tem cobrança fixa rodando no fundo como numa assinatura tradicional.' },
@@ -4219,14 +4219,14 @@ const _CONTEUDO_SEO = {
     heroSub: 'As dúvidas mais comuns de corretores e imobiliárias sobre a plataforma, reunidas num só lugar.',
     faq: [
       { q: 'O que é a MatchImóveis?', a: 'Uma plataforma que une CRM de leads, match automático entre lead e imóvel, assistente de IA no WhatsApp e divulgação automática (portais, Instagram, Meta Ads) num só lugar, pra corretores e imobiliárias.' },
-      { q: 'Quanto custa usar a MatchImóveis?', a: 'O cadastro é grátis com 1.000 créditos de bônus. Depois disso, cada ação consome créditos, cobrados conforme o uso — sem mensalidade fixa obrigatória.' },
+      { q: 'Quanto custa usar a MatchImóveis?', a: 'O cadastro é grátis com 2.500 créditos de bônus. Depois disso, cada ação consome créditos, cobrados conforme o uso — sem mensalidade fixa obrigatória.' },
       { q: 'Como a IA responde no WhatsApp?', a: 'Você conecta seu WhatsApp na plataforma e a IA assume a primeira triagem de qualquer mensagem nova, usando dados reais da sua carteira e leads pra responder com contexto.' },
       { q: 'De onde vêm os leads?', a: 'De portais integrados (ZAP, OLX, VivaReal, ImovelWeb, 123i, Chaves na Mão), captação de proprietário, indicação, Meta Ads e importação manual/planilha.' },
       { q: 'Como funciona o match automático?', a: 'O sistema cruza o perfil de busca da lead com a carteira de imóveis, aplica critérios mínimos (transação, tipo, cidade, bairro, valor, quartos) e pontua os resultados por compatibilidade.' },
       { q: 'A plataforma serve pra imobiliária com vários corretores?', a: 'Sim — cada corretor tem sua própria conta e carteira, com opção de rede de parceiros pra ampliar o alcance do match dentro da mesma imobiliária.' },
       { q: 'Dá pra importar minha carteira de imóveis de uma vez?', a: 'Sim, via feed XML — a plataforma suporta até 2 feeds por conta, com sincronização automática a cada 24h.' },
       { q: 'A plataforma publica automaticamente nos portais e no Instagram?', a: 'Sim — gera o XML no formato de cada portal e publica no Instagram (feed ou stories, com carrossel) direto da plataforma.' },
-      { q: 'Preciso de cartão de crédito pra me cadastrar?', a: 'Não — o cadastro é grátis e não pede cartão; os 1.000 créditos de bônus já entram automaticamente.' },
+      { q: 'Preciso de cartão de crédito pra me cadastrar?', a: 'Não — o cadastro é grátis e não pede cartão; os 2.500 créditos de bônus já entram automaticamente.' },
       { q: 'A IA substitui o corretor na negociação?', a: 'Não — ela cuida da triagem, qualificação e follow-up automático; a negociação e o fechamento continuam sendo do corretor.' },
     ],
     relacionados: [
@@ -4980,7 +4980,7 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // pra saber se a pessoa "confirmou" o nome (bug real, ago/2026 —
         // contas via campanha nunca conseguiam completar o perfil).
         precisaCompletarPerfil: true,
-        // Os 1.000 créditos de bônus são só pra poder mexer no sistema e ver
+        // Os 2.500 créditos de bônus são só pra poder mexer no sistema e ver
         // o valor — não substituem a compra. Só libera o resto da plataforma
         // depois de contratar um dos combos (ver middleware precisaComprarPlano).
         // EXCEÇÃO (ago/2026, campanha "Dia do Corretor" bancada pelo Bruno):
@@ -12059,7 +12059,12 @@ app.get('/api/localidades/cidades', async (req, res) => {
     // ninguém (pedido do Renato, ago/2026: "tem que prevalecer o que é
     // correto do IBGE, em tudo da app", citando explicitamente a área de
     // atuação do cadastro).
-    let sql = "SELECT DISTINCT cidade FROM localidades WHERE cidade IS NOT NULL AND cidade != '' AND fonte IN ('ibge','osm')";
+    // DISTINCT ON normalizado (set/2026, mesmo achado/fix do endpoint de
+    // bairros abaixo: fonte 'ibge' e 'osm' podem gravar a mesma cidade com
+    // acento/maiúscula/espaço um pouco diferente — visualmente idêntica, mas
+    // um `DISTINCT cidade` puro trata como valores diferentes e duplica a
+    // sugestão no cadastro). Agrupa por unaccent+lower+trim.
+    let sql = "SELECT DISTINCT ON (unaccent(lower(trim(cidade)))) cidade FROM localidades WHERE cidade IS NOT NULL AND cidade != '' AND fonte IN ('ibge','osm')";
     // unaccent+lower dos dois lados — a tabela localidades foi montada
     // cruzando IBGE + Overpass/OSM, que podem gravar acento com normalização
     // Unicode diferente (NFC/NFD); visualmente igual, mas ILIKE puro não bate
@@ -12076,15 +12081,27 @@ app.get('/api/localidades/cidades', async (req, res) => {
     // e nunca aparecia nos 30 primeiros, fazendo o autocomplete "não achar"
     // a própria capital (bug relatado ago/2026). Com `q` (filtro digitado
     // direto no servidor, usado em outros pontos) mantém limite baixo.
-    sql += ' ORDER BY cidade LIMIT ' + (q ? 30 : 1000);
+    // ORDER BY precisa começar pela mesma expressão do DISTINCT ON (exigência
+    // do Postgres), "cidade" só desempata a grafia escolhida por grupo.
+    sql += ' ORDER BY unaccent(lower(trim(cidade))), cidade LIMIT ' + (q ? 30 : 1000);
     const { rows } = await _qLocC(sql, params);
     // Reordena em JS com localeCompare('pt-BR') — o ORDER BY do Postgres
     // acima é só pra escolher QUAIS linhas entram no LIMIT (aproximado já
     // basta), mas não garante ordem alfabética certa pra nome acentuado
     // (colation do banco pode comparar por código Unicode, jogando "Óbidos"
     // pra depois de "Z..." em vez de perto de "O...") — achado ago/2026
-    // junto da correção de acento do IBGE.
-    const cidades = rows.map(r => r.cidade).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    // junto da correção de acento do IBGE. Dedupe em JS (normTexto) como
+    // segunda camada, caso alguma variação escape do agrupamento em SQL.
+    const _normCidade = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, ' ');
+    const _vistasCidade = new Set();
+    const cidades = [];
+    for (const r of rows) {
+      const chave = _normCidade(r.cidade);
+      if (_vistasCidade.has(chave)) continue;
+      _vistasCidade.add(chave);
+      cidades.push(r.cidade);
+    }
+    cidades.sort((a, b) => a.localeCompare(b, 'pt-BR'));
     res.json({ ok: true, cidades });
   } catch (e) { res.json({ ok: false, cidades: [] }); }
 });
@@ -12109,10 +12126,31 @@ app.get('/api/localidades/bairros', async (req, res) => {
     // antes do fim) — sobe pra 5000 pra nunca truncar nem a cidade com mais
     // bairro mapeado na base (ago/2026, pedido explícito de mostrar tudo).
     // Mesma reordenação em JS que /cidades — ver comentário lá.
-    const _ordenarBairros = rows => rows.map(r => r.bairro).sort((a, b) => a.localeCompare(b, 'pt-BR'));
-    const { rows: confiaveis } = await _qLocB(`SELECT DISTINCT bairro ${sqlBase} AND fonte IN ('ibge','osm') ORDER BY bairro LIMIT 5000`, params);
+    //
+    // DISTINCT ON normalizado (set/2026, achado pelo Renato: bairro aparecendo
+    // 2x/3x na sugestão do cadastro) — a tabela mistura fonte 'ibge' e 'osm'
+    // pra mesma cidade, e cada fonte pode gravar o mesmo bairro com acento
+    // normalizado diferente (NFC/NFD) ou variação de maiúscula/espaço; um
+    // `DISTINCT bairro` puro trata isso como valores diferentes, então o
+    // mesmo nome (visualmente idêntico) sobrevivia 2x-3x no resultado. Agrupa
+    // por unaccent+lower+trim, mantendo 1 grafia representante por grupo.
+    // Dedupe também em JS (normTexto) como segunda camada, caso alguma
+    // variação escape do agrupamento em SQL (ex: espaço duplo interno).
+    const _normBairro = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, ' ');
+    const _ordenarBairros = rows => {
+      const vistos = new Set();
+      const unicos = [];
+      for (const r of rows) {
+        const chave = _normBairro(r.bairro);
+        if (vistos.has(chave)) continue;
+        vistos.add(chave);
+        unicos.push(r.bairro);
+      }
+      return unicos.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    };
+    const { rows: confiaveis } = await _qLocB(`SELECT DISTINCT ON (unaccent(lower(trim(bairro)))) bairro ${sqlBase} AND fonte IN ('ibge','osm') ORDER BY unaccent(lower(trim(bairro))), bairro LIMIT 5000`, params);
     if (confiaveis.length) return res.json({ ok: true, bairros: _ordenarBairros(confiaveis) });
-    const { rows: todos } = await _qLocB(`SELECT DISTINCT bairro ${sqlBase} ORDER BY bairro LIMIT 5000`, params);
+    const { rows: todos } = await _qLocB(`SELECT DISTINCT ON (unaccent(lower(trim(bairro)))) bairro ${sqlBase} ORDER BY unaccent(lower(trim(bairro))), bairro LIMIT 5000`, params);
     res.json({ ok: true, bairros: _ordenarBairros(todos) });
   } catch (e) { res.json({ ok: false, bairros: [] }); }
 });
@@ -17212,7 +17250,7 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
                 const primeiroNome = (nomeContato || contatoCampanha.nome || '').split(' ')[0];
                 const _saudacao = primeiroNome ? `Oi, ${primeiroNome}! ` : 'Oi! ';
                 const _contatoSub = conta.celular ? ` (${conta.celular})` : '';
-                const _msgAuto = `${_saudacao}Que bom te ver por aqui! 🎉\n\nVocê já tem 1.000 créditos liberados pra começar na MatchImóveis — é só finalizar seu cadastro pra desbloquear tudo.\n\nQuem tá cuidando de você é o(a) *${conta.nome || conta.usuario}*${_contatoSub} — fala com ele(a) que te ajuda a fechar agora mesmo! 🚀`;
+                const _msgAuto = `${_saudacao}Que bom te ver por aqui! 🎉\n\nVocê já tem 2.500 créditos liberados pra começar na MatchImóveis — é só finalizar seu cadastro pra desbloquear tudo.\n\nQuem tá cuidando de você é o(a) *${conta.nome || conta.usuario}*${_contatoSub} — fala com ele(a) que te ajuda a fechar agora mesmo! 🚀`;
                 const { enviarTexto } = require('./services/metaWhatsapp');
                 await enviarTexto({ telefone, texto: _msgAuto, phoneNumberId });
                 await _salvarMsgCloud({ phoneNumberId, displayPhoneNumber, telefone, nome: nomeContato, direcao: 'saida', tipo: 'texto', texto: _msgAuto }).catch(()=>{});
@@ -17377,7 +17415,7 @@ const _uploadAudioMem = multer({ storage: multer.memoryStorage(), limits: { file
 // uma campanha) — texto padrão só usado se ninguém salvou um customizado
 // ainda (services/salvarDisparo.js: buscarFollowupMensagem/salvarFollowupMensagem,
 // editável pela tela em /admin/whatsapp-cloud).
-const _MSG_BOAS_VINDAS_PADRAO = `🎉 Você ganhou 1.000 créditos de bônus pra conhecer a MatchImóveis!
+const _MSG_BOAS_VINDAS_PADRAO = `🎉 Você ganhou 2.500 créditos de bônus pra conhecer a MatchImóveis!
 
 É rapidinho: primeiro faça seu cadastro na nossa página inicial 👇
 https://www.matchimoveis.ia.br
@@ -17696,7 +17734,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
         box.innerHTML = conversas.map(c => {
           const prevista = escHtml((c.tipo==='botao'?'🔘 ':c.tipo==='audio'?'🎤 ':'') + (c.direcao==='saida'?'Você: ':'') + (c.texto||'').slice(0,60));
           const telLimpo = String(c.contato_telefone||'').replace(/\\D/g,'');
-          const waLink = 'https://wa.me/'+telLimpo+'?text='+encodeURIComponent('Olá! Somos da MatchImóveis. Para começar gratuitamente e testar o sistema, faça seu cadastro e ganhe 1.000 créditos para utilizar a plataforma. No app tem o assistente robô que te ajuda a tirar todas as suas dúvidas. matchimoveis.ia.br');
+          const waLink = 'https://wa.me/'+telLimpo+'?text='+encodeURIComponent('Olá! Somos da MatchImóveis. Para começar gratuitamente e testar o sistema, faça seu cadastro e ganhe 2.500 créditos para utilizar a plataforma. No app tem o assistente robô que te ajuda a tirar todas as suas dúvidas. matchimoveis.ia.br');
           const numeroLabel = rotuloNumero(c.phone_number_id, c.display_phone_number);
           const numeroBadge = numeroLabel ? ' <span style="background:#f3f4f6;color:#374151;border-radius:6px;padding:1px 7px;font-size:10.5px;font-weight:600">📱 '+escHtml(numeroLabel)+'</span>' : '';
           return '<div class="linha" style="cursor:pointer' + (c.naoLidas>0?';background:#fff7f0':'') + '" onclick="location.href=\\'/admin/whatsapp-cloud/'+encodeURIComponent(c.contato_telefone)+'\\'"' + '>' +
@@ -21830,6 +21868,11 @@ app.get('/campanha/track/click/:id', async (req, res) => {
       // mas não comprou combo) — não faz sentido linkar pra landing page de
       // novo, manda direto pro login.
       else if (estagioClick === 'followup3') destino = 'https://www.matchimoveis.ia.br/entrar';
+      // Piloto "2.500 créditos" (set/2026) — vai direto pro formulário de
+      // cadastro (aba "Criar conta" já aberta), não pra home genérica. É
+      // exatamente o achado do relatório de growth: o e-mail promete o
+      // resgate, a página tem que abrir já nesse passo, sem 1 clique a mais.
+      else if (modeloClick === 'piloto_recompensa' || modeloClick === 'piloto_curiosidade' || modeloClick === 'piloto_teste') destino = 'https://www.matchimoveis.ia.br/?cadastro=1';
 
       // Clicou = sinal de interesse de verdade — não espera o botão manual
       // "Distribuir agora" pra ter dono; atribui na hora (round-robin) se
@@ -22196,7 +22239,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
   // Meta tags/JSON-LD só na versão pública (/demanda) — a versão admin
   // (/admin/demanda) é ferramenta interna, não faz sentido indexar/compartilhar.
   const _seoDemanda = isAdmin ? '' : `
-  <meta name="description" content="Veja quantos interessados estão buscando imóvel na sua região agora e leve esses leads pra sua conta MatchImóveis. Cadastro grátis com 1.000 créditos.">
+  <meta name="description" content="Veja quantos interessados estão buscando imóvel na sua região agora e leve esses leads pra sua conta MatchImóveis. Cadastro grátis com 2.500 créditos.">
   <meta property="og:title" content="Veja a demanda de imóveis da sua região — MatchImóveis">
   <meta property="og:description" content="Leads reais buscando imóvel na sua região agora, prontos pra entrar na sua conta com match automático.">
   <meta property="og:image" content="https://www.matchimoveis.ia.br/og-image.png">
@@ -22209,7 +22252,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     applicationCategory: 'BusinessApplication', operatingSystem: 'Web',
     description: 'Veja a demanda real de imóveis por região e leve esses leads pra sua conta, com match automático.',
     url: 'https://www.matchimoveis.ia.br/demanda',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL', description: 'Cadastro grátis com 1.000 créditos de bônus' }
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL', description: 'Cadastro grátis com 2.500 créditos de bônus' }
   }).replace(/</g, '\\u003c')}</script>`;
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -23716,11 +23759,11 @@ async function _criarContaDemanda({ nome, email, celular, tipoConta, cpf, senha,
       html: `<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px">
         <h2 style="color:#FF385C">✅ Sua conta foi criada, ${escHtml(nomeVal)}!</h2>
         <p>Você já pode entrar em <a href="https://www.matchimoveis.ia.br/entrar" style="color:#FF385C">matchimoveis.ia.br/entrar</a> com o celular ou email cadastrado.</p>
-        <p>🎁 <strong>Você já ganhou 1.000 créditos de bônus</strong> só por criar a conta — já pode usar na plataforma agora mesmo.</p>
+        <p>🎁 <strong>Você já ganhou 2.500 créditos de bônus</strong> só por criar a conta — já pode usar na plataforma agora mesmo.</p>
         <p>Sua busca por leads em <strong>${escHtml(criterios.estado)}</strong> ficou salva na sua conta. Escolha um combo quando quiser pra levar esses leads pra sua carteira — eles entram automaticamente, junto com mais créditos, assim que o pagamento for aprovado.</p>
         <a href="https://www.matchimoveis.ia.br/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver minha conta →</a>
       </div>`,
-      texto: `Sua conta foi criada, ${nomeVal}! Você já ganhou 1.000 créditos de bônus. Sua busca em ${criterios.estado} ficou salva — escolha um combo quando quiser. Acesse: https://www.matchimoveis.ia.br/entrar`,
+      texto: `Sua conta foi criada, ${nomeVal}! Você já ganhou 2.500 créditos de bônus. Sua busca em ${criterios.estado} ficou salva — escolha um combo quando quiser. Acesse: https://www.matchimoveis.ia.br/entrar`,
       tipo: 'conta_criada_demanda',
       botaoTexto: 'Ver minha conta →',
       userId: novo.codigoUsuario || novo.id
@@ -24179,7 +24222,7 @@ A Match Imóveis resolve isso sozinha, 24 horas por dia:
 • Monta a vitrine e envia pro cliente automaticamente
 • Agenda a visita sem você precisar lembrar
 
-Sem mensalidade fixa e sem comissão sobre venda. Teste agora com 1.000 créditos grátis:
+Sem mensalidade fixa e sem comissão sobre venda. Teste agora com 2.500 créditos grátis:
 https://www.matchimoveis.ia.br
 
 — Equipe Match Imóveis</textarea>
@@ -24579,6 +24622,22 @@ app.post('/admin/campanha/pausar', authAdmin, async (req, res) => {
   try { const { pausarCampanha } = require('./services/campanha'); await pausarCampanha(); res.json({ ok: true }); }
   catch(e) { res.json({ ok: false, erro: e.message }); }
 });
+// Piloto "2.500 créditos" (set/2026) — ISOLADO do motor automático da
+// campanha principal (esta rota nunca é chamada por setInterval nenhum, só
+// por clique manual aqui ou por um script explícito rodado no Render
+// Shell). Dispara um lote bounded (padrão 20, máx 200 por chamada — chamar
+// de novo pra continuar) pros contatos ainda 'pendente', alternando entre
+// os 3 ângulos do relatório de growth. `campanha_config.ativo` (fila
+// principal pagina/demanda) não precisa estar pausado pra isso rodar, mas
+// os dois competem pelo MESMO pool de 'pendente' — se a fila principal
+// estiver ativa ao mesmo tempo, ela também consome desses contatos.
+app.post('/admin/campanha/piloto/disparar', authAdmin, async (req, res) => {
+  try {
+    const { dispararPiloto } = require('./services/campanha');
+    const resultado = await dispararPiloto(req.body?.quantidade || 20);
+    res.json({ ok: true, ...resultado });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
 app.get('/admin/campanha/envios', authAdmin, async (req, res) => {
   try {
     const { listarEnvios } = require('./services/campanha');
@@ -24951,7 +25010,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
 
     <div class="box">
       <h3>3. Ou: campanha pra quem já abriu o email da campanha</h3>
-      <p class="gray">Pega quem abriu o email, parece corretor e tem celular — sem planilha. Cada contato é distribuído em round-robin entre os afiliados marcados abaixo, e ganha o botão de auto-cadastro (cria conta com 1.000 créditos ao clicar) já com o link de indicação do afiliado embutido.</p>
+      <p class="gray">Pega quem abriu o email, parece corretor e tem celular — sem planilha. Cada contato é distribuído em round-robin entre os afiliados marcados abaixo, e ganha o botão de auto-cadastro (cria conta com 2.500 créditos ao clicar) já com o link de indicação do afiliado embutido.</p>
       <label>Nome da campanha</label>
       <input type="text" id="emailNomeCampanha" placeholder="Ex: Cadastre seu imóvel — agosto/2026">
       <label>Nome do template principal (aprovado no WhatsApp Manager)</label>

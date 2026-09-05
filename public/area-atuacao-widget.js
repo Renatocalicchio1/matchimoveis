@@ -50,6 +50,21 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
   function normTexto(s) {
     return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   }
+  // 2ª camada de defesa contra cidade/bairro duplicado ou triplicado na
+  // sugestão (set/2026) — o servidor já agrupa por texto normalizado
+  // (/api/localidades/*), mas isso protege o widget mesmo se algum outro
+  // endpoint futuro devolver a mesma lista sem esse cuidado.
+  function dedupeNormalizado(lista) {
+    var vistos = {};
+    var unicos = [];
+    (lista || []).forEach(function (item) {
+      var chave = normTexto(item).trim().replace(/\s+/g, ' ');
+      if (vistos[chave]) return;
+      vistos[chave] = true;
+      unicos.push(item);
+    });
+    return unicos;
+  }
 
   var cidadesNomes = [];
   var cidadesSelecionadas = [];
@@ -103,7 +118,7 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
     try {
       var r = await fetch(apiCidades + '?estado=' + encodeURIComponent(estado));
       var d = await r.json();
-      cidadesNomes = d.cidades || [];
+      cidadesNomes = dedupeNormalizado(d.cidades || []);
     } catch (e) { cidadesNomes = []; }
     cidadeInput.placeholder = 'Digite pra buscar a cidade (' + cidadesNomes.length + ')...';
     cidadeInput.disabled = false;
@@ -122,7 +137,12 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
       return;
     }
     if (!disponiveis.length) { box.style.display = 'none'; return; }
-    var visiveis = (termo ? disponiveis.filter(function (c) { return normTexto(c).indexOf(termo) > -1; }) : disponiveis).slice(0, 30);
+    // Cap alto (não 30) — o corretor reclamou de não conseguir ver/rolar até
+    // o fim da lista de bairros/cidades sem digitar nada (set/2026); a caixa
+    // já rola (.sugestoes-dropdown tem overflow-y:auto), o corte em 30 é que
+    // escondia o resto. 300 é só um teto de segurança, na prática nenhuma
+    // cidade/estado real chega perto disso.
+    var visiveis = (termo ? disponiveis.filter(function (c) { return normTexto(c).indexOf(termo) > -1; }) : disponiveis).slice(0, 300);
     if (!visiveis.length) { box.innerHTML = '<div class="sugestao-item gray">Nenhuma cidade encontrada</div>'; box.style.display = 'block'; return; }
     box.innerHTML = visiveis.map(function (c) { return '<div class="sugestao-item" data-cidade="' + escHtml(c) + '">' + escHtml(c) + '</div>'; }).join('');
     box.style.display = 'block';
@@ -136,7 +156,7 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
       try {
         var r = await fetch(apiBairros + '?estado=' + encodeURIComponent(estado) + '&cidade=' + encodeURIComponent(cidade));
         var d = await r.json();
-        bairrosPorCidade[cidade] = d.bairros || [];
+        bairrosPorCidade[cidade] = dedupeNormalizado(d.bairros || []);
       } catch (e) { bairrosPorCidade[cidade] = []; }
     }
     reconstruirParesDisponiveis();
@@ -164,7 +184,8 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
     var termo = normTexto($('BairroInput').value.trim());
     var marcadasChaves = paresMarcados.map(parChave);
     var disponiveis = paresDisponiveis.filter(function (p) { return marcadasChaves.indexOf(parChave(p)) === -1; });
-    var visiveis = (termo ? disponiveis.filter(function (p) { return normTexto(p.bairro).indexOf(termo) > -1; }) : disponiveis).slice(0, 30);
+    // Mesmo motivo do cap de cidade acima — 300 é só teto de segurança.
+    var visiveis = (termo ? disponiveis.filter(function (p) { return normTexto(p.bairro).indexOf(termo) > -1; }) : disponiveis).slice(0, 300);
     if (!visiveis.length) { box.innerHTML = '<div class="sugestao-item gray">Nenhum bairro encontrado</div>'; box.style.display = 'block'; return; }
     var multiplasCidades = cidadesSelecionadas.length > 1;
     box.innerHTML = visiveis.map(function (p) {
@@ -204,12 +225,17 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
     if (!item) return;
     var cidade = item.getAttribute('data-cidade');
     $('CidadeInput').value = '';
-    esconderSugestoesCidade();
-    if (cidadesSelecionadas.indexOf(cidade) > -1) return;
-    cidadesSelecionadas.push(cidade);
-    renderCidadesChips();
-    sincronizarHidden();
-    await carregarBairrosDaCidade(cidade);
+    if (cidadesSelecionadas.indexOf(cidade) === -1) {
+      cidadesSelecionadas.push(cidade);
+      renderCidadesChips();
+      sincronizarHidden();
+      await carregarBairrosDaCidade(cidade);
+    }
+    // Mantém a lista aberta (menos a cidade que acabou de entrar como chip) —
+    // corretor que atua em várias cidades escolhe uma atrás da outra sem
+    // precisar clicar de novo no campo a cada cidade (pedido do Renato, set/2026).
+    renderSugestoesCidade();
+    $('CidadeInput').focus();
   });
 
   document.addEventListener('click', function (e) {
@@ -247,9 +273,12 @@ function criarSeletorAreaAtuacao(prefixo, opts) {
       var chave = parChave(par);
       if (paresMarcados.findIndex(function (p) { return parChave(p) === chave; }) === -1) paresMarcados.push(par);
       $('BairroInput').value = '';
-      esconderSugestoesBairro();
       renderBairrosChips();
       sincronizarHidden();
+      // Mantém a lista aberta — mesmo motivo do handler de cidade acima:
+      // escolher 1, 2, 3+ bairros seguidos sem reabrir o campo a cada um.
+      renderSugestoesBairro();
+      $('BairroInput').focus();
     });
   }
 

@@ -28,7 +28,7 @@ Se você já usa outro sistema, importa o XML em menos de 2 minutos. Se não, ca
     botao: 'Cadastrar agora'
   },
   {
-    assunto: '1.000 créditos parados, esperando 1 imóvel',
+    assunto: '2.500 créditos parados, esperando 1 imóvel',
     headline: 'Os créditos de boas-vindas já estão aí — só falta usar',
     corpo: `Sua conta já tem os créditos de bônus, mas eles não fazem nada sozinhos. O motor de match só entra em ação depois que existe pelo menos 1 imóvel na sua carteira.
 

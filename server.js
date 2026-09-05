@@ -741,20 +741,6 @@ function _adminShellCss() {
       .admin-sidebar.open{transform:translateX(0)}
       .admin-content{margin-left:0;padding:56px 14px 24px}
       .admin-mob-btn{display:flex!important}
-      /* Toda página admin monta a própria <table> inline (dezenas de rotas
-         diferentes em server.js, sem wrapper de overflow-x cada uma) —
-         tabela de 6-9 colunas (comum aqui: "Meus corretores", "Meus leads"
-         etc.) cortava informação/empurrava a página inteira pro lado no
-         celular (relatado pelo Renato, ago/2026). Regra global em vez de
-         caçar tabela por tabela: display:block+overflow-x dá rolagem
-         própria pra qualquer <table> dentro do conteúdo admin, sem precisar
-         editar cada rota. white-space:nowrap junto evita quebra de linha
-         estranha dentro da célula enquanto rola.
-         Escape hatch: table.no-mobile-scroll pula essa regra. */
-      .admin-content table:not(.no-mobile-scroll){display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
-      .admin-content table:not(.no-mobile-scroll) thead,
-      .admin-content table:not(.no-mobile-scroll) tbody,
-      .admin-content table:not(.no-mobile-scroll) tr{display:table;width:100%}
     }
   `;
 }
@@ -797,7 +783,40 @@ function _adminSidebarHtml(activeKey, segundoArg, req) {
     <a class="admin-logo" href="/admin"><span class="sq">M</span><span class="tx">Match<span>Imóveis</span> <span style="font-weight:400;color:var(--text-ter)">admin</span></span></a>
     <nav class="admin-menu">${secoes}</nav>
     <div class="admin-foot">${_voltarHtml}<a href="/admin/logout">🚪 Sair</a></div>
-  </aside>`;
+  </aside>
+  <script>
+  // Toda página admin monta a própria <table> inline (dezenas de rotas
+  // diferentes em server.js, sem wrapper de overflow-x cada uma) — tabela de
+  // 6-9 colunas (comum aqui: "Meus corretores", "Meus leads" etc.) cortava
+  // informação/empurrava a página inteira pro lado no celular (relatado pelo
+  // Renato, ago/2026). Fix anterior era CSS puro (table{display:block} +
+  // thead/tbody/tr{display:table}) — corrigido em set/2026 porque isso quebra
+  // o alinhamento de coluna: cada thead/tbody/tr vira uma mini-tabela
+  // independente, cada uma calculando largura de coluna sozinha (confirmado
+  // via Playwright: cabeçalho e cada linha do corpo saíam com larguras de
+  // coluna diferentes entre si). Fix real: embrulha em JS qualquer <table>
+  // que ainda não tenha um ancestral com overflow-x, SEM tocar no display da
+  // tabela — mantém o layout nativo (uma única tabela, colunas alinhadas em
+  // todas as linhas) e só rola o excesso. Tabelas que já tinham wrapper
+  // próprio (.tabela-scroll, .tabela-box etc.) são detectadas e ignoradas,
+  // sem embrulho duplo. Escape hatch: table.no-mobile-scroll pula isso.
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.admin-content table:not(.no-mobile-scroll)').forEach(function (table) {
+      var el = table.parentElement, jaTemScroll = false;
+      while (el && el.classList && !el.classList.contains('admin-content')) {
+        var cs = getComputedStyle(el);
+        if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') { jaTemScroll = true; break; }
+        el = el.parentElement;
+      }
+      if (jaTemScroll) return;
+      var wrap = document.createElement('div');
+      wrap.style.overflowX = 'auto';
+      wrap.style.webkitOverflowScrolling = 'touch';
+      table.parentNode.insertBefore(wrap, table);
+      wrap.appendChild(table);
+    });
+  });
+  </script>`;
 }
 // ── FIM ADMIN SHELL ──────────────────────────────────────────────────────────
 

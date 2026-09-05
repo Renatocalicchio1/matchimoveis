@@ -758,10 +758,12 @@ class MatchCore {
         // Debita match_encontrado
         if (matchesNovos.length > 0 && matchesNovos.length > matchesAntes.length) {
           try { const { consumir: _cMatch } = require('../services/creditos'); _cMatch(lead.userId || lead.codigoUsuario || '', 'match_encontrado').catch(()=>{}); } catch(e) {}
+          try { require('../services/oportunidades').registrarOportunidade(lead.userId || lead.codigoUsuario || '', 'novo_match', { entidadeTipo: 'lead', entidadeId: lead.id }); } catch(e) {}
           // Revela lead oculta (criada via WhatsApp sem perfil minimo) assim que gerar o primeiro match
           if (lead.leadOculta === true) {
             lead.leadOculta = false;
             console.log('[MATCH CORE] lead revelada apos gerar match:', lead.id);
+            try { require('../services/oportunidades').registrarOportunidade(lead.userId || lead.codigoUsuario || '', 'novo_lead', { entidadeTipo: 'lead', entidadeId: lead.id }); } catch(e) {}
             (async () => {
               try {
                 const { criarNotificacao: _criarNotifRevela } = require('../services/salvarNotificacao');

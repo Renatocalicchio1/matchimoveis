@@ -71,6 +71,7 @@ function _notificarNovaLead(userId, leadId, nome, origemLabel){
       lida: false,
       criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
     });
+    require('./services/oportunidades').registrarOportunidade(userId, 'novo_lead', { entidadeTipo: 'lead', entidadeId: leadId });
   } catch(e) { console.error('[notif nova lead]', e.message); }
 }
 
@@ -11357,6 +11358,7 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine What
     leads[idx].ultimaMensagemEm = new Date().toISOString();
     salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
     consumir(req.session.user.id, 'vitrine_whatsapp').catch(()=>{}); // 30 créditos por envio manual de WhatsApp pro lead
+    require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'mensagem_enviada', { entidadeTipo: 'lead', entidadeId: lead.id });
 
     console.log('[ENVIAR WA] mensagem enviada para:', telefone);
     return res.json({ ok: true, telefone, texto });
@@ -13155,6 +13157,7 @@ app.post('/app/imovel/cadastrar', auth, _uploadFotosCadastroImovel, async (req, 
   await _salvarImovelNovo(novo);
   if(_cacheImoveis) _cacheImoveis.push(novo);
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{}); // 15 créditos por imóvel novo
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'imovel_cadastrado', { entidadeTipo: 'imovel', entidadeId: novo.idInterno });
   // Vai direto pra listagem depois de salvar — não passa mais pela tela de
   // editar (pedido explícito: sem passo intermediário, sem delay percebido).
   res.redirect('/app/imoveis?cadastrado=1');
@@ -18553,6 +18556,7 @@ app.post('/app/visitas/concluir/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'visita_concluida', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -18708,6 +18712,7 @@ app.post('/app/visitas/proposta/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'proposta_registrada', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -18735,6 +18740,7 @@ app.post('/app/visitas/fechado/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'negocio_fechado', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -18879,6 +18885,7 @@ app.post('/app/visitas/agendar/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'visita_agendada', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -19120,6 +19127,7 @@ app.post('/app/visitas/checkin/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'visita_checkin', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -19164,6 +19172,7 @@ app.post('/app/visitas/finalizar/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'visita_finalizada', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -19221,6 +19230,7 @@ app.post('/app/visitas/perdido/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'negocio_perdido', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas-kanban');
 });
@@ -19256,6 +19266,7 @@ app.post('/app/visitas/parceiro-confirmou/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'parceiro_confirmado', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -19292,6 +19303,7 @@ app.post('/app/visitas/proprietario-confirmou/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'proprietario_confirmado', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -19876,6 +19888,7 @@ app.post('/app/lead/manual', auth, async (req, res) => {
 
     await salvarLead(lead);
     consumir(uid, 'nova_lead').catch(e => console.error('[nova_lead]', e.message));
+    require('./services/atividadeDiaria').registrarAtividade(uid, 'lead_manual', { entidadeTipo: 'lead', entidadeId: lead.id });
 
     // Roda match via import-processor
     setTimeout(async () => {
@@ -19922,6 +19935,7 @@ app.post('/app/lead/:id/classificar', auth, async (req, res) => {
       await _qCL('UPDATE leads SET tipo_lead=$1 WHERE id=$2', [tipoLead, String(req.params.id)]);
     } catch(_eCL){ console.error('[LEAD] erro classificar PG:', _eCL.message); }
     console.log('[LEAD] classificada como:', tipoLead, '| id:', req.params.id);
+    require('./services/atividadeDiaria').registrarAtividade(uid, 'lead_classificada', { entidadeTipo: 'lead', entidadeId: req.params.id });
     res.json({ ok: true });
   } catch(e) {
     res.status(500).json({ erro: e.message });
@@ -20966,6 +20980,7 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
       }
     }
     console.log('[VISITA] agendada pelo corretor | lead:', leadId, '| imovel:', imovelId);
+    require('./services/atividadeDiaria').registrarAtividade(uid, 'visita_agendada', { entidadeTipo: 'visita', entidadeId: novaVisita.id });
     res.json({ ok: true, visita: novaVisita });
   } catch(e) {
     res.status(500).json({ erro: e.message });

@@ -6127,17 +6127,12 @@ app.get('/import-status',(req,res)=>{
   res.json(global.importStatus || {status:'idle', total:0, mensagem:'Aguardando importação'});
 });
 
-app.get('/import-status',(req,res)=>{res.json({status:global.importStatus||'idle'});});
 
 app.get('/logout', (req,res)=>{
   req.session.destroy(()=>res.redirect('/'));
 });
 
 
-// ===== ROTAS CORRETAS CORRETOR / ADMIN =====
-app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/'));
-});
 
 function usuarioLogado(req){
   return req.session.user || null;
@@ -6156,14 +6151,7 @@ function usuarioLogado(req){
 // Admin match = somente painel de match
 
 
-// ===== ROTAS CORRETAS CORRETOR / ADMIN =====
-app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/'));
-});
 
-function usuarioLogado(req){
-  return req.session.user || null;
-}
 
 app.get('/app', (req,res)=>{
   if(!req.session.user) return res.redirect('/');
@@ -6190,7 +6178,6 @@ app.get('/app-perfil', (req,res)=>{
   renderAppPage(res, 'app-perfil', { title: 'Perfil' });
 });
 
-app.get('/logout', (req,res)=> res.redirect('/'));
 
 // ===== ROTAS FINAIS LIMPAS DO APP =====
 
@@ -6202,9 +6189,11 @@ function auth(req,res,next){
   // continuava sendo bloqueado em /app/leads e /app/afiliados mesmo depois
   // de liberado no middleware global, porque essa função auth() — chamada
   // por rota, ex: app.get('/app/leads', auth, ...) — tinha sua própria
-  // lista, mais curta, sem afiliados/lead). Duas cópias idênticas dessa
-  // função existem no arquivo (bug de duplicação de rotas já documentado no
-  // topo do CLAUDE.md) — mantém as duas em sincronia.
+  // lista, mais curta, sem afiliados/lead. ETAPA 2 (set/2026): existia uma
+  // 2ª cópia idêntica desta função dentro do bloco de rotas duplicado
+  // (~22260-22452, morto/inacessível — Express usa o 1º handler
+  // registrado) — removida, já que as duas eram byte-a-byte iguais e essa
+  // é a única que qualquer rota de fato usa.
   const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp', '/app/resumo'];
   const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
   if(!_isLivre){
@@ -6588,7 +6577,6 @@ async function lerNotificacoes(user) {
   } catch(e) { return []; }
 }
 
-app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
 app.get('/app/notificacoes', auth, async (req,res)=>{
   try {
@@ -9793,10 +9781,6 @@ app.get('/app/visitas', auth, async (req,res)=>{
   res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas, filtros: { status: status||'todos', busca: busca||'', data: data||'' }, baseUrl: BASE_URL });
 });
 
-app.get('/logout', (req,res)=>{
-  if (req.session) req.session.destroy(()=>res.redirect('/'));
-  else res.redirect('/');
-});
 
 
 // WEBHOOK IMOVELWEB / GRUPO QUINTOANDAR - RECEBE LEADS
@@ -13242,6 +13226,13 @@ app.post('/app/imovel/cadastrar', auth, _uploadFotosCadastroImovel, async (req, 
   if(_cacheImoveis) _cacheImoveis.push(novo);
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{}); // 15 créditos por imóvel novo
   require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'imovel_cadastrado', { entidadeTipo: 'imovel', entidadeId: novo.idInterno });
+  // Match Contínuo (ETAPA 4 de implementação, set/2026) — "momento mágico"
+  // nº1: reavalia as leads do próprio corretor contra esse imóvel recém
+  // criado, sem esperar o job diário das 6h. Fire-and-forget de propósito
+  // (nunca atrasa nem quebra o cadastro se o match falhar por qualquer
+  // motivo) — escopo desta 1ª versão só cobre cadastro manual único, não
+  // importação de XML em lote (ver comentário em match-core.js).
+  require('./cerebro/match-core').reavaliarImovelNovo(novo, req.session.user.id).catch(e => console.error('[match-continuo cadastro]', e.message));
   // Vai direto pra listagem depois de salvar — não passa mais pela tela de
   // editar (pedido explícito: sem passo intermediário, sem delay percebido).
   res.redirect('/app/imoveis?cadastrado=1');
@@ -18136,12 +18127,6 @@ app.get('/api/assistente/dados', auth, (req, res) => {
 });
 
 // ─── ASSISTENTE ───────────────────────────────────────────────────────────────
-app.get('/app/assistente', auth, (req, res) => {
-  const imoveis = filtrarPorUsuario(_cacheImoveis || [], req.session.user);
-  const leads = filtrarPorUsuario(_cacheLeads || [], req.session.user);
-  const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length, comMatch: leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length, visitas: 0, visitasHoje: 0 };
-  res.render('app-assistente', { user: req.session.user, stats });
-});
 
 // Rota admin — top perguntas não entendidas
 // Rota admin — funil de leads por conta
@@ -18467,34 +18452,6 @@ app.get('/api/memoria-operacional', auth, (req,res)=>{
 // MEMORIA OPERACIONAL
 // =====================================================
 
-app.get('/api/memoria-operacional', auth, (req,res)=>{
-  try{
-
-    const DATA_DIR =
-      process.env.RENDER
-        ? '/opt/render/project/src/data'
-        : '.';
-
-    const memoriaFile = path.join(DATA_DIR, 'memoria-operacional.json');
-
-    if(!fs.existsSync(memoriaFile)){
-      return res.json([]);
-    }
-
-    const memoria = JSON.parse(fs.readFileSync(memoriaFile,'utf8'));
-
-    return res.json(memoria);
-
-  }catch(err){
-
-    console.log(err);
-
-    return res.status(500).json({
-      ok:false,
-      erro: err.message
-    });
-  }
-});
 
 
 // =====================================================
@@ -18626,11 +18583,6 @@ function resolverUsuarioPorId(id){
   } catch(e){ return null; }
 }
 
-function resolverUsuarioPorId(id){
-  try {
-    return (_cacheUsuarios || []).find(u => String(u.id) === String(id)) || null;
-  } catch(e){ return null; }
-}
 
 // ===============================
 // NOVO FLUXO DE VISITAS (LIMPO)
@@ -18821,6 +18773,9 @@ app.post('/app/visitas/cliente-gostou/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  // Antes só concluir/proposta/fechado/perdido contavam atividade — cliente-gostou
+  // ficava de fora, inconsistente com os outros 4 botões do mesmo funil (ETAPA 6).
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'visita_cliente_gostou', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
   res.redirect('/app/visitas');
 });
@@ -19319,7 +19274,7 @@ app.post('/app/visitas/negociacao/:id', auth, async (req,res)=>{
 
   let visitas = (_cacheVisitas || []);
   const _alvoNeg = visitas.find(v => String(v.id) === String(req.params.id));
-  if (!_podeAcessarVisita(_alvoNeg, req.session.user)) return res.status(404).redirect('/app/visitas-kanban');
+  if (!_podeAcessarVisita(_alvoNeg, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -19338,8 +19293,16 @@ app.post('/app/visitas/negociacao/:id', auth, async (req,res)=>{
   });
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  // Antes só concluir/proposta/fechado/perdido contavam atividade — negociação
+  // ficava de fora, inconsistente com os outros 4 botões do mesmo funil (ETAPA 6).
+  require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'negociacao_iniciada', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
-  res.redirect('/app/visitas-kanban');
+  // ETAPA 6: /app/visitas-kanban era órfã (zero link no menu) e /app/visitas
+  // não mostrava pipelineStatus — corretor que avançava aqui era jogado de
+  // volta pra uma tela cega ao próprio avanço. Unificado: /app/visitas agora
+  // exibe o funil completo, então todo redirect de ação de visita aponta pra
+  // lá (mesmo destino que concluir/cliente-gostou/proposta/fechado já usavam).
+  res.redirect('/app/visitas');
 });
 
 app.post('/app/visitas/perdido/:id', auth, async (req,res)=>{
@@ -19347,7 +19310,7 @@ app.post('/app/visitas/perdido/:id', auth, async (req,res)=>{
 
   let visitas = (_cacheVisitas || []);
   const _alvoPerdido = visitas.find(v => String(v.id) === String(req.params.id));
-  if (!_podeAcessarVisita(_alvoPerdido, req.session.user)) return res.status(404).redirect('/app/visitas-kanban');
+  if (!_podeAcessarVisita(_alvoPerdido, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -19368,7 +19331,9 @@ app.post('/app/visitas/perdido/:id', auth, async (req,res)=>{
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
   require('./services/atividadeDiaria').registrarAtividade(req.session.user.id, 'negocio_perdido', { entidadeTipo: 'visita', entidadeId: req.params.id });
 
-  res.redirect('/app/visitas-kanban');
+  // ETAPA 6: mesmo motivo do redirect de negociacao acima — /app/visitas
+  // agora é a única tela, já mostra pipelineStatus.
+  res.redirect('/app/visitas');
 });
 
 
@@ -20740,6 +20705,12 @@ function _construirDadosResumo(user) {
     for (let ri = 0; ri < tamanho; ri++) janela.push(lista[(offset + ri) % lista.length]);
     return janela;
   };
+  // Next Best Action (ETAPA 5 de implementação, set/2026) — regra
+  // determinística de prioridade + "por que estou vendo isso" por card. Ver
+  // services/nextBestAction.js. Usado só como critério de DESEMPATE no sort
+  // abaixo — recência continua vindo primeiro (decisão de produto já
+  // documentada no CLAUDE.md).
+  const _nextBestAction = require('./services/nextBestAction');
 
   const leads = lerLeads(user)
     .filter(l => l.tipoLead !== 'corretor')
@@ -20823,6 +20794,10 @@ function _construirDadosResumo(user) {
       const p = l._propensaoResumo;
       const tel = l.telefone || l.whatsapp || l.contato || '';
       const _fotosMotivo = p.motivoImovel && p.motivoImovel.id ? (_mapaFotoImovel[String(p.motivoImovel.id)] || []) : [];
+      const _horasSemContatoNba = p.atualizadoEm ? (agora - new Date(p.atualizadoEm).getTime()) / 3600000 : 0;
+      const _nbaPropensao = p.tier === 'alta'
+        ? _nextBestAction.avaliarPrioridade('lead_quente_sem_contato', { horasSemContato: _horasSemContatoNba })
+        : { prioridade: 'baixa', motivo: '' };
       cards.push({
         ordem: p.tier === 'alta' ? 0 : 1,
         cat: p.tier === 'alta' ? '🔥 Propensão alta' : '🌤 Propensão média', accent: p.tier === 'alta' ? '#FF385C' : '#FC642D',
@@ -20834,7 +20809,8 @@ function _construirDadosResumo(user) {
         // do Renato: "sempre legal o corretor saber de qual imóvel que o
         // cliente está entrando". Sem imóvel identificado, cai pro lead.
         secondary: (p.motivoImovel && p.motivoImovel.id) ? '🏠 Ver imóvel' : '👤 Ver lead',
-        secondaryLink: (p.motivoImovel && p.motivoImovel.id) ? ('/app/imovel/' + p.motivoImovel.id) : ('/app/lead/' + l.id)
+        secondaryLink: (p.motivoImovel && p.motivoImovel.id) ? ('/app/imovel/' + p.motivoImovel.id) : ('/app/lead/' + l.id),
+        prioridade: _nbaPropensao.prioridade, motivo: _nbaPropensao.motivo
       });
     });
 
@@ -20848,6 +20824,7 @@ function _construirDadosResumo(user) {
       // resumo — set/2026, pedido do Renato: "ele não tem que ir pro
       // painel"). "Painel" só vira link de verdade pro /app/visitas
       // quando a visita não tem lead vinculada (raro, mas possível).
+      const _nbaVisita = _nextBestAction.avaliarPrioridade('visita_pendente');
       cards.push({
         ordem: 0,
         cat: '📅 Pedido de visita', accent: '#FC642D', tag: 'arches', tagText: '⏰ PRECISA CONFIRMAR',
@@ -20855,7 +20832,8 @@ function _construirDadosResumo(user) {
         detalhe: '🏠 ' + (v.imovelTitulo || 'Imóvel') + (v.dataVisita ? (' — ' + v.dataVisita.split('-').reverse().join('/') + (v.horaVisita ? ' às ' + v.horaVisita : '')) : ''),
         time: tempoRelativoResumo(v.data || v.criadoEm), _ts: (v.data || v.criadoEm) ? new Date(v.data || v.criadoEm).getTime() : 0,
         primary: '✅ Confirmar visita', primaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas',
-        secondary: '👤 Ver lead', secondaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas'
+        secondary: '👤 Ver lead', secondaryLink: v.leadId ? ('/app/lead/' + v.leadId) : '/app/visitas',
+        prioridade: _nbaVisita.prioridade, motivo: _nbaVisita.motivo
       });
     });
 
@@ -20945,6 +20923,56 @@ function _construirDadosResumo(user) {
     });
   } catch (e) { console.error('[resumo] erro imoveis curtir:', e.message); }
 
+  // 🎯 Novo match encontrado — payoff visível do Match Contínuo (ETAPA 4,
+  // ver CLAUDE.md): antes, um match melhorado (por mensagem OU por imóvel
+  // novo entrando via reavaliarImovelNovo) só virava linha no histórico da
+  // lead — o corretor tinha que abrir cada lead pra descobrir. `matchAutoEm`
+  // é setado por _matchCaso2 (cerebro/match-core.js) toda vez que os matches
+  // são recalculados, não importa o gatilho — reaproveitado aqui direto,
+  // sem duplicar a lógica de quando um match "aconteceu".
+  _rotacionar(leads
+    .filter(l => l.matchAutoEm && horasDesde(l.matchAutoEm) < 48)
+    .filter(l => (l.matchesAuto || l.matches || []).length > 0)
+    .filter(l => !_jaFalado(l, l.matchAutoEm))
+    .sort((a, b) => new Date(b.matchAutoEm) - new Date(a.matchAutoEm))
+    .slice(0, 9), 3)
+    .forEach(l => {
+      const _matches = l.matchesAuto || l.matches || [];
+      const _melhorScore = _matches.reduce((max, m) => Math.max(max, Number(m.score) || 0), 0);
+      const _nbaMatch = _nextBestAction.avaliarPrioridade('match_novo', { score: _melhorScore });
+      cards.push({
+        ordem: 1,
+        cat: '🎯 Novo match', accent: '#00A699', tag: 'babu', tagText: '🤖 AUTOMÁTICO',
+        icon: '🎯', nome: '🎯 Encontramos ' + _matches.length + ' imóve' + (_matches.length === 1 ? 'l' : 'is') + ' pra ' + (l.nome || 'uma lead') + '!',
+        detalhe: '⭐ Melhor compatibilidade: ' + _melhorScore + ' pontos', time: tempoRelativoResumo(l.matchAutoEm), _ts: new Date(l.matchAutoEm).getTime(),
+        primary: '👤 Ver lead', primaryLink: '/app/lead/' + l.id,
+        secondary: '✓ Marcar como falado', secondaryLink: '', marcarFalado: l.id,
+        prioridade: _nbaMatch.prioridade, motivo: _nbaMatch.motivo
+      });
+    });
+
+  // 📄 XML desatualizado — sinal de baixa prioridade (exemplo explícito do
+  // pedido de Next Best Action), mas real: XML parado significa carteira
+  // desatualizada nos portais sem o corretor perceber. `xml_atualizado_em`
+  // já existe em `usuarios` (usado por /app/cadastro pra mostrar a data do
+  // último sync) — só reaproveitado aqui, nenhum dado novo.
+  try {
+    if (user.xmlUrl && user.xmlAtualizadoEm) {
+      const _horasSemSyncXml = horasDesde(user.xmlAtualizadoEm);
+      if (_horasSemSyncXml >= 48) {
+        const _nbaXml = _nextBestAction.avaliarPrioridade('xml_desatualizado', { horasSemSync: _horasSemSyncXml });
+        cards.push({
+          ordem: 4,
+          cat: '📄 XML desatualizado', accent: '#9ca3af', tag: 'gray', tagText: '⚠️ VERIFICAR',
+          icon: '📄', nome: '📄 Seu XML não sincroniza há ' + Math.floor(_horasSemSyncXml / 24) + ' dia(s)',
+          detalhe: '🔄 Sua carteira pode estar desatualizada nos portais.', time: tempoRelativoResumo(user.xmlAtualizadoEm), _ts: new Date(user.xmlAtualizadoEm).getTime(),
+          primary: '⚙️ Ver XML', primaryLink: '/app/cadastro',
+          prioridade: _nbaXml.prioridade, motivo: _nbaXml.motivo
+        });
+      }
+    }
+  } catch (e) { console.error('[resumo] erro xml desatualizado:', e.message); }
+
   // Ordena o resto por RECÊNCIA de verdade (pedido do Renato, set/2026:
   // "tem que priorizar o que aconteceu mais recente sempre") — antes
   // ordenava só por categoria fixa (pedido de visita sempre primeiro,
@@ -20964,7 +20992,11 @@ function _construirDadosResumo(user) {
   // de gerar o card dele (filter !p.feito acima) — "até completar" já é
   // automático, não precisa de lógica extra aqui.
   const _passosCards = cards.filter(c => c.cat === '✅ Primeiros passos');
-  const _outrosCards = cards.filter(c => c.cat !== '✅ Primeiros passos').sort((a, b) => (b._ts || 0) - (a._ts || 0) || a.ordem - b.ordem);
+  // Next Best Action (ETAPA 5): prioridade entra como desempate ENTRE
+  // recência e a categoria fixa — dois cards com o mesmo horário (ou sem
+  // timestamp) agora respeitam "alta > média > baixa" antes de cair no
+  // desempate antigo por categoria. Recência continua mandando primeiro.
+  const _outrosCards = cards.filter(c => c.cat !== '✅ Primeiros passos').sort((a, b) => (b._ts || 0) - (a._ts || 0) || _nextBestAction.compararPrioridade(a, b) || a.ordem - b.ordem);
   const _cardsIntercalados = [];
   let _pi = 0;
   _outrosCards.forEach((c, i) => {
@@ -21235,25 +21267,7 @@ app.post('/app/notificacoes/marcar-todas-lidas', auth, async (req, res) => {
 });
 
 // ── NOTIFICAÇÕES — MARCAR LIDA ─────────────────────────────
-app.post('/app/notificacoes/:id/lida', auth, async (req, res) => {
-  try {
-    const { lerNotificacoes, marcarLida } = require('./services/salvarNotificacao');
-    const minhas = await lerNotificacoes(req.session.user.id);
-    if (!minhas.find(n => String(n.id) === String(req.params.id))) {
-      return res.status(404).json({ ok: false, erro: 'notificacao nao encontrada' });
-    }
-    await marcarLida(req.params.id);
-    res.json({ ok: true });
-  } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
 
-app.post('/app/notificacoes/marcar-todas-lidas', auth, async (req, res) => {
-  try {
-    const { marcarTodasLidas } = require('./services/salvarNotificacao');
-    await marcarTodasLidas(req.session.user.id);
-    res.json({ ok: true });
-  } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
 
 // ── JOB_VISITA_REALIZADA — 5h após visita confirmada ─────────────────────────
 setInterval(async () => {
@@ -21639,36 +21653,8 @@ app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
 // ── FIM ROTAS VISITA REALIZADA ────────────────────────────────────────────────
 
 // ── ROTAS VISITA REALIZADA / LEAD FEEDBACK ────────────────────────────────────
-app.get('/visita/:id/realizada-corretor', async (req, res) => {
-  try {
-    const { query: _q } = require('./services/db');
-    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
-    if (!visita) return res.status(404).send('Visita não encontrada');
-    const respondido = ['realizada','nao_realizada'].includes(visita.status);
-    const msg = visita.status === 'realizada' ? '✅ Visita marcada como realizada!' : '❌ Visita marcada como não realizada.';
-    res.render('visita-realizada-corretor', { visita, respondido, msg });
-  } catch(e) { res.status(500).send('Erro: ' + e.message); }
-});
 
-app.post('/visita/:id/marcar-realizada', async (req, res) => {
-  try {
-    const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
-    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
-    if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='visitou', status='visitou', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
-    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '✅ Visita marcada como realizada!' });
-  } catch(e) { res.status(500).send('Erro: ' + e.message); }
-});
 
-app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
-  try {
-    const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
-    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
-    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='cancelada'; }
-    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita cancelada. Lead notificada para reagendar.' });
-  } catch(e) { res.status(500).send('Erro: ' + e.message); }
-});
 
 app.get('/visita/:id/realizada-lead', async (req, res) => {
   try {
@@ -21751,737 +21737,6 @@ app.post('/visita/:id/lead-nao-gostou', async (req, res) => {
 // esses campos devem ser ocultados.
 
 
-// ===== LEADS + MATCH + OFERTA CLIENTE =====
-async function carregarLeads(){
-  try { const r = await _qL('SELECT dados FROM leads ORDER BY criado_em DESC'); return r.rows.map(r=>r.dados); } catch(e) { console.error('[carregarLeads]',e.message); return []; }
-}
-
-async function salvarLeads(leads){
-  const fs = require('fs');
-  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-}
-
-// ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
-async function lerLeadsData() {
-  try { const { query: _qLD } = require('./services/db'); const r = await _qLD('SELECT *, dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario, score, temperatura, fase_funil, perfil_ia, status, tipo_lead, historico, timeline, eventos, comportamento, mapa_intencao FROM leads ORDER BY criado_em DESC'); return r.rows.filter(r=>r.fase_funil!=='captacao'&&r.status!=='captacao').map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, vitrineEmailEnviada: r.vitrine_email_enviada, vitrineEmailEnviadaEm: r.vitrine_email_enviada_em, matches: r.matches||[], matchesAuto: (r.matches_auto && r.matches_auto.length) ? r.matches_auto : (r.matches||[]), score: r.score || (r.dados||{}).score || 0, temperatura: r.temperatura || (r.dados||{}).temperatura || 'frio', faseFunil: r.fase_funil || (r.dados||{}).faseFunil || 'novo', status: r.status || (r.dados||{}).status || 'novo', perfilIA: r.perfil_ia || (r.dados||{}).perfilIA || {}, mapaIntencao: r.mapa_intencao || (r.dados||{}).mapaIntencao || null, comportamento: r.comportamento || (r.dados||{}).comportamento || null, historico: r.historico || (r.dados||{}).historico || [], timeline: r.timeline || (r.dados||{}).timeline || [], eventos: r.eventos || (r.dados||{}).eventos || [] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
-}
-
-async function salvarLeadsData(leads) {
-  try {
-    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-  } catch(e) { console.error('[salvarLeadsData]', e.message); }
-}
-
-async function lerVisitasData() {
-  try { const r = await _qV('SELECT dados, imovel_id, imovel_bairro, status, data_visita FROM visitas ORDER BY criado_em DESC'); return r.rows.map(r=>({...r.dados, imovelId: r.dados.imovelId||r.imovel_id, imovelBairro: r.dados.imovelBairro||r.imovel_bairro, status: r.dados.status||r.status, dataVisita: r.dados.dataVisita||r.data_visita})); } catch(e) { console.error('[lerVisitasData]',e.message); return []; }
-}
-
-async function salvarVisitasData(visitas) {
-  try {
-    salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
-  } catch(e) { console.error('[salvarVisitasData]', e.message); }
-}
-
-async function atualizarLead(id, campos) {
-  const leads = await lerLeadsData();
-  const idx = leads.findIndex(l => String(l.id) === String(id));
-  if (idx < 0) return null;
-  leads[idx] = { ...leads[idx], ...campos };
-  salvarLeadsData(leads);
-  return leads[idx];
-}
-
-async function atualizarVisita(id, campos) {
-  const visitas = await lerVisitasData();
-  const idx = visitas.findIndex(v => String(v.id) === String(id));
-  if (idx < 0) return null;
-  visitas[idx] = { ...visitas[idx], ...campos };
-  salvarVisitasData(visitas);
-  return visitas[idx];
-}
-
-async function criarLead(payload) {
-  const leads = await lerLeadsData();
-  const novo = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
-  leads.push(novo);
-  salvarLeadsData(leads);
-  // Cobra 10 créditos por nova lead
-  const _userId = payload.userId || payload.corretorId || payload.usuarioDestinoId || '';
-  if (_userId) consumir(_userId, 'nova_lead').catch(()=>{});
-  return novo;
-}
-
-async function criarVisita(payload) {
-  const visitas = await lerVisitasData();
-  const nova = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
-  visitas.push(nova);
-  salvarVisitasData(visitas);
-  return nova;
-}
-// ── FIM HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────
-
-function marcarEtapaLead(lead, etapa){
-  lead.etapaAtual = etapa;
-  lead.jornada = lead.jornada || [];
-  const atual = lead.jornada.find(j => j.etapa === etapa);
-  if(atual){ atual.feito = true; atual.data = new Date().toISOString(); }
-  else lead.jornada.push({ etapa, feito:true, data:new Date().toISOString() });
-}
-
-app.get('/cliente/oferta/:leadId', (req,res)=>{
-  const leads = (_cacheLeads || []);
-  const userIdOferta = req.query.userId || req.query.uid || '';
-
-  let lead = null;
-
-  if (userIdOferta) {
-    lead = leads.find(l =>
-      String(l.id || l.leadId || '') === String(req.params.leadId) &&
-      String(l.userId || l.usuarioId || l.corretorId || '') === String(userIdOferta)
-    );
-  }
-
-  if (!lead) {
-    lead = leads.find(l => String(l.id || l.leadId || '') === String(req.params.leadId));
-  }
-
-  if(!lead) return res.status(404).send('Lead não encontrado');
-
-  lead.matches = ((lead.matchesBase && lead.matchesBase.length ? lead.matchesBase : null) ||
-               (lead.matchesAuto && lead.matchesAuto.length ? lead.matchesAuto : null) ||
-               (lead.matches && lead.matches.length ? lead.matches : null) || []).slice(0, 9); // vitrine: máximo de 9 imóveis (já vêm ordenados por score)
-  
-  // Marca vitrine como visualizada — só conta como visualização NOVA se já
-  // passou o cooldown da propensão (30min, mesmo valor de COOLDOWN_MINUTOS
-  // em cerebro/propensao.js) desde a última vez. Bug real reportado pelo
-  // Renato (set/2026): essa rota é atingida toda vez que o link é aberto,
-  // inclusive por scanner de segurança/preview de email que pré-abre o link
-  // sozinho, sem humano nenhum — sem essa trava, vitrineVisualizadaEm
-  // avançava a cada hit, o motivo 'vitrineVista' do motor de propensão
-  // nunca reconhecia "mesmo sinal já tratado" (só a 'visualizacao'/
-  // 'navegouImoveis' já tinham dedup própria), e JOB_PROPENSAO reenviava o
-  // e-mail "Separei umas opções pra você" a cada ~30min sem parar. Sintoma
-  // confirmado: lead com 24 vitrineVistas e ZERO imóvel de fato aberto.
-  const idxLead = leads.findIndex(l => String(l.id||l.leadId||'') === String(req.params.leadId));
-  let _visitaVitrineNova = true;
-  if (idxLead >= 0) {
-    leads[idxLead].vitrineVisualizada = true;
-    const _ultimaVezVitrine = leads[idxLead].vitrineVisualizadaEm;
-    _visitaVitrineNova = !_ultimaVezVitrine || (Date.now() - new Date(_ultimaVezVitrine).getTime()) > 30*60*1000;
-    if (_visitaVitrineNova) leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
-    // (removido, set/2026) tinha um bloco morto aqui (`if (false && ...)`)
-    // tentando marcar vitrineEnviada quando a lead VÊ a vitrine — errado
-    // por definição: "visualizada" é a lead abrindo o link, "enviada" é o
-    // corretor tendo mandado; nunca deve ser inferido um do outro. Quem
-    // marca vitrineEnviada de verdade: cerebro/match-core.js (envio
-    // automático), JOB_FOLLOWUPS e /app/lead/:id/vitrine-manual-enviada
-    // (envio manual, corrigido na mesma varredura).
-    lead = leads[idxLead];
-  }
-  registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
-  // Alimenta o Motor de Intenção com a abertura real da vitrine pelo lead —
-  // case 'viu_vitrine' já existia em registrarComportamento() mas nunca
-  // tinha disparo nenhum (motor construído, nunca ligado na página pública).
-  // Aplicado nas 2 cópias dessa rota (ver nota de duplicação de rotas no
-  // topo do arquivo) — só a 1ª registrada pelo Express roda de verdade, mas
-  // mantém as cópias consistentes. Só registra se for visita nova (ver
-  // trava acima) — senão vitrineVistas e ultimaAtividade também inflavam
-  // sozinhos a cada hit automático.
-  if (_visitaVitrineNova) {
-    try {
-      const { registrarComportamento: _regCompVitrine } = require('./cerebro/motor-intencao');
-      Object.assign(lead, _regCompVitrine(lead, { tipo: 'viu_vitrine', em: new Date().toISOString() }));
-    } catch (e) { console.error('[comportamento-vitrine]', e.message); }
-  }
-  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-  const _usersMapVitrine = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapVitrine[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
-  res.render('cliente-oferta', {
-    user: null,
-    lead,
-    matchesParceiro: lead.matchesQuintoAndar || [],
-    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || '',
-    usersMap: _usersMapVitrine
-  });
-});
-
-app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
-  const leads = (_cacheLeads || []);
-  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
-  if(!lead) return res.status(404).send('Lead não encontrado');
-  const idx = Number(req.params.idx);
-  lead.imovelEscolhido = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
-  _registrarGostei(lead, lead.imovelEscolhido);
-  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-  res.redirect('/cliente/oferta/'+req.params.leadId);
-});
-
-app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
-  const leads = (_cacheLeads || []);
-  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
-  if(!lead) return res.status(404).send('Lead não encontrado');
-  const idx = Number(req.params.idx);
-  const matchesDisp = lead.matchesBase || lead.matches || [];
-  lead.imovelVisita = matchesDisp[idx] || null;
-  lead.visitaSolicitadaEm = new Date().toISOString();
-  registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
-  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-
-  // Gravar em visitas.json vinculado ao dono da lead
-  const imovel = lead.imovelVisita || {};
-  // Busca proprietario no imoveis.json
-  const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
-  const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
-  const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
-
-  const novaVisita = {
-    id: Date.now().toString(),
-    leadId: lead.id || lead.leadId,
-    nome: lead.nome || lead.name || '',
-    telefone: lead.telefone || lead.phone || '',
-    contato: lead.telefone || lead.phone || '',
-    imovelId: imovel.id || imovel.codigo || '',
-    imovelTitulo: imovel.titulo || imovel.title || '',
-    imovelBairro: imovel.bairro || '',
-    imovelCidade: imovel.cidade || '',
-    imovelEstado: imovel.estado || '',
-    usuarioDestinoId: lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '',
-    userId: lead.userId || lead.codigoUsuario || '',
-    corretorId: lead.userId || lead.codigoUsuario || '',
-    proprietarioNome: proprietario.nome || '',
-    proprietarioTelefone: (proprietario.telefone || proprietario.celular || '').replace(/\D/g,''),
-    imovelUsuarioId: imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '',
-    imovelUsuarioNome: (() => {
-      const _imOwnerId = imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '';
-      const _imOwner = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _imOwnerId);
-      return _imOwner ? (_imOwner.nome||'') : (imovelBase ? (imovelBase.fonte||'') : '');
-    })(),
-    imovelUsuarioTelefone: (() => {
-      const _imOwnerId = imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '';
-      const _imOwner = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _imOwnerId);
-      return _imOwner ? ((_imOwner.celular||_imOwner.telefone||'').replace(/\D/g,'')) : '';
-    })(),
-    usuarioDestinoNome: (() => {
-      const _uid = lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '';
-      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
-      return _u ? (_u.nome||'') : '';
-    })(),
-    usuarioDestinoPerfil: '',
-    usuarioDestinoTelefone: (() => {
-      const _uid = lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '';
-      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
-      return _u ? ((_u.celular||_u.telefone||'').replace(/\D/g,'')) : '';
-    })(),
-    corretorNome: (() => {
-      const _uid = lead.userId || lead.codigoUsuario || '';
-      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
-      return _u ? (_u.nome||'') : '';
-    })(),
-    corretorTelefone: (() => {
-      const _uid = lead.userId || lead.codigoUsuario || '';
-      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
-      return _u ? ((_u.celular||_u.telefone||'').replace(/\D/g,'')) : '';
-    })(),
-    dataVisita: lead.dataVisita || lead.dataPreferida || '',
-    horaVisita: lead.horaVisita || lead.horarioPreferido || '',
-    imovelUrl: imovel.url || '',
-    status: 'solicitada',
-    origem: 'vitrine_cliente',
-    fonte: 'MatchImóveis',
-    data: new Date().toISOString(),
-    data_br: new Date().toLocaleString('pt-BR')
-  };
-  const visitas = (_cacheVisitas || []);
-  try { const { query: _qV2 } = require('./services/db'); _qV2('SELECT user_id FROM leads WHERE id=$1', [lead?.id||'']).then(r => { const _uid2 = r.rows[0]?.user_id || (lead&&(lead.userId||lead.codigoUsuario||lead.corretorId)) || ''; if(_uid2) consumir(_uid2,'visita_agendada_ia').catch(()=>{}); }).catch(()=>{}); } catch(e) {}
-  const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
-  visitas.push(visitaComWorkflow);
-  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
-
-  res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
-});
-
-
-// ===== REGRA DONO DO LEAD =====
-
-// Sempre que importar leads:
-function aplicarDonoLead(lead, usuario){
-  lead.corretorId = usuario.id || 'mario-11999965998';
-  lead.corretorNome = usuario.nome || 'MARIO SERGIO DE SOUZA';
-  lead.corretorCelular = usuario.celular || '11999965998';
-  return lead;
-}
-
-// Filtrar leads do corretor logado
-function filtrarLeadsPorCorretor(leads, usuario){
-  return leads.filter(l => l.corretorId === (usuario.id || 'mario-11999965998'));
-}
-
-// Quando cliente pedir visita
-function registrarVisita(lead){
-  lead.visita = {
-    status: 'solicitada',
-    data: new Date().toISOString()
-  };
-  lead.etapaAtual = 'Visita solicitada';
-  return lead;
-}
-
-
-
-
-
-
-
-
-
-
-// Página de confirmação do proprietário
-
-
-
-
-
-
-
-
-
-// Página do corretor para confirmar/recusar visita (sem login)
-app.get('/corretor/visita/:id', async (req, res) => {
-  try {
-    const { lerVisitas } = require('./services/salvarVisita');
-    const todas = await lerVisitas();
-    const visita = todas.find(v => String(v.id) === String(req.params.id));
-    if (!visita) return res.status(404).send('<h2>Visita não encontrada</h2>');
-    res.render('corretor-visita', { visita });
-  } catch(e) {
-    res.status(500).send('<h2>Erro: ' + e.message + '</h2>');
-  }
-});
-
-app.post('/corretor/visita/:id/responder', async (req, res) => {
-  try {
-    const { resposta } = req.body;
-    const { lerVisitas, salvarTodasVisitas: _salvarVisitas } = require('./services/salvarVisita');
-    const todas = await lerVisitas();
-    const idx = todas.findIndex(v => String(v.id) === String(req.params.id));
-    if (idx < 0) return res.status(404).send('<h2>Visita não encontrada</h2>');
-
-    const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
-    const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
-    const _BASE = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
-    const _v = todas[idx];
-    const _telCliente = String(_v.telefone || _v.contato || '').replace(/\D/g,'');
-    // Busca instância do corretor dono da visita
-    const _userId = _v.userId || _v.user_id || _v.corretorId || _v.corretor_id || '';
-    const { lerUsuarios: _luCV } = require('./services/salvarUsuario');
-    const _usersCV = await _luCV();
-    const _corrCV = _usersCV.find(u => u.id === _userId);
-    const _instancia = _corrCV?.whatsappInstance || 'match-corretor';
-    const _imovel = _v.imovelTitulo || _v.imovel_titulo || _v.imovelBairro || _v.imovel_bairro || 'imóvel';
-    const _data = (_v.dataVisita || _v.data_visita) ? ' para ' + (_v.dataVisita || _v.data_visita) + ((_v.horaVisita || _v.hora_visita) ? ' às ' + (_v.horaVisita || _v.hora_visita) : '') : '';
-
-    async function _enviarWA(numero, texto) {
-      try {
-        await fetch(_EU + '/message/sendText/' + _instancia, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': _EK },
-          body: JSON.stringify({ number: '55' + numero.replace(/^55/,''), text: texto })
-        });
-      } catch(e) { console.error('[WA corretor-visita]', e.message); }
-    }
-
-    if (resposta === 'confirmar') {
-      todas[idx].status = 'confirmada';
-      todas[idx].respostaCorretor = 'confirmar';
-      todas[idx].corretorConfirmouEm = new Date().toISOString();
-      // WA para o cliente confirmar presença
-      if (_telCliente) {
-        const _linkConfirmar = _BASE + '/cliente/visita/' + _v.id + '/confirmar';
-        const _linkRecusar = _BASE + '/cliente/visita/' + _v.id + '/recusar';
-        const _msg = 'Olá *' + (_v.nome||'') + '*! Sua visita ao imóvel *' + _imovel + '*' + _data + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
-        await _enviarWA(_telCliente, _msg);
-      }
-    } else if (resposta === 'indisponivel') {
-      todas[idx].status = 'imovel_indisponivel';
-      todas[idx].respostaCorretor = 'indisponivel';
-      todas[idx].corretorRecusouEm = new Date().toISOString();
-      // Inativa o imóvel no PG
-      try {
-        const { query: _qInat } = require('./services/db');
-        const _agora = new Date().toISOString();
-        await _qInat("UPDATE imoveis SET status='inativo', dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1", [_v.imovelId, _agora]);
-        console.log('[corretor] Imóvel inativado:', _v.imovelId);
-      } catch(_e) { console.error('[inativar]', _e.message); }
-      // WA para o cliente com link da vitrine
-      if (_telCliente) {
-        const _leadId = _v.leadId || '';
-        const _linkVitrine = _leadId ? _BASE + '/cliente/oferta/' + _leadId : _BASE;
-        const _msg = 'Olá *' + (_v.nome||'') + '*! Infelizmente o imóvel *' + _imovel + '* não está mais disponível.\n\nAcesse a vitrine e escolha outra opção: ' + _linkVitrine;
-        await _enviarWA(_telCliente, _msg);
-      }
-    } else if (resposta === 'remarcar') {
-      todas[idx].status = 'pendente_remarcar';
-      todas[idx].respostaCorretor = 'remarcar';
-      todas[idx].corretorRemarcarEm = new Date().toISOString();
-      // WA para o cliente remarcar
-      if (_telCliente) {
-        const _leadId = _v.leadId || '';
-        const _imovelIdEnc = encodeURIComponent(_v.imovelId || '');
-        const _linkRemarcar = _BASE + '/cliente/visita/' + _v.id + '/remarcar';
-        const _msgRemarcar = 'Olá *' + (_v.nome||'') + '*! O corretor solicitou uma remarcação da visita ao imóvel *' + _imovel + '*.\n\nEscolha uma nova data: ' + _linkRemarcar;
-        await _enviarWA(_telCliente, _msgRemarcar);
-      }
-    }
-
-    await _salvarVisitas(todas);
-    res.render('corretor-visita', { visita: todas[idx] });
-  } catch(e) {
-    console.error('[corretor-visita]', e.message);
-    res.status(500).send('<h2>Erro: ' + e.message + '</h2>');
-  }
-});
-
-app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
-  const visitas = (_cacheVisitas || []);
-  const idx = visitas.findIndex(v => v.id === req.params.visitaId);
-  if (idx === -1) return res.status(404).send('Visita não encontrada');
-  
-  const { resposta } = req.body;
-  consumir(visita?.ownerUserId || visita?.corretorId, 'confirmacao_auto').catch(()=>{});
-    respostaProprietario = resposta;
-  visitas[idx].respostaEm = new Date().toISOString();
-
-  if (resposta === 'confirmar') {
-    visitas[idx].status = 'confirmada';
-    const telCliente = String(visitas[idx].telefone || visitas[idx].contato || '').replace(/\D/g,'');
-    const dataVisita = visitas[idx].dataVisita || 'em breve';
-    const horaVisita = visitas[idx].horaVisita || '';
-    const imovelTitulo = visitas[idx].imovelTitulo || visitas[idx].imovelBairro || 'o imóvel';
-    const msgCliente = 'Olá ' + (visitas[idx].nome || '') + '! Sua visita ao imóvel *' + imovelTitulo + '* foi confirmada para ' + dataVisita + (horaVisita ? ' às ' + horaVisita : '') + '. Qualquer dúvida, entre em contato!';
-    visitas[idx].whatsappClienteLink = telCliente ? 'https://wa.me/55' + telCliente + '?text=' + encodeURIComponent(msgCliente) : '';
-    visitas[idx].clienteNotificado = false;
-  } else if (resposta === 'indisponivel') {
-    visitas[idx].status = 'cancelada';
-    // Marca imóvel como inativo
-    try {
-      const _iid = visitas[idx].imovelId;
-      const _agora = new Date().toISOString();
-      const _qInativar = `UPDATE imoveis SET dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','proprietario') WHERE id_externo=$1 OR id_interno=$1`;
-      await _qExcluir(_qInativar, [_iid, _agora]);
-      console.log('Imóvel inativado via PG:', _iid);
-    } catch(_e) { console.error('[inativar imovel]', _e.message); }
-  } else if (resposta === 'remarcar') {
-    visitas[idx].status = 'pendente_remarcar';
-  }
-
-  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
-  try {
-    const _v = visitas[idx];
-    const _uid = _v.userId || _v.corretorId || '';
-    const _imovel = _v.imovelTitulo || _v.imovelBairro || 'imovel';
-    const _cliente = _v.nome || 'cliente';
-    const _data = _v.dataVisita || '';
-    const _hora = _v.horaVisita || '';
-    const _msgs = {
-      confirmar: { titulo: 'Visita confirmada pelo proprietario', msg: 'O proprietario confirmou a visita de ' + _cliente + ' ao imovel ' + _imovel + ' para ' + _data + ' as ' + _hora + '.' },
-      indisponivel: { titulo: 'Imovel indisponivel', msg: 'O proprietario informou que o imovel ' + _imovel + ' nao esta disponivel. Imovel inativado.' },
-      remarcar: { titulo: 'Proprietario pediu remarcacao', msg: 'O proprietario do imovel ' + _imovel + ' nao pode receber ' + _cliente + ' no dia ' + _data + '. Peca ao cliente uma nova data.' }
-    };
-    const _info = _msgs[resposta];
-    if (_info && _uid) {
-      // Notifica corretor dono da lead
-      criarNotificacaoService({ id: Date.now().toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _info.msg, usuarioId: _uid, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
-      // Notifica parceiro dono do imóvel (se diferente do corretor)
-      const _parcId = _v.imovelUsuarioId || '';
-      if (_parcId && _parcId !== _uid) {
-        const _msgParc = {
-          confirmar: 'Você confirmou a visita de ' + _cliente + ' ao imóvel ' + _imovel + ' para ' + _data + ' às ' + _hora + '.',
-          indisponivel: 'Você informou indisponibilidade do imóvel ' + _imovel + '. O imóvel foi inativado.',
-          remarcar: 'Você pediu remarcação da visita de ' + _cliente + ' ao imóvel ' + _imovel + '.'
-        }[resposta];
-        if (_msgParc) criarNotificacaoService({ id: (Date.now()+1).toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _msgParc, usuarioId: _parcId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
-      }
-      // notificações salvas via criarNotificacaoService (PG)
-    }
-  } catch(e) { console.log('Erro notif proprietario:', e.message); }
-  consumir(_uid || '', 'notificacao_prop').catch(e=>console.error('[creditos] notificacao_prop falhou:', e.message));
-  res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
-})
-
-
-
-// Antes com auth (qualquer corretor logado): a resposta usava `todos` (base
-// inteira, sem filtrar por dono) em "ultimas3" — vazava nome/id/dono das 3
-// leads mais recentes de QUALQUER corretor pra qualquer um autenticado.
-app.get('/dev/diagnostico-leads', authAdmin, (req,res)=>{
-  // authAdmin garante session.admin, não session.user (só existe se o admin
-  // também tiver entrado como um corretor via /admin/acessar/:codigo) — trata
-  // os dois casos em vez de assumir que user sempre existe.
-  const user = req.session.user || null;
-  const todos = (_cacheLeads || []);
-  const uid = user ? user.id : null;
-  const filtrados = user ? filtrarPorUsuario(todos, user) : todos;
-  res.json({
-    userId: uid,
-    totalNoArquivo: todos.length,
-    totalFiltrados: filtrados.length,
-    ultimas3: todos.slice(-3).map(l=>({id:l.id,nome:l.nome,userId:l.userId,codigoUsuario:l.codigoUsuario,corretorId:l.corretorId}))
-  });
-});
-
-function gerarCodigoUsuario(nome) {
-  const ini = (nome||'USR').substring(0,3).toUpperCase().replace(/[^A-Z]/g,'').padEnd(3,'X');
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let rand = '';
-  for (let i=0; i<4; i++) rand += chars[Math.floor(Math.random()*chars.length)];
-  return ini + '-' + rand;
-}
-
-
-// ===== APP ROUTES =====
-
-
-
-
-
-// ===== ROTAS APP =====
-
-
-function readJsonSafe(file, fallback){
-  try {
-    if(!fs.existsSync(file)) return fallback;
-    return JSON.parse(fs.readFileSync(file,'utf8'));
-  } catch(e) {
-    return fallback;
-  }
-}
-
-
-
-// ===== ADMIN: ACOMPANHAR LISTAS POR CORRETOR =====
-function safeReadJsonAdmin(file, fallback){
-  try {
-    if(!fs.existsSync(file)) return fallback;
-    return JSON.parse(fs.readFileSync(file,'utf8'));
-  } catch(e) {
-    return fallback;
-  }
-}
-
-function salvarHistoricoUpload(payload){
-  const file = 'uploads-admin.json';
-  const historico = safeReadJsonAdmin(file, []);
-  historico.push({
-    id: 'upload-' + Date.now(),
-    data: new Date().toISOString(),
-    ...payload
-  });
-  fs.writeFileSync(file, JSON.stringify(historico,null,2));
-}
-
-
-// ===== CORRETOR: MEUS LEADS + FAZER MATCH =====
-
-
-// Antes sem auth: sem sessão, o código assumia a identidade de uma pessoa
-// real (nome/telefone hardcoded) — parecia leftover de debug, mas ficava
-// acessível em produção e vazava PII de terceiro no próprio código-fonte.
-app.post('/app-leads/:idx/match', auth, async (req,res)=>{
-  const usuario = req.session.user;
-
-  const dataRaw = safeReadJsonAdmin(dataPath('data.json'), []);
-  const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
-
-  const meusIndices = [];
-  data.forEach((item, index)=>{
-    const celularItem = String(item.corretorCelular || item.celularCorretor || '');
-    const idItem = String(item.corretorId || '');
-    const telUser = String(usuario.celular || usuario.telefone || '');
-    if(idItem === usuario.id || celularItem === telUser) meusIndices.push(index);
-  });
-
-  const realIndex = meusIndices[Number(req.params.idx)];
-  const item = data[realIndex];
-
-  if(!item) return res.status(404).send('Lead não encontrado para este corretor.');
-
-  try {
-    const { searchQuintoAndar } = require('./services/quintoandar');
-    const { searchRemax } = require('./services/remax');
-    const { findTopMatches } = require('./services/matcher');
-
-    const origin = item.origin || item;
-
-    if((origin.cidade || '').toLowerCase() !== 'são paulo' && (origin.cidade || '').toLowerCase() !== 'sao paulo'){
-      return res.send('Este lead não é de São Paulo/SP e não será processado para match.');
-    }
-
-    let candidatos = [];
-
-    try {
-      const qa = await searchQuintoAndar(origin);
-      candidatos = candidatos.concat(qa || []);
-    } catch(e) {
-      console.log('Erro QuintoAndar:', e.message);
-    }
-
-    try {
-      const rx = await searchRemax(origin);
-      candidatos = candidatos.concat(rx || []);
-    } catch(e) {
-      console.log('Erro REMAX:', e.message);
-    }
-
-    const matches = findTopMatches(origin, candidatos, 8);
-
-    item.matches = matches;
-    item.matchCount = matches.length;
-    item.bestScore = matches[0] ? matches[0].score : 0;
-    item.matchedAt = new Date().toISOString();
-    item.corretorId = usuario.id;
-    item.corretorNome = usuario.nome;
-    item.corretorCelular = usuario.celular || usuario.telefone;
-
-    if(!item.leadId){
-      item.leadId = 'lead-' + realIndex + '-' + Date.now();
-    }
-
-    salvarTodosLeads(data).catch(e=>console.error("[leads]",e.message));
-
-    res.redirect('/app-leads');
-  } catch(err) {
-    console.error(err);
-    res.status(500).send('Erro ao fazer match: ' + err.message);
-  }
-});
-
-app.get('/import-status',(req,res)=>{
-  res.json(global.importStatus || {status:'idle', total:0, mensagem:'Aguardando importação'});
-});
-
-app.get('/import-status',(req,res)=>{res.json({status:global.importStatus||'idle'});});
-
-app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/'));
-});
-
-
-// ===== ROTAS CORRETAS CORRETOR / ADMIN =====
-app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/'));
-});
-
-function usuarioLogado(req){
-  return req.session.user || null;
-}
-
-
-
-
-
-// Meus imóveis = carteira do corretor, NÃO match
-
-
-// Meus leads = leads/matches do corretor logado
-
-
-// Admin match = somente painel de match
-
-
-// ===== ROTAS CORRETAS CORRETOR / ADMIN =====
-app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/'));
-});
-
-function usuarioLogado(req){
-  return req.session.user || null;
-}
-
-app.get('/app', (req,res)=>{
-  if(!req.session.user) return res.redirect('/');
-  res.redirect('/app-home');
-});
-
-// rota app-home removida (duplicada)
-
-// Meus imóveis = carteira do corretor, NÃO match
-app.get('/app-imoveis', (req,res)=>{
-  return res.redirect('/app/imoveis');
-});
-
-////app.get('/app/portais', auth, (req,res)=>{
-//  const portais = JSON.parse(require('fs').readFileSync('portais.json','utf8'));
-//  res.render('app-portais', { user: req.session.user, portais });
-//});
-
-app.get('/app-xml', (req,res)=> res.redirect('/app-portais-xml'));
-app.get('/app-portais', (req,res)=> res.redirect('/app-portais-xml'));
-
-
-app.get('/app-perfil', (req,res)=>{
-  renderAppPage(res, 'app-perfil', { title: 'Perfil' });
-});
-
-app.get('/logout', (req,res)=> res.redirect('/'));
-
-// ===== ROTAS FINAIS LIMPAS DO APP =====
-
-function auth(req,res,next){
-  if(!req.session || !req.session.user) return res.redirect('/');
-  // rotas liberadas mesmo sem saldo — precisa bater com _rotasLivresSaldo
-  // (linha ~494, o middleware global app.use('/app', ...)); são 2 checagens
-  // separadas na mesma navegação (achado ago/2026: corretor sem saldo
-  // continuava sendo bloqueado em /app/leads e /app/afiliados mesmo depois
-  // de liberado no middleware global, porque essa função auth() — chamada
-  // por rota, ex: app.get('/app/leads', auth, ...) — tinha sua própria
-  // lista, mais curta, sem afiliados/lead). Duas cópias idênticas dessa
-  // função existem no arquivo (bug de duplicação de rotas já documentado no
-  // topo do CLAUDE.md) — mantém as duas em sincronia.
-  const _rotasLivres = ['/app/coins', '/app/afiliados', '/app/lead', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp', '/app/resumo'];
-  const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
-  if(!_isLivre){
-    const _userId = req.session.user.codigoUsuario || req.session.user.codigo || req.session.user.id;
-    const _saldo = req.session.user.matchCoins || 0;
-    if(_saldo !== undefined && _saldo <= 0 && req.session.user.tipo !== 'admin'){
-      if(req.xhr || req.headers.accept?.includes('application/json')){
-        return res.status(402).json({ok:false, erro:'Saldo insuficiente', redirect:'/app/coins'});
-      }
-      return res.redirect('/app/coins?sem_saldo=1');
-    }
-  }
-  next();
-}
-
-function filtrarPorUsuario(lista, user){
-  if (!Array.isArray(lista)) return [];
-  if (user && user.tipo === 'admin') return lista;
-  const uid = String(user && user.id || '');
-  const tel = String(user && (user.celular || user.telefone) || '').replace(/\D/g,'');
-  const cod = String(user && user.codigoUsuario || '');
-  return lista.filter(item =>
-    String(item.corretorId || '') === uid ||
-    String(item.userId || '') === uid ||
-    String(item.usuarioId || '') === uid ||
-    (tel && String(item.corretorCelular || '').replace(/\D/g,'') === tel) ||
-    (tel && String(item.usuarioTelefone || '').replace(/\D/g,'') === tel) ||
-    (cod && String(item.codigoUsuario || '') === cod)
-  );
-}
-
-
-
-// HELPERS DE LEITURA COM FILTRO AUTOMÁTICO
-function lerImoveis(user) {
-  const todos = _cacheImoveis || [];
-  if (!user) return todos;
-  const uid = user.id || user;
-  return todos.filter(i =>
-    String(i.userId||'') === String(uid) ||
-    String(i.usuarioId||'') === String(uid) ||
-    String(i.codigoUsuario||'') === String(uid) ||
-    String(i.corretorId||'') === String(uid)
-  );
-}
-// Cache em memória — sincronizado com PostgreSQL
 
 // ROTA TEMPORARIA - cruzar proprietarios alex
 app.post('/admin/cruzar-proprietarios-alex', authAdmin, express.json({limit:'10mb'}), async (req,res)=>{

@@ -131,7 +131,12 @@ async function desconectarWhatsappContasSemCredito() {
 
 async function consumir(userId, acao) {
   try {
-    const custo = CUSTO[acao] || 10;
+    // `CUSTO[acao] || 10` tratava custo 0 (editar_imovel) como "ação não
+    // catalogada", cobrando 10 por engano em toda edição — achado pelo
+    // teste de regressão (test/creditos.test.js) na ETAPA 1 de
+    // implementação (set/2026). `in` distingue "vale 0 de propósito" de
+    // "não existe na tabela".
+    const custo = (acao in CUSTO) ? CUSTO[acao] : 10;
     if (custo === 0) return true;
     const users = await lerUsuarios();
     // Resolve id legado para codigo_usuario atual
@@ -219,7 +224,9 @@ async function consumir(userId, acao) {
 async function consumirLote(userId, acao, qtd) {
   try {
     if (!qtd || qtd <= 0) return true;
-    const custoUnit = CUSTO[acao] || 10;
+    // Mesmo fix de consumir() acima — custo 0 de propósito não pode cair
+    // no fallback de 10.
+    const custoUnit = (acao in CUSTO) ? CUSTO[acao] : 10;
     if (custoUnit === 0) return true;
     const custoTotal = custoUnit * qtd;
     const users = await lerUsuarios();

@@ -16,7 +16,7 @@ main{overflow-x:hidden!important}
 .fchip{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;color:#374151;transition:all .1s}
 .fchip.on{background:#111827;color:#fff;border-color:#111827}
 .kanban-hint{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;color:#6b7280}
-.kanban-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px;align-items:flex-start}@media(max-width:768px){.kanban-wrap{grid-template-columns:1fr!important}.kanban-col{min-height:unset!important;max-height:unset!important}}
+.kanban-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;padding-bottom:16px;align-items:flex-start}@media(max-width:768px){.kanban-wrap{grid-template-columns:1fr!important}.kanban-col{min-height:unset!important;max-height:unset!important}}
 .kanban-wrap::-webkit-scrollbar{height:5px}
 .kanban-wrap::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
 .kanban-col{background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:14px;padding:14px;min-height:400px;max-height:calc(100vh - 240px);overflow-y:auto}
@@ -81,13 +81,29 @@ var colunas=[
   {key:'aguard_cliente',label:'Aguardando Cliente',cor:'#00A699',dot:'#99d9d1'},
   {key:'confirmada',label:'Confirmada',cor:'#22c55e',dot:'#86efac'},
   {key:'realizada',label:'Realizada',cor:'#FC642D',dot:'#fff1e8'},
+  {key:'cliente_gostou',label:'Cliente gostou',cor:'#f97316',dot:'#fed7aa'},
+  {key:'proposta',label:'Proposta',cor:'#00847a',dot:'#99d9d1'},
+  {key:'negociacao',label:'Negociação',cor:'#ea580c',dot:'#ffcbb5'},
+  {key:'fechado',label:'Fechado',cor:'#16a34a',dot:'#86efac'},
+  {key:'perdido',label:'Perdido',cor:'#dc2626',dot:'#fecaca'},
   {key:'cancelada',label:'Cancelada',cor:'#9ca3af',dot:'#e5e7eb'}
 ];
+// Funil único (ETAPA 6 de implementação, set/2026) — antes, o estágio pós-visita
+// (pipelineStatus, gravado pelos botões de /app/visitas-kanban) nunca era lido
+// aqui: visita em Proposta/Negociação/Fechado/Perdido aparecia só como
+// "Realizada", escondendo o funil comercial da única tela ligada no menu.
+// pipelineStatus tem prioridade sobre status pré-visita quando presente.
 function getColuna(v){
+  var ps=(v.pipelineStatus||'').toUpperCase();
+  if(ps==='FECHADO') return 'fechado';
+  if(ps==='PERDIDO') return 'perdido';
+  if(ps==='NEGOCIACAO') return 'negociacao';
+  if(ps==='PROPOSTA') return 'proposta';
+  if(ps==='CLIENTE_GOSTOU') return 'cliente_gostou';
   var st=(v.status||'solicitada').toLowerCase();
   if(st==='realizada'||st==='concluida') return 'realizada';
   if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show'||st==='imovel_indisponivel'||st==='lead_recusou'||st==='nao_realizada'||st==='nao_gostou') return 'cancelada';
-  if(st==='proposta') return 'realizada';
+  if(st==='proposta') return 'proposta';
   if(st==='lead_confirmou') return 'confirmada';
   if(st==='remarcado') return 'remarcacao';
   if(st==='confirmada'||st==='pendente_remarcar'||st==='prop_confirmou'||st==='parceiro_confirmou') return 'aguard_cliente';
@@ -281,7 +297,37 @@ var hojeV=visitas.filter(function(v){
         <a href="/app/lead/<%=v.leadId%>" class="vi-btn vi-btn-gray">👤 Ver detalhes da lead</a>
       <% } %>
 
-      <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
+      <%
+      // Funil pós-visita (ETAPA 6) — mesmas 6 ações que só existiam na tela
+      // órfã /app/visitas-kanban, agora aqui, na única tela ligada no menu.
+      var _colsPreVisita=['solicitada','remarcacao','aguard_prop','aguard_cliente','confirmada'];
+      var _colsPipeline=['realizada','cliente_gostou','proposta','negociacao'];
+      var _terminal=(col.key==='fechado'||col.key==='perdido'||col.key==='cancelada');
+      %>
+      <% if(!_terminal && _colsPreVisita.indexOf(col.key)>-1){ %>
+      <form method="POST" action="/app/visitas/concluir/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn vi-btn-green">✅ Realizada</button>
+      </form>
+      <% } %>
+      <% if(!_terminal && _colsPipeline.indexOf(col.key)>-1){ %>
+      <form method="POST" action="/app/visitas/cliente-gostou/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn" style="background:#16a34a;color:#fff;border-color:#15803d">🔥 Cliente gostou</button>
+      </form>
+      <form method="POST" action="/app/visitas/proposta/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn" style="background:#00847a;color:#fff;border-color:#00847a">💰 Proposta</button>
+      </form>
+      <form method="POST" action="/app/visitas/negociacao/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn" style="background:#ea580c;color:#fff;border-color:#ea580c">🤝 Negociação</button>
+      </form>
+      <form method="POST" action="/app/visitas/fechado/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn" style="background:#FC642D;color:#fff;border-color:#b8460e">🏆 Fechado</button>
+      </form>
+      <form method="POST" action="/app/visitas/perdido/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn vi-btn-red" onclick="return confirm('Marcar como perdido?')">❌ Perdido</button>
+      </form>
+      <% } %>
+
+      <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'&&_colsPreVisita.indexOf(col.key)>-1){ %>
       <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0">
         <button type="submit" class="vi-btn vi-btn-red" onclick="return confirm('Cancelar esta visita?')">X</button>
       </form>

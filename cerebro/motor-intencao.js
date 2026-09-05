@@ -775,5 +775,11 @@ module.exports = {
   // helpers expostos para testes
   _normalizar,
   _tiposCompativeis,
-  _ehPremium
+  _ehPremium,
+  // Reaproveitado pelo Match Contínuo (cerebro/match-core.js,
+  // leadsCandidatasParaImovel) pra comparar estado por sigla/nome completo
+  // com a MESMA normalização que matchPorMapa usa de verdade — evita 2ª
+  // tabela sigla↔nome divergente (é exatamente esse tipo de duplicação que
+  // a ETAPA 2 desta sessão removeu de server.js).
+  _normalizarEstado
 };

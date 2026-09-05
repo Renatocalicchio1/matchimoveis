@@ -78,6 +78,34 @@ function detectarCaso(lead) {
   return 'caso2';
 }
 
+// Match Contínuo (ETAPA 4 de implementação, set/2026) — filtro barato e
+// eliminatório ANTES de rodar o match completo (que consulta o banco por
+// lead). Sem isso, um imóvel novo reavaliaria a carteira inteira de leads
+// do corretor a cada cadastro. Exportada separada da classe MatchCore pra
+// dar pra testar sem banco (pura, só recebe arrays já carregados).
+function leadsCandidatasParaImovel(leads, estadoImovel) {
+  // _normalizarEstado (motor-intencao.js) converte sigla OU nome completo
+  // pra sigla -- mesma normalizacao que matchPorMapa usa de verdade.
+  // Comparar texto cru aqui ja causou 1 bug real nesta sessao: "Sao Paulo"
+  // (lead) x "SP" (imovel) eliminava uma candidata valida antes de tentar
+  // o match completo. Ver test/matchContinuo.test.js.
+  const { _normalizarEstado } = require('./motor-intencao');
+  const estadoImovelNorm = _normalizarEstado(estadoImovel);
+  return (leads || []).filter(l => {
+    if (!l || l.tipoLead === 'corretor') return false;
+    const mapa = l.mapaIntencao || {};
+    // Sem tipo de imovel no perfil, nao vale nem tentar -- lead nunca disse
+    // o que procura, matchPorMapa nao vai eliminar nada de proposito.
+    if (!(mapa.tipo_imovel || []).length) return false;
+    const estadoLead = _normalizarEstado(mapa.estado?.[0]?.valor || mapa.cidade?.[0]?.estado || l.estado || '');
+    // Sem estado de um dos dois lados, deixa passar (o match completo decide
+    // certo); com os dois preenchidos e diferentes, elimina aqui -- mais
+    // barato que rodar a query completa de _matchCaso2 pra descartar depois.
+    if (!estadoLead || !estadoImovelNorm) return true;
+    return estadoLead === estadoImovelNorm;
+  });
+}
+
 class MatchCore {
 
   // ============================================================
@@ -812,6 +840,54 @@ class MatchCore {
   }
 
   // ============================================================
+  // MATCH CONTÍNUO (ETAPA 4 de implementação, set/2026)
+  // ============================================================
+  // Reage a imóvel novo em vez de só reagir a mensagem de lead — "momento
+  // mágico" nº1 do CTO Playbook: corretor cadastra imóvel → Match acha
+  // sozinho quem da carteira dele combina, sem esperar o job diário das 6h
+  // (que só cobre lead com ZERO match — nunca melhora um match já existente
+  // com o imóvel recém-chegado, gap documentado no CLAUDE.md/Raio-X).
+  //
+  // Reaproveita _matchCaso2 tal como já roda no fluxo normal de mensagem —
+  // mesma query, mesmo critério de matchPorMapa, mesma persistência, mesma
+  // oportunidade "novo_match", mesmo crédito de match_encontrado. Não
+  // duplica lógica de match nova, só decide QUANDO rodar de novo pra cada
+  // lead candidata. Idempotente de graça: _matchCaso2 só substitui os
+  // matches antigos se a lista nova for igual ou maior, e a oportunidade
+  // tem dedup real (índice único) — chamar isso 2x pro mesmo imóvel nunca
+  // duplica nada.
+  //
+  // Escopo desta 1ª versão (deliberado): só as leads do corretor DONO do
+  // imóvel — rede/parceiros ficam pra um próximo incremento, depois de
+  // validar este primeiro em produção. Só chamado pra cadastro manual
+  // único (fire-and-forget, nunca bloqueia a resposta) — import de XML em
+  // lote (centenas/milhares de imóveis de uma vez) fica de fora de
+  // propósito, pra não martelar o banco reavaliando a carteira inteira de
+  // leads por imóvel importado; continua coberto pelo job diário até uma
+  // estratégia de lote (throttle/fila) ser desenhada à parte.
+  async reavaliarImovelNovo(imovel, userId) {
+    const resultado = { avaliadas: 0, novosMatches: 0 };
+    try {
+      if (!imovel || !userId) return resultado;
+      const { lerLeads } = require('../services/salvarLead');
+      const todasLeads = await lerLeads(userId);
+      const candidatas = leadsCandidatasParaImovel(todasLeads, imovel.estado);
+      resultado.avaliadas = candidatas.length;
+      for (const lead of candidatas) {
+        const antes = (lead.matchesAuto || lead.matches || []).length;
+        const atualizado = await this._matchCaso2(lead, {}, userId);
+        const depois = (atualizado.matchesAuto || atualizado.matches || []).length;
+        if (depois > antes) resultado.novosMatches++;
+        await this._salvarLead(atualizado);
+      }
+      console.log('[MATCH CORE] reavaliarImovelNovo | imóvel:', imovel.id || imovel.idInterno, '| leads candidatas:', resultado.avaliadas, '| novos matches:', resultado.novosMatches);
+    } catch(e) {
+      console.error('[MATCH CORE] erro reavaliarImovelNovo:', e.message);
+    }
+    return resultado;
+  }
+
+  // ============================================================
   // 7. EVENTOS
   // ============================================================
   _evento(lead, canal, texto) {
@@ -947,3 +1023,8 @@ class MatchCore {
 }
 
 module.exports = new MatchCore();
+// Exposta separada da classe (função pura, ver definição acima) — só pra
+// permitir teste de regressão sem precisar instanciar/mockar o resto do
+// MatchCore. Não muda o formato do export (continua sendo a instância
+// singleton) — nenhum outro require('./match-core') é afetado.
+module.exports.leadsCandidatasParaImovel = leadsCandidatasParaImovel;

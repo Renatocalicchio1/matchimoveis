@@ -63,7 +63,15 @@ body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif}
 .k-tag.rausch{background:rgba(255,56,92,.12);color:#c81e3a}
 .k-tag.arches{background:rgba(252,100,45,.14);color:#c14a1a}
 .k-tag.babu{background:rgba(0,166,153,.14);color:#00786e}
+.k-tag.gray{background:rgba(107,114,128,.14);color:#4b5563}
 .k-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint)}
+/* Next Best Action (ETAPA 5) — "por que estou vendo isso?", só aparece
+   quando o card carrega um motivo real (nunca inventado no front). */
+.k-motivo{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-faint);margin:8px 0 0;max-width:320px;line-height:1.4}
+.k-motivo .k-motivo-badge{flex-shrink:0;font-size:9.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;padding:2px 7px;border-radius:20px}
+.k-motivo .k-motivo-badge.alta{background:rgba(255,56,92,.14);color:#c81e3a}
+.k-motivo .k-motivo-badge.media{background:rgba(252,100,45,.14);color:#c14a1a}
+.k-motivo .k-motivo-badge.baixa{background:rgba(107,114,128,.14);color:#4b5563}
 
 .actions{position:absolute;left:22px;right:22px;bottom:92px;display:flex;gap:9px;z-index:20}
 .act-btn{flex:1;text-align:center;font-family:'Manrope',sans-serif;font-weight:700;font-size:13.5px;padding:13px 8px;border-radius:14px;border:1px solid rgba(0,0,0,.1);background:#fff;color:var(--ink);box-shadow:0 1px 6px rgba(0,0,0,.05);text-decoration:none;display:block;cursor:pointer}
@@ -518,11 +526,17 @@ if (CARDS.length) {
       }
     }
 
+    // Next Best Action (ETAPA 5) — "por que estou vendo isso?", só quando o
+    // card carrega motivo real (nunca inventado aqui no front).
+    const motivoHtml = c.motivo
+      ? '<p class="k-motivo"><span class="k-motivo-badge ' + (c.prioridade || 'baixa') + '">' + (c.prioridade || 'baixa') + '</span>' + c.motivo + '</p>'
+      : '';
     body.innerHTML =
       _htmlFoto(c) +
       '<h2 class="k-name">' + c.nome + '</h2>' +
       '<p class="k-detail">' + c.detalhe + '</p>' +
-      '<div class="k-meta"><span class="k-tag ' + c.tag + '">' + c.tagText + '</span><span class="k-time">' + c.time + '</span></div>';
+      '<div class="k-meta"><span class="k-tag ' + c.tag + '">' + c.tagText + '</span><span class="k-time">' + c.time + '</span></div>' +
+      motivoHtml;
     actions.innerHTML = '';
 
     if (c.curtirImovel) {

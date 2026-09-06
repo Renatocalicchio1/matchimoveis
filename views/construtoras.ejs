@@ -29,7 +29,8 @@
       --bg:#FDFBF8; --panel:#FFFFFF; --panel-2:#F6F2EC;
       --border:#EBE5DC; --border-soft:#F1ECE4;
     }
-    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+    html{overflow-x:hidden}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;max-width:100vw}
     a{color:inherit}
     .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
     img{max-width:100%}
@@ -117,12 +118,21 @@
     .foot-txt{font-size:12px;color:var(--faint)}
 
     @media(max-width:640px){
-      h1{font-size:36px;letter-spacing:-1.2px}
-      .sec-title{font-size:26px}
-      .cta-final{padding:40px 24px}
-      .cta-final h2{font-size:26px}
-      .timeline{margin-left:10px;padding-left:26px}
-      .step-badge{left:-38px;width:28px;height:28px;font-size:12px}
+      .nav{padding:14px 16px;flex-wrap:wrap;row-gap:10px}
+      .brand{font-size:15px;white-space:nowrap}
+      .nav-cta{width:100%;text-align:center;box-sizing:border-box}
+      .wrap{padding:0 16px}
+      h1{font-size:32px;letter-spacing:-1.1px}
+      .lead{font-size:15.5px}
+      .hero-actions{flex-direction:column;align-items:stretch}
+      .hero-actions button{width:100%;box-sizing:border-box;text-align:center}
+      .sec-title{font-size:24px}
+      .cta-final{padding:36px 20px}
+      .cta-final h2{font-size:23px}
+      .cta-final a.btn-cta{width:100%;box-sizing:border-box}
+      .timeline{margin-left:12px;padding-left:28px}
+      .step-badge{left:-36px;width:28px;height:28px;font-size:12px}
+      footer .wrap{flex-direction:column;align-items:flex-start;gap:4px}
     }
   </style>
 </head>

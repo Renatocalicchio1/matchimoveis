@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>MatchImóveis Construtoras — Do terreno ao registro de incorporação</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A jornada de aquisição de terreno até o registro de incorporação, num lugar só: zoneamento, viabilidade, projeto, aprovação na prefeitura e registro (Lei 4.591/64).">
+  <meta property="og:title" content="MatchImóveis Construtoras — Do terreno ao registro de incorporação">
+  <meta property="og:description" content="Encontrar terreno, estudar zoneamento, calcular viabilidade, aprovar projeto e registrar a incorporação — organizado num lugar só.">
+  <meta property="og:image" content="https://www.matchimoveis.ia.br/og-image.png">
+  <meta property="og:url" content="https://www.matchimoveis.ia.br/construtoras">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MatchImóveis">
+  <link rel="canonical" href="https://www.matchimoveis.ia.br/construtoras">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MatchImóveis Construtoras — Do terreno ao registro de incorporação">
+  <meta name="twitter:description" content="Encontrar terreno, estudar zoneamento, calcular viabilidade, aprovar projeto e registrar a incorporação — organizado num lugar só.">
+  <meta name="twitter:image" content="https://www.matchimoveis.ia.br/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --rausch:#FF385C; --rausch-dark:#E22F51;
+      --babu:#00A699; --babu-dark:#00847A;
+      --arches:#FC642D; --arches-dark:#E4551F;
+      --ink:#0F0F0F; --text:#242628; --muted:#6B6660; --faint:#A39E97;
+      --bg:#FDFBF8; --panel:#FFFFFF; --panel-2:#F6F2EC;
+      --border:#EBE5DC; --border-soft:#F1ECE4;
+    }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+    .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+    img{max-width:100%}
+
+    header{position:sticky;top:0;z-index:40;background:rgba(253,251,248,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--border-soft)}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1080px;margin:0 auto}
+    .brand{display:flex;align-items:center;gap:9px;font-family:'Manrope';font-weight:800;font-size:16.5px;color:var(--ink);letter-spacing:-.3px;text-decoration:none}
+    .brand .dot{width:9px;height:9px;border-radius:3px;background:var(--rausch)}
+    .brand .seg{color:var(--muted);font-weight:700}
+    .nav-cta{font-family:'Inter';background:var(--ink);color:var(--bg);border:none;padding:10px 18px;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+    .nav-cta:hover{opacity:.88}
+
+    .hero{padding:76px 0 64px}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Manrope';font-size:12px;font-weight:800;letter-spacing:1.4px;color:var(--rausch-dark);background:rgba(255,56,92,.1);padding:7px 14px;border-radius:999px;margin-bottom:22px}
+    h1{font-family:'Manrope';font-size:50px;font-weight:800;line-height:1.06;letter-spacing:-1.8px;color:var(--ink);margin:0 0 20px;text-wrap:balance;max-width:820px}
+    h1 em{font-style:normal;color:var(--rausch)}
+    .lead{font-size:18px;color:var(--muted);max-width:600px;margin:0 0 32px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:44px}
+    .btn-main{font-family:'Inter';background:var(--rausch);color:#fff;padding:15px 28px;border-radius:11px;font-size:14.5px;font-weight:700;border:none;cursor:pointer;box-shadow:0 12px 26px rgba(255,56,92,.28);transition:transform .15s}
+    .btn-main:hover{transform:translateY(-1px)}
+    .btn-ghost{font-family:'Inter';background:transparent;color:var(--ink);padding:14px 22px;border-radius:11px;font-size:14.5px;font-weight:700;border:1.5px solid var(--border);cursor:pointer}
+    .btn-ghost:hover{border-color:var(--faint)}
+    .hero-strip{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--panel)}
+    .hs-item{flex:1 1 200px;padding:20px 22px;border-right:1px solid var(--border-soft)}
+    .hs-item:last-child{border-right:none}
+    .hs-num{font-family:'Manrope';font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-.6px}
+    .hs-label{font-size:12.5px;color:var(--muted);margin-top:3px}
+
+    .market{background:var(--ink);color:var(--bg);padding:38px 0;margin:64px 0}
+    .market .wrap{display:flex;gap:36px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .market-stat{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+    .market-num{font-family:'Manrope';font-size:44px;font-weight:800;letter-spacing:-1.4px;color:var(--rausch)}
+    .market-txt{max-width:480px;font-size:14.5px;color:rgba(253,251,248,.78)}
+    .market-src{font-size:11.5px;color:rgba(253,251,248,.45);margin-top:6px}
+
+    section{padding:20px 0}
+    .sec-eyebrow{font-family:'Manrope';font-size:12px;font-weight:800;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+    .sec-title{font-family:'Manrope';font-size:32px;font-weight:800;color:var(--ink);letter-spacing:-1px;margin:0 0 14px;line-height:1.18;text-wrap:balance;max-width:640px}
+    .sec-lead{font-size:15.5px;color:var(--muted);max-width:600px;margin-bottom:44px}
+
+    .phase-head{display:flex;align-items:center;gap:12px;margin:56px 0 22px}
+    .phase-head:first-of-type{margin-top:0}
+    .phase-chip{font-family:'Manrope';font-size:11.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:6px 13px;border-radius:999px;color:#fff}
+    .phase-chip.p1{background:var(--rausch)}
+    .phase-chip.p2{background:var(--babu)}
+    .phase-chip.p3{background:var(--arches)}
+    .phase-title{font-family:'Manrope';font-weight:700;font-size:15px;color:var(--ink)}
+    .phase-line{flex:1;height:1px;background:var(--border)}
+
+    .timeline{position:relative;margin-left:26px;border-left:2px solid var(--border);padding-left:36px}
+    .step{position:relative;padding:0 0 40px}
+    .step:last-child{padding-bottom:4px}
+    .step-badge{position:absolute;left:-49px;top:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Manrope';font-weight:800;font-size:14px;color:#fff}
+    .step.p1 .step-badge{background:var(--rausch)}
+    .step.p2 .step-badge{background:var(--babu)}
+    .step.p3 .step-badge{background:var(--arches)}
+    .step-title{font-family:'Manrope';font-weight:700;font-size:19px;color:var(--ink);margin:2px 0 6px;letter-spacing:-.3px}
+    .step-desc{font-size:14px;color:var(--muted);margin-bottom:14px;max-width:560px}
+    .substeps{list-style:none;margin:0;padding:0;display:grid;gap:9px;max-width:600px}
+    .substeps li{display:flex;gap:10px;font-size:13.5px;color:var(--text);background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 13px}
+    .substeps li .sq{flex:none;width:6px;height:6px;border-radius:2px;margin-top:6px}
+    .step.p1 .substeps li .sq{background:var(--rausch)}
+    .step.p2 .substeps li .sq{background:var(--babu)}
+    .step.p3 .substeps li .sq{background:var(--arches)}
+
+    .fit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:8px}
+    .fit-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:26px}
+    .fit-card .fc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+    .fit-card.p1 .fc-icon{background:rgba(255,56,92,.14)}
+    .fit-card.p2 .fc-icon{background:rgba(0,166,153,.14)}
+    .fit-card.p3 .fc-icon{background:rgba(252,100,45,.14)}
+    .fit-card h3{font-family:'Manrope';font-size:16px;font-weight:700;color:var(--ink);margin:0 0 9px;letter-spacing:-.2px}
+    .fit-card p{font-size:13.5px;color:var(--muted);margin:0}
+
+    .note{display:flex;gap:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-top:36px;font-size:13px;color:var(--muted)}
+    .note b{color:var(--text)}
+
+    .cta-final{background:linear-gradient(135deg, var(--rausch) 0%, var(--rausch-dark) 100%);border-radius:24px;padding:56px 44px;margin:80px 0 60px;text-align:center;color:#fff}
+    .cta-final h2{font-family:'Manrope';font-size:32px;font-weight:800;letter-spacing:-.9px;margin:0 0 12px;line-height:1.2}
+    .cta-final p{font-size:14.5px;color:rgba(255,255,255,.85);max-width:480px;margin:0 auto 26px}
+    .btn-cta{font-family:'Inter';background:#fff;color:var(--rausch-dark);padding:15px 30px;border-radius:11px;font-size:14.5px;font-weight:700;border:none;cursor:pointer;box-shadow:0 14px 30px rgba(0,0,0,.18)}
+    .cta-confirm{display:none;margin-top:18px;font-size:13.5px;color:#fff;font-weight:600}
+
+    footer{border-top:1px solid var(--border-soft);padding:30px 0 44px}
+    footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+    .foot-txt{font-size:12px;color:var(--faint)}
+
+    @media(max-width:640px){
+      h1{font-size:36px;letter-spacing:-1.2px}
+      .sec-title{font-size:26px}
+      .cta-final{padding:40px 24px}
+      .cta-final h2{font-size:26px}
+      .timeline{margin-left:10px;padding-left:26px}
+      .step-badge{left:-38px;width:28px;height:28px;font-size:12px}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="/"><span class="dot"></span>MatchImóveis<span class="seg">&nbsp;/ Construtoras</span></a>
+    <button class="nav-cta" onclick="document.getElementById('ctaFinal').scrollIntoView({behavior:'smooth'})">Falar com a gente</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">🏗️ MATCHIMÓVEIS PARA CONSTRUTORAS E INCORPORADORAS</div>
+    <h1>Do terreno certo ao <em>registro de incorporação</em> — numa jornada só, não em oito planilhas.</h1>
+    <p class="lead">Encontrar terreno, estudar zoneamento, calcular viabilidade, aprovar projeto na prefeitura e registrar a incorporação hoje passa por corretor, engenheiro, advogado e cartório que não conversam entre si. A MatchImóveis organiza essa jornada inteira num lugar só.</p>
+    <div class="hero-actions">
+      <button class="btn-main" onclick="document.getElementById('ctaFinal').scrollIntoView({behavior:'smooth'})">Quero conhecer a solução →</button>
+      <button class="btn-ghost" onclick="document.getElementById('jornada').scrollIntoView({behavior:'smooth'})">Ver a jornada completa</button>
+    </div>
+    <div class="hero-strip">
+      <div class="hs-item"><div class="hs-num">7</div><div class="hs-label">etapas, do terreno ao registro</div></div>
+      <div class="hs-item"><div class="hs-num">3+</div><div class="hs-label">áreas técnicas hoje espalhadas (imobiliária, jurídica, arquitetura)</div></div>
+      <div class="hs-item"><div class="hs-num">1</div><div class="hs-label">lugar pra acompanhar tudo</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="market">
+  <div class="wrap">
+    <div class="market-stat">
+      <div class="market-num">97%</div>
+      <div>
+        <div class="market-txt">das incorporadoras de MCMV e 93% das de médio/alto padrão pretendem lançar empreendimento ou comprar terreno nos próximos 3 a 12 meses.</div>
+        <div class="market-src">Fonte: Associação Brasileira de Incorporadoras Imobiliárias (Abrainc) em parceria com a Deloitte</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="jornada">
+  <section>
+    <div class="sec-eyebrow">A jornada</div>
+    <h2 class="sec-title">Do terreno vazio até poder vender a primeira unidade na planta</h2>
+    <p class="sec-lead">Sete etapas reais, na ordem em que uma incorporação acontece de verdade — desde achar e avaliar o terreno até o registro de incorporação (Lei 4.591/64), quando finalmente é permitido vender.</p>
+
+    <div class="phase-head">
+      <span class="phase-chip p1">Fase 1</span>
+      <span class="phase-title">Aquisição do terreno</span>
+      <span class="phase-line"></span>
+    </div>
+    <div class="timeline">
+      <div class="step p1">
+        <div class="step-badge">1</div>
+        <div class="step-title">Encontrar e avaliar o terreno</div>
+        <div class="step-desc">Antes de qualquer projeto, é preciso achar a área certa e confirmar que ela não esconde nenhum problema jurídico.</div>
+        <ul class="substeps">
+          <li><span class="sq"></span>Prospecção ativa — rede de proprietários e corretores, terrenos que nem chegaram ao mercado aberto</li>
+          <li><span class="sq"></span>Matrícula atualizada e certidão de ônus reais no Registro de Imóveis</li>
+          <li><span class="sq"></span>Certidões do vendedor (cível, trabalhista, execução fiscal, falência)</li>
+          <li><span class="sq"></span>Certidões fiscais do imóvel (IPTU ou ITR em dia)</li>
+        </ul>
+      </div>
+      <div class="step p1">
+        <div class="step-badge">2</div>
+        <div class="step-title">Negociar e adquirir</div>
+        <div class="step-desc">Compra direta ou permuta — física (unidades futuras) ou financeira (% do VGV) — formalizada antes de investir em projeto.</div>
+        <ul class="substeps">
+          <li><span class="sq"></span>Definição do modelo — compra à vista, parcelada ou permuta</li>
+          <li><span class="sq"></span>Compromisso de compra e venda registrado</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase-head">
+      <span class="phase-chip p2">Fase 2</span>
+      <span class="phase-title">Viabilidade e projeto</span>
+      <span class="phase-line"></span>
+    </div>
+    <div class="timeline">
+      <div class="step p2">
+        <div class="step-badge">3</div>
+        <div class="step-title">Estudo de viabilidade técnica e legal</div>
+        <div class="step-desc">É aqui que o zoneamento decide, na prática, quanto dá pra construir naquele terreno.</div>
+        <ul class="substeps">
+          <li><span class="sq"></span>Zoneamento e diretrizes do plano diretor municipal</li>
+          <li><span class="sq"></span>Coeficiente de aproveitamento (básico/mínimo/máximo), taxa de ocupação, gabarito</li>
+          <li><span class="sq"></span>Restrições ambientais e patrimoniais</li>
+          <li><span class="sq"></span>Estudo de solo (sondagem geotécnica)</li>
+        </ul>
+      </div>
+      <div class="step p2">
+        <div class="step-badge">4</div>
+        <div class="step-title">Viabilidade econômico-financeira</div>
+        <div class="step-desc">Só depois que o potencial construtivo bate com a conta é que o investimento em projeto se justifica.</div>
+        <ul class="substeps">
+          <li><span class="sq"></span>Potencial construtivo (área × coeficiente de aproveitamento) → VGV estimado</li>
+          <li><span class="sq"></span>Estudo de mercado — público-alvo e absorção na região</li>
+          <li><span class="sq"></span>Margem, TIR e payback do empreendimento</li>
+        </ul>
+      </div>
+      <div class="step p2">
+        <div class="step-badge">5</div>
+        <div class="step-title">Projeto arquitetônico e legal</div>
+        <div class="step-desc">Do estudo preliminar ao conjunto de projetos que vai à prefeitura.</div>
+        <ul class="substeps">
+          <li><span class="sq"></span>Anteprojeto / estudo preliminar</li>
+          <li><span class="sq"></span>Projeto legal, com ART/RRT do responsável técnico</li>
+          <li><span class="sq"></span>Projetos complementares — estrutural, hidráulico, elétrico</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase-head">
+      <span class="phase-chip p3">Fase 3</span>
+      <span class="phase-title">Aprovação e registro</span>
+      <span class="phase-line"></span>
+    </div>
+    <div class="timeline">
+      <div class="step p3">
+        <div class="step-badge">6</div>
+        <div class="step-title">Aprovações municipais</div>
+        <div class="step-desc">A etapa mais longa e mais sujeita a idas e vindas — cada prefeitura com seu próprio rito.</div>
+        <ul class="substeps">
+          <li><span class="sq"></span>Consulta prévia / diretrizes urbanísticas</li>
+          <li><span class="sq"></span>Protocolo do projeto na secretaria de urbanismo</li>
+          <li><span class="sq"></span>Estudo de Impacto de Vizinhança (EIV), quando exigido</li>
+          <li><span class="sq"></span>Aprovações complementares — Corpo de Bombeiros, concessionárias</li>
+          <li><span class="sq"></span>Emissão do Alvará de Construção</li>
+        </ul>
+      </div>
+      <div class="step p3">
+        <div class="step-badge">7</div>
+        <div class="step-title">Registro de incorporação</div>
+        <div class="step-desc">O marco legal (Lei 4.591/64) que autoriza vender unidades na planta — sem isso, nenhuma venda é regular.</div>
+        <ul class="substeps">
+          <li><span class="sq"></span>Memorial de incorporação — projeto aprovado, memorial descritivo, quadro de áreas, minuta de convenção de condomínio, certidões negativas</li>
+          <li><span class="sq"></span>Registro no Cartório de Registro de Imóveis</li>
+          <li><span class="sq"></span>Liberação para comercializar as unidades futuras</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">💡 <div><b>A partir daqui</b> começa a obra em si — financiamento, execução, habite-se e entrega — etapas de construção e pós-venda, fora do escopo desta jornada de aquisição e legalização.</div></div>
+  </section>
+
+  <section style="margin-top:60px">
+    <div class="sec-eyebrow">Como a MatchImóveis apoia</div>
+    <h2 class="sec-title">Um parceiro em cada uma das três fases</h2>
+    <p class="sec-lead">A proposta: usar o que a MatchImóveis já faz bem para corretores e proprietários — rede, dados geográficos e acompanhamento — aplicado à jornada de quem constrói.</p>
+    <div class="fit-grid">
+      <div class="fit-card p1">
+        <div class="fc-icon">🔎</div>
+        <h3>Rede de terrenos e proprietários</h3>
+        <p>A mesma rede de corretores e proprietários que já capta imóvel pra venda passa a mapear terreno disponível — inclusive fora do mercado aberto.</p>
+      </div>
+      <div class="fit-card p2">
+        <div class="fc-icon">🗺️</div>
+        <h3>Dados geográficos como ponto de partida</h3>
+        <p>A mesma base de bairro/cidade que já alimenta o motor de match vira insumo pra triagem inicial de região, antes do estudo técnico aprofundado.</p>
+      </div>
+      <div class="fit-card p3">
+        <div class="fc-icon">📋</div>
+        <h3>Acompanhamento centralizado</h3>
+        <p>Um só lugar pra ver em que pé está cada terreno — da negociação ao registro — em vez de cobrar status de corretor, engenheiro e cartório separadamente.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cta-final" id="ctaFinal">
+    <h2>Quer ver como isso funcionaria na prática?</h2>
+    <p>Essa é uma proposta em avaliação — conte pra gente o que sua construtora mais sente falta hoje nessa jornada.</p>
+    <button class="btn-cta" onclick="document.getElementById('ctaOk').style.display='block'; this.style.display='none'">Quero saber mais →</button>
+    <div class="cta-confirm" id="ctaOk">Perfeito — é só uma prévia por enquanto, mas o interesse foi anotado. 🙌</div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-txt">MatchImóveis Construtoras — proposta de produto em avaliação</div>
+    <div class="foot-txt">Jornada de aquisição de terreno até registro de incorporação (Lei 4.591/64)</div>
+  </div>
+</footer>
+
+</body>
+</html>

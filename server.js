@@ -3721,6 +3721,15 @@ app.get('/', (req,res)=>{
   res.render('landing', { error: req.query.erro || req.query.error || null, ref: (req.query.ref || '').trim(), msg: req.query.msg || null, plano: (req.query.plano || '').trim() });
 });
 
+// Página de vendas "MatchImóveis Construtoras" (set/2026) — proposta de
+// produto pra construtoras/incorporadoras, ainda não é feature real do app
+// (só a página de apresentação). Estática, sem sessão/dado dinâmico, mesmo
+// padrão de landing.ejs — não precisa entrar em cerebro.js por não ser
+// menu/rota do corretor logado.
+app.get('/construtoras', (req, res) => {
+  res.render('construtoras');
+});
+
 // ── Páginas de conteúdo SEO/AEO (ago/2026) ──────────────────────────────────
 // Estratégia de tráfego orgânico: página específica por termo de busca que
 // corretor/imobiliária pesquisa no Google ou pergunta pro ChatGPT, com
